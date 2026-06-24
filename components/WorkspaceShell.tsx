@@ -164,7 +164,7 @@ export default function WorkspaceShell() {
         <div className="px-3 py-3 border-b border-gray-800">
           <div className="font-semibold text-sm text-white truncate">{activeWs?.name}</div>
           <div className="flex items-center justify-between mt-0.5">
-            <div className="text-xs text-gray-500 truncate">{user?.display_name}</div>
+            <div className="text-xs text-gray-500 truncate">{user?.display_name?.split(' ')[0]}</div>
             <button
               onClick={logout}
               title="Sign out"
