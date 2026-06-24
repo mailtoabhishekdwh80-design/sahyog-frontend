@@ -132,7 +132,7 @@ export const api = {
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
 
   createList: (boardId: string, name: string, position: number) =>
-    apiFetch(/boards/\/lists, {
+    apiFetch(`/boards/${boardId}/lists`, {
       method: 'POST',
       body: JSON.stringify({ name, position }),
     }),
