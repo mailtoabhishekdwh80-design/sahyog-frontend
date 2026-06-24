@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
+import KanbanView from './KanbanView';
 import { api, isLoggedIn, logout } from '../lib/api';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -146,13 +147,13 @@ export default function WorkspaceShell() {
             {ws.name.charAt(0).toUpperCase()}
           </button>
         ))}
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col items-center gap-2 pb-1">
           <button
             onClick={logout}
             title="Sign out"
-            className="w-9 h-9 rounded-xl bg-gray-800 text-gray-400 hover:bg-red-900 hover:text-red-300 text-xs transition-colors"
+            className="w-9 h-9 rounded-xl bg-gray-800 text-gray-400 hover:bg-red-900 hover:text-red-300 text-sm transition-colors flex items-center justify-center"
           >
-            ✕
+            ⏻
           </button>
         </div>
       </div>
@@ -162,7 +163,16 @@ export default function WorkspaceShell() {
         {/* Workspace name */}
         <div className="px-3 py-3 border-b border-gray-800">
           <div className="font-semibold text-sm text-white truncate">{activeWs?.name}</div>
-          <div className="text-xs text-gray-500 truncate">{user?.display_name}</div>
+          <div className="flex items-center justify-between mt-0.5">
+            <div className="text-xs text-gray-500 truncate">{user?.display_name}</div>
+            <button
+              onClick={logout}
+              title="Sign out"
+              className="text-xs text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -349,101 +359,11 @@ export default function WorkspaceShell() {
 
         {/* ─── KANBAN BOARD VIEW ─── */}
         {activeView === 'board' && activeBoard && (
-          <>
-            {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900">
-              <span>📋</span>
-              <span className="font-semibold text-white">{activeBoard.name}</span>
-              <span className="text-xs text-gray-500 ml-2">{tasks.length} tasks</span>
-            </div>
-
-            {/* Board */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden">
-              <div className="flex gap-4 p-4 h-full">
-                {lists.length === 0 && (
-                  <div className="text-gray-600 text-sm m-auto">
-                    Loading lists... (board was just created — lists are being set up)
-                  </div>
-                )}
-
-                {lists.map(list => {
-                  const listTasks = tasks.filter(t => t.list_id === list.id);
-                  return (
-                    <div
-                      key={list.id}
-                      className="w-72 shrink-0 bg-gray-900 rounded-xl flex flex-col border border-gray-800"
-                    >
-                      {/* List header */}
-                      <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-800">
-                        <span className="text-sm font-semibold text-gray-200">{list.name}</span>
-                        <span className="text-xs text-gray-500 bg-gray-800 rounded-full px-2 py-0.5">
-                          {listTasks.length}
-                        </span>
-                      </div>
-
-                      {/* Tasks */}
-                      <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                        {listTasks.map(task => (
-                          <div
-                            key={task.id}
-                            className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:border-gray-600 transition-colors cursor-pointer"
-                          >
-                            <p className="text-sm text-white font-medium leading-snug">{task.title}</p>
-                            {task.description && (
-                              <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
-                            )}
-                            <div className="mt-2">
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${priorityColor[task.priority] || 'bg-gray-700 text-gray-400'}`}>
-                                {task.priority}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-
-                        {/* Add task inline */}
-                        {addingToList === list.id ? (
-                          <div className="bg-gray-800 rounded-lg p-2 border border-emerald-700">
-                            <input
-                              autoFocus
-                              value={newTaskTitle}
-                              onChange={e => setNewTaskTitle(e.target.value)}
-                              onKeyDown={e => {
-                                if (e.key === 'Enter') addTask(list.id);
-                                if (e.key === 'Escape') { setAddingToList(null); setNewTaskTitle(''); }
-                              }}
-                              placeholder="Task title..."
-                              className="w-full bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
-                            />
-                            <div className="flex gap-2 mt-2">
-                              <button
-                                onClick={() => addTask(list.id)}
-                                className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-2 py-1 rounded"
-                              >
-                                Add
-                              </button>
-                              <button
-                                onClick={() => { setAddingToList(null); setNewTaskTitle(''); }}
-                                className="text-xs text-gray-500 hover:text-gray-300"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => setAddingToList(list.id)}
-                            className="w-full text-left text-xs text-gray-600 hover:text-gray-400 px-2 py-1.5 rounded hover:bg-gray-800 transition-colors"
-                          >
-                            + Add task
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </>
+          <KanbanView
+            boardId={activeBoard.id}
+            boardName={activeBoard.name}
+            onBack={() => setActiveView('home')}
+          />
         )}
 
         {/* ─── MEETINGS VIEW ─── */}
