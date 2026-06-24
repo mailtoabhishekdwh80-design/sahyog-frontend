@@ -94,12 +94,20 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   function onDragOver(e: DragOverEvent) {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    const task = tasks.find(t => t.id === active.id);
-    if (!task) return;
-    const overTask   = tasks.find(t => t.id === over.id);
-    const targetList = overTask ? overTask.list_id : String(over.id);
-    if (task.list_id !== targetList) {
-      setTasks(prev => prev.map(t => t.id === task.id ? { ...t, list_id: targetList } : t));
+
+    const draggedTask = tasks.find(t => t.id === active.id);
+    if (!draggedTask) return;
+
+    // over.id is either a task id or a list id
+    const overIsTask = tasks.some(t => t.id === over.id);
+    const targetListId = overIsTask
+      ? tasks.find(t => t.id === over.id)!.list_id
+      : String(over.id);
+
+    if (draggedTask.list_id !== targetListId) {
+      setTasks(prev => prev.map(t =>
+        t.id === draggedTask.id ? { ...t, list_id: targetListId } : t
+      ));
     }
   }
 
@@ -107,13 +115,31 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     const { active, over } = e;
     setActiveTask(null);
     if (!over) return;
+
     const task = tasks.find(t => t.id === active.id);
     if (!task) return;
+
     const overTask     = tasks.find(t => t.id === over.id);
     const targetListId = overTask ? overTask.list_id : String(over.id);
     const pos          = tasks.filter(t => t.list_id === targetListId).findIndex(t => t.id === task.id);
-    await api.moveTask(task.id, targetListId, Math.max(0, pos));
-    loadBoard();
+    const newPos       = Math.max(0, pos);
+
+    // Keep optimistic state — don't reload until after backend confirms
+    // First update state permanently (not just in onDragOver)
+    setTasks(prev => prev.map(t =>
+      t.id === task.id ? { ...t, list_id: targetListId, position: newPos } : t
+    ));
+
+    // Then persist — only reload on failure
+    try {
+      const result = await api.moveTask(task.id, targetListId, newPos);
+      if (result?.error) {
+        // Revert on error
+        loadBoard();
+      }
+    } catch {
+      loadBoard();
+    }
   }
 
   async function addTask(listId: string) {
