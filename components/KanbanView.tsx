@@ -1,14 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   DndContext, DragEndEvent, DragOverEvent, DragOverlay,
   DragStartEvent, PointerSensor, useSensor, useSensors,
   closestCorners,
 } from '@dnd-kit/core';
-import {
-  SortableContext, verticalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { api } from '../lib/api';
 
@@ -64,6 +61,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [tasks,   setTasks]   = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+
+  // Use refs to track drag state — avoids stale closure issues
+  const activeTaskRef   = useRef<Task | null>(null);
+  const targetListIdRef = useRef<string | null>(null);
+
   const [addingToList, setAddingToList] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDesc,  setNewTaskDesc]  = useState('');
@@ -88,57 +90,57 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   }
 
   function onDragStart(e: DragStartEvent) {
-    setActiveTask(tasks.find(t => t.id === e.active.id) || null);
+    const task = tasks.find(t => t.id === e.active.id);
+    if (!task) return;
+    activeTaskRef.current   = task;
+    targetListIdRef.current = task.list_id; // start in same list
+    setActiveTask(task);
   }
 
   function onDragOver(e: DragOverEvent) {
     const { active, over } = e;
-    if (!over || active.id === over.id) return;
+    if (!over || !activeTaskRef.current) return;
 
-    const draggedTask = tasks.find(t => t.id === active.id);
-    if (!draggedTask) return;
-
-    // over.id is either a task id or a list id
-    const overIsTask = tasks.some(t => t.id === over.id);
-    const targetListId = overIsTask
+    const overIsTask   = tasks.some(t => t.id === over.id);
+    const newListId    = overIsTask
       ? tasks.find(t => t.id === over.id)!.list_id
       : String(over.id);
 
-    if (draggedTask.list_id !== targetListId) {
+    // Track target in ref — never stale
+    targetListIdRef.current = newListId;
+
+    // Optimistic visual update
+    if (activeTaskRef.current.list_id !== newListId) {
       setTasks(prev => prev.map(t =>
-        t.id === draggedTask.id ? { ...t, list_id: targetListId } : t
+        t.id === activeTaskRef.current!.id ? { ...t, list_id: newListId } : t
       ));
+      // Update ref too so subsequent checks are correct
+      activeTaskRef.current = { ...activeTaskRef.current, list_id: newListId };
     }
   }
 
   async function onDragEnd(e: DragEndEvent) {
-    const { active, over } = e;
+    const task       = activeTaskRef.current;
+    const targetList = targetListIdRef.current;
+
     setActiveTask(null);
-    if (!over) return;
+    activeTaskRef.current   = null;
+    targetListIdRef.current = null;
 
-    const task = tasks.find(t => t.id === active.id);
-    if (!task) return;
+    if (!task || !targetList) return;
 
-    const overTask     = tasks.find(t => t.id === over.id);
-    const targetListId = overTask ? overTask.list_id : String(over.id);
-    const pos          = tasks.filter(t => t.list_id === targetListId).findIndex(t => t.id === task.id);
-    const newPos       = Math.max(0, pos);
-
-    // Keep optimistic state — don't reload until after backend confirms
-    // First update state permanently (not just in onDragOver)
+    // Final optimistic state — make sure task is in target list
     setTasks(prev => prev.map(t =>
-      t.id === task.id ? { ...t, list_id: targetListId, position: newPos } : t
+      t.id === task.id ? { ...t, list_id: targetList } : t
     ));
 
-    // Then persist — only reload on failure
+    // Persist to backend
+    const pos = tasks.filter(t => t.list_id === targetList).length;
     try {
-      const result = await api.moveTask(task.id, targetListId, newPos);
-      if (result?.error) {
-        // Revert on error
-        loadBoard();
-      }
-    } catch {
-      loadBoard();
+      await api.moveTask(task.id, targetList, pos);
+    } catch (err) {
+      console.error('Move failed, reloading:', err);
+      loadBoard(); // only reload on actual failure
     }
   }
 
@@ -174,7 +176,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
       </div>
 
       <div className="flex-1 overflow-x-auto overflow-y-hidden bg-gray-950">
-        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDragEnd={onDragEnd}
+        >
           <div className="flex gap-3 p-4 h-full">
             {lists.map((list, idx) => {
               const listTasks = tasks.filter(t => t.list_id === list.id).sort((a, b) => a.position - b.position);
@@ -191,6 +199,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                         <TaskCard key={task.id} task={task} onClick={() => openTask(task)} />
                       ))}
                     </SortableContext>
+
                     {addingToList === list.id ? (
                       <div className="bg-gray-800 rounded-lg p-2.5 border border-emerald-600 space-y-1.5">
                         <input autoFocus value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)}
