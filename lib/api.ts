@@ -229,6 +229,14 @@ export const api = {
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
 
+  getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
+  getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
+  addComment:      (taskId: string, content: string) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content }) }),
+  getChecklist:    (taskId: string) => apiFetch('/boards/task/' + taskId + '/checklist'),
+  addCheckItem:    (taskId: string, title: string) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
+  toggleCheckItem: (taskId: string, itemId: string, isChecked: boolean) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
+  deleteCheckItem: (taskId: string, itemId: string) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
+
   moveTask: (taskId: string, listId: string, position: number) =>
     apiFetch(`/boards/task/${taskId}/move`, {
       method: 'PATCH',
