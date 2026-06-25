@@ -146,7 +146,6 @@ export const api = {
     apiFetch(`/meetings/${meetingId}/recording/start`, { method: 'POST' }),
   stopRecording:   (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/recording/stop`, { method: 'POST' }),
-    apiFetch(`/meetings/${meetingId}/recordings`),
 
   leaveMeeting:    (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/leave`, { method: 'POST' }),
