@@ -721,6 +721,12 @@ function MeetingsView() {
                   👥 {m.participant_count} invited
                 </span>
               )}
+              {m.metadata?.recording_url && (
+                <a href={m.metadata.recording_url} target="_blank" rel="noopener noreferrer"
+                  className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+                  ⬇ Recording
+                </a>
+              )}
             </div>
           </div>
         </div>

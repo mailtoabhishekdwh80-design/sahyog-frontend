@@ -17,6 +17,9 @@ function MeetRoom() {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const streamRef     = useRef<MediaStream | null>(null);
   const [elapsed,    setElapsed]  = useState(0);
+  const [recording,  setRecording]  = useState(false);
+  const [recLoading, setRecLoading] = useState(false);
+  const [recUrl,     setRecUrl]     = useState('');
   const [userName,   setUserName] = useState('You');
 
   useEffect(() => {
@@ -96,6 +99,32 @@ function MeetRoom() {
       .catch(() => {});
   }
 
+  async function startRecording() {
+    setRecLoading(true);
+    try {
+      const res = await api.startRecording(meetingId!);
+      if (res?.data?.egressId) {
+        setRecording(true);
+      } else {
+        alert(res?.error?.message || 'Failed to start recording');
+      }
+    } catch { alert('Recording failed to start'); }
+    setRecLoading(false);
+  }
+
+  async function stopRecording() {
+    setRecLoading(true);
+    try {
+      const res = await api.stopRecording(meetingId!);
+      if (res?.data?.recordingUrl) {
+        setRecording(false);
+        setRecUrl(res.data.recordingUrl);
+        alert('Recording saved! Check meetings page for download link.');
+      }
+    } catch { alert('Failed to stop recording'); }
+    setRecLoading(false);
+  }
+
   if (status === 'joining') return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <div className="text-center space-y-4">
@@ -126,6 +155,12 @@ function MeetRoom() {
           <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
           <span className="text-white font-semibold">{meeting?.title || 'Meeting'}</span>
           <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded font-mono">{formatTime(elapsed)}</span>
+          {recording && (
+            <span className="text-xs bg-red-900 text-red-300 px-2 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+              <span className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+              REC
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={copyLink}
@@ -211,6 +246,20 @@ function MeetRoom() {
               }`}>
               <span className="text-xl">💬</span>
               <span className="text-xs">Chat</span>
+            </button>
+
+            {/* Record */}
+            <button
+              onClick={recording ? stopRecording : startRecording}
+              disabled={recLoading}
+              title={recording ? 'Stop recording' : 'Start recording'}
+              className={`w-14 h-14 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors disabled:opacity-50 ${
+                recording
+                  ? 'bg-red-700 hover:bg-red-600 text-white animate-pulse'
+                  : 'bg-gray-700 hover:bg-gray-600 text-white'
+              }`}>
+              <span className="text-xl">{recLoading ? '⏳' : recording ? '⏹' : '🔴'}</span>
+              <span className="text-xs">{recording ? 'Stop' : 'Record'}</span>
             </button>
           </div>
         </div>
