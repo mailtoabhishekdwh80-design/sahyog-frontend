@@ -70,11 +70,19 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
 
-          <p className="text-center text-xs text-gray-500 pt-1">
-            Demo: admin@deemona.com / Demo@2026
-          </p>
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-xs text-gray-500">Demo: admin@deemona.com / Demo@2026</p>
+            <a href="/forgot-password" className="text-xs text-emerald-400 hover:text-emerald-300">
+              Forgot password?
+            </a>
+          </div>
         </div>
       </div>
+
+      <p className="text-center text-sm text-gray-500 mt-6">
+        Don't have an account?{' '}
+        <a href="/signup" className="text-emerald-400 hover:text-emerald-300">Create workspace</a>
+      </p>
     </div>
   );
 }
