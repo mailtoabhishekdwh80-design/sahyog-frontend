@@ -129,6 +129,19 @@ export const api = {
     apiFetch('/meetings', { method: 'POST', body: JSON.stringify(data) }),
   joinMeeting:     (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/join`, { method: 'POST' }),
+  // Meeting features
+  getMeeting:       (id: string) => apiFetch('/meetings/' + id),
+  getParticipants:  (id: string) => apiFetch('/meetings/' + id + '/participants'),
+  getMeetingChat:   (id: string) => apiFetch('/meetings/' + id + '/chat'),
+  sendMeetingChat:  (id: string, content: string) =>
+    apiFetch('/meetings/' + id + '/chat', { method: 'POST', body: JSON.stringify({ content }) }),
+  getMeetingNotes:  (id: string) => apiFetch('/meetings/' + id + '/notes'),
+  saveMeetingNotes: (id: string, content: string) =>
+    apiFetch('/meetings/' + id + '/notes', { method: 'POST', body: JSON.stringify({ content }) }),
+  getRecordings:    (id: string) => apiFetch('/meetings/' + id + '/recordings'),
+  endMeeting:       (id: string) => apiFetch('/meetings/' + id + '/end', { method: 'POST' }),
+  sendReminder:     (id: string) => apiFetch('/meetings/' + id + '/remind', { method: 'POST' }),
+
   startRecording:  (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/recording/start`, { method: 'POST' }),
   stopRecording:   (meetingId: string) =>
@@ -215,14 +228,6 @@ export const api = {
 
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
-
-  getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
-  getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
-  addComment:      (taskId: string, content: string) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content }) }),
-  getChecklist:    (taskId: string) => apiFetch('/boards/task/' + taskId + '/checklist'),
-  addCheckItem:    (taskId: string, title: string) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
-  toggleCheckItem: (taskId: string, itemId: string, isChecked: boolean) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
-  deleteCheckItem: (taskId: string, itemId: string) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
 
   moveTask: (taskId: string, listId: string, position: number) =>
     apiFetch(`/boards/task/${taskId}/move`, {

@@ -10,7 +10,7 @@ type Channel   = { id: string; name: string; type: string; unread_count?: number
 type Board     = { id: string; name: string; workspace_id: string };
 type List      = { id: string; name: string; position: number; board_id: string };
 type Task      = { id: string; title: string; description?: string; list_id: string; priority: string; status: string };
-type Message   = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = { id: string; content: string; sender_name: string; sent_at: string };
 
 // ── Active view type ──────────────────────────────────────────
 type View = 'channel' | 'board' | 'meetings' | 'home';
@@ -635,7 +635,7 @@ export default function WorkspaceShell() {
                     )}
 
                     {/* Thread replies */}
-                    {(msg.reply_count ?? 0) > 0 && (
+                    {msg.reply_count > 0 && (
                       <button onClick={() => openThread(msg)}
                         className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
@@ -944,7 +944,7 @@ export default function WorkspaceShell() {
 
 // ── Meetings sub-view ─────────────────────────────────────────
 function MeetingsView() {
-  const [meetings, setMeetings] = useState<any[]>([]);
+  const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -956,10 +956,11 @@ function MeetingsView() {
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch, setMemberSearch] = useState('');
+  const [view,        setView]        = useState<'list'|'calendar'>('list');
+  const [calMonth,    setCalMonth]    = useState(new Date());
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    // Load org members for invite
     api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
@@ -967,9 +968,7 @@ function MeetingsView() {
   }, []);
 
   function toggleInvite(userId: string) {
-    setInvitedIds(prev =>
-      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
-    );
+    setInvitedIds(prev => prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]);
   }
 
   async function createMeeting() {
@@ -978,68 +977,81 @@ function MeetingsView() {
     const wsRes = await api.workspaces();
     const workspaceId = wsRes?.data?.[0]?.id;
     if (!workspaceId) { alert('No workspace found'); setSaving(false); return; }
-
-    let startsAt: string;
-    if (startNow) {
-      startsAt = new Date().toISOString();
-    } else {
-      if (!meetDate || !meetTime) { alert('Please select date and time'); setSaving(false); return; }
-      startsAt = new Date(`${meetDate}T${meetTime}`).toISOString();
-    }
-
+    const startsAt = startNow ? new Date().toISOString() : new Date(`${meetDate}T${meetTime}`).toISOString();
     const res = await api.createMeeting({
-      title:          newTitle.trim(),
-      description:    meetDesc.trim() || undefined,
-      startsAt,
-      durationMins:   meetDur,
-      type:           'meeting',
-      workspaceId,
-      waitingRoom:    false,
-      participantIds: invitedIds,
+      title: newTitle.trim(), description: meetDesc.trim() || undefined,
+      startsAt, durationMins: meetDur, type: 'meeting', workspaceId,
+      waitingRoom: false, participantIds: invitedIds,
     });
-
     setSaving(false);
     if (res?.data?.id) {
       setNewTitle(''); setCreating(false); setInvitedIds([]); setMeetDesc('');
       if (startNow) window.open(`/meet?id=${res.data.id}`, '_blank');
-    } else if (res?.error) {
-      alert('Failed: ' + res.error.message);
-    }
+    } else if (res?.error) alert('Failed: ' + res.error.message);
     api.meetings().then(r => setMeetings(r?.data || []));
   }
 
+  async function sendReminder(meetingId: string) {
+    const res = await api.sendReminder(meetingId);
+    alert(res?.data?.message || 'Reminder sent!');
+  }
+
+  // Calendar helpers
+  function getDaysInMonth(date: Date) {
+    const year = date.getFullYear(), month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return { firstDay, daysInMonth };
+  }
+
+  function getMeetingsOnDay(day: number) {
+    return meetings.filter(m => {
+      const d = new Date(m.starts_at);
+      return d.getFullYear() === calMonth.getFullYear() &&
+             d.getMonth() === calMonth.getMonth() &&
+             d.getDate() === day;
+    });
+  }
+
+  const { firstDay, daysInMonth } = getDaysInMonth(calMonth);
+  const STATUS_COLORS: Record<string, string> = {
+    live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-400',
+  };
+
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-4 max-w-4xl">
+      {/* Header with view toggle */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 bg-gray-900 rounded-xl p-1 border border-gray-800">
+          <button onClick={() => setView('list')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>
+            📋 List
+          </button>
+          <button onClick={() => setView('calendar')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>
+            📅 Calendar
+          </button>
+        </div>
+        <button onClick={() => setCreating(true)}
+          className="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors flex items-center gap-1">
+          📹 New meeting
+        </button>
+      </div>
+
       {/* New meeting form */}
-      {creating ? (
+      {creating && (
         <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-4">
           <h3 className="text-sm font-semibold text-white">New meeting</h3>
-
-          {/* Title */}
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Title</label>
-            <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
-              onKeyDown={e => e.key === 'Escape' && setCreating(false)}
-              placeholder="e.g. Sprint planning, 1:1 with team..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
+            placeholder="Meeting title..."
+            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)}
+            placeholder="Description (optional)"
+            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          <div className="flex gap-2">
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>▶ Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>📅 Schedule</button>
           </div>
-
-          {/* Start now or schedule */}
-          <div>
-            <label className="text-xs text-gray-500 mb-2 block">When</label>
-            <div className="flex gap-2">
-              <button onClick={() => setStartNow(true)}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
-                ▶ Start now
-              </button>
-              <button onClick={() => setStartNow(false)}
-                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
-                📅 Schedule
-              </button>
-            </div>
-          </div>
-
-          {/* Date & time (only when scheduling) */}
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -1055,8 +1067,6 @@ function MeetingsView() {
               </div>
             </div>
           )}
-
-          {/* Duration */}
           <div>
             <label className="text-xs text-gray-500 mb-2 block">Duration</label>
             <div className="flex gap-2">
@@ -1068,138 +1078,129 @@ function MeetingsView() {
               ))}
             </div>
           </div>
-
-          {/* Description */}
+          {/* Members */}
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Description <span className="text-gray-600">(optional)</span></label>
-            <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)}
-              placeholder="Agenda or notes..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-          </div>
-
-          {/* Invite members */}
-          <div>
-            <label className="text-xs text-gray-500 mb-2 block">
-              Invite team members
-              {invitedIds.length > 0 && (
-                <span className="ml-2 bg-emerald-900 text-emerald-300 text-xs px-1.5 py-0.5 rounded-full">
-                  {invitedIds.length} invited
-                </span>
-              )}
-            </label>
-            <input
-              value={memberSearch}
-              onChange={e => setMemberSearch(e.target.value)}
-              placeholder="Search members..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2"
-            />
+            <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="text-emerald-400">({invitedIds.length})</span>}</label>
+            <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {orgMembers
-                .filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase()) || m.email?.toLowerCase().includes(memberSearch.toLowerCase()))
-                .map((m: any) => (
-                  <div key={m.id}
-                    onClick={() => toggleInvite(m.id)}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
-                      invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                      invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'
-                    }`}>
-                      {m.display_name?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-white truncate">{m.display_name}</div>
-                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
-                    </div>
-                    {invitedIds.includes(m.id) && (
-                      <span className="text-emerald-400 text-xs shrink-0">✓</span>
-                    )}
+              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+                <div key={m.id} onClick={() => toggleInvite(m.id)}
+                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
+                    {m.display_name?.charAt(0)}
                   </div>
-                ))
-              }
-              {orgMembers.length === 0 && (
-                <div className="text-xs text-gray-600 text-center py-3">No members found</div>
-              )}
+                  <span className="text-xs text-white flex-1">{m.display_name}</span>
+                  {invitedIds.includes(m.id) && <span className="text-emerald-400 text-xs">✓</span>}
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Invited summary */}
-          {invitedIds.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {invitedIds.map(id => {
-                const m = orgMembers.find((x: any) => x.id === id);
-                return m ? (
-                  <span key={id} className="flex items-center gap-1 bg-emerald-900/40 border border-emerald-800 text-emerald-300 text-xs px-2 py-0.5 rounded-full">
-                    {m.display_name?.split(' ')[0]}
-                    <button onClick={() => toggleInvite(id)} className="hover:text-white ml-0.5">×</button>
-                  </span>
-                ) : null;
-              })}
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex gap-2">
             <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
-              className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition-colors">
-              {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule meeting'}
+              className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
+              {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule'}
             </button>
             <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }}
-              className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">
-              Cancel
-            </button>
+              className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
           </div>
         </div>
-      ) : (
-        <button onClick={() => setCreating(true)}
-          className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
-          📹 New meeting
-        </button>
       )}
 
-      {meetings.length === 0 && !creating && (
-        <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>
-      )}
-      {meetings.map(m => (
-        <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-white truncate">{m.title}</div>
-              {m.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{m.description}</div>}
-              <div className="text-xs text-gray-500 mt-2">
-                📅 {new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                m.status === 'live'      ? 'bg-red-900 text-red-300 animate-pulse' :
-                m.status === 'scheduled' ? 'bg-blue-900 text-blue-300' :
-                'bg-gray-800 text-gray-400'
-              }`}>
-                {m.status}
-              </span>
-              {(m.status === 'live' || m.status === 'scheduled') && (
-                <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
-                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                  {m.status === 'live' ? '▶ Join live' : 'Join →'}
-                </a>
-              )}
-              {m.participant_count > 0 && (
-                <span className="text-xs text-gray-500">
-                  👥 {m.participant_count} invited
-                </span>
-              )}
-              {m.metadata?.recording_url && (
-                <a href={m.metadata.recording_url} target="_blank" rel="noopener noreferrer"
-                  className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
-                  ⬇ Recording
-                </a>
-              )}
-            </div>
+      {/* Calendar view */}
+      {view === 'calendar' && (
+        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+          {/* Calendar header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
+              className="text-gray-500 hover:text-white px-2 py-1 rounded">‹</button>
+            <span className="text-white font-semibold">
+              {calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
+            </span>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
+              className="text-gray-500 hover:text-white px-2 py-1 rounded">›</button>
+          </div>
+          {/* Day headers */}
+          <div className="grid grid-cols-7 border-b border-gray-800">
+            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+              <div key={d} className="text-xs text-gray-500 text-center py-2 font-medium">{d}</div>
+            ))}
+          </div>
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7">
+            {Array.from({ length: firstDay }).map((_, i) => (
+              <div key={`empty-${i}`} className="min-h-16 border-b border-r border-gray-800 bg-gray-900/50" />
+            ))}
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const day = i + 1;
+              const dayMeetings = getMeetingsOnDay(day);
+              const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
+              return (
+                <div key={day} className={`min-h-16 border-b border-r border-gray-800 p-1 ${isToday ? 'bg-emerald-950/30' : ''}`}>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-gray-400'}`}>
+                    {day}
+                  </div>
+                  {dayMeetings.map(m => (
+                    <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
+                      className="block text-xs bg-emerald-900/60 text-emerald-300 rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
+                      {new Date(m.starts_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} {m.title}
+                    </a>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </div>
-      ))}
+      )}
+
+      {/* List view */}
+      {view === 'list' && (
+        <div className="space-y-3">
+          {meetings.length === 0 && !creating && (
+            <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>
+          )}
+          {meetings.map(m => (
+            <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-white truncate">{m.title}</div>
+                  {m.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{m.description}</div>}
+                  <div className="text-xs text-gray-500 mt-2 flex items-center gap-3">
+                    <span>📅 {new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                    <span>⏱ {m.duration_mins || 60}m</span>
+                    {m.metadata?.recording_url && <span className="text-emerald-400">🎥 Recorded</span>}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[m.status] || STATUS_COLORS.ended}`}>
+                    {m.status}
+                  </span>
+                  <div className="flex gap-1">
+                    {(m.status === 'live' || m.status === 'scheduled') && (
+                      <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                        {m.status === 'live' ? '▶ Join' : 'Join →'}
+                      </a>
+                    )}
+                    {m.status === 'scheduled' && (
+                      <button onClick={() => sendReminder(m.id)}
+                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">
+                        🔔
+                      </button>
+                    )}
+                    {m.metadata?.recording_url && (
+                      <a href={m.metadata.recording_url} target="_blank" rel="noopener noreferrer"
+                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">⬇</a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+
