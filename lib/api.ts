@@ -188,8 +188,6 @@ export const api = {
 
   // DMs
   dmChannels:  () => apiFetch('/channels?type=direct'),
-  createDM:    (userId: string) =>
-    apiFetch('/channels/dm', { method: 'POST', body: JSON.stringify({ userId }) }),
 
   // Channel management
   createChannel: (workspaceId: string, name: string, description?: string, isPrivate?: boolean) =>
