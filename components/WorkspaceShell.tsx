@@ -10,7 +10,7 @@ type Channel   = { id: string; name: string; type: string; unread_count?: number
 type Board     = { id: string; name: string; workspace_id: string };
 type List      = { id: string; name: string; position: number; board_id: string };
 type Task      = { id: string; title: string; description?: string; list_id: string; priority: string; status: string };
-type Message   = { id: string; content: string; sender_name: string; sent_at: string };
+type Message   = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Active view type ──────────────────────────────────────────
 type View = 'channel' | 'board' | 'meetings' | 'home';
