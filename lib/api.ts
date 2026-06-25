@@ -1,5 +1,6 @@
 // lib/api.ts — Sahyog API client
-const API_BASE = 'https://sahyog-api-ajbr.onrender.com/api/v1';
+
+const API_BASE = 'http://localhost:3000/api/v1';
 
 // ── Token storage ─────────────────────────────────────────────
 export const tokenStore = {
@@ -138,6 +139,23 @@ export const api = {
 
   leaveMeeting:    (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/leave`, { method: 'POST' }),
+
+  // Files
+  getUploadUrl: (fileName: string, mimeType: string, sizeBytes: number, workspaceId?: string) =>
+    apiFetch('/files/upload-url', {
+      method: 'POST',
+      body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }),
+    }),
+  confirmUpload: (data: Record<string, any>) =>
+    apiFetch('/files/confirm', { method: 'POST', body: JSON.stringify(data) }),
+  getFiles: (workspaceId?: string) =>
+    apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
+  getDownloadUrl: (fileId: string) =>
+    apiFetch(`/files/${fileId}/download-url`),
+
+  // Search
+  search: (q: string, type = 'all') =>
+    apiFetch(`/search?q=${encodeURIComponent(q)}&type=${type}`),
 
   // Notifications
   notifications:    () => apiFetch('/users/me/notifications'),

@@ -34,6 +34,12 @@ export default function WorkspaceShell() {
   const [user, setUser]                 = useState<any>(null);
   const msgEndRef                       = useRef<HTMLDivElement>(null);
   const [typingUsers,    setTypingUsers]    = useState<string[]>([]);
+  const [showSearch,     setShowSearch]     = useState(false);
+  const [searchQuery,    setSearchQuery]    = useState('');
+  const [searchResults,  setSearchResults]  = useState<any>(null);
+  const [searching,      setSearching]      = useState(false);
+  const [uploading,      setUploading]      = useState(false);
+  const fileInputRef                        = useRef<HTMLInputElement>(null);
   const [notifications,  setNotifications]  = useState<any[]>([]);
   const [unreadCount,    setUnreadCount]    = useState(0);
   const [showNotifs,     setShowNotifs]     = useState(false);
@@ -75,6 +81,71 @@ export default function WorkspaceShell() {
   }, []);
 
   const { subscribe, sendTyping } = useWebSocket(handleWSMessage);
+
+  // ── Search ────────────────────────────────────────────────────
+  async function doSearch(q: string) {
+    if (!q.trim() || q.length < 2) { setSearchResults(null); return; }
+    setSearching(true);
+    const res = await api.search(q);
+    setSearchResults(res?.data || null);
+    setSearching(false);
+  }
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(s => !s);
+      }
+      if (e.key === 'Escape') setShowSearch(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // ── File upload ───────────────────────────────────────────────
+  async function uploadFile(file: File) {
+    if (!activeChannel) return;
+    setUploading(true);
+    try {
+      // Get upload URL
+      const urlRes = await api.getUploadUrl(file.name, file.type, file.size);
+      if (!urlRes?.data) { alert('Failed to get upload URL'); setUploading(false); return; }
+
+      const { uploadUrl, storageKey, r2 } = urlRes.data;
+
+      // Upload directly to R2
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+
+      if (!uploadRes.ok) { alert('Upload failed'); setUploading(false); return; }
+
+      // Confirm upload
+      await api.confirmUpload({
+        fileName:   file.name,
+        mimeType:   file.type,
+        sizeBytes:  file.size,
+        storageKey,
+      });
+
+      // Send file message in channel
+      const emoji = file.type.startsWith('image/') ? '🖼️' :
+                    file.type.startsWith('video/') ? '🎥' :
+                    file.type.startsWith('audio/') ? '🎵' :
+                    file.type.includes('pdf')      ? '📄' : '📎';
+      await api.sendMessage(activeChannel.id,
+        `${emoji} **${file.name}** (${(file.size/1024).toFixed(1)} KB)
+[Download](${uploadUrl})`
+      );
+      const res = await api.messages(activeChannel.id);
+      setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+      setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (e) { alert('Upload error'); }
+    setUploading(false);
+  }
 
   // ── Boot: check auth, load data ───────────────────────────
   useEffect(() => {
@@ -440,6 +511,20 @@ export default function WorkspaceShell() {
                   placeholder={`Message #${activeChannel.name}`}
                   className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
                 />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.target.value = ''; }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="text-gray-500 hover:text-gray-300 disabled:opacity-50 transition-colors text-lg"
+                  title="Attach file"
+                >
+                  {uploading ? '⏳' : '📎'}
+                </button>
                 <button
                   onClick={sendMessage}
                   disabled={!newMsg.trim()}
@@ -461,7 +546,108 @@ export default function WorkspaceShell() {
           />
         )}
 
-        {/* ─── MEETINGS VIEW ─── */}
+        {/* ─── SEARCH MODAL ─── */}
+      {showSearch && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center pt-20 px-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowSearch(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl overflow-hidden">
+            {/* Search input */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800">
+              <span className="text-gray-400 text-lg">🔍</span>
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); doSearch(e.target.value); }}
+                placeholder="Search messages, tasks, people..."
+                className="flex-1 bg-transparent text-white placeholder-gray-500 focus:outline-none text-sm"
+              />
+              {searching && <span className="text-gray-500 text-xs animate-pulse">Searching...</span>}
+              <button onClick={() => setShowSearch(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+
+            {/* Results */}
+            <div className="max-h-96 overflow-y-auto">
+              {!searchResults && !searching && (
+                <div className="text-center py-12 text-gray-600 text-sm">
+                  Type to search messages, tasks, people...
+                </div>
+              )}
+
+              {searchResults && (
+                <div className="divide-y divide-gray-800">
+                  {/* Messages */}
+                  {searchResults.messages?.length > 0 && (
+                    <div className="p-3">
+                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Messages</div>
+                      {searchResults.messages.map((m: any) => (
+                        <div key={m.id} className="flex items-start gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+                          onClick={() => setShowSearch(false)}>
+                          <span className="text-gray-500 text-sm">#</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-gray-500">{m.channel_name} · {m.sender_name}</div>
+                            <div className="text-sm text-white truncate mt-0.5">{m.content}</div>
+                          </div>
+                          <div className="text-xs text-gray-600 shrink-0">
+                            {new Date(m.sent_at).toLocaleDateString('en-IN')}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Tasks */}
+                  {searchResults.tasks?.length > 0 && (
+                    <div className="p-3">
+                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Tasks</div>
+                      {searchResults.tasks.map((t: any) => (
+                        <div key={t.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+                          onClick={() => setShowSearch(false)}>
+                          <span className="text-gray-500">☑</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-white truncate">{t.title}</div>
+                            <div className="text-xs text-gray-500">{t.board_name}</div>
+                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            t.priority === 'high' ? 'bg-orange-900 text-orange-300' :
+                            t.priority === 'critical' ? 'bg-red-900 text-red-300' :
+                            'bg-gray-800 text-gray-400'
+                          }`}>{t.priority}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* People */}
+                  {searchResults.users?.length > 0 && (
+                    <div className="p-3">
+                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">People</div>
+                      {searchResults.users.map((u: any) => (
+                        <div key={u.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
+                          onClick={() => setShowSearch(false)}>
+                          <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            {u.display_name?.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="text-sm text-white">{u.display_name}</div>
+                            <div className="text-xs text-gray-500">{u.email}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* No results */}
+                  {searchResults && !searchResults.messages?.length && !searchResults.tasks?.length && !searchResults.users?.length && (
+                    <div className="text-center py-8 text-gray-600 text-sm">No results for "{searchQuery}"</div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MEETINGS VIEW ─── */}
         {activeView === 'meetings' && (
           <div className="flex-1 overflow-y-auto p-8">
             <h1 className="text-xl font-bold text-white mb-6">Meetings</h1>
