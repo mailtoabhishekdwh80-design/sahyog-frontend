@@ -486,16 +486,23 @@ function MeetingsView() {
   async function createMeeting() {
     if (!newTitle.trim()) return;
     const now = new Date();
-    const end = new Date(now.getTime() + 60 * 60 * 1000);
+    // Get workspaceId from parent scope via closure
+    const wsRes = await api.workspaces();
+    const workspaceId = wsRes?.data?.[0]?.id;
+    if (!workspaceId) { alert('No workspace found'); return; }
     const res = await api.createMeeting({
-      title: newTitle.trim(),
-      startsAt: now.toISOString(),
-      endsAt: end.toISOString(),
-      type: 'video',
+      title:        newTitle.trim(),
+      startsAt:     now.toISOString(),
+      durationMins: 60,
+      type:         'meeting',
+      workspaceId,
+      waitingRoom:  false,
     });
     if (res?.data?.id) {
       setNewTitle(''); setCreating(false);
       window.open(`/meet?id=${res.data.id}`, '_blank');
+    } else if (res?.error) {
+      alert('Failed to create meeting: ' + res.error.message);
     }
     api.meetings().then(r => setMeetings(r?.data || []));
   }
