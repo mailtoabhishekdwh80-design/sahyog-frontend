@@ -308,9 +308,7 @@ export default function WorkspaceShell() {
     setActiveDM(dm);
     const res = await api.messages(dm.id);
     setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-    if (ws.current?.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ type: 'channel.join', payload: { channelId: dm.id } }));
-    }
+    subscribe(dm.id);
   }
 
   async function sendDMMessage() {
