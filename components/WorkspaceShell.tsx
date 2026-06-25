@@ -491,7 +491,7 @@ function MeetingsView() {
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
     // Load org members for invite
-    api.adminMembers().then(res => setOrgMembers(res?.data || []));
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
