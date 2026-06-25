@@ -635,7 +635,7 @@ export default function WorkspaceShell() {
                     )}
 
                     {/* Thread replies */}
-                    {msg.reply_count > 0 && (
+                    {(msg.reply_count ?? 0) > 0 && (
                       <button onClick={() => openThread(msg)}
                         className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                         💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
