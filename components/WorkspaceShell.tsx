@@ -39,6 +39,13 @@ export default function WorkspaceShell() {
   const [threadMessages, setThreadMessages] = useState<any[]>([]);
   const [threadReply,    setThreadReply]    = useState('');
   const [showDMs,        setShowDMs]        = useState(false);
+  const [dmList,         setDmList]         = useState<any[]>([]);
+  const [activeDM,       setActiveDM]       = useState<any>(null);
+  const [dmMessages,     setDmMessages]     = useState<any[]>([]);
+  const [dmNewMsg,       setDmNewMsg]       = useState('');
+  const [showNewDM,      setShowNewDM]      = useState(false);
+  const [dmSearch,       setDmSearch]       = useState('');
+  const [dmOrgMembers,   setDmOrgMembers]   = useState<any[]>([]);
   const [dmChannels,     setDmChannels]     = useState<any[]>([]);
   const [showNewChannel, setShowNewChannel] = useState(false);
   const [newChName,      setNewChName]      = useState('');
@@ -63,6 +70,13 @@ export default function WorkspaceShell() {
   // ── WebSocket real-time handler ──────────────────────────────
   const handleWSMessage = useCallback((msg: any) => {
     if (msg.type === 'message.new') {
+      // Update DM messages if active DM matches
+      if (activeDM && msg.payload?.channel_id === activeDM.id) {
+        setDmMessages(prev => {
+          if (prev.some(m => m.id === msg.payload.id)) return prev;
+          return [...prev, msg.payload];
+        });
+      }
       const newMsg = msg.payload;
       // Only append if we're viewing that channel
       setActiveChannel(current => {
@@ -285,6 +299,38 @@ export default function WorkspaceShell() {
       .replace(/```([\s\S]*?)```/g, '<pre style="background:#1F2937;padding:8px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:12px">$1</pre>');
   }
 
+  async function loadDMs() {
+    const res = await api.dmList();
+    setDmList(res?.data || []);
+  }
+
+  async function openDM(dm: any) {
+    setActiveDM(dm);
+    const res = await api.messages(dm.id);
+    setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'channel.join', payload: { channelId: dm.id } }));
+    }
+  }
+
+  async function sendDMMessage() {
+    if (!dmNewMsg.trim() || !activeDM) return;
+    await api.sendMessage(activeDM.id, dmNewMsg.trim());
+    setDmNewMsg('');
+    const res = await api.messages(activeDM.id);
+    setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+  }
+
+  async function startDM(userId: string) {
+    const res = await api.createDM(userId);
+    if (res?.data?.id) {
+      await loadDMs();
+      setShowNewDM(false);
+      setDmSearch('');
+      openDM(res.data);
+    }
+  }
+
   async function openChannel(ch: Channel) {
     setActiveChannel(ch);
     setActiveBoard(null);
@@ -445,9 +491,32 @@ export default function WorkspaceShell() {
             🏠 <span>Home</span>
           </button>
 
+          {/* Direct Messages */}
+          <div className="pt-2">
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Direct Messages</span>
+              <button onClick={() => setShowNewDM(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
+            </div>
+            {dmList.map((dm: any) => (
+              <button key={dm.id} onClick={() => { setActiveChannel(null); setActiveDM(null); setTimeout(() => openDM(dm), 10); }}
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${
+                  activeDM?.id === dm.id ? 'bg-purple-900/50 text-purple-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                }`}>
+                <div className="w-4 h-4 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  {dm.other_name?.charAt(0) || '?'}
+                </div>
+                <span className="truncate">{dm.other_name || dm.name}</span>
+                {onlineUsers.has(dm.other_id) && <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full ml-auto shrink-0" />}
+              </button>
+            ))}
+          </div>
+
           {/* Channels */}
           <div className="pt-2">
-            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider">Channels</div>
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Channels</span>
+              <button onClick={() => setShowNewChannel(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New channel">+</button>
+            </div>
             {channels.filter(c => c.type === 'public' || c.type === 'announcement').slice(0, 8).map(ch => (
               <button
                 key={ch.id}
@@ -824,6 +893,72 @@ export default function WorkspaceShell() {
                 Create channel
               </button>
               <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── NEW DM MODAL ─── */}
+      {showNewDM && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) { setShowNewDM(false); setDmSearch(''); } }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+            <h3 className="text-white font-semibold text-lg">New message</h3>
+            <input autoFocus value={dmSearch} onChange={e => setDmSearch(e.target.value)}
+              placeholder="Search people..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            <div className="max-h-64 overflow-y-auto space-y-1">
+              {dmOrgMembers
+                .filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase())))
+                .map((m: any) => (
+                  <button key={m.id} onClick={() => startDM(m.id)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-left">
+                    <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">
+                      {m.display_name?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
+                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
+                    </div>
+                    {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
+                  </button>
+                ))}
+              {dmOrgMembers.filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()))).length === 0 && (
+                <p className="text-gray-600 text-sm text-center py-4">No members found</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── NEW DM MODAL ─── */}
+      {showNewDM && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) { setShowNewDM(false); setDmSearch(''); } }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+            <h3 className="text-white font-semibold text-lg">New direct message</h3>
+            <input autoFocus value={dmSearch} onChange={e => setDmSearch(e.target.value)}
+              placeholder="Search people..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            <div className="max-h-64 overflow-y-auto space-y-1">
+              {dmOrgMembers
+                .filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase())))
+                .map((m: any) => (
+                  <button key={m.id} onClick={() => startDM(m.id)}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-left">
+                    <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">
+                      {m.display_name?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
+                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
+                    </div>
+                    {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
+                  </button>
+                ))}
+              {dmOrgMembers.filter(m => m.id !== user?.id).length === 0 && (
+                <p className="text-gray-600 text-sm text-center py-4">No other members found</p>
+              )}
             </div>
           </div>
         </div>
