@@ -146,6 +146,8 @@ export const api = {
     apiFetch(`/meetings/${meetingId}/recording/start`, { method: 'POST' }),
   stopRecording:   (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/recording/stop`, { method: 'POST' }),
+  getRecordings:   (meetingId: string) =>
+    apiFetch(`/meetings/${meetingId}/recordings`),
 
   leaveMeeting:    (meetingId: string) =>
     apiFetch(`/meetings/${meetingId}/leave`, { method: 'POST' }),
@@ -213,6 +215,20 @@ export const api = {
   markRead:         (id: string) => apiFetch(`/users/me/notifications/${id}/read`, { method: 'PATCH' }),
   markAllRead:      () => apiFetch('/users/me/notifications/read-all', { method: 'POST' }),
 
+  // Team management
+  orgMembers:     () => apiFetch('/orgs/me/members'),
+  orgRoles:       () => apiFetch('/orgs/me/roles'),
+  inviteMembers:  (emails: string[], roleId: string) =>
+    apiFetch('/orgs/me/members/invite', { method: 'POST', body: JSON.stringify({ emails, roleId }) }),
+  updateMemberRole: (userId: string, roleId: string) =>
+    apiFetch('/orgs/me/members/' + userId + '/role', { method: 'PATCH', body: JSON.stringify({ roleId }) }),
+  removeMember:   (userId: string) => apiFetch('/orgs/me/members/' + userId, { method: 'DELETE' }),
+  getOrg:         () => apiFetch('/orgs/me'),
+  updateOrg:      (data: any) => apiFetch('/orgs/me', { method: 'PATCH', body: JSON.stringify(data) }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    apiFetch('/auth/password/change', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),
+  updateProfile:  (data: any) => apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
+
   // Admin
   adminStats:   () => apiFetch('/admin/stats'),
   adminMembers: () => apiFetch('/users/directory'),
@@ -226,14 +242,6 @@ export const api = {
 
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
-
-  getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
-  getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
-  addComment:      (taskId: string, content: string) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content }) }),
-  getChecklist:    (taskId: string) => apiFetch('/boards/task/' + taskId + '/checklist'),
-  addCheckItem:    (taskId: string, title: string) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
-  toggleCheckItem: (taskId: string, itemId: string, isChecked: boolean) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
-  deleteCheckItem: (taskId: string, itemId: string) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
 
   moveTask: (taskId: string, listId: string, position: number) =>
     apiFetch(`/boards/task/${taskId}/move`, {

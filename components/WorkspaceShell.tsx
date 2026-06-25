@@ -494,11 +494,11 @@ export default function WorkspaceShell() {
 
           {/* Admin */}
           <div className="pt-2">
-            <a
-              href="/admin"
-              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800"
-            >
-              ⚙️ <span>Admin</span>
+            <a href="/admin" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800">
+              🛡️ <span>Admin</span>
+            </a>
+            <a href="/settings" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-1">
+              ⚙️ <span>Settings</span>
             </a>
           </div>
 
