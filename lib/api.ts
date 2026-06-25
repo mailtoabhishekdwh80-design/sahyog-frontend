@@ -1,6 +1,6 @@
 // lib/api.ts — Sahyog API client
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE = 'http://localhost:3000/api/v1';
 
 // ── Token storage ─────────────────────────────────────────────
 export const tokenStore = {
@@ -122,6 +122,11 @@ export const api = {
     }),
   meetings:     () => apiFetch('/meetings'),
 
+  // Admin
+  adminStats:   () => apiFetch('/admin/stats'),
+  adminMembers: () => apiFetch('/users'),
+  adminAudit:   () => apiFetch('/admin/audit-logs'),
+
   updateTask: (taskId: string, data: Record<string, any>) =>
     apiFetch(`/boards/task/${taskId}`, {
       method: 'PATCH',
@@ -130,12 +135,6 @@ export const api = {
 
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
-
-  createList: (boardId: string, name: string, position: number) =>
-    apiFetch(`/boards/${boardId}/lists`, {
-      method: 'POST',
-      body: JSON.stringify({ name, position }),
-    }),
 
   moveTask: (taskId: string, listId: string, position: number) =>
     apiFetch(`/boards/task/${taskId}/move`, {

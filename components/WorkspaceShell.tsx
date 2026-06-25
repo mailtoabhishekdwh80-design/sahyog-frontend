@@ -1,6 +1,7 @@
 'use client';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import KanbanView from './KanbanView';
+import { useWebSocket } from '../lib/useWebSocket';
 import { api, isLoggedIn, logout } from '../lib/api';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -32,6 +33,45 @@ export default function WorkspaceShell() {
   const [loading, setLoading]           = useState(true);
   const [user, setUser]                 = useState<any>(null);
   const msgEndRef                       = useRef<HTMLDivElement>(null);
+  const [typingUsers, setTypingUsers]   = useState<string[]>([]);
+  const typingTimerRef                  = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  // ── WebSocket real-time handler ──────────────────────────────
+  const handleWSMessage = useCallback((msg: any) => {
+    if (msg.type === 'message.new') {
+      const newMsg = msg.payload;
+      // Only append if we're viewing that channel
+      setActiveChannel(current => {
+        if (current?.id === newMsg.channel_id) {
+          setMessages(prev => {
+            // Deduplicate
+            if (prev.some(m => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+          setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+        }
+        return current;
+      });
+    }
+    if (msg.type === 'typing.indicator') {
+      const { userId, displayName, channelId } = msg.payload;
+      setActiveChannel(current => {
+        if (current?.id !== channelId) return current;
+        setTypingUsers(prev => prev.includes(displayName) ? prev : [...prev, displayName]);
+        // Clear typing after 3s
+        if (typingTimerRef.current[userId]) clearTimeout(typingTimerRef.current[userId]);
+        typingTimerRef.current[userId] = setTimeout(() => {
+          setTypingUsers(prev => prev.filter(n => n !== displayName));
+        }, 3000);
+        return current;
+      });
+    }
+    if (msg.type === 'presence.update') {
+      // Could show online status — skip for now
+    }
+  }, []);
+
+  const { subscribe, sendTyping } = useWebSocket(handleWSMessage);
 
   // ── Boot: check auth, load data ───────────────────────────
   useEffect(() => {
@@ -62,12 +102,15 @@ export default function WorkspaceShell() {
     setActiveBoard(null);
     setActiveView('channel');
     setMessages([]);
+    setTypingUsers([]);
     try {
       const res = await api.messages(ch.id);
       const msgs = Array.isArray(res?.data) ? res.data : [];
       setMessages(msgs.reverse());
     } catch(e) { setMessages([]); }
     setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    // Subscribe to WebSocket channel
+    subscribe(ch.id);
   }
 
   async function openBoard(board: Board) {
@@ -234,6 +277,16 @@ export default function WorkspaceShell() {
             </button>
           </div>
 
+          {/* Admin */}
+          <div className="pt-2">
+            <a
+              href="/admin"
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800"
+            >
+              ⚙️ <span>Admin</span>
+            </a>
+          </div>
+
           {/* Meetings */}
           <div className="pt-2">
             <button
@@ -335,6 +388,13 @@ export default function WorkspaceShell() {
               <div ref={msgEndRef} />
             </div>
 
+            {/* Typing indicator */}
+            {typingUsers.length > 0 && (
+              <div className="px-4 py-1 text-xs text-gray-500 italic">
+                {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+              </div>
+            )}
+
             {/* Composer */}
             <div className="px-4 py-3 border-t border-gray-800 bg-gray-900">
               <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
@@ -344,6 +404,10 @@ export default function WorkspaceShell() {
                   onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                   placeholder={`Message #${activeChannel.name}`}
                   className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
+                  onChange={e => {
+                    // Trigger typing indicator via WebSocket
+                    if (e.target.value && activeChannel) sendTyping(activeChannel.id);
+                  }}
                 />
                 <button
                   onClick={sendMessage}
