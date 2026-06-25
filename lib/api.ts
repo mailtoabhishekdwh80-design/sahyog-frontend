@@ -115,6 +115,11 @@ export const api = {
     apiFetch('/boards', { method: 'POST', body: JSON.stringify({ name, workspaceId }) }),
   lists:        (boardId: string) => apiFetch(`/boards/${boardId}/lists`),
   tasks:        (boardId: string) => apiFetch(`/boards/${boardId}/tasks`),
+  createList:   (boardId: string, name: string, position: number) =>
+    apiFetch(`/boards/${boardId}/lists`, {
+      method: 'POST',
+      body: JSON.stringify({ name, position }),
+    }),
   createTask:   (boardId: string, title: string, listId: string, description?: string) =>
     apiFetch(`/boards/${boardId}/tasks`, {
       method: 'POST',
