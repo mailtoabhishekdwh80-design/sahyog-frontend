@@ -476,21 +476,32 @@ export default function WorkspaceShell() {
 // ── Meetings sub-view ─────────────────────────────────────────
 function MeetingsView() {
   const [meetings, setMeetings] = useState<any[]>([]);
-  const [creating,  setCreating]  = useState(false);
-  const [newTitle,  setNewTitle]  = useState('');
-  const [meetDate,  setMeetDate]  = useState('');
-  const [meetTime,  setMeetTime]  = useState('');
-  const [meetDur,   setMeetDur]   = useState(60);
-  const [startNow,  setStartNow]  = useState(true);
-  const [saving,    setSaving]    = useState(false);
+  const [creating,    setCreating]    = useState(false);
+  const [newTitle,    setNewTitle]    = useState('');
+  const [meetDate,    setMeetDate]    = useState('');
+  const [meetTime,    setMeetTime]    = useState('');
+  const [meetDur,     setMeetDur]     = useState(60);
+  const [startNow,    setStartNow]    = useState(true);
+  const [saving,      setSaving]      = useState(false);
+  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
+  const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
+  const [meetDesc,    setMeetDesc]    = useState('');
+  const [memberSearch, setMemberSearch] = useState('');
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    // Set default date/time to now + 1 hour
+    // Load org members for invite
+    api.adminMembers().then(res => setOrgMembers(res?.data || []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
   }, []);
+
+  function toggleInvite(userId: string) {
+    setInvitedIds(prev =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
+  }
 
   async function createMeeting() {
     if (!newTitle.trim()) return;
@@ -508,20 +519,20 @@ function MeetingsView() {
     }
 
     const res = await api.createMeeting({
-      title:        newTitle.trim(),
+      title:          newTitle.trim(),
+      description:    meetDesc.trim() || undefined,
       startsAt,
-      durationMins: meetDur,
-      type:         'meeting',
+      durationMins:   meetDur,
+      type:           'meeting',
       workspaceId,
-      waitingRoom:  false,
+      waitingRoom:    false,
+      participantIds: invitedIds,
     });
 
     setSaving(false);
     if (res?.data?.id) {
-      setNewTitle(''); setCreating(false);
-      if (startNow) {
-        window.open(`/meet?id=${res.data.id}`, '_blank');
-      }
+      setNewTitle(''); setCreating(false); setInvitedIds([]); setMeetDesc('');
+      if (startNow) window.open(`/meet?id=${res.data.id}`, '_blank');
     } else if (res?.error) {
       alert('Failed: ' + res.error.message);
     }
@@ -589,13 +600,83 @@ function MeetingsView() {
             </div>
           </div>
 
+          {/* Description */}
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Description <span className="text-gray-600">(optional)</span></label>
+            <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)}
+              placeholder="Agenda or notes..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          </div>
+
+          {/* Invite members */}
+          <div>
+            <label className="text-xs text-gray-500 mb-2 block">
+              Invite team members
+              {invitedIds.length > 0 && (
+                <span className="ml-2 bg-emerald-900 text-emerald-300 text-xs px-1.5 py-0.5 rounded-full">
+                  {invitedIds.length} invited
+                </span>
+              )}
+            </label>
+            <input
+              value={memberSearch}
+              onChange={e => setMemberSearch(e.target.value)}
+              placeholder="Search members..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2"
+            />
+            <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
+              {orgMembers
+                .filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase()) || m.email?.toLowerCase().includes(memberSearch.toLowerCase()))
+                .map((m: any) => (
+                  <div key={m.id}
+                    onClick={() => toggleInvite(m.id)}
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                      invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                      invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'
+                    }`}>
+                      {m.display_name?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-white truncate">{m.display_name}</div>
+                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
+                    </div>
+                    {invitedIds.includes(m.id) && (
+                      <span className="text-emerald-400 text-xs shrink-0">✓</span>
+                    )}
+                  </div>
+                ))
+              }
+              {orgMembers.length === 0 && (
+                <div className="text-xs text-gray-600 text-center py-3">No members found</div>
+              )}
+            </div>
+          </div>
+
+          {/* Invited summary */}
+          {invitedIds.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {invitedIds.map(id => {
+                const m = orgMembers.find((x: any) => x.id === id);
+                return m ? (
+                  <span key={id} className="flex items-center gap-1 bg-emerald-900/40 border border-emerald-800 text-emerald-300 text-xs px-2 py-0.5 rounded-full">
+                    {m.display_name?.split(' ')[0]}
+                    <button onClick={() => toggleInvite(id)} className="hover:text-white ml-0.5">×</button>
+                  </span>
+                ) : null;
+              })}
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex gap-2 pt-1">
             <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
               className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition-colors">
               {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule meeting'}
             </button>
-            <button onClick={() => setCreating(false)}
+            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }}
               className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">
               Cancel
             </button>
@@ -631,9 +712,14 @@ function MeetingsView() {
               </span>
               {(m.status === 'live' || m.status === 'scheduled') && (
                 <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
-                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors">
-                  Join →
+                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                  {m.status === 'live' ? '▶ Join live' : 'Join →'}
                 </a>
+              )}
+              {m.participant_count > 0 && (
+                <span className="text-xs text-gray-500">
+                  👥 {m.participant_count} invited
+                </span>
               )}
             </div>
           </div>
