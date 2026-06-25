@@ -476,49 +476,129 @@ export default function WorkspaceShell() {
 // ── Meetings sub-view ─────────────────────────────────────────
 function MeetingsView() {
   const [meetings, setMeetings] = useState<any[]>([]);
-  const [creating, setCreating] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
+  const [creating,  setCreating]  = useState(false);
+  const [newTitle,  setNewTitle]  = useState('');
+  const [meetDate,  setMeetDate]  = useState('');
+  const [meetTime,  setMeetTime]  = useState('');
+  const [meetDur,   setMeetDur]   = useState(60);
+  const [startNow,  setStartNow]  = useState(true);
+  const [saving,    setSaving]    = useState(false);
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
+    // Set default date/time to now + 1 hour
+    const d = new Date(Date.now() + 60 * 60 * 1000);
+    setMeetDate(d.toISOString().split('T')[0]);
+    setMeetTime(d.toTimeString().slice(0, 5));
   }, []);
 
   async function createMeeting() {
     if (!newTitle.trim()) return;
-    const now = new Date();
-    // Get workspaceId from parent scope via closure
+    setSaving(true);
     const wsRes = await api.workspaces();
     const workspaceId = wsRes?.data?.[0]?.id;
-    if (!workspaceId) { alert('No workspace found'); return; }
+    if (!workspaceId) { alert('No workspace found'); setSaving(false); return; }
+
+    let startsAt: string;
+    if (startNow) {
+      startsAt = new Date().toISOString();
+    } else {
+      if (!meetDate || !meetTime) { alert('Please select date and time'); setSaving(false); return; }
+      startsAt = new Date(`${meetDate}T${meetTime}`).toISOString();
+    }
+
     const res = await api.createMeeting({
       title:        newTitle.trim(),
-      startsAt:     now.toISOString(),
-      durationMins: 60,
+      startsAt,
+      durationMins: meetDur,
       type:         'meeting',
       workspaceId,
       waitingRoom:  false,
     });
+
+    setSaving(false);
     if (res?.data?.id) {
       setNewTitle(''); setCreating(false);
-      window.open(`/meet?id=${res.data.id}`, '_blank');
+      if (startNow) {
+        window.open(`/meet?id=${res.data.id}`, '_blank');
+      }
     } else if (res?.error) {
-      alert('Failed to create meeting: ' + res.error.message);
+      alert('Failed: ' + res.error.message);
     }
     api.meetings().then(r => setMeetings(r?.data || []));
   }
 
   return (
     <div className="space-y-4 max-w-2xl">
-      {/* New meeting button */}
+      {/* New meeting form */}
       {creating ? (
-        <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-3">
-          <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') createMeeting(); if (e.key === 'Escape') setCreating(false); }}
-            placeholder="Meeting title..."
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-          <div className="flex gap-2">
-            <button onClick={createMeeting} className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg">Start now</button>
-            <button onClick={() => setCreating(false)} className="text-xs text-gray-500 hover:text-gray-300 px-3 py-2">Cancel</button>
+        <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-4">
+          <h3 className="text-sm font-semibold text-white">New meeting</h3>
+
+          {/* Title */}
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Title</label>
+            <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
+              onKeyDown={e => e.key === 'Escape' && setCreating(false)}
+              placeholder="e.g. Sprint planning, 1:1 with team..."
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          </div>
+
+          {/* Start now or schedule */}
+          <div>
+            <label className="text-xs text-gray-500 mb-2 block">When</label>
+            <div className="flex gap-2">
+              <button onClick={() => setStartNow(true)}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                ▶ Start now
+              </button>
+              <button onClick={() => setStartNow(false)}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                📅 Schedule
+              </button>
+            </div>
+          </div>
+
+          {/* Date & time (only when scheduling) */}
+          {!startNow && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+          )}
+
+          {/* Duration */}
+          <div>
+            <label className="text-xs text-gray-500 mb-2 block">Duration</label>
+            <div className="flex gap-2">
+              {[30, 60, 90, 120].map(d => (
+                <button key={d} onClick={() => setMeetDur(d)}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${meetDur === d ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                  {d < 60 ? `${d}m` : `${d/60}h`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-2 pt-1">
+            <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
+              className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition-colors">
+              {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule meeting'}
+            </button>
+            <button onClick={() => setCreating(false)}
+              className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">
+              Cancel
+            </button>
           </div>
         </div>
       ) : (
