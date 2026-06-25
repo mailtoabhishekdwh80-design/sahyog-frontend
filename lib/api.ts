@@ -1,6 +1,6 @@
 // lib/api.ts — Sahyog API client
 
-const API_BASE = 'http://localhost:3000/api/v1';
+const API_BASE = (typeof window !== 'undefined' && window.location.hostname !== 'localhost') ? 'https://sahyog-api-ajbr.onrender.com/api/v1' : 'http://localhost:3000/api/v1';
 
 // ── Token storage ─────────────────────────────────────────────
 export const tokenStore = {
