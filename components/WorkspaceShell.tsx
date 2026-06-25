@@ -33,7 +33,10 @@ export default function WorkspaceShell() {
   const [loading, setLoading]           = useState(true);
   const [user, setUser]                 = useState<any>(null);
   const msgEndRef                       = useRef<HTMLDivElement>(null);
-  const [typingUsers, setTypingUsers]   = useState<string[]>([]);
+  const [typingUsers,    setTypingUsers]    = useState<string[]>([]);
+  const [notifications,  setNotifications]  = useState<any[]>([]);
+  const [unreadCount,    setUnreadCount]    = useState(0);
+  const [showNotifs,     setShowNotifs]     = useState(false);
   const typingTimerRef                  = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // ── WebSocket real-time handler ──────────────────────────────
@@ -77,7 +80,9 @@ export default function WorkspaceShell() {
   useEffect(() => {
     if (!isLoggedIn()) { window.location.href = '/login'; return; }
     (async () => {
-      const [meRes, wsRes] = await Promise.all([api.me(), api.workspaces()]);
+      const [meRes, wsRes, notifRes] = await Promise.all([api.me(), api.workspaces(), api.notifications()]);
+      setNotifications(notifRes?.data?.notifications || []);
+      setUnreadCount(notifRes?.data?.unread || 0);
       setUser(meRes?.data);
       const wsList: Workspace[] = wsRes?.data || [];
       setWorkspaces(wsList);
@@ -208,15 +213,42 @@ export default function WorkspaceShell() {
           <div className="font-semibold text-sm text-white truncate">{activeWs?.name}</div>
           <div className="flex items-center justify-between mt-0.5">
             <div className="text-xs text-gray-500 truncate">{user?.display_name?.split(' ')[0]}</div>
-            <button
-              onClick={logout}
-              title="Sign out"
-              className="text-xs text-gray-600 hover:text-red-400 transition-colors ml-2 shrink-0"
-            >
-              Sign out
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowNotifs(s => !s)} className="relative text-gray-500 hover:text-white transition-colors">
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+              <button onClick={logout} className="text-xs text-gray-600 hover:text-red-400 transition-colors">Sign out</button>
+            </div>
           </div>
         </div>
+
+        {/* Notifications dropdown */}
+        {showNotifs && (
+          <div className="absolute left-0 right-0 top-16 z-50 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl mx-2 overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
+              <span className="text-xs font-semibold text-white">Notifications</span>
+              <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(prev => prev.map(n => ({...n, is_read: true}))); }}
+                className="text-xs text-emerald-400 hover:text-emerald-300">Mark all read</button>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {notifications.length === 0 && (
+                <div className="text-center py-6 text-gray-600 text-xs">No notifications</div>
+              )}
+              {notifications.slice(0, 10).map((n: any) => (
+                <div key={n.id} className={`px-3 py-2.5 border-b border-gray-800/50 hover:bg-gray-800 cursor-pointer ${!n.is_read ? 'bg-gray-800/40' : ''}`}
+                  onClick={async () => { if (!n.is_read) { await api.markRead(n.id); setUnreadCount(c => Math.max(0, c-1)); setNotifications(prev => prev.map(x => x.id === n.id ? {...x, is_read: true} : x)); } }}>
+                  <div className="text-xs text-white">{n.title || n.body}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{new Date(n.sent_at).toLocaleString('en-IN', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-2 space-y-1 px-2">
@@ -444,37 +476,79 @@ export default function WorkspaceShell() {
 // ── Meetings sub-view ─────────────────────────────────────────
 function MeetingsView() {
   const [meetings, setMeetings] = useState<any[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
   }, []);
 
+  async function createMeeting() {
+    if (!newTitle.trim()) return;
+    const now = new Date();
+    const end = new Date(now.getTime() + 60 * 60 * 1000);
+    const res = await api.createMeeting({
+      title: newTitle.trim(),
+      startsAt: now.toISOString(),
+      endsAt: end.toISOString(),
+      type: 'video',
+    });
+    if (res?.data?.id) {
+      setNewTitle(''); setCreating(false);
+      window.open(`/meet?id=${res.data.id}`, '_blank');
+    }
+    api.meetings().then(r => setMeetings(r?.data || []));
+  }
+
   return (
-    <div className="space-y-3 max-w-2xl">
-      {meetings.length === 0 && (
-        <div className="text-gray-600 text-sm">No meetings found.</div>
+    <div className="space-y-4 max-w-2xl">
+      {/* New meeting button */}
+      {creating ? (
+        <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-3">
+          <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') createMeeting(); if (e.key === 'Escape') setCreating(false); }}
+            placeholder="Meeting title..."
+            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+          <div className="flex gap-2">
+            <button onClick={createMeeting} className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg">Start now</button>
+            <button onClick={() => setCreating(false)} className="text-xs text-gray-500 hover:text-gray-300 px-3 py-2">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setCreating(true)}
+          className="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+          📹 New meeting
+        </button>
+      )}
+
+      {meetings.length === 0 && !creating && (
+        <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>
       )}
       {meetings.map(m => (
-        <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="font-semibold text-white">{m.title}</div>
-              {m.description && (
-                <div className="text-xs text-gray-500 mt-0.5">{m.description}</div>
-              )}
+        <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-white truncate">{m.title}</div>
+              {m.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{m.description}</div>}
               <div className="text-xs text-gray-500 mt-2">
-                {new Date(m.starts_at).toLocaleString('en-IN', {
-                  dateStyle: 'medium', timeStyle: 'short'
-                })}
+                📅 {new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
               </div>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              m.status === 'live' ? 'bg-red-900 text-red-300 animate-pulse' :
-              m.status === 'scheduled' ? 'bg-blue-900 text-blue-300' :
-              'bg-gray-800 text-gray-400'
-            }`}>
-              {m.status}
-            </span>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                m.status === 'live'      ? 'bg-red-900 text-red-300 animate-pulse' :
+                m.status === 'scheduled' ? 'bg-blue-900 text-blue-300' :
+                'bg-gray-800 text-gray-400'
+              }`}>
+                {m.status}
+              </span>
+              {(m.status === 'live' || m.status === 'scheduled') && (
+                <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
+                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                  Join →
+                </a>
+              )}
+            </div>
           </div>
         </div>
       ))}
