@@ -400,14 +400,13 @@ export default function WorkspaceShell() {
               <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
                 <input
                   value={newMsg}
-                  onChange={e => setNewMsg(e.target.value)}
+                  onChange={e => {
+                    setNewMsg(e.target.value);
+                    if (e.target.value && activeChannel) sendTyping(activeChannel.id);
+                  }}
                   onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                   placeholder={`Message #${activeChannel.name}`}
                   className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
-                  onChange={e => {
-                    // Trigger typing indicator via WebSocket
-                    if (e.target.value && activeChannel) sendTyping(activeChannel.id);
-                  }}
                 />
                 <button
                   onClick={sendMessage}
