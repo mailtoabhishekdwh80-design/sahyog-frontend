@@ -1,5 +1,6 @@
 // lib/api.ts — Sahyog API client
-const API_BASE = 'https://sahyog-api-ajbr.onrender.com/api/v1';
+
+const API_BASE = 'http://localhost:3000/api/v1';
 
 // ── Token storage ─────────────────────────────────────────────
 export const tokenStore = {
@@ -151,6 +152,47 @@ export const api = {
     apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
   getDownloadUrl: (fileId: string) =>
     apiFetch(`/files/${fileId}/download-url`),
+
+  // Reactions
+  addReaction:    (channelId: string, msgId: string, emoji: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}/reactions`, {
+      method: 'POST', body: JSON.stringify({ emoji }),
+    }),
+  removeReaction: (channelId: string, msgId: string, emoji: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}/reactions/${emoji}`, { method: 'DELETE' }),
+
+  // Threads
+  threadMessages: (channelId: string, msgId: string) =>
+    apiFetch(`/channels/${channelId}/messages?threadId=${msgId}&limit=50`),
+  sendThreadReply: (channelId: string, threadId: string, content: string) =>
+    apiFetch(`/channels/${channelId}/messages`, {
+      method: 'POST', body: JSON.stringify({ content, threadId }),
+    }),
+
+  // Pins
+  getPins:    (channelId: string) => apiFetch(`/channels/${channelId}/pins`),
+  pinMessage: (channelId: string, msgId: string) =>
+    apiFetch(`/channels/${channelId}/pins`, { method: 'POST', body: JSON.stringify({ messageId: msgId }) }),
+  unpinMessage: (channelId: string, msgId: string) =>
+    apiFetch(`/channels/${channelId}/pins/${msgId}`, { method: 'DELETE' }),
+
+  // DMs
+  dmChannels:  () => apiFetch('/channels?type=direct'),
+  createDM:    (userId: string) =>
+    apiFetch('/channels/dm', { method: 'POST', body: JSON.stringify({ userId }) }),
+
+  // Channel management
+  createChannel: (workspaceId: string, name: string, description?: string, isPrivate?: boolean) =>
+    apiFetch('/channels', {
+      method: 'POST',
+      body: JSON.stringify({ workspaceId, name, description, type: isPrivate ? 'private' : 'public' }),
+    }),
+  editMessage: (channelId: string, msgId: string, content: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}`, {
+      method: 'PATCH', body: JSON.stringify({ content }),
+    }),
+  deleteMessage: (channelId: string, msgId: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}`, { method: 'DELETE' }),
 
   // Search
   search: (q: string, type = 'all') =>

@@ -34,6 +34,21 @@ export default function WorkspaceShell() {
   const [user, setUser]                 = useState<any>(null);
   const msgEndRef                       = useRef<HTMLDivElement>(null);
   const [typingUsers,    setTypingUsers]    = useState<string[]>([]);
+  const [onlineUsers,    setOnlineUsers]    = useState<Set<string>>(new Set());
+  const [threadMsg,      setThreadMsg]      = useState<any>(null);
+  const [threadMessages, setThreadMessages] = useState<any[]>([]);
+  const [threadReply,    setThreadReply]    = useState('');
+  const [showDMs,        setShowDMs]        = useState(false);
+  const [dmChannels,     setDmChannels]     = useState<any[]>([]);
+  const [showNewChannel, setShowNewChannel] = useState(false);
+  const [newChName,      setNewChName]      = useState('');
+  const [newChDesc,      setNewChDesc]      = useState('');
+  const [newChPrivate,   setNewChPrivate]   = useState(false);
+  const [showPins,       setShowPins]       = useState(false);
+  const [pins,           setPins]           = useState<any[]>([]);
+  const [editingMsg,     setEditingMsg]     = useState<string|null>(null);
+  const [editContent,    setEditContent]    = useState('');
+  const [msgMenuId,      setMsgMenuId]      = useState<string|null>(null);
   const [showSearch,     setShowSearch]     = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
@@ -76,7 +91,24 @@ export default function WorkspaceShell() {
       });
     }
     if (msg.type === 'presence.update') {
-      // Could show online status — skip for now
+      const { userId, status } = msg.payload || {};
+      if (userId) {
+        setOnlineUsers(prev => {
+          const next = new Set(prev);
+          if (status === 'online') next.add(userId);
+          else next.delete(userId);
+          return next;
+        });
+      }
+    }
+    if (msg.type === 'message.edit') {
+      setMessages(prev => prev.map(m => m.id === msg.payload.id ? { ...m, content: msg.payload.content, is_edited: true } : m));
+    }
+    if (msg.type === 'message.delete') {
+      setMessages(prev => prev.filter(m => m.id !== msg.payload.id));
+    }
+    if (msg.type === 'message.reaction') {
+      setMessages(prev => prev.map(m => m.id === msg.payload.message_id ? { ...m, reactions: msg.payload.reactions } : m));
     }
   }, []);
 
@@ -171,6 +203,86 @@ export default function WorkspaceShell() {
     ]);
     setChannels(chRes?.data || []);
     setBoards(bdRes?.data || []);
+  }
+
+  async function openThread(msg: any) {
+    setThreadMsg(msg);
+    const res = await api.threadMessages(msg.channel_id, msg.id);
+    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
+  }
+
+  async function sendThreadReply() {
+    if (!threadReply.trim() || !threadMsg) return;
+    await api.sendThreadReply(threadMsg.channel_id, threadMsg.id, threadReply.trim());
+    setThreadReply('');
+    const res = await api.threadMessages(threadMsg.channel_id, threadMsg.id);
+    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
+  }
+
+  async function addReaction(msg: any, emoji: string) {
+    if (!activeChannel) return;
+    await api.addReaction(activeChannel.id, msg.id, emoji);
+    const res = await api.messages(activeChannel.id);
+    setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+    setMsgMenuId(null);
+  }
+
+  async function pinMessage(msgId: string) {
+    if (!activeChannel) return;
+    await api.pinMessage(activeChannel.id, msgId);
+    setMsgMenuId(null);
+  }
+
+  async function startEditMessage(msg: any) {
+    setEditingMsg(msg.id);
+    setEditContent(msg.content);
+    setMsgMenuId(null);
+  }
+
+  async function saveEditMessage(msgId: string) {
+    if (!activeChannel || !editContent.trim()) return;
+    await api.editMessage(activeChannel.id, msgId, editContent.trim());
+    setEditingMsg(null);
+    setEditContent('');
+    const res = await api.messages(activeChannel.id);
+    setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+  }
+
+  async function deleteMessage(msgId: string) {
+    if (!activeChannel) return;
+    if (!confirm('Delete this message?')) return;
+    await api.deleteMessage(activeChannel.id, msgId);
+    setMessages(prev => prev.filter(m => m.id !== msgId));
+    setMsgMenuId(null);
+  }
+
+  async function loadPins() {
+    if (!activeChannel) return;
+    const res = await api.getPins(activeChannel.id);
+    setPins(res?.data || []);
+    setShowPins(true);
+  }
+
+  async function createChannel() {
+    if (!newChName.trim() || !activeWs) return;
+    const res = await api.createChannel(activeWs.id, newChName.trim(), newChDesc.trim(), newChPrivate);
+    if (res?.data?.id) {
+      setShowNewChannel(false); setNewChName(''); setNewChDesc(''); setNewChPrivate(false);
+      const chRes = await api.channels(activeWs.id);
+      setChannels(Array.isArray(chRes?.data) ? chRes.data : []);
+    }
+  }
+
+  function parseMentions(content: string) {
+    return content.replace(/@(\w+)/g, '<span style="color:#34D399;font-weight:600">@$1</span>');
+  }
+
+  function formatContent(content: string) {
+    return content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code style="background:#1F2937;padding:2px 6px;border-radius:4px;font-family:monospace">$1</code>')
+      .replace(/```([\s\S]*?)```/g, '<pre style="background:#1F2937;padding:8px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:12px">$1</pre>');
   }
 
   async function openChannel(ch: Channel) {
@@ -463,6 +575,10 @@ export default function WorkspaceShell() {
             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900">
               <span className="text-gray-400">#</span>
               <span className="font-semibold text-white">{activeChannel.name}</span>
+              <div className="ml-auto flex items-center gap-2">
+                <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pinned messages">📌</button>
+                <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Search">🔍</button>
+              </div>
             </div>
 
             {/* Messages */}
@@ -473,18 +589,80 @@ export default function WorkspaceShell() {
                 </div>
               )}
               {messages.map(msg => (
-                <div key={msg.id} className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1 rounded-lg group relative">
+                  {/* Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 relative">
                     {msg.sender_name?.charAt(0) || '?'}
+                    {onlineUsers.has(msg.sender_id) && (
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-950" />
+                    )}
                   </div>
-                  <div>
+
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2">
                       <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
                       <span className="text-xs text-gray-600">
                         {new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
                       </span>
+                      {msg.is_edited && <span className="text-xs text-gray-600 italic">(edited)</span>}
+                      {msg.is_pinned && <span className="text-xs text-yellow-500">📌</span>}
                     </div>
-                    <p className="text-sm text-gray-300 mt-0.5">{msg.content}</p>
+
+                    {/* Editable or display */}
+                    {editingMsg === msg.id ? (
+                      <div className="flex gap-2 mt-1">
+                        <input autoFocus value={editContent} onChange={e => setEditContent(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') saveEditMessage(msg.id); if (e.key === 'Escape') setEditingMsg(null); }}
+                          className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-1.5 border border-emerald-500 focus:outline-none" />
+                        <button onClick={() => saveEditMessage(msg.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
+                        <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap"
+                        dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
+                    )}
+
+                    {/* Reactions */}
+                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {Object.entries(msg.reactions as Record<string, number>).map(([emoji, count]) => (
+                          <button key={emoji} onClick={() => addReaction(msg, emoji)}
+                            className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded-full text-xs border border-gray-700">
+                            {emoji} <span className="text-gray-400">{count}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Thread replies */}
+                    {msg.reply_count > 0 && (
+                      <button onClick={() => openThread(msg)}
+                        className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                        💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Hover actions */}
+                  <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
+                    {['👍','❤️','😂','🎉','🔥'].map(emoji => (
+                      <button key={emoji} onClick={() => addReaction(msg, emoji)}
+                        className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
+                    ))}
+                    <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>
+                    <div className="relative">
+                      <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)}
+                        className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">⋯</button>
+                      {msgMenuId === msg.id && (
+                        <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
+                          <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
+                          {msg.sender_id === user?.id && <>
+                            <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
+                            <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
+                          </>}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -546,7 +724,112 @@ export default function WorkspaceShell() {
           />
         )}
 
-        {/* ─── SEARCH MODAL ─── */}
+        {/* ─── THREAD PANEL ─── */}
+      {threadMsg && (
+        <div className="fixed inset-y-0 right-0 w-80 bg-gray-900 border-l border-gray-800 flex flex-col z-40 shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+            <span className="text-sm font-semibold text-white">Thread</span>
+            <button onClick={() => setThreadMsg(null)} className="text-gray-500 hover:text-white">✕</button>
+          </div>
+          {/* Original message */}
+          <div className="px-4 py-3 border-b border-gray-800 bg-gray-800/40">
+            <div className="flex gap-2">
+              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                {threadMsg.sender_name?.charAt(0)}
+              </div>
+              <div>
+                <span className="text-xs font-semibold text-white">{threadMsg.sender_name}</span>
+                <p className="text-xs text-gray-300 mt-0.5">{threadMsg.content}</p>
+              </div>
+            </div>
+          </div>
+          {/* Thread replies */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {threadMessages.map(m => (
+              <div key={m.id} className="flex gap-2">
+                <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  {m.sender_name?.charAt(0)}
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-white">{m.sender_name}</span>
+                  <p className="text-xs text-gray-300 mt-0.5">{m.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Reply composer */}
+          <div className="p-3 border-t border-gray-800">
+            <div className="flex gap-2 bg-gray-800 rounded-lg px-3 py-2">
+              <input value={threadReply} onChange={e => setThreadReply(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && sendThreadReply()}
+                placeholder="Reply in thread..."
+                className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
+              <button onClick={sendThreadReply} disabled={!threadReply.trim()} className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 text-sm">↑</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── PINS PANEL ─── */}
+      {showPins && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+              <span className="text-white font-semibold">📌 Pinned messages</span>
+              <button onClick={() => setShowPins(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div className="max-h-96 overflow-y-auto p-4 space-y-3">
+              {pins.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No pinned messages</p>}
+              {pins.map((p: any) => (
+                <div key={p.id} className="bg-gray-800 rounded-lg p-3">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-xs font-semibold text-white">{p.sender_name}</span>
+                    <span className="text-xs text-gray-500">pinned by {p.pinned_by_name}</span>
+                  </div>
+                  <p className="text-sm text-gray-300">{p.content}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── NEW CHANNEL MODAL ─── */}
+      {showNewChannel && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowNewChannel(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6 space-y-4">
+            <h3 className="text-white font-semibold text-lg">Create channel</h3>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Channel name</label>
+              <input value={newChName} onChange={e => setNewChName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                placeholder="e.g. marketing, dev-team"
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Description <span className="text-gray-600">(optional)</span></label>
+              <input value={newChDesc} onChange={e => setNewChDesc(e.target.value)}
+                placeholder="What's this channel about?"
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setNewChPrivate(!newChPrivate)}
+                className={`w-10 h-5 rounded-full transition-colors ${newChPrivate ? 'bg-emerald-600' : 'bg-gray-700'}`}>
+                <span className={`block w-4 h-4 bg-white rounded-full ml-0.5 transition-transform ${newChPrivate ? 'translate-x-5' : ''}`} />
+              </button>
+              <span className="text-sm text-gray-300">Private channel</span>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={createChannel} disabled={!newChName.trim()}
+                className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
+                Create channel
+              </button>
+              <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── SEARCH MODAL ─── */}
       {showSearch && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center pt-20 px-4"
           onClick={e => { if (e.target === e.currentTarget) setShowSearch(false); }}>
