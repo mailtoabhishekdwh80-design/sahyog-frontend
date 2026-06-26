@@ -74,8 +74,6 @@ export default function WorkspaceShell() {
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
-  const [uploading,      setUploading]      = useState(false);
-  const fileInputRef                        = useRef<HTMLInputElement>(null);
   const [notifications,  setNotifications]  = useState<any[]>([]);
   const [unreadCount,    setUnreadCount]    = useState(0);
   const [showNotifs,     setShowNotifs]     = useState(false);
