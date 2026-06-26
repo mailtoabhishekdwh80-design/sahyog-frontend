@@ -1094,7 +1094,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => { const members = Array.isArray(res?.data) ? res.data : []; setOrgMembers(members); });; api.directory().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : []));
+    api.adminMembers().then(res => { const members = Array.isArray(res?.data) ? res.data : []; setOrgMembers(members); });; api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
