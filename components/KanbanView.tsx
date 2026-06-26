@@ -397,12 +397,12 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
         <div className="shrink-0 border-b border-gray-800 bg-gray-900 p-4">
           <div className="flex items-center justify-between mb-3">
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
-              className="text-gray-500 hover:text-white px-2 py-1 rounded">prev</button>
+              className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800 rounded">&lt;</button>
             <span className="text-white font-semibold text-sm">
               {calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
             </span>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
-              className="text-gray-500 hover:text-white px-2 py-1 rounded">next</button>
+              className="text-gray-500 hover:text-white px-2 py-1 hover:bg-gray-800 rounded">&gt;</button>
           </div>
           <div className="grid grid-cols-7 gap-1">
             {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
