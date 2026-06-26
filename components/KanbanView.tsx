@@ -269,8 +269,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   }
 
   async function loadTemplates() {
+    const fallback = [
+      { id: 'scrum',   name: 'Scrum Sprint',    description: 'Backlog to Done',        lists: ['Backlog','Sprint','In Progress','Review','Done'] },
+      { id: 'kanban',  name: 'Simple Kanban',   description: 'To Do, Doing, Done',     lists: ['To Do','In Progress','Done'] },
+      { id: 'bug',     name: 'Bug Tracker',     description: 'Track bugs to resolved', lists: ['Reported','Confirmed','In Fix','Testing','Resolved'] },
+      { id: 'hiring',  name: 'Hiring Pipeline', description: 'Track candidates',       lists: ['Applied','Screening','Interview','Offer','Hired'] },
+      { id: 'project', name: 'Project Launch',  description: 'Full project lifecycle', lists: ['Ideas','Planning','Development','Testing','Launched'] },
+      { id: 'crm',     name: 'Sales CRM',       description: 'Track deals and clients',lists: ['Leads','Qualified','Proposal','Negotiation','Closed Won'] },
+    ];
     const res = await api.getTemplates();
-    setTemplates(res?.data || []);
+    setTemplates(res?.data?.length ? res.data : fallback);
     setShowTemplates(true);
   }
 
