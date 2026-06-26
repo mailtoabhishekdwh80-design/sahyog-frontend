@@ -357,7 +357,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           <span className="text-xs text-gray-500">{tasks.length} tasks</span>
         </div>
         {/* Toolbar row */}
-        <div className="flex items-center gap-2 px-3 pb-2">
+        <div className="flex items-center gap-2 px-3 pb-2 overflow-x-auto">
           <button onClick={loadTemplates}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
