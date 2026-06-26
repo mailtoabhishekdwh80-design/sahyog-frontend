@@ -484,6 +484,9 @@ export default function WorkspaceShell() {
                   </span>
                 )}
               </button>
+              <button onClick={() => setShowStatus(true)} className="text-xs text-gray-500 hover:text-white transition-colors" title="Set status">{user?.status_emoji || "??"}</button>
+              <button onClick={loadBookmarks} className="text-xs text-gray-500 hover:text-white transition-colors" title="Saved">??</button>
+              <button onClick={loadChannelBrowser} className="text-xs text-gray-500 hover:text-white transition-colors" title="Browse channels">??</button>
               <button onClick={logout} className="text-xs text-gray-600 hover:text-red-400 transition-colors">Sign out</button>
             </div>
           </div>
