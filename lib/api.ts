@@ -18,14 +18,11 @@ export async function apiFetch(path: string, options: RequestInit = {}): Promise
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
-
   try {
     const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
     const text = await res.text();
     if (!text) return {};
     const data = JSON.parse(text);
-
-    // Auto-refresh on token expiry
     if (data?.error?.code === 'TOKEN_EXPIRED') {
       const refreshed = await tryRefresh();
       if (refreshed) {
@@ -81,7 +78,7 @@ export async function login(email: string, password: string) {
       return { ok: true, user: data.data.user };
     }
     return { ok: false, error: data?.error?.message || 'Login failed' };
-  } catch (err) {
+  } catch {
     return { ok: false, error: 'Cannot connect to server. Is the backend running?' };
   }
 }
@@ -93,183 +90,153 @@ export function logout() {
 
 export const isLoggedIn = () => !!tokenStore.get();
 
-// ── API helpers ───────────────────────────────────────────────
+// ── API ───────────────────────────────────────────────────────
 export const api = {
   login,
   logout,
+
+  // User
   me:           () => apiFetch('/users/me'),
+  updateProfile: (data: any) => apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Workspaces
   workspaces:   () => apiFetch('/workspaces'),
+
+  // Channels
   channels:     (workspaceId?: string) =>
     apiFetch(`/channels${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
   messages:     (channelId: string) =>
     apiFetch(`/channels/${channelId}/messages?limit=50`),
   sendMessage:  (channelId: string, content: string) =>
-    apiFetch(`/channels/${channelId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    }),
-  boards:       (workspaceId?: string) =>
-    apiFetch(`/boards${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
-  createBoard:  (name: string, workspaceId: string) =>
-    apiFetch('/boards', { method: 'POST', body: JSON.stringify({ name, workspaceId }) }),
-  lists:        (boardId: string) => apiFetch(`/boards/${boardId}/lists`),
-  tasks:        (boardId: string) => apiFetch(`/boards/${boardId}/tasks`),
-  createList:   (boardId: string, name: string, position: number) =>
-    apiFetch(`/boards/${boardId}/lists`, {
-      method: 'POST',
-      body: JSON.stringify({ name, position }),
-    }),
-  createTask:   (boardId: string, title: string, listId: string, description?: string) =>
-    apiFetch(`/boards/${boardId}/tasks`, {
-      method: 'POST',
-      body: JSON.stringify({ title, listId, description }),
-    }),
-  meetings:        () => apiFetch('/meetings'),
-  createMeeting:   (data: Record<string, any>) =>
-    apiFetch('/meetings', { method: 'POST', body: JSON.stringify(data) }),
-  joinMeeting:     (meetingId: string) =>
-    apiFetch(`/meetings/${meetingId}/join`, { method: 'POST' }),
-  // Meeting features
-  getMeeting:       (id: string) => apiFetch('/meetings/' + id),
-  getParticipants:  (id: string) => apiFetch('/meetings/' + id + '/participants'),
-  getMeetingChat:   (id: string) => apiFetch('/meetings/' + id + '/chat'),
-  sendMeetingChat:  (id: string, content: string) =>
-    apiFetch('/meetings/' + id + '/chat', { method: 'POST', body: JSON.stringify({ content }) }),
-  getMeetingNotes:  (id: string) => apiFetch('/meetings/' + id + '/notes'),
-  saveMeetingNotes: (id: string, content: string) =>
-    apiFetch('/meetings/' + id + '/notes', { method: 'POST', body: JSON.stringify({ content }) }),
-  getRecordings:    (id: string) => apiFetch('/meetings/' + id + '/recordings'),
-  endMeeting:       (id: string) => apiFetch('/meetings/' + id + '/end', { method: 'POST' }),
-  sendReminder:     (id: string) => apiFetch('/meetings/' + id + '/remind', { method: 'POST' }),
-
-  startRecording:  (meetingId: string) =>
-    apiFetch(`/meetings/${meetingId}/recording/start`, { method: 'POST' }),
-  stopRecording:   (meetingId: string) =>
-    apiFetch(`/meetings/${meetingId}/recording/stop`, { method: 'POST' }),
-
-  leaveMeeting:    (meetingId: string) =>
-    apiFetch(`/meetings/${meetingId}/leave`, { method: 'POST' }),
-
-  // Files
-  getUploadUrl: (fileName: string, mimeType: string, sizeBytes: number, workspaceId?: string) =>
-    apiFetch('/files/upload-url', {
-      method: 'POST',
-      body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }),
-    }),
-  getFiles: (workspaceId?: string) =>
-    apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
-  getDownloadUrl: (fileId: string) =>
-    apiFetch(`/files/${fileId}/download-url`),
+    apiFetch(`/channels/${channelId}/messages`, { method: 'POST', body: JSON.stringify({ content }) }),
+  createChannel: (workspaceId: string, name: string, description?: string, isPrivate?: boolean) =>
+    apiFetch('/channels', { method: 'POST', body: JSON.stringify({ workspaceId, name, description, type: isPrivate ? 'private' : 'public' }) }),
+  editMessage:  (channelId: string, msgId: string, content: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}`, { method: 'PATCH', body: JSON.stringify({ content }) }),
+  deleteMessage: (channelId: string, msgId: string) =>
+    apiFetch(`/channels/${channelId}/messages/${msgId}`, { method: 'DELETE' }),
 
   // Reactions
   addReaction:    (channelId: string, msgId: string, emoji: string) =>
-    apiFetch(`/channels/${channelId}/messages/${msgId}/reactions`, {
-      method: 'POST', body: JSON.stringify({ emoji }),
-    }),
+    apiFetch(`/channels/${channelId}/messages/${msgId}/reactions`, { method: 'POST', body: JSON.stringify({ emoji }) }),
   removeReaction: (channelId: string, msgId: string, emoji: string) =>
     apiFetch(`/channels/${channelId}/messages/${msgId}/reactions/${emoji}`, { method: 'DELETE' }),
 
   // Threads
-  threadMessages: (channelId: string, msgId: string) =>
+  threadMessages:  (channelId: string, msgId: string) =>
     apiFetch(`/channels/${channelId}/messages?threadId=${msgId}&limit=50`),
   sendThreadReply: (channelId: string, threadId: string, content: string) =>
-    apiFetch(`/channels/${channelId}/messages`, {
-      method: 'POST', body: JSON.stringify({ content, threadId }),
-    }),
+    apiFetch(`/channels/${channelId}/messages`, { method: 'POST', body: JSON.stringify({ content, threadId }) }),
 
   // Pins
-  getPins:    (channelId: string) => apiFetch(`/channels/${channelId}/pins`),
-  pinMessage: (channelId: string, msgId: string) =>
+  getPins:      (channelId: string) => apiFetch(`/channels/${channelId}/pins`),
+  pinMessage:   (channelId: string, msgId: string) =>
     apiFetch(`/channels/${channelId}/pins`, { method: 'POST', body: JSON.stringify({ messageId: msgId }) }),
   unpinMessage: (channelId: string, msgId: string) =>
     apiFetch(`/channels/${channelId}/pins/${msgId}`, { method: 'DELETE' }),
-
-  // DMs
-  dmChannels:  () => apiFetch('/channels?type=direct'),
-  createDM:    (userId: string) =>
-    apiFetch('/channels/dm', { method: 'POST', body: JSON.stringify({ userId }) }),
-
-  // Channel management
-  createChannel: (workspaceId: string, name: string, description?: string, isPrivate?: boolean) =>
-    apiFetch('/channels', {
-      method: 'POST',
-      body: JSON.stringify({ workspaceId, name, description, type: isPrivate ? 'private' : 'public' }),
-    }),
-  editMessage: (channelId: string, msgId: string, content: string) =>
-    apiFetch(`/channels/${channelId}/messages/${msgId}`, {
-      method: 'PATCH', body: JSON.stringify({ content }),
-    }),
-  deleteMessage: (channelId: string, msgId: string) =>
-    apiFetch(`/channels/${channelId}/messages/${msgId}`, { method: 'DELETE' }),
-
-  // Search
-  search: (q: string, type = 'all') =>
-    apiFetch(`/search?q=${encodeURIComponent(q)}&type=${type}`),
-
-  // Notifications
-  notifications:    () => apiFetch('/users/me/notifications'),
-  markRead:         (id: string) => apiFetch(`/users/me/notifications/${id}/read`, { method: 'PATCH' }),
-  markAllRead:      () => apiFetch('/users/me/notifications/read-all', { method: 'POST' }),
-
-  // File uploads
-    apiFetch('/files/upload-url', { method: 'POST', body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }) }),
-    apiFetch('/files/' + fileId + '/confirm', { method: 'POST' }),
-
-  // Bookmarks
-  getBookmarks:    () => apiFetch('/users/me/bookmarks'),
-  addBookmark:     (messageId: string) =>
-    apiFetch('/users/me/bookmarks', { method: 'POST', body: JSON.stringify({ messageId }) }),
-  removeBookmark:  (messageId: string) =>
-    apiFetch('/users/me/bookmarks/' + messageId, { method: 'DELETE' }),
-
-  // Status
-  setStatus: (statusEmoji: string, statusText: string) =>
-    apiFetch('/users/me/status', { method: 'PATCH', body: JSON.stringify({ statusEmoji, statusText }) }),
 
   // Direct Messages
   dmList:    () => apiFetch('/channels/dm/list'),
   createDM:  (userId: string) =>
     apiFetch('/channels/dm', { method: 'POST', body: JSON.stringify({ userId }) }),
 
+  // Boards
+  boards:     (workspaceId?: string) =>
+    apiFetch(`/boards${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
+  createBoard: (name: string, workspaceId: string) =>
+    apiFetch('/boards', { method: 'POST', body: JSON.stringify({ name, workspaceId }) }),
+  lists:      (boardId: string) => apiFetch(`/boards/${boardId}/lists`),
+  tasks:      (boardId: string) => apiFetch(`/boards/${boardId}/tasks`),
+  createList: (boardId: string, name: string, position: number) =>
+    apiFetch(`/boards/${boardId}/lists`, { method: 'POST', body: JSON.stringify({ name, position }) }),
+  createTask: (boardId: string, title: string, listId: string, description?: string) =>
+    apiFetch(`/boards/${boardId}/tasks`, { method: 'POST', body: JSON.stringify({ title, listId, description }) }),
+  updateTask: (taskId: string, data: Record<string, any>) =>
+    apiFetch(`/boards/task/${taskId}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteTask: (taskId: string) =>
+    apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
+  moveTask:   (taskId: string, listId: string, position: number) =>
+  getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
+  getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
+  addComment:      (taskId: string, content: string) =>
+    apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content }) }),
+  getChecklist:    (taskId: string) => apiFetch('/boards/task/' + taskId + '/checklist'),
+  addCheckItem:    (taskId: string, title: string) =>
+    apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
+  toggleCheckItem: (taskId: string, itemId: string, isChecked: boolean) =>
+    apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
+  deleteCheckItem: (taskId: string, itemId: string) =>
+    apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
+
+  // Meetings
+  meetings:        () => apiFetch('/meetings'),
+  createMeeting:   (data: Record<string, any>) =>
+    apiFetch('/meetings', { method: 'POST', body: JSON.stringify(data) }),
+  joinMeeting:     (meetingId: string) =>
+    apiFetch(`/meetings/${meetingId}/join`, { method: 'POST' }),
+  leaveMeeting:    (meetingId: string) =>
+    apiFetch(`/meetings/${meetingId}/leave`, { method: 'POST' }),
+  getMeeting:      (id: string) => apiFetch('/meetings/' + id),
+  getParticipants: (id: string) => apiFetch('/meetings/' + id + '/participants'),
+  getMeetingChat:  (id: string) => apiFetch('/meetings/' + id + '/chat'),
+  sendMeetingChat: (id: string, content: string) =>
+    apiFetch('/meetings/' + id + '/chat', { method: 'POST', body: JSON.stringify({ content }) }),
+  getMeetingNotes: (id: string) => apiFetch('/meetings/' + id + '/notes'),
+  saveMeetingNotes: (id: string, content: string) =>
+    apiFetch('/meetings/' + id + '/notes', { method: 'POST', body: JSON.stringify({ content }) }),
+  getRecordings:   (id: string) => apiFetch('/meetings/' + id + '/recordings'),
+  endMeeting:      (id: string) => apiFetch('/meetings/' + id + '/end', { method: 'POST' }),
+  sendReminder:    (id: string) => apiFetch('/meetings/' + id + '/remind', { method: 'POST' }),
+  startRecording:  (meetingId: string) =>
+    apiFetch(`/meetings/${meetingId}/recording/start`, { method: 'POST' }),
+  stopRecording:   (meetingId: string) =>
+    apiFetch(`/meetings/${meetingId}/recording/stop`, { method: 'POST' }),
+
+  // Files
+  getUploadUrl: (fileName: string, mimeType: string, sizeBytes: number, workspaceId?: string) =>
+    apiFetch('/files/upload-url', { method: 'POST', body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }) }),
+  confirmUpload: (data: Record<string, any>) =>
+    apiFetch('/files/confirm', { method: 'POST', body: JSON.stringify(data) }),
+  getFiles:     (workspaceId?: string) =>
+    apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
+
+  // Bookmarks
+  getBookmarks:   () => apiFetch('/users/me/bookmarks'),
+  addBookmark:    (messageId: string) =>
+    apiFetch('/users/me/bookmarks', { method: 'POST', body: JSON.stringify({ messageId }) }),
+  removeBookmark: (messageId: string) =>
+    apiFetch('/users/me/bookmarks/' + messageId, { method: 'DELETE' }),
+
+  // Status
+  setStatus: (statusEmoji: string, statusText: string) =>
+    apiFetch('/users/me/status', { method: 'PATCH', body: JSON.stringify({ statusEmoji, statusText }) }),
+
+  // Notifications
+  notifications: () => apiFetch('/users/me/notifications'),
+  markRead:      (id: string) => apiFetch(`/users/me/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllRead:   () => apiFetch('/users/me/notifications/read-all', { method: 'POST' }),
+
+  // Search
+  search: (q: string, type = 'all') =>
+    apiFetch(`/search?q=${encodeURIComponent(q)}&type=${type}`),
+
   // Team management
-  orgMembers:     () => apiFetch('/orgs/me/members'),
-  orgRoles:       () => apiFetch('/orgs/me/roles'),
-  inviteMembers:  (emails: string[], roleId: string) =>
+  orgMembers:       () => apiFetch('/orgs/me/members'),
+  orgRoles:         () => apiFetch('/orgs/me/roles'),
+  inviteMembers:    (emails: string[], roleId: string) =>
     apiFetch('/orgs/me/members/invite', { method: 'POST', body: JSON.stringify({ emails, roleId }) }),
   updateMemberRole: (userId: string, roleId: string) =>
     apiFetch('/orgs/me/members/' + userId + '/role', { method: 'PATCH', body: JSON.stringify({ roleId }) }),
-  removeMember:   (userId: string) => apiFetch('/orgs/me/members/' + userId, { method: 'DELETE' }),
-  getOrg:         () => apiFetch('/orgs/me'),
-  updateOrg:      (data: any) => apiFetch('/orgs/me', { method: 'PATCH', body: JSON.stringify(data) }),
-  changePassword: (currentPassword: string, newPassword: string) =>
+  removeMember:     (userId: string) =>
+    apiFetch('/orgs/me/members/' + userId, { method: 'DELETE' }),
+  getOrg:           () => apiFetch('/orgs/me'),
+  updateOrg:        (data: any) =>
+    apiFetch('/orgs/me', { method: 'PATCH', body: JSON.stringify(data) }),
+  changePassword:   (currentPassword: string, newPassword: string) =>
     apiFetch('/auth/password/change', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),
-  updateProfile:  (data: any) => apiFetch('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
 
   // Admin
   adminStats:   () => apiFetch('/admin/stats'),
   adminMembers: () => apiFetch('/users/directory'),
   adminAudit:   () => apiFetch('/admin/audit-logs'),
-
-  updateTask: (taskId: string, data: Record<string, any>) =>
-    apiFetch(`/boards/task/${taskId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
-
-  deleteTask: (taskId: string) =>
-    apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
-
-  getTask:         (taskId) => apiFetch('/boards/task/' + taskId),
-  getComments:     (taskId) => apiFetch('/boards/task/' + taskId + '/comments'),
-  addComment:      (taskId, c) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content: c }) }),
-  getChecklist:    (taskId) => apiFetch('/boards/task/' + taskId + '/checklist'),
-  addCheckItem:    (taskId, title) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
-  toggleCheckItem: (taskId, itemId, isChecked) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
-  deleteCheckItem: (taskId, itemId) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
-
-  moveTask: (taskId: string, listId: string, position: number) =>
-    apiFetch(`/boards/task/${taskId}/move`, {
-      method: 'PATCH',
-      body: JSON.stringify({ listId, position }),
-    }),
 };
