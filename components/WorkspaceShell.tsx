@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
-import { api, isLoggedIn } from '../lib/api';
+import { api, apiFetch, isLoggedIn } from '../lib/api';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -461,10 +461,20 @@ export default function WorkspaceShell() {
               }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New board">+</button>
             </div>
             {boards.map(b => (
-              <button key={b.id} onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-                <span>📋</span><span className="truncate">{b.name}</span>
-              </button>
+              <div key={b.id} className="flex items-center group">
+                <button onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
+                  className={`flex-1 text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                  <span className="text-xs">B</span><span className="truncate">{b.name}</span>
+                </button>
+                <button onClick={async () => {
+                  if (!confirm('Delete board "' + b.name + '"?')) return;
+                  await apiFetch('/boards/' + b.id, { method: 'DELETE' });
+                  if (activeBoard?.id === b.id) setActiveBoard(null);
+                  const wsRes = await api.workspaces();
+                  const wsId = wsRes?.data?.[0]?.id;
+                  if (wsId) { const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
+                }} className="hidden group-hover:block text-gray-600 hover:text-red-400 text-xs px-1.5 py-1 rounded">x</button>
+              </div>
             ))}
           </div>
 
