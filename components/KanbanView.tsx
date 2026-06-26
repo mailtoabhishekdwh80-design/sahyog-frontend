@@ -15,6 +15,7 @@ type Task = {
   list_id: string; priority: string; position: number;
   due_date?: string; assignees?: any[]; labels?: any[];
   checklist_total?: number; checklist_done?: number; comment_count?: number;
+  cover_color?: string; cover_url?: string;
 };
 
 const PC: Record<string, string> = {
