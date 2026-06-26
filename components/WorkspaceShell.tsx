@@ -901,7 +901,7 @@ export default function WorkspaceShell() {
             </div>
             <div className="flex gap-2">
               <button onClick={saveStatus} className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
-              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
+              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setUser((u) => u ? { ...u, status_emoji: '', status_text: '' } : u); setShowStatus(false); }}
                 className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
             </div>
           </div>
