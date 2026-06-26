@@ -113,6 +113,12 @@ export default function WorkspaceShell() {
   const [pollOptions,     setPollOptions]     = useState(['', '']);
   const [showWhiteboard,  setShowWhiteboard]  = useState(false);
   const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -1557,16 +1563,16 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
+  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch, setMemberSearch] = useState('');
   const [view,        setView]        = useState<'list'|'calendar'>('list');
   const [calMonth,    setCalMonth]    = useState(new Date());
-  const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => setMeetOrgMembers(Array.isArray(res?.data) ? res.data : []));
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
@@ -1678,7 +1684,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none mb-2" />
             <div className="max-h-32 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold shrink-0">{m.display_name?.charAt(0)}</div>
@@ -1760,7 +1766,15 @@ function MeetingsView() {
                     {m.status === 'scheduled' && (
                       <div className="flex gap-1">
                         <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
-                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">🔁</button>
+                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">Recur</button>
+                        <button onClick={async () => {
+                          setActiveMeetingId(m.id);
+                          const res = await api.getPolls(m.id);
+                          setPolls(res?.data || []);
+                          setShowPollCreate(true);
+                        }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Meeting polls">Poll</button>
+                        <button onClick={() => { setActiveMeetingId(m.id); setShowWhiteboard(true); }}
+                          className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Whiteboard">Board</button>
                       </div>
                     )}
                   </div>

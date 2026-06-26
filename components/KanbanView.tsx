@@ -370,21 +370,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${showCalendar ? 'bg-emerald-700 text-white border-emerald-600' : 'text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border-gray-700'}`}>
             Calendar
           </button>
-          <div className="relative">
-            <button onClick={() => setShowBgPicker(s => !s)}
-              className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+          <button onClick={() => setShowBgPicker(s => !s)}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${showBgPicker ? 'bg-emerald-700 text-white border-emerald-600' : 'text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border-gray-700'}`}>
               Theme
             </button>
-            {showBgPicker && (
-              <div className="absolute left-0 top-9 bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl z-50 flex gap-2 flex-wrap w-48">
-                {BOARD_COLORS.map(c => (
-                  <button key={c.name} onClick={() => { setBoardBg(c.value); setShowBgPicker(false); }}
-                    className="w-8 h-8 rounded-lg border-2 border-gray-600 hover:border-white transition-colors"
-                    style={{ background: c.value }} title={c.name} />
-                ))}
-              </div>
-            )}
-          </div>
           <button onClick={loadBoard}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Refresh
@@ -570,10 +559,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   <div>
                     <label className="text-xs text-gray-500 mb-2 block">Card cover color</label>
                     <div className="flex gap-2 flex-wrap">
-                      <button onClick={() => { api.setCoverColor(selectedTask.id, ''); loadBoard(); }}
+                      <button onClick={async () => { await api.setCoverColor(selectedTask.id, ''); loadBoard(); }}
                         className="w-7 h-7 rounded-lg border-2 border-gray-600 hover:border-white bg-gray-800 text-xs text-gray-500">x</button>
                       {COVER_COLORS.map(c => (
-                        <button key={c} onClick={() => { api.setCoverColor(selectedTask.id, c); loadBoard(); }}
+                        <button key={c} onClick={async () => { await api.setCoverColor(selectedTask.id, c); loadBoard(); }}
                           style={{ backgroundColor: c }}
                           className="w-7 h-7 rounded-lg border-2 border-transparent hover:border-white transition-colors" />
                       ))}
@@ -827,6 +816,25 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Theme picker modal */}
+      {showBgPicker && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20"
+          onClick={() => setShowBgPicker(false)}>
+          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <p className="text-xs text-gray-400 mb-3 font-medium">Board theme</p>
+            <div className="flex gap-2 flex-wrap">
+              {BOARD_COLORS.map(c => (
+                <button key={c.name} onClick={() => { setBoardBg(c.value); setShowBgPicker(false); }}
+                  className="w-12 h-12 rounded-xl border-2 border-gray-600 hover:border-white transition-colors flex items-end p-1"
+                  style={{ background: c.value }} title={c.name}>
+                  <span className="text-white text-xs opacity-70">{c.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
