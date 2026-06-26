@@ -126,6 +126,21 @@ export default function WorkspaceShell() {
 
   // ── Init ────────────────────────────────────────────────────
   useEffect(() => {
+    // Register push notifications
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      Notification.requestPermission().then(async (permission) => {
+        if (permission === 'granted') {
+          try {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZJgFRfYBZqjGiTwQR1fC9DGa3LA'
+            });
+            await api.savePushSub(sub);
+          } catch {}
+        }
+      });
+    }
     if (!isLoggedIn()) { window.location.href = '/login'; return; }
     api.me().then(res => { setUser(res?.data); setStatusEmoji(res?.data?.status_emoji || ''); setStatusText(res?.data?.status_text || ''); });
     api.workspaces().then(res => {
@@ -512,7 +527,7 @@ export default function WorkspaceShell() {
               className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Browse
             </button>
-            <button onClick={() => api.logout()} title="Sign out"
+            <button onClick={logout} title="Sign out"
               className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Sign out
             </button>
@@ -744,7 +759,7 @@ export default function WorkspaceShell() {
         {/* Home / Meetings / Admin View */}
         {!activeChannel && !activeBoard && !activeDM && (
           <div className="flex-1 overflow-y-auto">
-            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: Board) => { setActiveBoard(b); setActiveChannel(null); }} />}
+            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b) => { setActiveBoard(b); setActiveChannel(null); }} />}
             {activeView === 'meetings' && <MeetingsView />}
           </div>
         )}
@@ -901,7 +916,7 @@ export default function WorkspaceShell() {
             </div>
             <div className="flex gap-2">
               <button onClick={saveStatus} className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
-              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setUser((u: any) => u ? { ...u, status_emoji: '', status_text: '' } : u); setShowStatus(false); }}
+              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
                 className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
             </div>
           </div>
@@ -1169,6 +1184,17 @@ function MeetingsView() {
       if (startNow) window.open(`/meet?id=${res.data.id}`, '_blank');
     } else if (res?.error) alert('Failed: ' + res.error.message);
     api.meetings().then(r => setMeetings(r?.data || []));
+  }
+
+  async function makeRecurring(meetingId: string) {
+    const freq = prompt('Repeat frequency? (daily/weekly/monthly)');
+    if (!freq || !['daily','weekly','monthly'].includes(freq)) return;
+    const endDate = prompt('End date? (YYYY-MM-DD) or leave blank for 30 days');
+    const res = await api.makeRecurring(meetingId, freq, endDate || undefined);
+    if (res?.data?.created) {
+      alert(`Created ${res.data.created} recurring meetings!`);
+      api.meetings().then(r => setMeetings(r?.data || []));
+    }
   }
 
   async function sendReminder(meetingId: string) {

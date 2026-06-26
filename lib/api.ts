@@ -156,7 +156,7 @@ export const api = {
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
   moveTask:   (taskId: string, listId: string, position: number) =>
-    apiFetch('/boards/task/' + taskId + '/move', { method: 'PATCH', body: JSON.stringify({ listId, position }) }),
+    apiFetch(`/boards/task/${taskId}/move`, { method: 'PATCH', body: JSON.stringify({ listId, position }) }),
   getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
   getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
   addComment:      (taskId: string, content: string) =>
@@ -235,6 +235,36 @@ export const api = {
     apiFetch('/orgs/me', { method: 'PATCH', body: JSON.stringify(data) }),
   changePassword:   (currentPassword: string, newPassword: string) =>
     apiFetch('/auth/password/change', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),
+
+  // Task attachments & activity
+  getAttachments:  (taskId: string) => apiFetch('/boards/task/' + taskId + '/attachments'),
+  addAttachment:   (taskId: string, data: any) =>
+    apiFetch('/boards/task/' + taskId + '/attachments', { method: 'POST', body: JSON.stringify(data) }),
+  getActivity:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/activity'),
+  setCoverColor:   (taskId: string, coverColor: string) =>
+    apiFetch('/boards/task/' + taskId + '/cover', { method: 'PATCH', body: JSON.stringify({ coverColor }) }),
+
+  // Board templates
+  getTemplates:    () => apiFetch('/boards/templates'),
+  applyTemplate:   (boardId: string, templateId: string) =>
+    apiFetch('/boards/' + boardId + '/from-template', { method: 'POST', body: JSON.stringify({ templateId }) }),
+
+  // @here mention
+  notifyHere:      (channelId: string, message: string) =>
+    apiFetch('/channels/' + channelId + '/here', { method: 'POST', body: JSON.stringify({ message }) }),
+
+  // Guest access
+  guestInvite:     (email: string, channelIds: string[]) =>
+    apiFetch('/channels/guest-invite', { method: 'POST', body: JSON.stringify({ email, channelIds }) }),
+
+  // Recurring meetings
+  makeRecurring:   (meetingId: string, frequency: string, endDate?: string) =>
+    apiFetch('/meetings/' + meetingId + '/recurring', { method: 'POST', body: JSON.stringify({ frequency, endDate }) }),
+  callHistory:     () => apiFetch('/meetings/call-history'),
+
+  // Push notifications
+  savePushSub:     (subscription: any) =>
+    apiFetch('/users/me/push-subscription', { method: 'POST', body: JSON.stringify({ subscription }) }),
 
   // Admin
   adminStats:   () => apiFetch('/admin/stats'),

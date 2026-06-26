@@ -54,8 +54,12 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.3 : 1 }}
       {...attributes} {...listeners}
       onClick={onClick}
-      className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:border-gray-500 cursor-grab active:cursor-grabbing select-none"
+      className="bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 cursor-grab active:cursor-grabbing select-none overflow-hidden"
     >
+      {task.cover_color && (
+        <div style={{ backgroundColor: task.cover_color }} className="h-8 w-full" />
+      )}
+      <div className="p-3">
       {/* Labels */}
       {task.labels && task.labels.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
@@ -135,7 +139,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [checklist,     setChecklist]     = useState<any[]>([]);
   const [newCheckItem,  setNewCheckItem]  = useState('');
   const [orgMembers,    setOrgMembers]    = useState<any[]>([]);
-  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'>('details');
+  const [attachments,   setAttachments]   = useState<any[]>([]);
+  const [activity,      setActivity]      = useState<any[]>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templates,     setTemplates]     = useState<any[]>([]);
+  const [coverColors]                     = useState(['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#06b6d4']);
+  const attachFileRef = useRef<HTMLInputElement>(null);
+  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'|'attachments'|'activity'>('details');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -211,9 +221,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     setEditDesc(task.description || ''); setEditPriority(task.priority);
     setEditDueDate(task.due_date ? task.due_date.split('T')[0] : '');
     setTaskTab('details');
-    const [commRes, checkRes] = await Promise.all([api.getComments(task.id), api.getChecklist(task.id)]);
+    const [commRes, checkRes, attRes, actRes] = await Promise.all([api.getComments(task.id), api.getChecklist(task.id), api.getAttachments(task.id), api.getActivity(task.id)]);
     setComments(commRes?.data || []);
     setChecklist(checkRes?.data || []);
+    setAttachments(attRes?.data || []);
+    setActivity(actRes?.data || []);
   }
 
   async function saveTask() {
@@ -225,6 +237,31 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     });
     setSaving(false);
     setSelectedTask(null);
+    loadBoard();
+  }
+
+  async function uploadAttachment(file: File) {
+    if (!selectedTask) return;
+    const wsRes = await api.workspaces();
+    const workspaceId = wsRes?.data?.[0]?.id;
+    const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
+    if (!urlRes?.data?.uploadUrl) { alert('Upload failed'); return; }
+    await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+    const fileUrl = urlRes.data.uploadUrl.split('?')[0];
+    await api.addAttachment(selectedTask.id, { fileName: file.name, fileUrl, mimeType: file.type, sizeBytes: file.size });
+    const res = await api.getAttachments(selectedTask.id);
+    setAttachments(res?.data || []);
+  }
+
+  async function loadTemplates() {
+    const res = await api.getTemplates();
+    setTemplates(res?.data || []);
+    setShowTemplates(true);
+  }
+
+  async function applyTemplate(templateId: string) {
+    await api.applyTemplate(boardId, templateId);
+    setShowTemplates(false);
     loadBoard();
   }
 
@@ -284,6 +321,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               </div>
             )}
           </div>
+          <button onClick={loadTemplates} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800" title="Board templates">📐 Templates</button>
           <button onClick={loadBoard} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">↻</button>
         </div>
       </div>
@@ -372,12 +410,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             {/* Modal header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
               <div className="flex gap-3">
-                {(['details','comments','checklist'] as const).map(tab => (
-                  <button key={tab} onClick={() => setTaskTab(tab)}
-                    className={`text-xs font-medium capitalize px-3 py-1.5 rounded-lg transition-colors ${taskTab === tab ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-                    {tab === 'comments' ? `💬 Comments (${comments.length})` :
-                     tab === 'checklist' ? `☑ Checklist (${checklist.filter((c: any) => c.is_checked).length}/${checklist.length})` :
-                     '📋 Details'}
+                {[
+                  { id: 'details', label: '📋 Details' },
+                  { id: 'comments', label: `💬 ${comments.length}` },
+                  { id: 'checklist', label: `☑ ${checklist.filter((c: any) => c.is_checked).length}/${checklist.length}` },
+                  { id: 'attachments', label: `📎 ${attachments.length}` },
+                  { id: 'activity', label: '📜 Log' },
+                ].map(tab => (
+                  <button key={tab.id} onClick={() => setTaskTab(tab.id as any)}
+                    className={`text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors ${taskTab === tab.id ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                    {tab.label}
                   </button>
                 ))}
               </div>
@@ -444,6 +486,20 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     </div>
                   </div>
 
+                  {/* Cover color */}
+                  <div>
+                    <label className="text-xs text-gray-500 mb-2 block">Card cover color</label>
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={() => { api.setCoverColor(selectedTask.id, ''); loadBoard(); }}
+                        className="w-7 h-7 rounded-lg border-2 border-gray-600 hover:border-white bg-gray-800 text-xs text-gray-500">✕</button>
+                      {coverColors.map(c => (
+                        <button key={c} onClick={() => { api.setCoverColor(selectedTask.id, c); loadBoard(); }}
+                          style={{ backgroundColor: c }}
+                          className="w-7 h-7 rounded-lg border-2 border-transparent hover:border-white transition-colors" />
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="text-xs text-gray-600">
                     List: {lists.find(l => l.id === selectedTask.list_id)?.name || '—'}
                   </div>
@@ -478,6 +534,51 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     <button onClick={addCommentFn} disabled={!newComment.trim()}
                       className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Post</button>
                   </div>
+                </div>
+              )}
+
+              {/* Attachments tab */}
+              {taskTab === 'attachments' && (
+                <div className="p-5 space-y-3">
+                  <input ref={attachFileRef} type="file" className="hidden"
+                    onChange={e => e.target.files?.[0] && uploadAttachment(e.target.files[0])} />
+                  <button onClick={() => attachFileRef.current?.click()}
+                    className="w-full border-2 border-dashed border-gray-700 hover:border-emerald-500 rounded-xl py-6 text-gray-500 hover:text-emerald-400 text-sm transition-colors">
+                    + Upload attachment
+                  </button>
+                  {attachments.length === 0 && <p className="text-gray-600 text-sm text-center py-2">No attachments yet</p>}
+                  {attachments.map((a: any) => (
+                    <div key={a.id} className="flex items-center gap-3 bg-gray-800 rounded-xl p-3">
+                      <span className="text-2xl">{a.mime_type?.startsWith('image/') ? '🖼️' : '📎'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white truncate">{a.file_name}</p>
+                        <p className="text-xs text-gray-500">{a.uploader_name} · {new Date(a.created_at).toLocaleDateString('en-IN')}</p>
+                      </div>
+                      <a href={a.file_url} target="_blank" rel="noopener noreferrer"
+                        className="text-xs text-emerald-400 hover:text-emerald-300">↓</a>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Activity log tab */}
+              {taskTab === 'activity' && (
+                <div className="p-5 space-y-3">
+                  {activity.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No activity yet</p>}
+                  {activity.map((a: any, i: number) => (
+                    <div key={i} className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold shrink-0">
+                        {a.display_name?.charAt(0) || '?'}
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xs font-medium text-white">{a.display_name}</span>
+                        <span className="text-xs text-gray-400 ml-2">{a.type === 'comment' ? 'commented:' : ''} {a.content}</span>
+                        <div className="text-xs text-gray-600 mt-0.5">
+                          {new Date(a.ts).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
 
