@@ -162,48 +162,6 @@ export default function WorkspaceShell() {
   }, []);
 
   // ── File upload ───────────────────────────────────────────────
-  async function uploadFile(file: File) {
-    if (!activeChannel) return;
-    setUploading(true);
-    try {
-      // Get upload URL
-      const urlRes = await api.getUploadUrl(file.name, file.type, file.size);
-      if (!urlRes?.data) { alert('Failed to get upload URL'); setUploading(false); return; }
-
-      const { uploadUrl, storageKey, r2 } = urlRes.data;
-
-      // Upload directly to R2
-      const uploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      });
-
-      if (!uploadRes.ok) { alert('Upload failed'); setUploading(false); return; }
-
-      // Confirm upload
-      await api.confirmUpload({
-        fileName:   file.name,
-        mimeType:   file.type,
-        sizeBytes:  file.size,
-        storageKey,
-      });
-
-      // Send file message in channel
-      const emoji = file.type.startsWith('image/') ? '🖼️' :
-                    file.type.startsWith('video/') ? '🎥' :
-                    file.type.startsWith('audio/') ? '🎵' :
-                    file.type.includes('pdf')      ? '📄' : '📎';
-      await api.sendMessage(activeChannel.id,
-        `${emoji} **${file.name}** (${(file.size/1024).toFixed(1)} KB)
-[Download](${uploadUrl})`
-      );
-      const res = await api.messages(activeChannel.id);
-      setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-      setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    } catch (e) { alert('Upload error'); }
-    setUploading(false);
-  }
 
   // ── Boot: check auth, load data ───────────────────────────
   useEffect(() => {
