@@ -156,6 +156,7 @@ export const api = {
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
   moveTask:   (taskId: string, listId: string, position: number) =>
+    apiFetch(/boards/task//move, { method: 'PATCH', body: JSON.stringify({ listId, position }) }),
   getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
   getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
   addComment:      (taskId: string, content: string) =>
