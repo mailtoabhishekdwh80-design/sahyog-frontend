@@ -35,6 +35,20 @@ export default function WorkspaceShell() {
   const msgEndRef                       = useRef<HTMLDivElement>(null);
   const [typingUsers,    setTypingUsers]    = useState<string[]>([]);
   const [onlineUsers,    setOnlineUsers]    = useState<Set<string>>(new Set());
+  const [bookmarks,      setBookmarks]      = useState<any[]>([]);
+  const [showBookmarks,  setShowBookmarks]  = useState(false);
+  const [showChannelBrowser, setShowChannelBrowser] = useState(false);
+  const [allChannels,    setAllChannels]    = useState<any[]>([]);
+  const [channelSearch,  setChannelSearch]  = useState('');
+  const [showStatus,     setShowStatus]     = useState(false);
+  const [statusEmoji,    setStatusEmoji]    = useState('');
+  const [statusText,     setStatusText]     = useState('');
+  const [msgSearch,      setMsgSearch]      = useState('');
+  const [msgSearchResults, setMsgSearchResults] = useState<any[]>([]);
+  const [showMsgSearch,  setShowMsgSearch]  = useState(false);
+  const [uploading,      setUploading]      = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const voiceInputRef = useRef<HTMLInputElement>(null);
   const [threadMsg,      setThreadMsg]      = useState<any>(null);
   const [threadMessages, setThreadMessages] = useState<any[]>([]);
   const [threadReply,    setThreadReply]    = useState('');
@@ -299,6 +313,71 @@ export default function WorkspaceShell() {
       .replace(/```([\s\S]*?)```/g, '<pre style="background:#1F2937;padding:8px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:12px">$1</pre>');
   }
 
+  // ── File upload ──────────────────────────────────────────────
+  async function uploadFile(file: File) {
+    if (!activeChannel && !activeDM) return;
+    setUploading(true);
+    try {
+      const wsRes = await api.workspaces();
+      const workspaceId = wsRes?.data?.[0]?.id;
+      const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
+      if (!urlRes?.data?.uploadUrl) throw new Error('No upload URL');
+      await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      const channelId = activeChannel?.id || activeDM?.id;
+      if (channelId) {
+        const isImage = file.type.startsWith('image/');
+        await api.sendMessage(channelId,
+          `[${isImage ? 'image' : 'file'}:${file.name}](${urlRes.data.fileUrl || urlRes.data.uploadUrl.split('?')[0]})`
+        );
+        const res = await api.messages(channelId);
+        if (activeChannel) setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+        else setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+      }
+    } catch (e) { alert('Upload failed'); }
+    setUploading(false);
+  }
+
+  // ── Bookmarks ─────────────────────────────────────────────
+  async function loadBookmarks() {
+    const res = await api.getBookmarks();
+    setBookmarks(res?.data || []);
+    setShowBookmarks(true);
+  }
+
+  async function bookmarkMessage(msgId: string) {
+    await api.addBookmark(msgId);
+    setMsgMenuId(null);
+    alert('Message saved!');
+  }
+
+  // ── Channel browser ───────────────────────────────────────
+  async function loadChannelBrowser() {
+    const wsRes = await api.workspaces();
+    const wsId = wsRes?.data?.[0]?.id;
+    if (wsId) {
+      const res = await api.channels(wsId);
+      setAllChannels(res?.data || []);
+    }
+    setShowChannelBrowser(true);
+  }
+
+  // ── Status ───────────────────────────────────────────────
+  async function saveStatus() {
+    await api.setStatus(statusEmoji, statusText);
+    setShowStatus(false);
+    if (user) setUser({ ...user, status_emoji: statusEmoji, status_text: statusText });
+  }
+
+  // ── Message search within channel ────────────────────────
+  async function searchInChannel(q: string) {
+    setMsgSearch(q);
+    if (!q.trim() || !activeChannel) { setMsgSearchResults([]); return; }
+    const results = messages.filter(m =>
+      m.content?.toLowerCase().includes(q.toLowerCase())
+    );
+    setMsgSearchResults(results);
+  }
+
   async function loadDMs() {
     const res = await api.dmList();
     setDmList(res?.data || []);
@@ -308,7 +387,9 @@ export default function WorkspaceShell() {
     setActiveDM(dm);
     const res = await api.messages(dm.id);
     setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-    subscribe(dm.id);
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'channel.join', payload: { channelId: dm.id } }));
+    }
   }
 
   async function sendDMMessage() {
@@ -493,7 +574,7 @@ export default function WorkspaceShell() {
           <div className="pt-2">
             <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
               <span>Direct Messages</span>
-              <button onClick={() => { setShowNewDM(true); api.adminMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
+              <button onClick={() => setShowNewDM(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
             </div>
             {dmList.map((dm: any) => (
               <button key={dm.id} onClick={() => { setActiveChannel(null); setActiveDM(null); setTimeout(() => openDM(dm), 10); }}
@@ -528,7 +609,7 @@ export default function WorkspaceShell() {
                 <span className="text-gray-500">#</span>
                 <span className="truncate">{ch.name}</span>
                 {(ch.unread_count || 0) > 0 && (
-                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{ch.unread_count}</span>
+                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">{ch.unread_count > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
@@ -644,7 +725,8 @@ export default function WorkspaceShell() {
               <span className="font-semibold text-white">{activeChannel.name}</span>
               <div className="ml-auto flex items-center gap-2">
                 <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pinned messages">📌</button>
-                <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Search">🔍</button>
+                <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
+                <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
 
@@ -685,8 +767,26 @@ export default function WorkspaceShell() {
                         <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap"
-                        dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
+                      {msg.content?.match(/^\[(image|file):(.+)\]\((.+)\)$/) ? (
+                        (() => {
+                          const m = msg.content.match(/^\[(image|file):(.+)\]\((.+)\)$/);
+                          return m?.[1] === 'image' ? (
+                            <div className="mt-1">
+                              <img src={m[3]} alt={m[2]} className="max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer hover:opacity-90"
+                                onClick={() => window.open(m[3], '_blank')} />
+                              <p className="text-xs text-gray-500 mt-1">{m[2]}</p>
+                            </div>
+                          ) : (
+                            <a href={m![3]} target="_blank" rel="noopener noreferrer"
+                              className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 max-w-xs">
+                              📎 <span className="truncate">{m![2]}</span>
+                            </a>
+                          );
+                        })()
+                      ) : (
+                        <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
+                      )}
                     )}
 
                     {/* Reactions */}
@@ -723,6 +823,7 @@ export default function WorkspaceShell() {
                       {msgMenuId === msg.id && (
                         <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
                           <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
+                          <button onClick={() => bookmarkMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">🔖 Save message</button>
                           {msg.sender_id === user?.id && <>
                             <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
                             <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
@@ -896,6 +997,103 @@ export default function WorkspaceShell() {
         </div>
       )}
 
+      {/* ─── STATUS MODAL ─── */}
+      {showStatus && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowStatus(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5 space-y-4">
+            <h3 className="text-white font-semibold text-lg">Set your status</h3>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { emoji: '💼', text: 'In a meeting' },
+                { emoji: '🎯', text: 'Focusing' },
+                { emoji: '🏖️', text: 'On vacation' },
+                { emoji: '🤒', text: 'Out sick' },
+                { emoji: '🏠', text: 'Working from home' },
+                { emoji: '🚗', text: 'Commuting' },
+              ].map(s => (
+                <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? 'border-emerald-500 bg-emerald-900/30 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'}`}>
+                  {s.emoji} {s.text}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input value={statusEmoji} onChange={e => setStatusEmoji(e.target.value)} placeholder="😊"
+                className="w-14 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 text-center" />
+              <input value={statusText} onChange={e => setStatusText(e.target.value)} placeholder="What's your status?"
+                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={saveStatus}
+                className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
+              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
+                className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── BOOKMARKS MODAL ─── */}
+      {showBookmarks && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
+              <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br/>Hover a message → ⋯ → Save message</p>}
+              {bookmarks.map((b: any) => (
+                <div key={b.id} className="bg-gray-800 rounded-xl p-3">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-xs font-semibold text-white">{b.sender_name}</span>
+                    <span className="text-xs text-gray-500">#{b.channel_name}</span>
+                    <span className="text-xs text-gray-600 ml-auto">{new Date(b.sent_at).toLocaleDateString('en-IN')}</span>
+                  </div>
+                  <p className="text-sm text-gray-300">{b.content}</p>
+                  <button onClick={async () => { await api.removeBookmark(b.message_id); loadBookmarks(); }}
+                    className="text-xs text-red-500 hover:text-red-400 mt-2">Remove</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── CHANNEL BROWSER MODAL ─── */}
+      {showChannelBrowser && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">🔭 Browse channels</span>
+              <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div className="px-4 pt-3 shrink-0">
+              <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {allChannels
+                .filter(c => c.type === 'public' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase())))
+                .map((ch: any) => (
+                  <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl hover:bg-gray-750">
+                    <span className="text-gray-400 text-lg">#</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-white">{ch.name}</div>
+                      {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
+                    </div>
+                    <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
+                      className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Join</button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── NEW DM MODAL ─── */}
       {showNewDM && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
@@ -924,6 +1122,103 @@ export default function WorkspaceShell() {
               {dmOrgMembers.filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()))).length === 0 && (
                 <p className="text-gray-600 text-sm text-center py-4">No members found</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── STATUS MODAL ─── */}
+      {showStatus && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowStatus(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5 space-y-4">
+            <h3 className="text-white font-semibold text-lg">Set your status</h3>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { emoji: '💼', text: 'In a meeting' },
+                { emoji: '🎯', text: 'Focusing' },
+                { emoji: '🏖️', text: 'On vacation' },
+                { emoji: '🤒', text: 'Out sick' },
+                { emoji: '🏠', text: 'Working from home' },
+                { emoji: '🚗', text: 'Commuting' },
+              ].map(s => (
+                <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? 'border-emerald-500 bg-emerald-900/30 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'}`}>
+                  {s.emoji} {s.text}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input value={statusEmoji} onChange={e => setStatusEmoji(e.target.value)} placeholder="😊"
+                className="w-14 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 text-center" />
+              <input value={statusText} onChange={e => setStatusText(e.target.value)} placeholder="What's your status?"
+                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={saveStatus}
+                className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
+              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
+                className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── BOOKMARKS MODAL ─── */}
+      {showBookmarks && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
+              <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br/>Hover a message → ⋯ → Save message</p>}
+              {bookmarks.map((b: any) => (
+                <div key={b.id} className="bg-gray-800 rounded-xl p-3">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-xs font-semibold text-white">{b.sender_name}</span>
+                    <span className="text-xs text-gray-500">#{b.channel_name}</span>
+                    <span className="text-xs text-gray-600 ml-auto">{new Date(b.sent_at).toLocaleDateString('en-IN')}</span>
+                  </div>
+                  <p className="text-sm text-gray-300">{b.content}</p>
+                  <button onClick={async () => { await api.removeBookmark(b.message_id); loadBookmarks(); }}
+                    className="text-xs text-red-500 hover:text-red-400 mt-2">Remove</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── CHANNEL BROWSER MODAL ─── */}
+      {showChannelBrowser && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">🔭 Browse channels</span>
+              <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <div className="px-4 pt-3 shrink-0">
+              <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {allChannels
+                .filter(c => c.type === 'public' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase())))
+                .map((ch: any) => (
+                  <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl hover:bg-gray-750">
+                    <span className="text-gray-400 text-lg">#</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-white">{ch.name}</div>
+                      {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
+                    </div>
+                    <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
+                      className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Join</button>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
@@ -1094,7 +1389,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => { const members = Array.isArray(res?.data) ? res.data : []; setOrgMembers(members); })
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));

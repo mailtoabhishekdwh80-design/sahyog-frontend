@@ -188,6 +188,8 @@ export const api = {
 
   // DMs
   dmChannels:  () => apiFetch('/channels?type=direct'),
+  createDM:    (userId: string) =>
+    apiFetch('/channels/dm', { method: 'POST', body: JSON.stringify({ userId }) }),
 
   // Channel management
   createChannel: (workspaceId: string, name: string, description?: string, isPrivate?: boolean) =>
@@ -210,6 +212,23 @@ export const api = {
   notifications:    () => apiFetch('/users/me/notifications'),
   markRead:         (id: string) => apiFetch(`/users/me/notifications/${id}/read`, { method: 'PATCH' }),
   markAllRead:      () => apiFetch('/users/me/notifications/read-all', { method: 'POST' }),
+
+  // File uploads
+  getUploadUrl: (fileName: string, mimeType: string, sizeBytes: number, workspaceId: string) =>
+    apiFetch('/files/upload-url', { method: 'POST', body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }) }),
+  confirmUpload: (fileId: string) =>
+    apiFetch('/files/' + fileId + '/confirm', { method: 'POST' }),
+
+  // Bookmarks
+  getBookmarks:    () => apiFetch('/users/me/bookmarks'),
+  addBookmark:     (messageId: string) =>
+    apiFetch('/users/me/bookmarks', { method: 'POST', body: JSON.stringify({ messageId }) }),
+  removeBookmark:  (messageId: string) =>
+    apiFetch('/users/me/bookmarks/' + messageId, { method: 'DELETE' }),
+
+  // Status
+  setStatus: (statusEmoji: string, statusText: string) =>
+    apiFetch('/users/me/status', { method: 'PATCH', body: JSON.stringify({ statusEmoji, statusText }) }),
 
   // Direct Messages
   dmList:    () => apiFetch('/channels/dm/list'),
@@ -244,13 +263,13 @@ export const api = {
   deleteTask: (taskId: string) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'DELETE' }),
 
-  getTask:         (taskId: string) => apiFetch('/boards/task/' + taskId),
-  getComments:     (taskId: string) => apiFetch('/boards/task/' + taskId + '/comments'),
-  addComment:      (taskId: string, c: string) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content: c }) }),
-  getChecklist:    (taskId: string) => apiFetch('/boards/task/' + taskId + '/checklist'),
-  addCheckItem:    (taskId: string, title: string) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
-  toggleCheckItem: (taskId: string, itemId: string, isChecked: boolean) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
-  deleteCheckItem: (taskId: string, itemId: string) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
+  getTask:         (taskId) => apiFetch('/boards/task/' + taskId),
+  getComments:     (taskId) => apiFetch('/boards/task/' + taskId + '/comments'),
+  addComment:      (taskId, c) => apiFetch('/boards/task/' + taskId + '/comments', { method: 'POST', body: JSON.stringify({ content: c }) }),
+  getChecklist:    (taskId) => apiFetch('/boards/task/' + taskId + '/checklist'),
+  addCheckItem:    (taskId, title) => apiFetch('/boards/task/' + taskId + '/checklist', { method: 'POST', body: JSON.stringify({ title }) }),
+  toggleCheckItem: (taskId, itemId, isChecked) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'PATCH', body: JSON.stringify({ isChecked }) }),
+  deleteCheckItem: (taskId, itemId) => apiFetch('/boards/task/' + taskId + '/checklist/' + itemId, { method: 'DELETE' }),
 
   moveTask: (taskId: string, listId: string, position: number) =>
     apiFetch(`/boards/task/${taskId}/move`, {
