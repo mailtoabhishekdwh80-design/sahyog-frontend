@@ -512,7 +512,7 @@ export default function WorkspaceShell() {
               className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Browse
             </button>
-            <button onClick={logout} title="Sign out"
+            <button onClick={() => api.logout()} title="Sign out"
               className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Sign out
             </button>
