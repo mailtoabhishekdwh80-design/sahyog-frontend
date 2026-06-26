@@ -418,11 +418,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0 flex-wrap gap-2">
               <div className="flex gap-2 flex-wrap">
                 {[
-                  { id: 'details',     label: '📋 Details' },
-                  { id: 'comments',    label: `💬 ${comments.length}` },
-                  { id: 'checklist',   label: `☑ ${checklist.filter((c: any) => c.is_checked).length}/${checklist.length}` },
-                  { id: 'attachments', label: `📎 ${attachments.length}` },
-                  { id: 'activity',    label: '📜 Log' },
+                  { id: 'details',     label: 'Details' },
+                  { id: 'comments',    label: `Comments (${comments.length})` },
+                  { id: 'checklist',   label: `Checklist (${checklist.filter((c: any) => c.is_checked).length}/${checklist.length})` },
+                  { id: 'attachments', label: `Files (${attachments.length})` },
+                  { id: 'activity',    label: 'Activity' },
                 ].map(tab => (
                   <button key={tab.id} onClick={() => setTaskTab(tab.id as any)}
                     className={`text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors ${taskTab === tab.id ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
@@ -473,7 +473,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     <label className="text-xs text-gray-500 mb-2 block">Card cover color</label>
                     <div className="flex gap-2 flex-wrap">
                       <button onClick={() => { api.setCoverColor(selectedTask.id, ''); loadBoard(); }}
-                        className="w-7 h-7 rounded-lg border-2 border-gray-600 hover:border-white bg-gray-800 text-xs text-gray-500">✕</button>
+                        className="w-7 h-7 rounded-lg border-2 border-gray-600 hover:border-white bg-gray-800 text-xs text-gray-500">x</button>
                       {COVER_COLORS.map(c => (
                         <button key={c} onClick={() => { api.setCoverColor(selectedTask.id, c); loadBoard(); }}
                           style={{ backgroundColor: c }}
