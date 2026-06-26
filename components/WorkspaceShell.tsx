@@ -107,6 +107,22 @@ export default function WorkspaceShell() {
 
   // Channel message search
   const [showMsgSearch,  setShowMsgSearch]  = useState(false);
+  const [showSchedule,   setShowSchedule]   = useState(false);
+  const [scheduleDate,   setScheduleDate]   = useState('');
+  const [scheduleTime,   setScheduleTime]   = useState('');
+  const [scheduledMsgs,  setScheduledMsgs]  = useState<any[]>([]);
+  const [showScheduled,  setShowScheduled]  = useState(false);
+  const [showAnalytics,  setShowAnalytics]  = useState(false);
+  const [analytics,      setAnalytics]      = useState<any>(null);
+  const [customEmojis,   setCustomEmojis]   = useState<any[]>([]);
+  const [showEmojiMgr,   setShowEmojiMgr]   = useState(false);
+  const [newEmojiName,   setNewEmojiName]   = useState('');
+  const [showConnect,    setShowConnect]     = useState(false);
+  const [connectEmail,   setConnectEmail]   = useState('');
+  const [connectOrg,     setConnectOrg]     = useState('');
+  const [recording,      setRecording]      = useState(false);
+  const [audioChunks,    setAudioChunks]    = useState<Blob[]>([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [msgSearch,      setMsgSearch]      = useState('');
 
   // Org members (for meetings, tasks etc)
@@ -315,6 +331,80 @@ export default function WorkspaceShell() {
   async function bookmarkMessage(msgId: string) {
     await api.addBookmark(msgId); setMsgMenuId(null);
     alert('Message saved!');
+  }
+
+  // ── Voice messages ──────────────────────────────────────────
+  async function startRecordingVoice() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+      mr.ondataavailable = e => chunks.push(e.data);
+      mr.onstop = async () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const file = new File([blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
+        stream.getTracks().forEach(t => t.stop());
+        await uploadFile(file);
+      };
+      mr.start();
+      mediaRecorderRef.current = mr;
+      setAudioChunks([]);
+      setRecording(true);
+    } catch { alert('Microphone access denied'); }
+  }
+
+  function stopRecordingVoice() {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+  }
+
+  // ── Schedule message ─────────────────────────────────────
+  async function scheduleMessage() {
+    if (!newMessage.trim() || !activeChannel || !scheduleDate || !scheduleTime) return;
+    const scheduledAt = new Date(`${scheduleDate}T${scheduleTime}`).toISOString();
+    await api.scheduleMessage(activeChannel.id, newMessage.trim(), scheduledAt);
+    setNewMessage(''); setShowSchedule(false); setScheduleDate(''); setScheduleTime('');
+    alert('Message scheduled!');
+  }
+
+  async function loadScheduled() {
+    if (!activeChannel) return;
+    const res = await api.getScheduled(activeChannel.id);
+    setScheduledMsgs(res?.data || []);
+    setShowScheduled(true);
+  }
+
+  // ── Channel analytics ────────────────────────────────────
+  async function loadAnalytics() {
+    if (!activeChannel) return;
+    const res = await api.channelAnalytics(activeChannel.id);
+    setAnalytics(res?.data);
+    setShowAnalytics(true);
+  }
+
+  // ── Custom emoji ─────────────────────────────────────────
+  async function loadCustomEmojis() {
+    const res = await api.getCustomEmojis();
+    setCustomEmojis(res?.data || []);
+    setShowEmojiMgr(true);
+  }
+
+  async function addCustomEmoji() {
+    if (!newEmojiName.trim()) return;
+    const url = prompt('Paste image URL for the emoji:');
+    if (!url) return;
+    await api.addCustomEmoji(newEmojiName.trim(), url);
+    setNewEmojiName('');
+    const res = await api.getCustomEmojis();
+    setCustomEmojis(res?.data || []);
+  }
+
+  // ── Sahyog Connect ───────────────────────────────────────
+  async function sendConnectInvite() {
+    if (!connectEmail.trim() || !activeChannel) return;
+    await api.connectInvite(connectEmail.trim(), activeChannel.id, connectOrg.trim());
+    alert('Connect invite sent to ' + connectEmail);
+    setConnectEmail(''); setConnectOrg(''); setShowConnect(false);
   }
 
   // ── File upload ──────────────────────────────────────────────
@@ -633,6 +723,14 @@ export default function WorkspaceShell() {
                 <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
                 <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, `@here`); alert('All channel members notified!'); } }}
                   className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Notify all members">@here</button>
+                <button onClick={loadAnalytics}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Channel analytics">Analytics</button>
+                <button onClick={loadScheduled}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Scheduled messages">Scheduled</button>
+                <button onClick={loadCustomEmojis}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Custom emoji">Emoji</button>
+                <button onClick={() => setShowConnect(true)}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Sahyog Connect">Connect</button>
                 <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
@@ -721,7 +819,7 @@ export default function WorkspaceShell() {
 
                     {/* Hover actions */}
                     <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
-                      {['👍','❤️','😂','🎉','🔥'].map(emoji => (
+                      {[...['👍','❤️','😂','🎉','🔥'], ...customEmojis.slice(0,3).map((e: any) => e.name)].map(emoji => (
                         <button key={emoji} onClick={() => addReaction(msg, emoji)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
                       ))}
                       <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>

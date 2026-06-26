@@ -249,6 +249,25 @@ export const api = {
   applyTemplate:   (boardId: string, templateId: string) =>
     apiFetch('/boards/' + boardId + '/from-template', { method: 'POST', body: JSON.stringify({ templateId }) }),
 
+  // Scheduled messages
+  scheduleMessage:    (channelId: string, content: string, scheduledAt: string) =>
+    apiFetch('/channels/' + channelId + '/messages/schedule', { method: 'POST', body: JSON.stringify({ content, scheduledAt }) }),
+  getScheduled:       (channelId: string) => apiFetch('/channels/' + channelId + '/messages/scheduled'),
+  cancelScheduled:    (channelId: string, msgId: string) =>
+    apiFetch('/channels/' + channelId + '/messages/scheduled/' + msgId, { method: 'DELETE' }),
+
+  // Channel analytics
+  channelAnalytics:   (channelId: string) => apiFetch('/channels/' + channelId + '/analytics'),
+
+  // Custom emoji
+  getCustomEmojis:    () => apiFetch('/channels/custom-emojis'),
+  addCustomEmoji:     (name: string, url: string) =>
+    apiFetch('/channels/custom-emojis', { method: 'POST', body: JSON.stringify({ name, url }) }),
+
+  // Sahyog Connect (cross-org)
+  connectInvite:      (email: string, channelId: string, orgName: string) =>
+    apiFetch('/channels/connect-invite', { method: 'POST', body: JSON.stringify({ email, channelId, orgName }) }),
+
   // @here mention
   notifyHere:      (channelId: string, message: string) =>
     apiFetch('/channels/' + channelId + '/here', { method: 'POST', body: JSON.stringify({ message }) }),
