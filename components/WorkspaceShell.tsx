@@ -1,58 +1,88 @@
 'use client';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import { api, isLoggedIn } from '../lib/api';
 import KanbanView from './KanbanView';
-import { useWebSocket } from '../lib/useWebSocket';
-import { api, isLoggedIn, logout } from '../lib/api';
 
 // ── Types ─────────────────────────────────────────────────────
 type Workspace = { id: string; name: string; type: string };
-type Channel   = { id: string; name: string; type: string; unread_count?: number };
-type Board     = { id: string; name: string; workspace_id: string };
-type List      = { id: string; name: string; position: number; board_id: string };
-type Task      = { id: string; title: string; description?: string; list_id: string; priority: string; status: string };
-type Message   = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
+type Board     = { id: string; name: string };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
-// ── Active view type ──────────────────────────────────────────
-type View = 'channel' | 'board' | 'meetings' | 'home';
+// ── Helpers ───────────────────────────────────────────────────
+function parseMentions(content: string) {
+  return content.replace(/@(\w+)/g, '<span style="color:#34D399;font-weight:600">@$1</span>');
+}
+function formatContent(content: string) {
+  return content
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background:#1F2937;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:12px">$1</code>')
+    .replace(/```([\s\S]*?)```/g, '<pre style="background:#1F2937;padding:8px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:12px;white-space:pre-wrap">$1</pre>');
+}
+function renderMessage(content: string) {
+  const fileMatch = content.match(/^\[(image|file):(.+?)\]\((.+?)\)$/);
+  if (fileMatch) {
+    const [, type, name, url] = fileMatch;
+    if (type === 'image') return { isFile: true, isImage: true, name, url };
+    return { isFile: true, isImage: false, name, url };
+  }
+  return { isFile: false, html: formatContent(parseMentions(content)) };
+}
 
+// ── Main Component ────────────────────────────────────────────
 export default function WorkspaceShell() {
-  // State
-  const [workspaces, setWorkspaces]     = useState<Workspace[]>([]);
-  const [activeWs, setActiveWs]         = useState<Workspace | null>(null);
-  const [channels, setChannels]         = useState<Channel[]>([]);
-  const [boards, setBoards]             = useState<Board[]>([]);
-  const [activeView, setActiveView]     = useState<View>('home');
-  const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
-  const [activeBoard, setActiveBoard]   = useState<Board | null>(null);
-  const [lists, setLists]               = useState<List[]>([]);
-  const [tasks, setTasks]               = useState<Task[]>([]);
-  const [messages, setMessages]         = useState<Message[]>([]);
-  const [newMsg, setNewMsg]             = useState('');
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [addingToList, setAddingToList] = useState<string | null>(null);
-  const [loading, setLoading]           = useState(true);
-  const [user, setUser]                 = useState<any>(null);
-  const msgEndRef                       = useRef<HTMLDivElement>(null);
+  const [user,           setUser]           = useState<any>(null);
+  const [workspaces,     setWorkspaces]     = useState<Workspace[]>([]);
+  const [activeWs,       setActiveWs]       = useState<Workspace | null>(null);
+  const [channels,       setChannels]       = useState<Channel[]>([]);
+  const [boards,         setBoards]         = useState<Board[]>([]);
+  const [activeChannel,  setActiveChannel]  = useState<Channel | null>(null);
+  const [activeBoard,    setActiveBoard]    = useState<Board | null>(null);
+  const [activeView,     setActiveView]     = useState<'home'|'meetings'|'admin'>('home');
+  const [messages,       setMessages]       = useState<Message[]>([]);
+  const [newMessage,     setNewMessage]     = useState('');
+  const [sending,        setSending]        = useState(false);
   const [typingUsers,    setTypingUsers]    = useState<string[]>([]);
   const [onlineUsers,    setOnlineUsers]    = useState<Set<string>>(new Set());
-  const [bookmarks,      setBookmarks]      = useState<any[]>([]);
-  const [showBookmarks,  setShowBookmarks]  = useState(false);
-  const [showChannelBrowser, setShowChannelBrowser] = useState(false);
-  const [allChannels,    setAllChannels]    = useState<any[]>([]);
-  const [channelSearch,  setChannelSearch]  = useState('');
-  const [showStatus,     setShowStatus]     = useState(false);
-  const [statusEmoji,    setStatusEmoji]    = useState('');
-  const [statusText,     setStatusText]     = useState('');
-  const [msgSearch,      setMsgSearch]      = useState('');
-  const [msgSearchResults, setMsgSearchResults] = useState<any[]>([]);
-  const [showMsgSearch,  setShowMsgSearch]  = useState(false);
-  const [uploading,      setUploading]      = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const voiceInputRef = useRef<HTMLInputElement>(null);
-  const [threadMsg,      setThreadMsg]      = useState<any>(null);
+
+  // Notifications
+  const [notifications,  setNotifications]  = useState<any[]>([]);
+  const [unreadCount,    setUnreadCount]    = useState(0);
+  const [showNotifs,     setShowNotifs]     = useState(false);
+
+  // Search
+  const [showSearch,     setShowSearch]     = useState(false);
+  const [searchQuery,    setSearchQuery]    = useState('');
+  const [searchResults,  setSearchResults]  = useState<any>(null);
+  const [searching,      setSearching]      = useState(false);
+
+  // Threads
+  const [threadMsg,      setThreadMsg]      = useState<Message | null>(null);
   const [threadMessages, setThreadMessages] = useState<any[]>([]);
   const [threadReply,    setThreadReply]    = useState('');
-  const [showDMs,        setShowDMs]        = useState(false);
+
+  // Message actions
+  const [msgMenuId,      setMsgMenuId]      = useState<string | null>(null);
+  const [editingMsg,     setEditingMsg]     = useState<string | null>(null);
+  const [editContent,    setEditContent]    = useState('');
+
+  // Pins
+  const [showPins,       setShowPins]       = useState(false);
+  const [pins,           setPins]           = useState<any[]>([]);
+
+  // New channel
+  const [showNewChannel, setShowNewChannel] = useState(false);
+  const [newChName,      setNewChName]      = useState('');
+  const [newChDesc,      setNewChDesc]      = useState('');
+  const [newChPrivate,   setNewChPrivate]   = useState(false);
+
+  // DMs
   const [dmList,         setDmList]         = useState<any[]>([]);
   const [activeDM,       setActiveDM]       = useState<any>(null);
   const [dmMessages,     setDmMessages]     = useState<any[]>([]);
@@ -60,191 +90,128 @@ export default function WorkspaceShell() {
   const [showNewDM,      setShowNewDM]      = useState(false);
   const [dmSearch,       setDmSearch]       = useState('');
   const [dmOrgMembers,   setDmOrgMembers]   = useState<any[]>([]);
-  const [dmChannels,     setDmChannels]     = useState<any[]>([]);
-  const [showNewChannel, setShowNewChannel] = useState(false);
-  const [newChName,      setNewChName]      = useState('');
-  const [newChDesc,      setNewChDesc]      = useState('');
-  const [newChPrivate,   setNewChPrivate]   = useState(false);
-  const [showPins,       setShowPins]       = useState(false);
-  const [pins,           setPins]           = useState<any[]>([]);
-  const [editingMsg,     setEditingMsg]     = useState<string|null>(null);
-  const [editContent,    setEditContent]    = useState('');
-  const [msgMenuId,      setMsgMenuId]      = useState<string|null>(null);
-  const [showSearch,     setShowSearch]     = useState(false);
-  const [searchQuery,    setSearchQuery]    = useState('');
-  const [searchResults,  setSearchResults]  = useState<any>(null);
-  const [searching,      setSearching]      = useState(false);
-  const [notifications,  setNotifications]  = useState<any[]>([]);
-  const [unreadCount,    setUnreadCount]    = useState(0);
-  const [showNotifs,     setShowNotifs]     = useState(false);
-  const typingTimerRef                  = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
-  // ── WebSocket real-time handler ──────────────────────────────
-  const handleWSMessage = useCallback((msg: any) => {
-    if (msg.type === 'message.new') {
-      // Update DM messages if active DM matches
-      if (activeDM && msg.payload?.channel_id === activeDM.id) {
-        setDmMessages(prev => {
-          if (prev.some(m => m.id === msg.payload.id)) return prev;
-          return [...prev, msg.payload];
-        });
-      }
-      const newMsg = msg.payload;
-      // Only append if we're viewing that channel
-      setActiveChannel(current => {
-        if (current?.id === newMsg.channel_id) {
-          setMessages(prev => {
-            // Deduplicate
-            if (prev.some(m => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
-          });
-          setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-        }
-        return current;
-      });
-    }
-    if (msg.type === 'typing.indicator') {
-      const { userId, displayName, channelId } = msg.payload;
-      setActiveChannel(current => {
-        if (current?.id !== channelId) return current;
-        setTypingUsers(prev => prev.includes(displayName) ? prev : [...prev, displayName]);
-        // Clear typing after 3s
-        if (typingTimerRef.current[userId]) clearTimeout(typingTimerRef.current[userId]);
-        typingTimerRef.current[userId] = setTimeout(() => {
-          setTypingUsers(prev => prev.filter(n => n !== displayName));
-        }, 3000);
-        return current;
-      });
-    }
-    if (msg.type === 'presence.update') {
-      const { userId, status } = msg.payload || {};
-      if (userId) {
-        setOnlineUsers(prev => {
-          const next = new Set(prev);
-          if (status === 'online') next.add(userId);
-          else next.delete(userId);
-          return next;
-        });
-      }
-    }
-    if (msg.type === 'message.edit') {
-      setMessages(prev => prev.map(m => m.id === msg.payload.id ? { ...m, content: msg.payload.content, is_edited: true } : m));
-    }
-    if (msg.type === 'message.delete') {
-      setMessages(prev => prev.filter(m => m.id !== msg.payload.id));
-    }
-    if (msg.type === 'message.reaction') {
-      setMessages(prev => prev.map(m => m.id === msg.payload.message_id ? { ...m, reactions: msg.payload.reactions } : m));
-    }
-  }, []);
+  // File upload
+  const [uploading,      setUploading]      = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { subscribe, sendTyping } = useWebSocket(handleWSMessage);
+  // Bookmarks
+  const [bookmarks,      setBookmarks]      = useState<any[]>([]);
+  const [showBookmarks,  setShowBookmarks]  = useState(false);
 
-  // ── Search ────────────────────────────────────────────────────
-  async function doSearch(q: string) {
-    if (!q.trim() || q.length < 2) { setSearchResults(null); return; }
-    setSearching(true);
-    const res = await api.search(q);
-    setSearchResults(res?.data || null);
-    setSearching(false);
-  }
+  // Channel browser
+  const [showChannelBrowser, setShowChannelBrowser] = useState(false);
+  const [allChannels,    setAllChannels]    = useState<any[]>([]);
+  const [channelSearch,  setChannelSearch]  = useState('');
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowSearch(s => !s);
-      }
-      if (e.key === 'Escape') setShowSearch(false);
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, []);
+  // Status
+  const [showStatus,     setShowStatus]     = useState(false);
+  const [statusEmoji,    setStatusEmoji]    = useState('');
+  const [statusText,     setStatusText]     = useState('');
 
-  // ── File upload ───────────────────────────────────────────────
+  // Channel message search
+  const [showMsgSearch,  setShowMsgSearch]  = useState(false);
+  const [msgSearch,      setMsgSearch]      = useState('');
 
-  // ── Boot: check auth, load data ───────────────────────────
+  // Org members (for meetings, tasks etc)
+  const [orgMembers,     setOrgMembers]     = useState<any[]>([]);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingTimer    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wsRef          = useRef<WebSocket | null>(null);
+  const activeChRef    = useRef<Channel | null>(null);
+  const activeDMRef    = useRef<any>(null);
+  useEffect(() => { activeChRef.current = activeChannel; }, [activeChannel]);
+  useEffect(() => { activeDMRef.current = activeDM; }, [activeDM]);
+
+  // ── Init ────────────────────────────────────────────────────
   useEffect(() => {
     if (!isLoggedIn()) { window.location.href = '/login'; return; }
-    (async () => {
-      const [meRes, wsRes, notifRes] = await Promise.all([api.me(), api.workspaces(), api.notifications()]);
-      setNotifications(notifRes?.data?.notifications || []);
-      setUnreadCount(notifRes?.data?.unread || 0);
-      setUser(meRes?.data);
-      const wsList: Workspace[] = wsRes?.data || [];
+    api.me().then(res => { setUser(res?.data); setStatusEmoji(res?.data?.status_emoji || ''); setStatusText(res?.data?.status_text || ''); });
+    api.workspaces().then(res => {
+      const wsList = res?.data || [];
       setWorkspaces(wsList);
-      if (wsList.length > 0) await switchWorkspace(wsList[0]);
-      setLoading(false);
-    })();
+      if (wsList.length > 0) openWorkspace(wsList[0]);
+    });
+    api.notifications().then(res => {
+      setNotifications(res?.data?.notifications || []);
+      setUnreadCount(res?.data?.unread || 0);
+    });
+    connectWS();
+    const onKey = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); setShowSearch(true); } };
+    window.addEventListener('keydown', onKey);
+    return () => { window.removeEventListener('keydown', onKey); wsRef.current?.close(); };
   }, []);
 
-  async function switchWorkspace(ws: Workspace) {
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, dmMessages]);
+
+  // ── WebSocket ───────────────────────────────────────────────
+  function connectWS() {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('sahyog_token') : null;
+    if (!token) return;
+    const ws = new WebSocket(`wss://sahyog-api-ajbr.onrender.com/ws?token=${token}`);
+    ws.onopen = () => { wsRef.current = ws; };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'message.new') {
+          const payload = msg.payload as Message;
+          if (activeChRef.current && payload.channel_id === activeChRef.current.id) {
+            setMessages(prev => prev.some(m => m.id === payload.id) ? prev : [...prev, payload]);
+          }
+          if (activeDMRef.current && payload.channel_id === activeDMRef.current.id) {
+            setDmMessages(prev => prev.some(m => m.id === payload.id) ? prev : [...prev, payload]);
+          }
+        }
+        if (msg.type === 'typing.start') {
+          const name = msg.payload?.senderName;
+          if (name) { setTypingUsers(p => p.includes(name) ? p : [...p, name]); setTimeout(() => setTypingUsers(p => p.filter(n => n !== name)), 3000); }
+        }
+        if (msg.type === 'presence.update') {
+          const { userId, status } = msg.payload || {};
+          if (userId) setOnlineUsers(prev => { const n = new Set(prev); status === 'online' ? n.add(userId) : n.delete(userId); return n; });
+        }
+        if (msg.type === 'message.edit') setMessages(prev => prev.map(m => m.id === msg.payload.id ? { ...m, content: msg.payload.content, is_edited: true } : m));
+        if (msg.type === 'message.delete') setMessages(prev => prev.filter(m => m.id !== msg.payload.id));
+        if (msg.type === 'message.reaction') setMessages(prev => prev.map(m => m.id === msg.payload.message_id ? { ...m, reactions: msg.payload.reactions } : m));
+        if (msg.type === 'notification.new') { setNotifications(p => [msg.payload, ...p]); setUnreadCount(c => c + 1); }
+      } catch {}
+    };
+    ws.onclose = () => setTimeout(connectWS, 3000);
+  }
+
+  function subscribe(channelId: string) {
+    wsRef.current?.send(JSON.stringify({ type: 'channel.join', payload: { channelId } }));
+  }
+
+  // ── Workspace ───────────────────────────────────────────────
+  async function openWorkspace(ws: Workspace) {
     setActiveWs(ws);
-    setActiveView('home');
-    const [chRes, bdRes] = await Promise.all([
-      api.channels(ws.id),
-      api.boards(ws.id),
+    setActiveChannel(null); setActiveBoard(null); setActiveDM(null);
+    const [chRes, bRes, dmRes, membersRes] = await Promise.all([
+      api.channels(ws.id), api.boards(ws.id), api.dmList(), api.adminMembers(),
     ]);
-    setChannels(chRes?.data || []);
-    setBoards(bdRes?.data || []);
+    setChannels(Array.isArray(chRes?.data) ? chRes.data : []);
+    setBoards(Array.isArray(bRes?.data) ? bRes.data : []);
+    setDmList(dmRes?.data || []);
+    const members = Array.isArray(membersRes?.data) ? membersRes.data : [];
+    setOrgMembers(members); setDmOrgMembers(members);
   }
 
-  async function openThread(msg: any) {
-    setThreadMsg(msg);
-    const res = await api.threadMessages(msg.channel_id, msg.id);
-    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
-  }
-
-  async function sendThreadReply() {
-    if (!threadReply.trim() || !threadMsg) return;
-    await api.sendThreadReply(threadMsg.channel_id, threadMsg.id, threadReply.trim());
-    setThreadReply('');
-    const res = await api.threadMessages(threadMsg.channel_id, threadMsg.id);
-    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
-  }
-
-  async function addReaction(msg: any, emoji: string) {
-    if (!activeChannel) return;
-    await api.addReaction(activeChannel.id, msg.id, emoji);
-    const res = await api.messages(activeChannel.id);
+  // ── Channels ────────────────────────────────────────────────
+  async function openChannel(ch: Channel) {
+    setActiveChannel(ch); setActiveBoard(null); setActiveDM(null); setActiveView('home');
+    setMessages([]); setShowMsgSearch(false); setMsgSearch('');
+    const res = await api.messages(ch.id);
     setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-    setMsgMenuId(null);
+    subscribe(ch.id);
   }
 
-  async function pinMessage(msgId: string) {
-    if (!activeChannel) return;
-    await api.pinMessage(activeChannel.id, msgId);
-    setMsgMenuId(null);
-  }
-
-  async function startEditMessage(msg: any) {
-    setEditingMsg(msg.id);
-    setEditContent(msg.content);
-    setMsgMenuId(null);
-  }
-
-  async function saveEditMessage(msgId: string) {
-    if (!activeChannel || !editContent.trim()) return;
-    await api.editMessage(activeChannel.id, msgId, editContent.trim());
-    setEditingMsg(null);
-    setEditContent('');
-    const res = await api.messages(activeChannel.id);
-    setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-  }
-
-  async function deleteMessage(msgId: string) {
-    if (!activeChannel) return;
-    if (!confirm('Delete this message?')) return;
-    await api.deleteMessage(activeChannel.id, msgId);
-    setMessages(prev => prev.filter(m => m.id !== msgId));
-    setMsgMenuId(null);
-  }
-
-  async function loadPins() {
-    if (!activeChannel) return;
-    const res = await api.getPins(activeChannel.id);
-    setPins(res?.data || []);
-    setShowPins(true);
+  async function sendMessage() {
+    if (!newMessage.trim() || !activeChannel) return;
+    setSending(true);
+    await api.sendMessage(activeChannel.id, newMessage.trim());
+    setNewMessage(''); setSending(false);
   }
 
   async function createChannel() {
@@ -252,95 +219,14 @@ export default function WorkspaceShell() {
     const res = await api.createChannel(activeWs.id, newChName.trim(), newChDesc.trim(), newChPrivate);
     if (res?.data?.id) {
       setShowNewChannel(false); setNewChName(''); setNewChDesc(''); setNewChPrivate(false);
-      const chRes = await api.channels(activeWs.id);
-      setChannels(Array.isArray(chRes?.data) ? chRes.data : []);
+      const r = await api.channels(activeWs.id);
+      setChannels(Array.isArray(r?.data) ? r.data : []);
     }
   }
 
-  function parseMentions(content: string) {
-    return content.replace(/@(\w+)/g, '<span style="color:#34D399;font-weight:600">@$1</span>');
-  }
-
-  function formatContent(content: string) {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code style="background:#1F2937;padding:2px 6px;border-radius:4px;font-family:monospace">$1</code>')
-      .replace(/```([\s\S]*?)```/g, '<pre style="background:#1F2937;padding:8px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:12px">$1</pre>');
-  }
-
-  // ── File upload ──────────────────────────────────────────────
-  async function uploadFile(file: File) {
-    if (!activeChannel && !activeDM) return;
-    setUploading(true);
-    try {
-      const wsRes = await api.workspaces();
-      const workspaceId = wsRes?.data?.[0]?.id;
-      const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
-      if (!urlRes?.data?.uploadUrl) throw new Error('No upload URL');
-      await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-      const channelId = activeChannel?.id || activeDM?.id;
-      if (channelId) {
-        const isImage = file.type.startsWith('image/');
-        await api.sendMessage(channelId,
-          `[${isImage ? 'image' : 'file'}:${file.name}](${urlRes.data.fileUrl || urlRes.data.uploadUrl.split('?')[0]})`
-        );
-        const res = await api.messages(channelId);
-        if (activeChannel) setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-        else setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-      }
-    } catch (e) { alert('Upload failed'); }
-    setUploading(false);
-  }
-
-  // ── Bookmarks ─────────────────────────────────────────────
-  async function loadBookmarks() {
-    const res = await api.getBookmarks();
-    setBookmarks(res?.data || []);
-    setShowBookmarks(true);
-  }
-
-  async function bookmarkMessage(msgId: string) {
-    await api.addBookmark(msgId);
-    setMsgMenuId(null);
-    alert('Message saved!');
-  }
-
-  // ── Channel browser ───────────────────────────────────────
-  async function loadChannelBrowser() {
-    const wsRes = await api.workspaces();
-    const wsId = wsRes?.data?.[0]?.id;
-    if (wsId) {
-      const res = await api.channels(wsId);
-      setAllChannels(res?.data || []);
-    }
-    setShowChannelBrowser(true);
-  }
-
-  // ── Status ───────────────────────────────────────────────
-  async function saveStatus() {
-    await api.setStatus(statusEmoji, statusText);
-    setShowStatus(false);
-    if (user) setUser({ ...user, status_emoji: statusEmoji, status_text: statusText });
-  }
-
-  // ── Message search within channel ────────────────────────
-  async function searchInChannel(q: string) {
-    setMsgSearch(q);
-    if (!q.trim() || !activeChannel) { setMsgSearchResults([]); return; }
-    const results = messages.filter(m =>
-      m.content?.toLowerCase().includes(q.toLowerCase())
-    );
-    setMsgSearchResults(results);
-  }
-
-  async function loadDMs() {
-    const res = await api.dmList();
-    setDmList(res?.data || []);
-  }
-
+  // ── DMs ─────────────────────────────────────────────────────
   async function openDM(dm: any) {
-    setActiveDM(dm);
+    setActiveDM(dm); setActiveChannel(null); setActiveBoard(null); setActiveView('home');
     const res = await api.messages(dm.id);
     setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
     subscribe(dm.id);
@@ -350,199 +236,185 @@ export default function WorkspaceShell() {
     if (!dmNewMsg.trim() || !activeDM) return;
     await api.sendMessage(activeDM.id, dmNewMsg.trim());
     setDmNewMsg('');
-    const res = await api.messages(activeDM.id);
-    setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
   }
 
   async function startDM(userId: string) {
     const res = await api.createDM(userId);
     if (res?.data?.id) {
-      await loadDMs();
-      setShowNewDM(false);
-      setDmSearch('');
+      setShowNewDM(false); setDmSearch('');
+      await api.dmList().then(r => setDmList(r?.data || []));
       openDM(res.data);
     }
   }
 
-  async function openChannel(ch: Channel) {
-    setActiveChannel(ch);
-    setActiveBoard(null);
-    setActiveView('channel');
-    setMessages([]);
-    setTypingUsers([]);
-    try {
-      const res = await api.messages(ch.id);
-      const msgs = Array.isArray(res?.data) ? res.data : [];
-      setMessages(msgs.reverse());
-    } catch(e) { setMessages([]); }
-    setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    // Subscribe to WebSocket channel
-    subscribe(ch.id);
-  }
-
-  async function openBoard(board: Board) {
-    setActiveBoard(board);
-    setActiveChannel(null);
-    setActiveView('board');
-    const [listRes, taskRes] = await Promise.all([
-      api.lists(board.id),
-      api.tasks(board.id),
-    ]);
-    setLists((listRes?.data || []).sort((a: List, b: List) => a.position - b.position));
-    setTasks(taskRes?.data || []);
-  }
-
-  async function sendMessage() {
-    if (!newMsg.trim() || !activeChannel) return;
-    const content = newMsg.trim();
-    setNewMsg('');
-    await api.sendMessage(activeChannel.id, content);
+  // ── Messages actions ─────────────────────────────────────────
+  async function addReaction(msg: Message, emoji: string) {
+    if (!activeChannel) return;
+    await api.addReaction(activeChannel.id, msg.id, emoji);
     const res = await api.messages(activeChannel.id);
-    const msgs = Array.isArray(res?.data) ? res.data : [];
-    setMessages(msgs.reverse());
-    setTimeout(() => msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+    setMsgMenuId(null);
   }
 
-  async function addTask(listId: string) {
-    if (!newTaskTitle.trim() || !activeBoard) return;
-    await api.createTask(activeBoard.id, newTaskTitle.trim(), listId);
-    setNewTaskTitle('');
-    setAddingToList(null);
-    const res = await api.tasks(activeBoard.id);
-    setTasks(res?.data || []);
+  async function openThread(msg: Message) {
+    setThreadMsg(msg);
+    const res = await api.threadMessages(msg.channel_id || activeChannel!.id, msg.id);
+    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
   }
 
-  async function createDefaultBoard() {
-    if (!activeWs) return;
-    const res = await api.createBoard('Sprint Board', activeWs.id);
-    if (res?.data?.id) {
-      const board = res.data;
-      setBoards(prev => [...prev, board]);
-      await openBoard(board);
+  async function sendThreadReply() {
+    if (!threadReply.trim() || !threadMsg) return;
+    await api.sendThreadReply(threadMsg.channel_id || activeChannel!.id, threadMsg.id, threadReply.trim());
+    setThreadReply('');
+    const res = await api.threadMessages(threadMsg.channel_id || activeChannel!.id, threadMsg.id);
+    setThreadMessages(Array.isArray(res?.data) ? res.data : []);
+  }
+
+  async function pinMessage(msgId: string) {
+    if (!activeChannel) return;
+    await api.pinMessage(activeChannel.id, msgId);
+    setMsgMenuId(null);
+  }
+
+  async function loadPins() {
+    if (!activeChannel) return;
+    const res = await api.getPins(activeChannel.id);
+    setPins(res?.data || []); setShowPins(true);
+  }
+
+  async function startEditMessage(msg: Message) {
+    setEditingMsg(msg.id); setEditContent(msg.content); setMsgMenuId(null);
+  }
+
+  async function saveEditMessage(msgId: string) {
+    if (!activeChannel || !editContent.trim()) return;
+    await api.editMessage(activeChannel.id, msgId, editContent.trim());
+    setEditingMsg(null); setEditContent('');
+    const res = await api.messages(activeChannel.id);
+    setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+  }
+
+  async function deleteMessage(msgId: string) {
+    if (!activeChannel || !confirm('Delete this message?')) return;
+    await api.deleteMessage(activeChannel.id, msgId);
+    setMessages(prev => prev.filter(m => m.id !== msgId));
+    setMsgMenuId(null);
+  }
+
+  async function bookmarkMessage(msgId: string) {
+    await api.addBookmark(msgId); setMsgMenuId(null);
+    alert('Message saved!');
+  }
+
+  // ── File upload ──────────────────────────────────────────────
+  async function uploadFile(file: File) {
+    const channelId = activeChannel?.id || activeDM?.id;
+    if (!channelId) return;
+    setUploading(true);
+    try {
+      const wsRes = await api.workspaces();
+      const workspaceId = wsRes?.data?.[0]?.id;
+      const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
+      if (!urlRes?.data?.uploadUrl) throw new Error('No upload URL');
+      await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      const fileUrl = urlRes.data.fileUrl || urlRes.data.uploadUrl.split('?')[0];
+      const isImage = file.type.startsWith('image/');
+      await api.sendMessage(channelId, `[${isImage ? 'image' : 'file'}:${file.name}](${fileUrl})`);
+      const res = await api.messages(channelId);
+      if (activeChannel) setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+      else setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
+    } catch { alert('Upload failed. Please try again.'); }
+    setUploading(false);
+  }
+
+  // ── Bookmarks ────────────────────────────────────────────────
+  async function loadBookmarks() {
+    const res = await api.getBookmarks();
+    setBookmarks(res?.data || []); setShowBookmarks(true);
+  }
+
+  // ── Channel browser ───────────────────────────────────────────
+  async function loadChannelBrowser() {
+    if (activeWs) {
+      const res = await api.channels(activeWs.id);
+      setAllChannels(res?.data || []);
     }
+    setShowChannelBrowser(true);
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-emerald-400 text-lg animate-pulse">Loading Sahyog...</div>
-      </div>
-    );
+  // ── Status ───────────────────────────────────────────────────
+  async function saveStatus() {
+    await api.setStatus(statusEmoji, statusText);
+    setShowStatus(false);
+    setUser((u: any) => u ? { ...u, status_emoji: statusEmoji, status_text: statusText } : u);
   }
 
-  // ── Priority badge ─────────────────────────────────────────
-  const priorityColor: Record<string, string> = {
-    low: 'bg-gray-700 text-gray-300',
-    medium: 'bg-blue-900 text-blue-300',
-    high: 'bg-orange-900 text-orange-300',
-    critical: 'bg-red-900 text-red-300',
-  };
+  // ── Search ───────────────────────────────────────────────────
+  async function runSearch(q: string) {
+    setSearchQuery(q);
+    if (!q.trim()) { setSearchResults(null); return; }
+    setSearching(true);
+    const res = await api.search(q);
+    setSearchResults(res?.data || null);
+    setSearching(false);
+  }
 
+  const msgSearchResults = msgSearch.trim()
+    ? messages.filter(m => m.content?.toLowerCase().includes(msgSearch.toLowerCase()))
+    : [];
+
+  // ── Render ───────────────────────────────────────────────────
   return (
     <div className="flex h-screen bg-gray-950 text-white overflow-hidden">
 
-      {/* ── LEFT RAIL: Workspace switcher ── */}
-      <div className="w-14 bg-gray-900 border-r border-gray-800 flex flex-col items-center py-3 gap-2">
-        {workspaces.map(ws => (
-          <button
-            key={ws.id}
-            onClick={() => switchWorkspace(ws)}
-            title={ws.name}
-            className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
-              activeWs?.id === ws.id
-                ? 'bg-emerald-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-            }`}
-          >
-            {ws.name.charAt(0).toUpperCase()}
-          </button>
-        ))}
-        <div className="mt-auto flex flex-col items-center gap-2 pb-1">
-          <button
-            onClick={logout}
-            title="Sign out"
-            className="w-9 h-9 rounded-xl bg-gray-800 text-gray-400 hover:bg-red-900 hover:text-red-300 text-sm transition-colors flex items-center justify-center"
-          >
-            ⏻
-          </button>
-        </div>
-      </div>
-
       {/* ── SIDEBAR ── */}
-      <div className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col">
-        {/* Workspace name */}
+      <div className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
+        {/* Workspace header */}
         <div className="px-3 py-3 border-b border-gray-800">
-          <div className="font-semibold text-sm text-white truncate">{activeWs?.name}</div>
-          <div className="flex items-center justify-between mt-0.5">
-            <div className="text-xs text-gray-500 truncate">{user?.display_name?.split(' ')[0]}</div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setShowNotifs(s => !s)} className="relative text-gray-500 hover:text-white transition-colors">
-                🔔
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-              <button onClick={() => setShowStatus(true)} className="text-xs text-gray-500 hover:text-white transition-colors px-1.5 py-1 rounded hover:bg-gray-800" title="Set status">Status</button>
-              <button onClick={loadBookmarks} className="text-xs text-gray-500 hover:text-white transition-colors px-1.5 py-1 rounded hover:bg-gray-800" title="Saved messages">Saved</button>
-              <button onClick={loadChannelBrowser} className="text-xs text-gray-500 hover:text-white transition-colors px-1.5 py-1 rounded hover:bg-gray-800" title="Browse channels">Channels</button>
-              <button onClick={logout} className="text-xs text-gray-600 hover:text-red-400 transition-colors">Sign out</button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+              {activeWs?.name?.charAt(0) || 'S'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate">{activeWs?.name || 'Sahyog'}</div>
+              <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+              {(user?.status_emoji || user?.status_text) && (
+                <div className="text-xs text-gray-400 truncate">{user?.status_emoji} {user?.status_text}</div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Notifications dropdown */}
-        {showNotifs && (
-          <div className="absolute left-0 right-0 top-16 z-50 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl mx-2 overflow-hidden">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-800">
-              <span className="text-xs font-semibold text-white">Notifications</span>
-              <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(prev => prev.map(n => ({...n, is_read: true}))); }}
-                className="text-xs text-emerald-400 hover:text-emerald-300">Mark all read</button>
-            </div>
-            <div className="max-h-64 overflow-y-auto">
-              {notifications.length === 0 && (
-                <div className="text-center py-6 text-gray-600 text-xs">No notifications</div>
-              )}
-              {notifications.slice(0, 10).map((n: any) => (
-                <div key={n.id} className={`px-3 py-2.5 border-b border-gray-800/50 hover:bg-gray-800 cursor-pointer ${!n.is_read ? 'bg-gray-800/40' : ''}`}
-                  onClick={async () => { if (!n.is_read) { await api.markRead(n.id); setUnreadCount(c => Math.max(0, c-1)); setNotifications(prev => prev.map(x => x.id === n.id ? {...x, is_read: true} : x)); } }}>
-                  <div className="text-xs text-white">{n.title || n.body}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{new Date(n.sent_at).toLocaleString('en-IN', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex-1 overflow-y-auto py-2 space-y-1 px-2">
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
           {/* Home */}
-          <button
-            onClick={() => setActiveView('home')}
-            className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${
-              activeView === 'home' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'
-            }`}
-          >
+          <button onClick={() => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }}
+            className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'home' && !activeChannel && !activeBoard && !activeDM ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
             🏠 <span>Home</span>
           </button>
 
-          {/* Direct Messages */}
+          {/* Notifications */}
+          <button onClick={() => setShowNotifs(s => !s)}
+            className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800">
+            🔔 <span>Notifications</span>
+            {unreadCount > 0 && <span className="ml-auto bg-red-600 text-white text-xs rounded-full px-1.5">{unreadCount}</span>}
+          </button>
+
+          {/* DMs */}
           <div className="pt-2">
             <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
               <span>Direct Messages</span>
-              <button onClick={() => setShowNewDM(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
+              <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
+                className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
             </div>
             {dmList.map((dm: any) => (
-              <button key={dm.id} onClick={() => { setActiveChannel(null); setActiveDM(null); setTimeout(() => openDM(dm), 10); }}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${
-                  activeDM?.id === dm.id ? 'bg-purple-900/50 text-purple-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                }`}>
+              <button key={dm.id} onClick={() => openDM(dm)}
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeDM?.id === dm.id ? 'bg-purple-900/50 text-purple-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
                 <div className="w-4 h-4 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
                   {dm.other_name?.charAt(0) || '?'}
                 </div>
                 <span className="truncate">{dm.other_name || dm.name}</span>
-                {onlineUsers.has(dm.other_id) && <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full ml-auto shrink-0" />}
+                <span className={`w-1.5 h-1.5 rounded-full ml-auto shrink-0 ${onlineUsers.has(dm.other_id) ? 'bg-emerald-400' : 'bg-gray-600'}`} />
               </button>
             ))}
           </div>
@@ -553,20 +425,13 @@ export default function WorkspaceShell() {
               <span>Channels</span>
               <button onClick={() => setShowNewChannel(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New channel">+</button>
             </div>
-            {channels.filter(c => c.type === 'public' || c.type === 'announcement').slice(0, 8).map(ch => (
-              <button
-                key={ch.id}
-                onClick={() => openChannel(ch)}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${
-                  activeChannel?.id === ch.id
-                    ? 'bg-emerald-900/50 text-emerald-300'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                }`}
-              >
+            {channels.filter(c => c.type !== 'direct').slice(0, 10).map(ch => (
+              <button key={ch.id} onClick={() => openChannel(ch)}
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeChannel?.id === ch.id ? 'bg-emerald-900/50 text-emerald-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
                 <span className="text-gray-500">#</span>
                 <span className="truncate">{ch.name}</span>
-                {(ch.unread_count || 0) > 0 && (
-                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
+                {(ch.unread_count ?? 0) > 0 && (
+                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
@@ -576,315 +441,386 @@ export default function WorkspaceShell() {
           <div className="pt-2">
             <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider">Boards</div>
             {boards.map(b => (
-              <button
-                key={b.id}
-                onClick={() => openBoard(b)}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${
-                  activeBoard?.id === b.id
-                    ? 'bg-blue-900/50 text-blue-300'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                }`}
-              >
-                <span>📋</span>
-                <span className="truncate">{b.name}</span>
+              <button key={b.id} onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                <span>📋</span><span className="truncate">{b.name}</span>
               </button>
             ))}
-            <button
-              onClick={createDefaultBoard}
-              className="w-full text-left px-2 py-1 rounded text-sm text-gray-600 hover:text-gray-400 hover:bg-gray-800 flex items-center gap-1.5"
-            >
-              <span>+</span> <span>New board</span>
-            </button>
           </div>
 
-          {/* Admin */}
+          {/* System links */}
           <div className="pt-2">
-            <a href="/admin" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800">
+            <button onClick={() => setActiveView('meetings')}
+              className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'meetings' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+              📹 <span>Meetings</span>
+            </button>
+            <a href="/admin" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
               🛡️ <span>Admin</span>
             </a>
-            <a href="/settings" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-1">
+            <a href="/settings" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
               ⚙️ <span>Settings</span>
             </a>
+            <button onClick={() => setShowStatus(true)}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              <span>{user?.status_emoji || '😊'}</span><span className="truncate">{user?.status_text || 'Set status'}</span>
+            </button>
+            <button onClick={loadBookmarks}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              🔖 <span>Saved messages</span>
+            </button>
+            <button onClick={loadChannelBrowser}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              🔭 <span>Browse channels</span>
+            </button>
           </div>
+        </div>
 
-          {/* Meetings */}
-          <div className="pt-2">
-            <button
-              onClick={() => setActiveView('meetings')}
-              className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${
-                activeView === 'meetings' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'
-              }`}
-            >
-              📹 <span>Meetings</span>
+        {/* User footer */}
+        <div className="px-3 py-3 border-t border-gray-800 space-y-2">
+          {/* User info + status */}
+          <button onClick={() => setShowStatus(true)}
+            className="w-full flex items-center gap-2 hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors text-left">
+            <div className="relative shrink-0">
+              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">
+                {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
+              </div>
+              {/* Availability dot based on status */}
+              <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-gray-900 ${
+                user?.status_text?.toLowerCase().includes('meeting') ? 'bg-red-500' :
+                user?.status_text?.toLowerCase().includes('vacation') ? 'bg-yellow-500' :
+                user?.status_text?.toLowerCase().includes('focus') || user?.status_text?.toLowerCase().includes('disturb') ? 'bg-yellow-500' :
+                user?.status_text?.toLowerCase().includes('sick') ? 'bg-gray-500' :
+                'bg-emerald-400'
+              }`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white truncate">
+                {user?.display_name || user?.email?.split('@')[0]}
+              </div>
+              <div className="text-xs text-gray-500 truncate">
+                {user?.status_text ? `${user?.status_emoji || ''} ${user?.status_text}` : 'Set a status...'}
+              </div>
+            </div>
+          </button>
+          {/* Quick actions row */}
+          <div className="flex items-center gap-1">
+            <button onClick={loadBookmarks} title="Saved messages"
+              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Saved
+            </button>
+            <button onClick={loadChannelBrowser} title="Browse channels"
+              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Browse
+            </button>
+            <button onClick={logout} title="Sign out"
+              className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Sign out
             </button>
           </div>
         </div>
       </div>
 
       {/* ── MAIN CONTENT ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
 
-        {/* ─── HOME VIEW ─── */}
-        {activeView === 'home' && (
-          <div className="flex-1 overflow-y-auto p-8">
-            <h1 className="text-2xl font-bold text-white mb-1">
-              Good day, {user?.display_name?.split(' ')[0]} 👋
-            </h1>
-            <p className="text-gray-400 text-sm mb-8">Welcome to {activeWs?.name}</p>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-                <div className="text-emerald-400 text-2xl font-bold">{channels.length}</div>
-                <div className="text-gray-400 text-sm mt-1">Channels</div>
+        {/* DM View */}
+        {activeDM && !activeChannel && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
+              <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold">
+                {activeDM.other_name?.charAt(0) || '?'}
               </div>
-              <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-                <div className="text-blue-400 text-2xl font-bold">{boards.length}</div>
-                <div className="text-gray-400 text-sm mt-1">Boards</div>
-              </div>
-              <div className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-                <div className="text-purple-400 text-2xl font-bold">{workspaces.length}</div>
-                <div className="text-gray-400 text-sm mt-1">Workspaces</div>
-              </div>
+              <span className="font-semibold text-white">{activeDM.other_name || activeDM.name}</span>
+              {onlineUsers.has(activeDM.other_id) && (
+                <span className="text-xs text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />Active now
+                </span>
+              )}
             </div>
-
-            <div className="mt-8">
-              <h2 className="text-white font-semibold mb-3">Quick actions</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {channels[0] && (
-                  <button
-                    onClick={() => openChannel(channels[0])}
-                    className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-left hover:border-emerald-700 transition-colors"
-                  >
-                    <div className="text-emerald-400 font-medium"># {channels[0].name}</div>
-                    <div className="text-gray-500 text-xs mt-1">Open channel</div>
-                  </button>
-                )}
-                {boards[0] && (
-                  <button
-                    onClick={() => openBoard(boards[0])}
-                    className="bg-gray-900 border border-gray-800 rounded-xl p-4 text-left hover:border-blue-700 transition-colors"
-                  >
-                    <div className="text-blue-400 font-medium">📋 {boards[0].name}</div>
-                    <div className="text-gray-500 text-xs mt-1">Open board</div>
-                  </button>
-                )}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {dmMessages.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-purple-800 flex items-center justify-center text-2xl font-bold mx-auto mb-3">
+                    {activeDM.other_name?.charAt(0) || '?'}
+                  </div>
+                  <p className="text-white font-semibold">{activeDM.other_name}</p>
+                  <p className="text-gray-500 text-sm mt-1">Start a conversation</p>
+                </div>
+              )}
+              {dmMessages.map((msg: any) => {
+                const rendered = renderMessage(msg.content);
+                return (
+                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {(msg.sender_name || msg.display_name)?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm font-semibold text-white">{msg.sender_name || msg.display_name}</span>
+                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                      {rendered.isFile ? (
+                        rendered.isImage ? (
+                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer" onClick={() => window.open(rendered.url, '_blank')} />
+                        ) : (
+                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 max-w-xs">
+                            📎 <span className="truncate">{rendered.name}</span>
+                          </a>
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900">
+              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+              <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
+                <button onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-gray-300">{uploading ? '⏳' : '📎'}</button>
+                <input value={dmNewMsg} onChange={e => setDmNewMsg(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendDMMessage()}
+                  placeholder={`Message ${activeDM.other_name || ''}...`}
+                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
+                <button onClick={sendDMMessage} disabled={!dmNewMsg.trim()} className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg">↑</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ─── CHANNEL / CHAT VIEW ─── */}
-        {activeView === 'channel' && activeChannel && (
-          <>
-            {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900">
+        {/* Channel View */}
+        {activeChannel && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Channel header */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
               <span className="text-gray-400">#</span>
               <span className="font-semibold text-white">{activeChannel.name}</span>
-              <div className="ml-auto flex items-center gap-2">
-                <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pinned messages">📌</button>
+              {activeChannel.description && <span className="text-xs text-gray-500 hidden md:block">— {activeChannel.description}</span>}
+              <div className="ml-auto flex items-center gap-1">
+                <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pins">📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
                 <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-              {messages.length === 0 && (
-                <div className="text-center text-gray-600 text-sm pt-8">
-                  No messages yet. Say hi! 👋
-                </div>
-              )}
-              {messages.map(msg => (
-                <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1 rounded-lg group relative">
-                  {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 relative">
-                    {msg.sender_name?.charAt(0) || '?'}
-                    {onlineUsers.has(msg.sender_id) && (
-                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-950" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
-                      <span className="text-xs text-gray-600">
-                        {new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                      {msg.is_edited && <span className="text-xs text-gray-600 italic">(edited)</span>}
-                      {msg.is_pinned && <span className="text-xs text-yellow-500">📌</span>}
-                    </div>
-
-                    {/* Editable or display */}
-                    {editingMsg === msg.id ? (
-                      <div className="flex gap-2 mt-1">
-                        <input autoFocus value={editContent} onChange={e => setEditContent(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter') saveEditMessage(msg.id); if (e.key === 'Escape') setEditingMsg(null); }}
-                          className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-1.5 border border-emerald-500 focus:outline-none" />
-                        <button onClick={() => saveEditMessage(msg.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
-                        <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+            {/* Channel search */}
+            {showMsgSearch && (
+              <div className="px-4 py-2 border-b border-gray-800 bg-gray-900/80">
+                <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
+                  placeholder={`Search in #${activeChannel.name}...`} autoFocus
+                  className="w-full bg-gray-800 text-sm text-white placeholder-gray-500 rounded-lg px-3 py-1.5 focus:outline-none border border-gray-700 focus:border-emerald-500" />
+                {msgSearch && (
+                  <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                    {msgSearchResults.length === 0 && <p className="text-xs text-gray-600 px-1">No results</p>}
+                    {msgSearchResults.map(m => (
+                      <div key={m.id} className="text-xs bg-gray-800 rounded-lg px-3 py-2">
+                        <span className="text-gray-400 font-medium">{m.sender_name}</span>
+                        <span className="text-gray-300 ml-2">{m.content?.substring(0, 80)}</span>
                       </div>
-                    ) : (
-                      <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
-                    )}
-
-                    {/* Reactions */}
-                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                        {Object.entries(msg.reactions as Record<string, number>).map(([emoji, count]) => (
-                          <button key={emoji} onClick={() => addReaction(msg, emoji)}
-                            className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded-full text-xs border border-gray-700">
-                            {emoji} <span className="text-gray-400">{count}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Thread replies */}
-                    {(msg.reply_count ?? 0) > 0 && (
-                      <button onClick={() => openThread(msg)}
-                        className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Hover actions */}
-                  <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
-                    {['👍','❤️','😂','🎉','🔥'].map(emoji => (
-                      <button key={emoji} onClick={() => addReaction(msg, emoji)}
-                        className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
                     ))}
-                    <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>
-                    <div className="relative">
-                      <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)}
-                        className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">⋯</button>
-                      {msgMenuId === msg.id && (
-                        <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
-                          <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
-                          <button onClick={() => bookmarkMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">🔖 Save message</button>
-                          {msg.sender_id === user?.id && <>
-                            <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
-                            <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
-                          </>}
-                        </div>
-                      )}
-                    </div>
                   </div>
-                </div>
-              ))}
-              <div ref={msgEndRef} />
-            </div>
-
-            {/* Typing indicator */}
-            {typingUsers.length > 0 && (
-              <div className="px-4 py-1 text-xs text-gray-500 italic">
-                {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                )}
               </div>
             )}
 
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {messages.map(msg => {
+                const rendered = renderMessage(msg.content);
+                return (
+                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1.5 rounded-lg group relative">
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 relative">
+                      {msg.sender_name?.charAt(0) || '?'}
+                      {onlineUsers.has(msg.sender_id) && (
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-950" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2 mb-0.5">
+                        <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
+                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        {msg.is_edited && <span className="text-xs text-gray-600 italic">(edited)</span>}
+                        {msg.is_pinned && <span className="text-xs text-yellow-500">📌</span>}
+                      </div>
+
+                      {editingMsg === msg.id ? (
+                        <div className="flex gap-2 mt-1">
+                          <input autoFocus value={editContent} onChange={e => setEditContent(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') saveEditMessage(msg.id); if (e.key === 'Escape') setEditingMsg(null); }}
+                            className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-1.5 border border-emerald-500 focus:outline-none" />
+                          <button onClick={() => saveEditMessage(msg.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
+                          <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                        </div>
+                      ) : rendered.isFile ? (
+                        rendered.isImage ? (
+                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer hover:opacity-90" onClick={() => window.open(rendered.url, '_blank')} />
+                        ) : (
+                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 max-w-xs">
+                            📎 <span className="truncate">{rendered.name}</span>
+                          </a>
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-200 break-words leading-relaxed whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
+                      )}
+
+                      {/* Reactions */}
+                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {Object.entries(msg.reactions).map(([emoji, count]) => (
+                            <button key={emoji} onClick={() => addReaction(msg, emoji)}
+                              className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded-full text-xs border border-gray-700">
+                              {emoji} <span className="text-gray-400">{count as number}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Thread replies */}
+                      {(msg.reply_count ?? 0) > 0 && (
+                        <button onClick={() => openThread(msg)} className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                          💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Hover actions */}
+                    <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
+                      {['👍','❤️','😂','🎉','🔥'].map(emoji => (
+                        <button key={emoji} onClick={() => addReaction(msg, emoji)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
+                      ))}
+                      <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>
+                      <div className="relative">
+                        <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">⋯</button>
+                        {msgMenuId === msg.id && (
+                          <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
+                            <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
+                            <button onClick={() => bookmarkMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">🔖 Save message</button>
+                            {msg.sender_id === user?.id && <>
+                              <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
+                              <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
+                            </>}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {typingUsers.length > 0 && (
+                <div className="text-xs text-gray-500 px-2 animate-pulse">{typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...</div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
             {/* Composer */}
-            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900">
-              <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
-                <input
-                  value={newMsg}
-                  onChange={e => {
-                    setNewMsg(e.target.value);
-                    if (e.target.value && activeChannel) sendTyping(activeChannel.id);
-                  }}
-                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                  placeholder={`Message #${activeChannel.name}`}
-                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none"
-                />
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); e.target.value = ''; }}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                  className="text-gray-500 hover:text-gray-300 disabled:opacity-50 transition-colors text-lg"
-                  title="Attach file"
-                >
+            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900 shrink-0">
+              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+              <div className="flex items-end gap-2 bg-gray-800 rounded-xl px-3 py-2 border border-gray-700 focus-within:border-gray-500">
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                  className="text-gray-500 hover:text-gray-300 disabled:opacity-50 pb-0.5" title="Upload file">
                   {uploading ? '⏳' : '📎'}
                 </button>
-                <button
-                  onClick={sendMessage}
-                  disabled={!newMsg.trim()}
-                  className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 text-sm font-medium"
-                >
-                  Send
-                </button>
+                <textarea value={newMessage}
+                  onChange={e => { setNewMessage(e.target.value); }}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                  placeholder={`Message #${activeChannel.name}...`} rows={1}
+                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none resize-none max-h-32" />
+                <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
+                  className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg pb-0.5">↑</button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
-        {/* ─── KANBAN BOARD VIEW ─── */}
-        {activeView === 'board' && activeBoard && (
-          <KanbanView
-            boardId={activeBoard.id}
-            boardName={activeBoard.name}
-            onBack={() => setActiveView('home')}
-          />
+        {/* Board View */}
+        {activeBoard && !activeChannel && !activeDM && (
+          <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
         )}
 
-        {/* ─── THREAD PANEL ─── */}
+        {/* Home / Meetings / Admin View */}
+        {!activeChannel && !activeBoard && !activeDM && (
+          <div className="flex-1 overflow-y-auto">
+            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b) => { setActiveBoard(b); setActiveChannel(null); }} />}
+            {activeView === 'meetings' && <MeetingsView />}
+          </div>
+        )}
+      </div>
+
+      {/* Thread panel */}
       {threadMsg && (
-        <div className="fixed inset-y-0 right-0 w-80 bg-gray-900 border-l border-gray-800 flex flex-col z-40 shadow-2xl">
+        <div className="w-80 flex flex-col border-l border-gray-800 bg-gray-900 shrink-0">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
             <span className="text-sm font-semibold text-white">Thread</span>
             <button onClick={() => setThreadMsg(null)} className="text-gray-500 hover:text-white">✕</button>
           </div>
-          {/* Original message */}
           <div className="px-4 py-3 border-b border-gray-800 bg-gray-800/40">
             <div className="flex gap-2">
-              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                {threadMsg.sender_name?.charAt(0)}
-              </div>
-              <div>
-                <span className="text-xs font-semibold text-white">{threadMsg.sender_name}</span>
-                <p className="text-xs text-gray-300 mt-0.5">{threadMsg.content}</p>
-              </div>
+              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">{threadMsg.sender_name?.charAt(0)}</div>
+              <div><span className="text-xs font-semibold text-white">{threadMsg.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{threadMsg.content}</p></div>
             </div>
           </div>
-          {/* Thread replies */}
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            {threadMessages.map(m => (
+            {threadMessages.map((m: any) => (
               <div key={m.id} className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
-                  {m.sender_name?.charAt(0)}
-                </div>
-                <div>
-                  <span className="text-xs font-semibold text-white">{m.sender_name}</span>
-                  <p className="text-xs text-gray-300 mt-0.5">{m.content}</p>
-                </div>
+                <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">{m.sender_name?.charAt(0)}</div>
+                <div><span className="text-xs font-semibold text-white">{m.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{m.content}</p></div>
               </div>
             ))}
           </div>
-          {/* Reply composer */}
           <div className="p-3 border-t border-gray-800">
             <div className="flex gap-2 bg-gray-800 rounded-lg px-3 py-2">
               <input value={threadReply} onChange={e => setThreadReply(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendThreadReply()}
                 placeholder="Reply in thread..."
                 className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
-              <button onClick={sendThreadReply} disabled={!threadReply.trim()} className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 text-sm">↑</button>
+              <button onClick={sendThreadReply} disabled={!threadReply.trim()} className="text-emerald-400 disabled:text-gray-600 text-sm">↑</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ─── PINS PANEL ─── */}
+      {/* ── MODALS ── */}
+
+      {/* Notifications */}
+      {showNotifs && (
+        <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
+          onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+              <span className="text-white font-semibold">Notifications</span>
+              <div className="flex gap-2">
+                <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
+                  className="text-xs text-emerald-400 hover:text-emerald-300">Mark all read</button>
+                <button onClick={() => setShowNotifs(false)} className="text-gray-500 hover:text-white">✕</button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto divide-y divide-gray-800">
+              {notifications.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No notifications</p>}
+              {notifications.map((n: any) => (
+                <div key={n.id} className={`px-4 py-3 ${!n.is_read ? 'bg-emerald-950/20' : ''}`}>
+                  <p className="text-sm text-white">{n.title || n.body}</p>
+                  <p className="text-xs text-gray-500 mt-1">{new Date(n.sent_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pins modal */}
       {showPins && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
               <span className="text-white font-semibold">📌 Pinned messages</span>
               <button onClick={() => setShowPins(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
-            <div className="max-h-96 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {pins.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No pinned messages</p>}
               {pins.map((p: any) => (
                 <div key={p.id} className="bg-gray-800 rounded-lg p-3">
@@ -900,9 +836,10 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* ─── NEW CHANNEL MODAL ─── */}
+      {/* New channel modal */}
       {showNewChannel && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowNewChannel(false); }}>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowNewChannel(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6 space-y-4">
             <h3 className="text-white font-semibold text-lg">Create channel</h3>
             <div>
@@ -912,7 +849,7 @@ export default function WorkspaceShell() {
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Description <span className="text-gray-600">(optional)</span></label>
+              <label className="text-xs text-gray-400 mb-1 block">Description</label>
               <input value={newChDesc} onChange={e => setNewChDesc(e.target.value)}
                 placeholder="What's this channel about?"
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
@@ -935,7 +872,7 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* ─── STATUS MODAL ─── */}
+      {/* Status modal */}
       {showStatus && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowStatus(false); }}>
@@ -951,7 +888,7 @@ export default function WorkspaceShell() {
                 { emoji: '🚗', text: 'Commuting' },
               ].map(s => (
                 <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? 'border-emerald-500 bg-emerald-900/30 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'}`}>
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? 'border-emerald-500 bg-emerald-900/30 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}>
                   {s.emoji} {s.text}
                 </button>
               ))}
@@ -963,8 +900,7 @@ export default function WorkspaceShell() {
                 className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
             </div>
             <div className="flex gap-2">
-              <button onClick={saveStatus}
-                className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
+              <button onClick={saveStatus} className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
               <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
                 className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
             </div>
@@ -972,7 +908,7 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* ─── BOOKMARKS MODAL ─── */}
+      {/* Bookmarks modal */}
       {showBookmarks && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
@@ -982,7 +918,7 @@ export default function WorkspaceShell() {
               <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br/>Hover a message → ⋯ → Save message</p>}
+              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br />Hover a message → ⋯ → Save message</p>}
               {bookmarks.map((b: any) => (
                 <div key={b.id} className="bg-gray-800 rounded-xl p-3">
                   <div className="flex items-baseline gap-2 mb-1">
@@ -1000,7 +936,7 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* ─── CHANNEL BROWSER MODAL ─── */}
+      {/* Channel browser modal */}
       {showChannelBrowser && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
@@ -1014,115 +950,15 @@ export default function WorkspaceShell() {
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {allChannels
-                .filter(c => c.type === 'public' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase())))
-                .map((ch: any) => (
-                  <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl hover:bg-gray-750">
-                    <span className="text-gray-400 text-lg">#</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-white">{ch.name}</div>
-                      {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
-                    </div>
-                    <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
-                      className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Join</button>
+              {allChannels.filter(c => c.type !== 'direct' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase()))).map((ch: any) => (
+                <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl">
+                  <span className="text-gray-400 text-lg">#</span>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-white">{ch.name}</div>
+                    {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
                   </div>
-                ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── NEW DM MODAL ─── */}
-      {showNewDM && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) { setShowNewDM(false); setDmSearch(''); } }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
-            <h3 className="text-white font-semibold text-lg">New message</h3>
-            <input autoFocus value={dmSearch} onChange={e => setDmSearch(e.target.value)}
-              placeholder="Search people..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-            <div className="max-h-64 overflow-y-auto space-y-1">
-              {dmOrgMembers
-                .filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase())))
-                .map((m: any) => (
-                  <button key={m.id} onClick={() => startDM(m.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-left">
-                    <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">
-                      {m.display_name?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
-                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
-                    </div>
-                    {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
-                  </button>
-                ))}
-              {dmOrgMembers.filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()))).length === 0 && (
-                <p className="text-gray-600 text-sm text-center py-4">No members found</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── STATUS MODAL ─── */}
-      {showStatus && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowStatus(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5 space-y-4">
-            <h3 className="text-white font-semibold text-lg">Set your status</h3>
-            <div className="flex gap-2 flex-wrap">
-              {[
-                { emoji: '💼', text: 'In a meeting' },
-                { emoji: '🎯', text: 'Focusing' },
-                { emoji: '🏖️', text: 'On vacation' },
-                { emoji: '🤒', text: 'Out sick' },
-                { emoji: '🏠', text: 'Working from home' },
-                { emoji: '🚗', text: 'Commuting' },
-              ].map(s => (
-                <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? 'border-emerald-500 bg-emerald-900/30 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'}`}>
-                  {s.emoji} {s.text}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input value={statusEmoji} onChange={e => setStatusEmoji(e.target.value)} placeholder="😊"
-                className="w-14 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 text-center" />
-              <input value={statusText} onChange={e => setStatusText(e.target.value)} placeholder="What's your status?"
-                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={saveStatus}
-                className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
-              <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
-                className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── BOOKMARKS MODAL ─── */}
-      {showBookmarks && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
-              <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
-              <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br/>Hover a message → ⋯ → Save message</p>}
-              {bookmarks.map((b: any) => (
-                <div key={b.id} className="bg-gray-800 rounded-xl p-3">
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-xs font-semibold text-white">{b.sender_name}</span>
-                    <span className="text-xs text-gray-500">#{b.channel_name}</span>
-                    <span className="text-xs text-gray-600 ml-auto">{new Date(b.sent_at).toLocaleDateString('en-IN')}</span>
-                  </div>
-                  <p className="text-sm text-gray-300">{b.content}</p>
-                  <button onClick={async () => { await api.removeBookmark(b.message_id); loadBookmarks(); }}
-                    className="text-xs text-red-500 hover:text-red-400 mt-2">Remove</button>
+                  <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
+                    className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Join</button>
                 </div>
               ))}
             </div>
@@ -1130,39 +966,7 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* ─── CHANNEL BROWSER MODAL ─── */}
-      {showChannelBrowser && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
-              <span className="text-white font-semibold">🔭 Browse channels</span>
-              <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <div className="px-4 pt-3 shrink-0">
-              <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {allChannels
-                .filter(c => c.type === 'public' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase())))
-                .map((ch: any) => (
-                  <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl hover:bg-gray-750">
-                    <span className="text-gray-400 text-lg">#</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-white">{ch.name}</div>
-                      {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
-                    </div>
-                    <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
-                      className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">Join</button>
-                  </div>
-                ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── NEW DM MODAL ─── */}
+      {/* New DM modal */}
       {showNewDM && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) { setShowNewDM(false); setDmSearch(''); } }}>
@@ -1172,143 +976,157 @@ export default function WorkspaceShell() {
               placeholder="Search people..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
             <div className="max-h-64 overflow-y-auto space-y-1">
-              {dmOrgMembers
-                .filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase())))
-                .map((m: any) => (
-                  <button key={m.id} onClick={() => startDM(m.id)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-left">
-                    <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">
-                      {m.display_name?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
-                      <div className="text-xs text-gray-500 truncate">{m.email}</div>
-                    </div>
-                    {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
-                  </button>
-                ))}
+              {dmOrgMembers.filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase()))).map((m: any) => (
+                <button key={m.id} onClick={() => startDM(m.id)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-800 transition-colors text-left">
+                  <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">{m.display_name?.charAt(0) || '?'}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
+                    <div className="text-xs text-gray-500 truncate">{m.email}</div>
+                  </div>
+                  {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
+                </button>
+              ))}
               {dmOrgMembers.filter(m => m.id !== user?.id).length === 0 && (
-                <p className="text-gray-600 text-sm text-center py-4">No other members found</p>
+                <p className="text-gray-600 text-sm text-center py-4">No members found</p>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ─── SEARCH MODAL ─── */}
+      {/* Global search modal */}
       {showSearch && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-start justify-center pt-20 px-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowSearch(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl overflow-hidden">
-            {/* Search input */}
+        <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-50 pt-20 px-4"
+          onClick={e => { if (e.target === e.currentTarget) { setShowSearch(false); setSearchQuery(''); setSearchResults(null); } }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl">
             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800">
-              <span className="text-gray-400 text-lg">🔍</span>
-              <input
-                autoFocus
-                value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); doSearch(e.target.value); }}
+              <span className="text-gray-500">🔍</span>
+              <input autoFocus value={searchQuery} onChange={e => runSearch(e.target.value)}
                 placeholder="Search messages, tasks, people..."
-                className="flex-1 bg-transparent text-white placeholder-gray-500 focus:outline-none text-sm"
-              />
-              {searching && <span className="text-gray-500 text-xs animate-pulse">Searching...</span>}
-              <button onClick={() => setShowSearch(false)} className="text-gray-500 hover:text-white">✕</button>
+                className="flex-1 bg-transparent text-white text-sm focus:outline-none" />
+              <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults(null); }}
+                className="text-gray-500 hover:text-white text-xs px-2 py-1 border border-gray-700 rounded">Esc</button>
             </div>
-
-            {/* Results */}
-            <div className="max-h-96 overflow-y-auto">
-              {!searchResults && !searching && (
-                <div className="text-center py-12 text-gray-600 text-sm">
-                  Type to search messages, tasks, people...
-                </div>
-              )}
-
-              {searchResults && (
-                <div className="divide-y divide-gray-800">
-                  {/* Messages */}
+            <div className="max-h-96 overflow-y-auto p-3">
+              {searching && <div className="text-gray-500 text-sm text-center py-4 animate-pulse">Searching...</div>}
+              {!searching && searchResults && (
+                <div className="space-y-4">
                   {searchResults.messages?.length > 0 && (
-                    <div className="p-3">
+                    <div>
                       <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Messages</div>
                       {searchResults.messages.map((m: any) => (
-                        <div key={m.id} className="flex items-start gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
-                          onClick={() => setShowSearch(false)}>
-                          <span className="text-gray-500 text-sm">#</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-xs text-gray-500">{m.channel_name} · {m.sender_name}</div>
-                            <div className="text-sm text-white truncate mt-0.5">{m.content}</div>
+                        <div key={m.id} className="px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                          <div className="flex items-baseline gap-2 mb-0.5">
+                            <span className="text-xs font-semibold text-white">{m.sender_name}</span>
+                            <span className="text-xs text-gray-600">#{m.channel_name}</span>
                           </div>
-                          <div className="text-xs text-gray-600 shrink-0">
-                            {new Date(m.sent_at).toLocaleDateString('en-IN')}
-                          </div>
+                          <p className="text-sm text-gray-300 truncate">{m.content}</p>
                         </div>
                       ))}
                     </div>
                   )}
-
-                  {/* Tasks */}
                   {searchResults.tasks?.length > 0 && (
-                    <div className="p-3">
+                    <div>
                       <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Tasks</div>
                       {searchResults.tasks.map((t: any) => (
-                        <div key={t.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
-                          onClick={() => setShowSearch(false)}>
-                          <span className="text-gray-500">☑</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-white truncate">{t.title}</div>
-                            <div className="text-xs text-gray-500">{t.board_name}</div>
-                          </div>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            t.priority === 'high' ? 'bg-orange-900 text-orange-300' :
-                            t.priority === 'critical' ? 'bg-red-900 text-red-300' :
-                            'bg-gray-800 text-gray-400'
-                          }`}>{t.priority}</span>
+                        <div key={t.id} className="px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                          <p className="text-sm text-white">{t.title}</p>
+                          <div className="text-xs text-gray-500 mt-0.5">{t.board_name}</div>
                         </div>
                       ))}
                     </div>
                   )}
-
-                  {/* People */}
-                  {searchResults.users?.length > 0 && (
-                    <div className="p-3">
+                  {searchResults.people?.length > 0 && (
+                    <div>
                       <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">People</div>
-                      {searchResults.users.map((u: any) => (
-                        <div key={u.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-800 cursor-pointer"
-                          onClick={() => setShowSearch(false)}>
-                          <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                            {u.display_name?.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="text-sm text-white">{u.display_name}</div>
-                            <div className="text-xs text-gray-500">{u.email}</div>
-                          </div>
+                      {searchResults.people.map((p: any) => (
+                        <div key={p.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                          <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold">{p.display_name?.charAt(0)}</div>
+                          <div><p className="text-sm text-white">{p.display_name}</p><p className="text-xs text-gray-500">{p.email}</p></div>
                         </div>
                       ))}
                     </div>
                   )}
-
-                  {/* No results */}
-                  {searchResults && !searchResults.messages?.length && !searchResults.tasks?.length && !searchResults.users?.length && (
-                    <div className="text-center py-8 text-gray-600 text-sm">No results for "{searchQuery}"</div>
+                  {!searchResults.messages?.length && !searchResults.tasks?.length && !searchResults.people?.length && (
+                    <p className="text-gray-600 text-sm text-center py-4">No results for "{searchQuery}"</p>
                   )}
+                </div>
+              )}
+              {!searching && !searchResults && searchQuery && (
+                <p className="text-gray-600 text-sm text-center py-4">Type to search...</p>
+              )}
+              {!searchQuery && (
+                <div className="text-center py-6 space-y-2">
+                  <p className="text-gray-500 text-sm">Search across messages, tasks and people</p>
+                  <div className="flex justify-center gap-2 text-xs text-gray-600">
+                    <span className="bg-gray-800 px-2 py-1 rounded">messages</span>
+                    <span className="bg-gray-800 px-2 py-1 rounded">tasks</span>
+                    <span className="bg-gray-800 px-2 py-1 rounded">people</span>
+                  </div>
                 </div>
               )}
             </div>
           </div>
         </div>
       )}
-
-      {/* ─── MEETINGS VIEW ─── */}
-        {activeView === 'meetings' && (
-          <div className="flex-1 overflow-y-auto p-8">
-            <h1 className="text-xl font-bold text-white mb-6">Meetings</h1>
-            <MeetingsView />
-          </div>
-        )}
-      </div>
     </div>
   );
 }
 
-// ── Meetings sub-view ─────────────────────────────────────────
+// ── Home View ─────────────────────────────────────────────────
+function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: any) {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  return (
+    <div className="max-w-3xl mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white">{greeting}, {user?.display_name?.split(' ')[0] || 'there'} 👋</h1>
+        <p className="text-gray-500 text-sm mt-1">Welcome to {workspaces[0]?.name || 'Sahyog'}</p>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { label: 'Channels', value: channels.length, color: 'text-emerald-400' },
+          { label: 'Boards', value: boards.length, color: 'text-blue-400' },
+          { label: 'Workspaces', value: workspaces.length, color: 'text-purple-400' },
+        ].map(s => (
+          <div key={s.label} className="bg-gray-900 rounded-xl p-4 border border-gray-800">
+            <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
+            <div className="text-gray-500 text-xs mt-1">{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Recent channels</h2>
+        <div className="space-y-2">
+          {channels.slice(0, 5).map((ch: any) => (
+            <button key={ch.id} onClick={() => onChannel(ch)}
+              className="w-full flex items-center gap-3 p-3 bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-700 text-left transition-colors">
+              <span className="text-gray-400">#</span>
+              <span className="text-white text-sm font-medium">{ch.name}</span>
+              {(ch.unread_count ?? 0) > 0 && <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{ch.unread_count}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+      {boards.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Boards</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {boards.slice(0, 4).map((b: any) => (
+              <button key={b.id} onClick={() => onBoard(b)}
+                className="flex items-center gap-3 p-3 bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-700 text-left transition-colors">
+                <span>📋</span><span className="text-white text-sm font-medium truncate">{b.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Meetings View ─────────────────────────────────────────────
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
@@ -1344,11 +1162,7 @@ function MeetingsView() {
     const workspaceId = wsRes?.data?.[0]?.id;
     if (!workspaceId) { alert('No workspace found'); setSaving(false); return; }
     const startsAt = startNow ? new Date().toISOString() : new Date(`${meetDate}T${meetTime}`).toISOString();
-    const res = await api.createMeeting({
-      title: newTitle.trim(), description: meetDesc.trim() || undefined,
-      startsAt, durationMins: meetDur, type: 'meeting', workspaceId,
-      waitingRoom: false, participantIds: invitedIds,
-    });
+    const res = await api.createMeeting({ title: newTitle.trim(), description: meetDesc.trim() || undefined, startsAt, durationMins: meetDur, type: 'meeting', workspaceId, waitingRoom: false, participantIds: invitedIds });
     setSaving(false);
     if (res?.data?.id) {
       setNewTitle(''); setCreating(false); setInvitedIds([]); setMeetDesc('');
@@ -1362,7 +1176,6 @@ function MeetingsView() {
     alert(res?.data?.message || 'Reminder sent!');
   }
 
-  // Calendar helpers
   function getDaysInMonth(date: Date) {
     const year = date.getFullYear(), month = date.getMonth();
     const firstDay = new Date(year, month, 1).getDay();
@@ -1373,9 +1186,7 @@ function MeetingsView() {
   function getMeetingsOnDay(day: number) {
     return meetings.filter(m => {
       const d = new Date(m.starts_at);
-      return d.getFullYear() === calMonth.getFullYear() &&
-             d.getMonth() === calMonth.getMonth() &&
-             d.getDate() === day;
+      return d.getFullYear() === calMonth.getFullYear() && d.getMonth() === calMonth.getMonth() && d.getDate() === day;
     });
   }
 
@@ -1385,51 +1196,37 @@ function MeetingsView() {
   };
 
   return (
-    <div className="space-y-4 max-w-4xl">
-      {/* Header with view toggle */}
+    <div className="p-6 space-y-4 max-w-4xl">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 bg-gray-900 rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('list')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>
-            📋 List
-          </button>
-          <button onClick={() => setView('calendar')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>
-            📅 Calendar
-          </button>
+          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>📋 List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>📅 Calendar</button>
         </div>
-        <button onClick={() => setCreating(true)}
-          className="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors flex items-center gap-1">
-          📹 New meeting
-        </button>
+        <button onClick={() => setCreating(true)} className="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-xl">📹 New meeting</button>
       </div>
 
-      {/* New meeting form */}
       {creating && (
         <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-4">
           <h3 className="text-sm font-semibold text-white">New meeting</h3>
-          <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)}
-            placeholder="Meeting title..."
+          <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Meeting title..."
             className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
-          <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)}
-            placeholder="Description (optional)"
+          <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
             className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>▶ Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium transition-colors ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>📅 Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>▶ Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>📅 Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Date</label>
                 <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
               </div>
             </div>
           )}
@@ -1438,24 +1235,21 @@ function MeetingsView() {
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
                 <button key={d} onClick={() => setMeetDur(d)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${meetDur === d ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
             </div>
           </div>
-          {/* Members */}
           <div>
             <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="text-emerald-400">({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
-            <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none mb-2" />
+            <div className="max-h-32 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
               {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
-                    {m.display_name?.charAt(0)}
-                  </div>
+                  <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold shrink-0">{m.display_name?.charAt(0)}</div>
                   <span className="text-xs text-white flex-1">{m.display_name}</span>
                   {invitedIds.includes(m.id) && <span className="text-emerald-400 text-xs">✓</span>}
                 </div>
@@ -1467,35 +1261,26 @@ function MeetingsView() {
               className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
               {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule'}
             </button>
-            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }}
-              className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
+            <button onClick={() => { setCreating(false); setInvitedIds([]); }} className="text-xs text-gray-500 hover:text-gray-300 px-4">Cancel</button>
           </div>
         </div>
       )}
 
-      {/* Calendar view */}
       {view === 'calendar' && (
         <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-          {/* Calendar header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
-              className="text-gray-500 hover:text-white px-2 py-1 rounded">‹</button>
-            <span className="text-white font-semibold">
-              {calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
-            </span>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
-              className="text-gray-500 hover:text-white px-2 py-1 rounded">›</button>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded">‹</button>
+            <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded">›</button>
           </div>
-          {/* Day headers */}
           <div className="grid grid-cols-7 border-b border-gray-800">
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
               <div key={d} className="text-xs text-gray-500 text-center py-2 font-medium">{d}</div>
             ))}
           </div>
-          {/* Calendar grid */}
           <div className="grid grid-cols-7">
             {Array.from({ length: firstDay }).map((_, i) => (
-              <div key={`empty-${i}`} className="min-h-16 border-b border-r border-gray-800 bg-gray-900/50" />
+              <div key={`e-${i}`} className="min-h-16 border-b border-r border-gray-800 bg-gray-900/50" />
             ))}
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
@@ -1503,9 +1288,7 @@ function MeetingsView() {
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
               return (
                 <div key={day} className={`min-h-16 border-b border-r border-gray-800 p-1 ${isToday ? 'bg-emerald-950/30' : ''}`}>
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-gray-400'}`}>
-                    {day}
-                  </div>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-gray-400'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
                       className="block text-xs bg-emerald-900/60 text-emerald-300 rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
@@ -1519,12 +1302,9 @@ function MeetingsView() {
         </div>
       )}
 
-      {/* List view */}
       {view === 'list' && (
         <div className="space-y-3">
-          {meetings.length === 0 && !creating && (
-            <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>
-          )}
+          {meetings.length === 0 && !creating && <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>}
           {meetings.map(m => (
             <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
               <div className="flex items-start justify-between gap-3">
@@ -1534,29 +1314,19 @@ function MeetingsView() {
                   <div className="text-xs text-gray-500 mt-2 flex items-center gap-3">
                     <span>📅 {new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                     <span>⏱ {m.duration_mins || 60}m</span>
-                    {m.metadata?.recording_url && <span className="text-emerald-400">🎥 Recorded</span>}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[m.status] || STATUS_COLORS.ended}`}>
-                    {m.status}
-                  </span>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[m.status] || STATUS_COLORS.ended}`}>{m.status}</span>
                   <div className="flex gap-1">
                     {(m.status === 'live' || m.status === 'scheduled') && (
                       <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
-                        className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg transition-colors">
+                        className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">
                         {m.status === 'live' ? '▶ Join' : 'Join →'}
                       </a>
                     )}
                     {m.status === 'scheduled' && (
-                      <button onClick={() => sendReminder(m.id)}
-                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">
-                        🔔
-                      </button>
-                    )}
-                    {m.metadata?.recording_url && (
-                      <a href={m.metadata.recording_url} target="_blank" rel="noopener noreferrer"
-                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">⬇</a>
+                      <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
                     )}
                   </div>
                 </div>
@@ -1568,5 +1338,3 @@ function MeetingsView() {
     </div>
   );
 }
-
-
