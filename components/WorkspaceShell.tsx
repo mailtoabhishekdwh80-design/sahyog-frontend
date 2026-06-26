@@ -563,7 +563,7 @@ export default function WorkspaceShell() {
                 <span className="text-gray-500">#</span>
                 <span className="truncate">{ch.name}</span>
                 {(ch.unread_count || 0) > 0 && (
-                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">{ch.unread_count > 99 ? '99+' : ch.unread_count}</span>
+                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5 min-w-[1.25rem] text-center">{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
