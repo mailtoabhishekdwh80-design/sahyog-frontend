@@ -292,15 +292,20 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
-        <button onClick={onBack} className="text-gray-500 hover:text-white text-lg">←</button>
-        <span>📋</span>
-        <span className="font-semibold text-white">{boardName}</span>
-        <span className="text-xs text-gray-500 ml-1">{tasks.length} tasks</span>
-        <div className="ml-auto flex items-center gap-2">
-          <button onClick={loadTemplates} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">Templates</button>
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800 bg-gray-900 shrink-0 flex-wrap">
+        <button onClick={onBack} className="text-gray-500 hover:text-white">&#8592;</button>
+        <span className="font-semibold text-white truncate">{boardName}</span>
+        <span className="text-xs text-gray-500">{tasks.length} tasks</span>
+        <div className="ml-auto flex items-center gap-1 flex-wrap">
+          <button onClick={loadTemplates}
+            className="text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1 rounded border border-gray-700">
+            Templates
+          </button>
           <div className="relative">
-            <button onClick={() => setShowBgPicker(s => !s)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">🎨 Theme</button>
+            <button onClick={() => setShowBgPicker(s => !s)}
+              className="text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1 rounded border border-gray-700">
+              Theme
+            </button>
             {showBgPicker && (
               <div className="absolute right-0 top-8 bg-gray-900 border border-gray-700 rounded-xl p-3 shadow-2xl z-50 flex gap-2 flex-wrap w-48">
                 {BOARD_COLORS.map(c => (
@@ -311,7 +316,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               </div>
             )}
           </div>
-          <button onClick={loadBoard} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">↻</button>
+          <button onClick={loadBoard}
+            className="text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1 rounded border border-gray-700">
+            Refresh
+          </button>
         </div>
       </div>
 
