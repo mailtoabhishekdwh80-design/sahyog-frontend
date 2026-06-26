@@ -493,7 +493,7 @@ export default function WorkspaceShell() {
           <div className="pt-2">
             <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
               <span>Direct Messages</span>
-              <button onClick={() => setShowNewDM(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
+              <button onClick={() => { setShowNewDM(true); api.adminMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
             </div>
             {dmList.map((dm: any) => (
               <button key={dm.id} onClick={() => { setActiveChannel(null); setActiveDM(null); setTimeout(() => openDM(dm), 10); }}
