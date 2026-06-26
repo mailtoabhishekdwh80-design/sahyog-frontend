@@ -768,7 +768,6 @@ export default function WorkspaceShell() {
                       </div>
                     ) : (
                       <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
-                      )}
                     )}
 
                     {/* Reactions */}
