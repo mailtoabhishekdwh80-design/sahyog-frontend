@@ -298,7 +298,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
         <span className="font-semibold text-white">{boardName}</span>
         <span className="text-xs text-gray-500 ml-1">{tasks.length} tasks</span>
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={loadTemplates} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">📐 Templates</button>
+          <button onClick={loadTemplates} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">Templates</button>
           <div className="relative">
             <button onClick={() => setShowBgPicker(s => !s)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-800">🎨 Theme</button>
             {showBgPicker && (
