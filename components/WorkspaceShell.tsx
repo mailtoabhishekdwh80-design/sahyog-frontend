@@ -107,18 +107,6 @@ export default function WorkspaceShell() {
 
   // Channel message search
   const [showMsgSearch,  setShowMsgSearch]  = useState(false);
-  const [polls,           setPolls]           = useState<any[]>([]);
-  const [showPollCreate,  setShowPollCreate]  = useState(false);
-  const [pollQuestion,    setPollQuestion]    = useState('');
-  const [pollOptions,     setPollOptions]     = useState(['', '']);
-  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
-  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
-  const [polls,           setPolls]           = useState<any[]>([]);
-  const [showPollCreate,  setShowPollCreate]  = useState(false);
-  const [pollQuestion,    setPollQuestion]    = useState('');
-  const [pollOptions,     setPollOptions]     = useState(['', '']);
-  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
-  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
