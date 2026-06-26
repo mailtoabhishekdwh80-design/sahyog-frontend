@@ -1762,12 +1762,12 @@ function MeetingsView() {
                         <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
                         <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">Recur</button>
                         <button onClick={async () => {
-                          setActiveMeetingId(m.id);
+                          setMeetPollMeetingId(m.id);
                           const res = await api.getPolls(m.id);
                           setPolls(res?.data || []);
                           setShowPollCreate(true);
                         }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Meeting polls">Poll</button>
-                        <button onClick={() => { setActiveMeetingId(m.id); setShowWhiteboard(true); }}
+                        <button onClick={() => { setMeetPollMeetingId(m.id); setShowMeetWhiteboard(true); }}
                           className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Whiteboard">Board</button>
                       </div>
                     )}
