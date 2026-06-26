@@ -767,25 +767,7 @@ export default function WorkspaceShell() {
                         <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
                       </div>
                     ) : (
-                      {msg.content?.match(/^\[(image|file):(.+)\]\((.+)\)$/) ? (
-                        (() => {
-                          const m = msg.content.match(/^\[(image|file):(.+)\]\((.+)\)$/);
-                          return m?.[1] === 'image' ? (
-                            <div className="mt-1">
-                              <img src={m[3]} alt={m[2]} className="max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer hover:opacity-90"
-                                onClick={() => window.open(m[3], '_blank')} />
-                              <p className="text-xs text-gray-500 mt-1">{m[2]}</p>
-                            </div>
-                          ) : (
-                            <a href={m![3]} target="_blank" rel="noopener noreferrer"
-                              className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 max-w-xs">
-                              📎 <span className="truncate">{m![2]}</span>
-                            </a>
-                          );
-                        })()
-                      ) : (
-                        <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap"
-                          dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
+                      <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: formatContent(parseMentions(msg.content)) }} />
                       )}
                     )}
 
