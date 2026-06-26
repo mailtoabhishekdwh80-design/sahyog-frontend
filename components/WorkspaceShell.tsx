@@ -1027,6 +1027,147 @@ export default function WorkspaceShell() {
         </div>
       )}
 
+      {/* Analytics modal */}
+      {showAnalytics && analytics && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowAnalytics(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">#{activeChannel?.name} Analytics</span>
+              <button onClick={() => setShowAnalytics(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-800 rounded-xl p-4">
+                <div className="text-2xl font-bold text-emerald-400">{analytics.totalMessages}</div>
+                <div className="text-xs text-gray-500 mt-1">Total messages</div>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-4">
+                <div className="text-2xl font-bold text-blue-400">{analytics.activeUsers}</div>
+                <div className="text-xs text-gray-500 mt-1">Active members (30d)</div>
+              </div>
+            </div>
+            {analytics.topSenders?.length > 0 && (
+              <div>
+                <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Top contributors</div>
+                <div className="space-y-2">
+                  {analytics.topSenders.map((s: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">{s.display_name?.charAt(0)}</div>
+                      <span className="text-sm text-white flex-1">{s.display_name}</span>
+                      <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{s.count} msgs</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {analytics.msgByDay?.length > 0 && (
+              <div>
+                <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Messages last 7 days</div>
+                <div className="flex items-end gap-1 h-16">
+                  {analytics.msgByDay.map((d: any, i: number) => {
+                    const max = Math.max(...analytics.msgByDay.map((x: any) => parseInt(x.count)));
+                    const h = max > 0 ? (parseInt(d.count) / max) * 100 : 10;
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="bg-emerald-600 rounded-sm w-full" style={{ height: `${h}%` }} title={d.count + ' msgs'} />
+                        <span className="text-xs text-gray-600">{new Date(d.day).toLocaleDateString('en-IN', { weekday: 'short' })}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scheduled messages modal */}
+      {showScheduled && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowScheduled(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+              <span className="text-white font-semibold">Scheduled messages</span>
+              <button onClick={() => setShowScheduled(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {scheduledMsgs.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No scheduled messages</p>}
+              {scheduledMsgs.map((m: any) => (
+                <div key={m.id} className="bg-gray-800 rounded-xl p-3 flex items-start gap-3">
+                  <div className="flex-1">
+                    <p className="text-sm text-white">{m.content}</p>
+                    <p className="text-xs text-emerald-400 mt-1">Sends: {new Date(m.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                  </div>
+                  <button onClick={async () => { if (activeChannel) { await api.cancelScheduled(activeChannel.id, m.id); loadScheduled(); } }}
+                    className="text-xs text-red-500 hover:text-red-400">Cancel</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom emoji modal */}
+      {showEmojiMgr && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowEmojiMgr(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Custom emoji</span>
+              <button onClick={() => setShowEmojiMgr(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="flex gap-2">
+              <input value={newEmojiName} onChange={e => setNewEmojiName(e.target.value)}
+                placeholder=":emoji-name:" className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+              <button onClick={addCustomEmoji} disabled={!newEmojiName.trim()}
+                className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
+            </div>
+            <div className="max-h-48 overflow-y-auto">
+              {customEmojis.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No custom emoji yet. Add one above!</p>}
+              <div className="grid grid-cols-4 gap-3">
+                {customEmojis.map((e: any) => (
+                  <div key={e.id} className="flex flex-col items-center gap-1 bg-gray-800 rounded-lg p-2">
+                    <img src={e.url} alt={e.name} className="w-8 h-8 object-contain" />
+                    <span className="text-xs text-gray-400 truncate w-full text-center">:{e.name}:</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sahyog Connect modal */}
+      {showConnect && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowConnect(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-white font-semibold">Sahyog Connect</span>
+                <p className="text-xs text-gray-500 mt-0.5">Invite external teams to collaborate</p>
+              </div>
+              <button onClick={() => setShowConnect(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Contact email</label>
+              <input value={connectEmail} onChange={e => setConnectEmail(e.target.value)}
+                placeholder="contact@partner.com" type="email"
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Organization name</label>
+              <input value={connectOrg} onChange={e => setConnectOrg(e.target.value)}
+                placeholder="Partner Company"
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+            </div>
+            <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-500">
+              They will receive an invite to join #{activeChannel?.name} as an external collaborator.
+            </div>
+            <button onClick={sendConnectInvite} disabled={!connectEmail.trim()}
+              className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
+              Send Connect invite
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Status modal */}
       {showStatus && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
