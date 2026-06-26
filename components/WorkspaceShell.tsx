@@ -759,7 +759,7 @@ export default function WorkspaceShell() {
         {/* Home / Meetings / Admin View */}
         {!activeChannel && !activeBoard && !activeDM && (
           <div className="flex-1 overflow-y-auto">
-            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b) => { setActiveBoard(b); setActiveChannel(null); }} />}
+            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
             {activeView === 'meetings' && <MeetingsView />}
           </div>
         )}
