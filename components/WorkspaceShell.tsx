@@ -1551,6 +1551,10 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
+  const [meetPolls, setMeetPolls] = useState<any[]>([]);
+  const [showMeetPoll, setShowMeetPoll] = useState(false);
+  const [meetPollMeetingId, setMeetPollMeetingId] = useState<string|null>(null);
+  const [showMeetWhiteboard, setShowMeetWhiteboard] = useState(false);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -1764,8 +1768,8 @@ function MeetingsView() {
                         <button onClick={async () => {
                           setMeetPollMeetingId(m.id);
                           const res = await api.getPolls(m.id);
-                          setPolls(res?.data || []);
-                          setShowPollCreate(true);
+                          setMeetPolls(res?.data || []);
+                          setShowMeetPoll(true);
                         }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Meeting polls">Poll</button>
                         <button onClick={() => { setMeetPollMeetingId(m.id); setShowMeetWhiteboard(true); }}
                           className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Whiteboard">Board</button>
