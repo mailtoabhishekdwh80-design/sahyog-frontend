@@ -1566,9 +1566,14 @@ function MeetingsView() {
   const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
-  const [memberSearch, setMemberSearch] = useState('');
+  const [memberSearch,setMemberSearch]= useState('');
   const [view,        setView]        = useState<'list'|'calendar'>('list');
   const [calMonth,    setCalMonth]    = useState(new Date());
+  const [meetPolls,   setMeetPolls]   = useState<any[]>([]);
+  const [showPoll,    setShowPoll]    = useState(false);
+  const [pollMeetId,  setPollMeetId]  = useState<string|null>(null);
+  const [pollQ,       setPollQ]       = useState('');
+  const [showWB,      setShowWB]      = useState(false);
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
@@ -1598,6 +1603,11 @@ function MeetingsView() {
     api.meetings().then(r => setMeetings(r?.data || []));
   }
 
+  async function sendReminder(meetingId: string) {
+    const res = await api.sendReminder(meetingId);
+    alert(res?.data?.message || 'Reminder sent!');
+  }
+
   async function makeRecurring(meetingId: string) {
     const freq = prompt('Repeat frequency? (daily/weekly/monthly)');
     if (!freq || !['daily','weekly','monthly'].includes(freq)) return;
@@ -1609,15 +1619,16 @@ function MeetingsView() {
     }
   }
 
-  async function sendReminder(meetingId: string) {
-    const res = await api.sendReminder(meetingId);
-    alert(res?.data?.message || 'Reminder sent!');
+  async function openPoll(meetingId: string) {
+    setPollMeetId(meetingId);
+    const res = await api.getPolls(meetingId);
+    setMeetPolls(res?.data || []);
+    setShowPoll(true);
   }
 
-  function getDaysInMonth(date: Date) {
-    const year = date.getFullYear(), month = date.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+  function getDaysInMonth() {
+    const firstDay = new Date(calMonth.getFullYear(), calMonth.getMonth(), 1).getDay();
+    const daysInMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
     return { firstDay, daysInMonth };
   }
 
@@ -1628,21 +1639,21 @@ function MeetingsView() {
     });
   }
 
-  const { firstDay, daysInMonth } = getDaysInMonth(calMonth);
-  const STATUS_COLORS: Record<string, string> = {
-    live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-400',
-  };
+  const { firstDay, daysInMonth } = getDaysInMonth();
+  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-400' };
 
   return (
-    <div className="p-6 space-y-4 max-w-4xl">
+    <div className="space-y-4 max-w-4xl">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 bg-gray-900 rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>📋 List</button>
-          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>📅 Calendar</button>
+          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
         </div>
-        <button onClick={() => setCreating(true)} className="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-xl">📹 New meeting</button>
+        <button onClick={() => setCreating(true)} className="bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
       </div>
 
+      {/* New meeting form */}
       {creating && (
         <div className="bg-gray-900 border border-emerald-700 rounded-xl p-4 space-y-4">
           <h3 className="text-sm font-semibold text-white">New meeting</h3>
@@ -1651,20 +1662,20 @@ function MeetingsView() {
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
             className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>▶ Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>📅 Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Date</label>
-                <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
               </div>
             </div>
           )}
@@ -1672,8 +1683,7 @@ function MeetingsView() {
             <label className="text-xs text-gray-500 mb-2 block">Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
@@ -1682,12 +1692,14 @@ function MeetingsView() {
           <div>
             <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="text-emerald-400">({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none mb-2" />
-            <div className="max-h-32 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
+            <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
               {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
-                  <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold shrink-0">{m.display_name?.charAt(0)}</div>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
+                    {m.display_name?.charAt(0)}
+                  </div>
                   <span className="text-xs text-white flex-1">{m.display_name}</span>
                   {invitedIds.includes(m.id) && <span className="text-emerald-400 text-xs">✓</span>}
                 </div>
@@ -1697,19 +1709,20 @@ function MeetingsView() {
           <div className="flex gap-2">
             <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
               className="flex-1 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
-              {saving ? 'Creating...' : startNow ? '▶ Start meeting' : '📅 Schedule'}
+              {saving ? 'Creating...' : startNow ? 'Start meeting' : 'Schedule'}
             </button>
-            <button onClick={() => { setCreating(false); setInvitedIds([]); }} className="text-xs text-gray-500 hover:text-gray-300 px-4">Cancel</button>
+            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
           </div>
         </div>
       )}
 
+      {/* Calendar view */}
       {view === 'calendar' && (
         <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded">‹</button>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
             <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded">›</button>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
           </div>
           <div className="grid grid-cols-7 border-b border-gray-800">
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
@@ -1717,9 +1730,7 @@ function MeetingsView() {
             ))}
           </div>
           <div className="grid grid-cols-7">
-            {Array.from({ length: firstDay }).map((_, i) => (
-              <div key={`e-${i}`} className="min-h-16 border-b border-r border-gray-800 bg-gray-900/50" />
-            ))}
+            {Array.from({ length: firstDay }).map((_, i) => <div key={`e${i}`} className="min-h-16 border-b border-r border-gray-800" />)}
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const dayMeetings = getMeetingsOnDay(day);
@@ -1740,6 +1751,7 @@ function MeetingsView() {
         </div>
       )}
 
+      {/* List view */}
       {view === 'list' && (
         <div className="space-y-3">
           {meetings.length === 0 && !creating && <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>}
@@ -1750,86 +1762,78 @@ function MeetingsView() {
                   <div className="font-semibold text-white truncate">{m.title}</div>
                   {m.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{m.description}</div>}
                   <div className="text-xs text-gray-500 mt-2 flex items-center gap-3">
-                    <span>📅 {new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
-                    <span>⏱ {m.duration_mins || 60}m</span>
+                    <span>{new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                    <span>{m.duration_mins || 60}m</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[m.status] || STATUS_COLORS.ended}`}>{m.status}</span>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap justify-end">
                     {(m.status === 'live' || m.status === 'scheduled') && (
-                      <a href={`/meet?id=${m.id}`} target="_blank" rel="noopener noreferrer"
-                        className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">
-                        {m.status === 'live' ? '▶ Join' : 'Join →'}
+                      <a href={`/meet?id=${m.id}`} target="_blank" className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">
+                        {m.status === 'live' ? 'Join' : 'Join →'}
                       </a>
                     )}
                     {m.status === 'scheduled' && (
-                      <div className="flex gap-1">
-                        <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
-                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">Recur</button>
-                        <button onClick={async () => {
-                          setActiveMeetingId(m.id);
-                          const res = await api.getPolls(m.id);
-                          setPolls(res?.data || []);
-                          setShowPollCreate(true);
-                        }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Meeting polls">Poll</button>
-                        <button onClick={() => { setActiveMeetingId(m.id); setShowWhiteboard(true); }}
-                          className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Whiteboard">Board</button>
-                      </div>
+                      <>
+                        <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">Bell</button>
+                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recur</button>
+                      </>
+                    )}
+                    <button onClick={() => openPoll(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Poll</button>
+                    <button onClick={() => { setPollMeetId(m.id); setShowWB(true); }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Board</button>
+                    {m.metadata?.recording_url && (
+                      <a href={m.metadata.recording_url} target="_blank" className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Save</a>
                     )}
                   </div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
       {/* Poll modal */}
-      {showMeetPoll && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowMeetPoll(false); }}>
+      {showPoll && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowPoll(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold">Meeting Poll</span>
-              <button onClick={() => setShowMeetPoll(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowPoll(false)} className="text-gray-500 hover:text-white">x</button>
             </div>
-            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
-              <input value={meetPollQ} onChange={e => setMeetPollQ(e.target.value)}
-                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+            <div className="flex gap-2">
+              <input value={pollQ} onChange={e => setPollQ(e.target.value)} placeholder="Question..."
+                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
               <button onClick={async () => {
-                if (!meetPollQ.trim() || !meetPollMeetingId) return;
-                await api.createPoll(meetPollMeetingId, meetPollQ.trim(), ['Yes','No','Maybe']);
-                const res = await api.getPolls(meetPollMeetingId);
+                if (!pollQ.trim() || !pollMeetId) return;
+                await api.createPoll(pollMeetId, pollQ.trim(), ['Yes', 'No', 'Maybe']);
+                const res = await api.getPolls(pollMeetId);
                 setMeetPolls(res?.data || []);
-                setMeetPollQ('');
-              }} disabled={!meetPollQ.trim()} className="w-full text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg">
-                Launch poll (Yes/No/Maybe)
-              </button>
+                setPollQ('');
+              }} disabled={!pollQ.trim()} className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Launch</button>
             </div>
             {meetPolls.map((p: any) => {
               const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
-              const voteCount = Object.keys(p.votes || {}).length;
+              const votes = p.votes || {};
+              const total = Object.keys(votes).length;
               return (
-                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
+                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-2">
                   <p className="text-sm font-semibold text-white">{p.question}</p>
-                  <div className="space-y-2">
-                    {opts.map((opt: string, i: number) => {
-                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
-                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
-                      return (
-                        <button key={i} onClick={async () => {
-                          await api.votePoll(p.id, i);
-                          const res = await api.getPolls(meetPollMeetingId!);
-                          setMeetPolls(res?.data || []);
-                        }} className="w-full text-left">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm text-white flex-1">{opt}</span>
-                            <span className="text-xs text-gray-400">{votes} ({pct}%)</span>
-                          </div>
-                          <div className="bg-gray-700 rounded-full h-1.5">
-                            <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: pct + '%' }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {opts.map((opt: string, i: number) => {
+                    const v = Object.values(votes).filter((x: any) => x === i).length;
+                    const pct = total > 0 ? Math.round(v/total*100) : 0;
+                    return (
+                      <button key={i} onClick={async () => {
+                        await api.votePoll(p.id, i);
+                        const res = await api.getPolls(pollMeetId!);
+                        setMeetPolls(res?.data || []);
+                      }} className="w-full text-left">
+                        <div className="flex justify-between text-xs mb-1"><span className="text-white">{opt}</span><span className="text-gray-400">{v} ({pct}%)</span></div>
+                        <div className="bg-gray-700 rounded-full h-1.5"><div className="bg-emerald-500 h-1.5 rounded-full" style={{width: pct+'%'}} /></div>
+                      </button>
+                    );
+                  })}
+                  <p className="text-xs text-gray-600">{total} votes</p>
                 </div>
               );
             })}
@@ -1837,31 +1841,29 @@ function MeetingsView() {
         </div>
       )}
 
-      {/* Whiteboard modal */}
-      {showMeetWhiteboard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowMeetWhiteboard(false); }}>
+      {/* Whiteboard */}
+      {showWB && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
-                <button onClick={() => { const c = document.getElementById('wb') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }}
-                  className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
-                <button onClick={() => { const c = document.getElementById('wb') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }}
-                  className="text-xs bg-emerald-700 text-white px-3 py-1.5 rounded-lg">Save PNG</button>
-                <button onClick={() => setShowMeetWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+                <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
+                <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }} className="text-xs bg-emerald-700 text-white px-3 py-1.5 rounded-lg">Save PNG</button>
+                <button onClick={() => setShowWB(false)} className="text-gray-500 hover:text-white">x</button>
               </div>
             </div>
             <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
-              <canvas id="wb" className="w-full h-full cursor-crosshair"
+              <canvas id="wb2" className="w-full h-full cursor-crosshair"
                 onMouseDown={e => {
-                  const canvas = document.getElementById('wb') as HTMLCanvasElement;
+                  const canvas = document.getElementById('wb2') as HTMLCanvasElement;
                   const ctx = canvas.getContext('2d');
                   if (!ctx) return;
                   canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
                   ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.lineCap = 'round';
                   let drawing = true;
                   const rect = canvas.getBoundingClientRect();
-                  ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                  ctx.beginPath(); ctx.moveTo(e.clientX-rect.left, e.clientY-rect.top);
                   const move = (ev: MouseEvent) => { if(drawing) { ctx.lineTo(ev.clientX-rect.left, ev.clientY-rect.top); ctx.stroke(); } };
                   const up = () => { drawing = false; canvas.removeEventListener('mousemove', move); canvas.removeEventListener('mouseup', up); };
                   canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up);
@@ -1871,9 +1873,5 @@ function MeetingsView() {
         </div>
       )}
     </div>
-        </div>
-      )}
-    </div>
-
   );
 }
