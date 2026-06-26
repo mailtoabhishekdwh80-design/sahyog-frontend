@@ -310,6 +310,25 @@ export const api = {
   savePushSub:     (subscription: any) =>
     apiFetch('/users/me/push-subscription', { method: 'POST', body: JSON.stringify({ subscription }) }),
 
+  // Home dashboard
+  myTasks:          () => apiFetch('/boards/tasks/assigned-to-me'),
+  recentActivity:   () => apiFetch('/users/me/activity'),
+  dashboardStats:   () => apiFetch('/users/me/dashboard'),
+
+  // AI Assistant
+  aiChat:           (message: string, channelId?: string, boardId?: string) =>
+    apiFetch('/ai/chat', { method: 'POST', body: JSON.stringify({ message, channelId, boardId }) }),
+  aiSummarize:      (channelId: string) =>
+    apiFetch('/ai/summarize-channel', { method: 'POST', body: JSON.stringify({ channelId }) }),
+  aiSuggestTasks:   (description: string, boardId?: string) =>
+    apiFetch('/ai/suggest-tasks', { method: 'POST', body: JSON.stringify({ description, boardId }) }),
+  aiTranslate:      (text: string, targetLang: string) =>
+    apiFetch('/ai/translate', { method: 'POST', body: JSON.stringify({ text, targetLang }) }),
+
+  // WhatsApp notifications
+  sendWhatsApp:     (to: string, message: string) =>
+    apiFetch('/notifications/whatsapp', { method: 'POST', body: JSON.stringify({ to, message }) }),
+
   // Admin
   adminStats:   () => apiFetch('/admin/stats'),
   adminMembers: () => apiFetch('/users/directory'),

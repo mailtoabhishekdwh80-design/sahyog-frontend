@@ -107,6 +107,24 @@ export default function WorkspaceShell() {
 
   // Channel message search
   const [showMsgSearch,  setShowMsgSearch]  = useState(false);
+  const [showAI,         setShowAI]         = useState(false);
+  const [aiMessages,     setAiMessages]     = useState<{role:string;content:string}[]>([]);
+  const [aiInput,        setAiInput]        = useState('');
+  const [aiLoading,      setAiLoading]      = useState(false);
+  const [aiSummary,      setAiSummary]      = useState('');
+  const [showAISummary,  setShowAISummary]  = useState(false);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -331,6 +349,28 @@ export default function WorkspaceShell() {
   async function bookmarkMessage(msgId: string) {
     await api.addBookmark(msgId); setMsgMenuId(null);
     alert('Message saved!');
+  }
+
+  // ── AI Assistant ─────────────────────────────────────────────
+  async function sendAIMessage() {
+    if (!aiInput.trim() || aiLoading) return;
+    const userMsg = aiInput.trim();
+    setAiInput('');
+    setAiMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setAiLoading(true);
+    const res = await api.aiChat(userMsg, activeChannel?.id, activeBoard?.id);
+    setAiLoading(false);
+    if (res?.data?.reply) {
+      setAiMessages(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
+    }
+  }
+
+  async function summarizeChannel() {
+    if (!activeChannel) return;
+    setShowAISummary(true);
+    setAiSummary('Summarizing...');
+    const res = await api.aiSummarize(activeChannel.id);
+    setAiSummary(res?.data?.summary || 'Could not summarize.');
   }
 
   // ── Voice messages ──────────────────────────────────────────
@@ -725,6 +765,10 @@ export default function WorkspaceShell() {
                   className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Notify all members">@here</button>
                 <button onClick={loadAnalytics}
                   className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Channel analytics">Analytics</button>
+                <button onClick={() => setShowAI(s => !s)}
+                  className={`text-xs px-2 py-1 rounded hover:bg-gray-800 font-medium ${showAI ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="AI Assistant">AI</button>
+                <button onClick={summarizeChannel}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Summarize channel">Summarize</button>
                 <button onClick={loadScheduled}
                   className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Scheduled messages">Scheduled</button>
                 <button onClick={loadCustomEmojis}
@@ -845,6 +889,57 @@ export default function WorkspaceShell() {
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* AI Assistant Panel */}
+            {showAI && (
+              <div className="border-t border-gray-800 bg-gray-950 flex flex-col" style={{height:'320px'}}>
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">A</div>
+                    <span className="text-sm font-semibold text-white">Sahyog AI</span>
+                    <span className="text-xs text-gray-500">Ask anything about this channel or workspace</span>
+                  </div>
+                  <button onClick={() => setShowAI(false)} className="text-gray-500 hover:text-white text-xs">x</button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                  {aiMessages.length === 0 && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500 text-center py-2">Ask me anything! Try:</p>
+                      {['Summarize recent discussion', 'What are the action items?', 'Draft a reply to the last message', 'Translate last message to Hindi'].map(s => (
+                        <button key={s} onClick={() => { setAiInput(s); }}
+                          className="w-full text-left text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg transition-colors">
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {aiMessages.map((m, i) => (
+                    <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {m.role === 'assistant' && (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
+                      )}
+                      <div className={`max-w-xs rounded-xl px-3 py-2 text-xs ${m.role === 'user' ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-200'}`}>
+                        {m.content}
+                      </div>
+                    </div>
+                  ))}
+                  {aiLoading && (
+                    <div className="flex gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
+                      <div className="bg-gray-800 rounded-xl px-3 py-2 text-xs text-gray-400 animate-pulse">Thinking...</div>
+                    </div>
+                  )}
+                </div>
+                <div className="px-3 py-2 border-t border-gray-800 flex gap-2 shrink-0">
+                  <input value={aiInput} onChange={e => setAiInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
+                    placeholder="Ask Sahyog AI..."
+                    className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                  <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading}
+                    className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs px-3 py-2 rounded-lg">Send</button>
+                </div>
+              </div>
+            )}
 
             {/* Schedule panel */}
             {showSchedule && (
@@ -1027,6 +1122,125 @@ export default function WorkspaceShell() {
         </div>
       )}
 
+      {/* Meeting polls modal */}
+      {showPollCreate && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowPollCreate(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Meeting Polls</span>
+              <button onClick={() => setShowPollCreate(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            {/* Create poll */}
+            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
+              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
+                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="flex gap-2">
+                  <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
+                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-400 hover:text-white">+ Add option</button>
+                <button onClick={async () => {
+                  if (!pollQuestion.trim() || !activeMeetingId) return;
+                  const validOpts = pollOptions.filter(o => o.trim());
+                  if (validOpts.length < 2) { alert('Add at least 2 options'); return; }
+                  await api.createPoll(activeMeetingId, pollQuestion.trim(), validOpts);
+                  setPollQuestion(''); setPollOptions(['', '']);
+                  const res = await api.getPolls(activeMeetingId);
+                  setPolls(res?.data || []);
+                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
+              </div>
+            </div>
+            {/* Existing polls */}
+            {polls.map((p: any) => {
+              const voteCount = Object.keys(p.votes || {}).length;
+              const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
+              return (
+                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">{p.question}</p>
+                  <div className="space-y-2">
+                    {opts.map((opt: string, i: number) => {
+                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
+                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
+                      return (
+                        <button key={i} onClick={async () => {
+                          await api.votePoll(p.id, i);
+                          const res = await api.getPolls(activeMeetingId!);
+                          setPolls(res?.data || []);
+                        }} className="w-full text-left">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm text-white flex-1">{opt}</span>
+                            <span className="text-xs text-gray-400">{votes} votes ({pct}%)</span>
+                          </div>
+                          <div className="bg-gray-700 rounded-full h-1.5">
+                            <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-600">{voteCount} total votes</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Whiteboard modal */}
+      {showWhiteboard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">Whiteboard</span>
+              <button onClick={() => setShowWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
+              <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
+                style={{ touchAction: 'none' }}
+                onMouseDown={e => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) return;
+                  canvas.width = canvas.offsetWidth;
+                  canvas.height = canvas.offsetHeight;
+                  ctx.strokeStyle = '#1a1a1a';
+                  ctx.lineWidth = 2;
+                  ctx.lineCap = 'round';
+                  let drawing = true;
+                  const rect = canvas.getBoundingClientRect();
+                  ctx.beginPath();
+                  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                  const onMove = (ev: MouseEvent) => { if (drawing) { ctx.lineTo(ev.clientX - rect.left, ev.clientY - rect.top); ctx.stroke(); } };
+                  const onUp = () => { drawing = false; canvas.removeEventListener('mousemove', onMove); canvas.removeEventListener('mouseup', onUp); };
+                  canvas.addEventListener('mousemove', onMove);
+                  canvas.addEventListener('mouseup', onUp);
+                }}
+              />
+              <div className="absolute top-3 left-3 flex gap-2">
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Clear</button>
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const link = document.createElement('a');
+                  link.download = 'whiteboard.png';
+                  link.href = canvas.toDataURL();
+                  link.click();
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Save PNG</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Analytics modal */}
       {showAnalytics && analytics && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowAnalytics(false); }}>
@@ -1163,6 +1377,29 @@ export default function WorkspaceShell() {
             <button onClick={sendConnectInvite} disabled={!connectEmail.trim()}
               className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
               Send Connect invite
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* AI Summary modal */}
+      {showAISummary && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowAISummary(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white">A</div>
+              <div>
+                <span className="text-white font-semibold">Channel Summary</span>
+                <p className="text-xs text-gray-500">#{activeChannel?.name} — last 24 hours</p>
+              </div>
+              <button onClick={() => setShowAISummary(false)} className="ml-auto text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="bg-gray-800 rounded-xl p-4">
+              <p className="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed">{aiSummary}</p>
+            </div>
+            <button onClick={() => { setShowAISummary(false); setShowAI(true); setAiInput('What are the action items from today?'); }}
+              className="w-full bg-emerald-700 hover:bg-emerald-600 text-white text-sm py-2 rounded-xl">
+              Ask AI a follow-up question
             </button>
           </div>
         </div>
@@ -1372,57 +1609,170 @@ export default function WorkspaceShell() {
 
 // ── Home View ─────────────────────────────────────────────────
 function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: any) {
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const [dashStats,  setDashStats]  = useState<any>(null);
+  const [myTasks,    setMyTasks]    = useState<any[]>([]);
+  const [activity,   setActivity]   = useState<any[]>([]);
+
+  useEffect(() => {
+    api.myTasks().then(r => setMyTasks(Array.isArray(r?.data) ? r.data.slice(0, 6) : []));
+    api.dashboardStats().then(r => setDashStats(r?.data));
+    api.recentActivity().then(r => setActivity(Array.isArray(r?.data) ? r.data.slice(0, 5) : [])).catch(() => {});
+  }, []);
+
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const overdueTasks = myTasks.filter(t => t.due_date && new Date(t.due_date) < new Date());
+  const todayTasks = myTasks.filter(t => {
+    if (!t.due_date) return false;
+    const d = new Date(t.due_date);
+    const today = new Date();
+    return d.toDateString() === today.toDateString();
+  });
+
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white">{greeting}, {user?.display_name?.split(' ')[0] || 'there'} 👋</h1>
-        <p className="text-gray-500 text-sm mt-1">Welcome to {workspaces[0]?.name || 'Sahyog'}</p>
+    <div className="p-6 max-w-5xl space-y-6">
+      {/* Welcome header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
+          <p className="text-gray-500 text-sm mt-1">Here is what is happening in your workspace today</p>
+        </div>
+        <div className="text-right">
+          <div className="text-xs text-gray-500">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+        </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+
+      {/* Stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Channels', value: channels.length, color: 'text-emerald-400' },
-          { label: 'Boards', value: boards.length, color: 'text-blue-400' },
-          { label: 'Workspaces', value: workspaces.length, color: 'text-purple-400' },
+          { label: 'My tasks', value: dashStats?.tasks?.total || myTasks.length, sub: dashStats?.tasks?.overdue > 0 ? `${dashStats.tasks.overdue} overdue` : 'all on track', color: 'from-emerald-600 to-teal-600' },
+          { label: 'Due today', value: dashStats?.tasks?.due_today || 0, sub: 'tasks due today', color: 'from-amber-500 to-orange-500' },
+          { label: 'Messages sent', value: dashStats?.messages?.sent || 0, sub: 'this week', color: 'from-blue-600 to-indigo-600' },
+          { label: 'Meetings', value: dashStats?.meetings?.attended || 0, sub: 'attended (30d)', color: 'from-purple-600 to-pink-600' },
         ].map(s => (
-          <div key={s.label} className="bg-gray-900 rounded-xl p-4 border border-gray-800">
-            <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-            <div className="text-gray-500 text-xs mt-1">{s.label}</div>
+          <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-4`}>
+            <div className="text-3xl font-bold text-white">{s.value}</div>
+            <div className="text-xs text-white/70 mt-1">{s.label}</div>
+            <div className="text-xs text-white/50 mt-0.5">{s.sub}</div>
           </div>
         ))}
       </div>
-      <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Recent channels</h2>
+
+      {/* Alerts */}
+      {(overdueTasks.length > 0 || todayTasks.length > 0) && (
         <div className="space-y-2">
-          {channels.slice(0, 5).map((ch: any) => (
-            <button key={ch.id} onClick={() => onChannel(ch)}
-              className="w-full flex items-center gap-3 p-3 bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-700 text-left transition-colors">
-              <span className="text-gray-400">#</span>
-              <span className="text-white text-sm font-medium">{ch.name}</span>
-              {(ch.unread_count ?? 0) > 0 && <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{ch.unread_count}</span>}
-            </button>
-          ))}
+          {overdueTasks.length > 0 && (
+            <div className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-red-400 text-sm font-medium">Overdue:</span>
+              <span className="text-red-300 text-sm">{overdueTasks.length} task{overdueTasks.length > 1 ? 's' : ''} past due date</span>
+            </div>
+          )}
+          {todayTasks.length > 0 && (
+            <div className="bg-amber-900/30 border border-amber-800 rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-amber-400 text-sm font-medium">Due today:</span>
+              <span className="text-amber-300 text-sm">{todayTasks.length} task{todayTasks.length > 1 ? 's' : ''} due today</span>
+            </div>
+          )}
         </div>
-      </div>
-      {boards.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Boards</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {boards.slice(0, 4).map((b: any) => (
-              <button key={b.id} onClick={() => onBoard(b)}
-                className="flex items-center gap-3 p-3 bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-700 text-left transition-colors">
-                <span>📋</span><span className="text-white text-sm font-medium truncate">{b.name}</span>
-              </button>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* My tasks */}
+        <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+          <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            My tasks
+            {myTasks.length > 0 && <span className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">{myTasks.length}</span>}
+          </h3>
+          {myTasks.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No tasks assigned to you</p>}
+          <div className="space-y-2">
+            {myTasks.map((t: any) => (
+              <div key={t.id} className="flex items-center gap-3 bg-gray-800 rounded-lg px-3 py-2">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  t.priority === 'critical' ? 'bg-red-500' :
+                  t.priority === 'high' ? 'bg-orange-500' :
+                  t.priority === 'medium' ? 'bg-blue-500' : 'bg-gray-500'
+                }`} />
+                <span className="text-sm text-white flex-1 truncate">{t.title}</span>
+                {t.due_date && (
+                  <span className={`text-xs shrink-0 ${new Date(t.due_date) < new Date() ? 'text-red-400' : 'text-gray-500'}`}>
+                    {new Date(t.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         </div>
-      )}
+
+        {/* Quick actions + Recent activity */}
+        <div className="space-y-4">
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Quick jump</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {channels.slice(0, 2).map((ch: any) => (
+                <button key={ch.id} onClick={() => onChannel(ch)}
+                  className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left transition-colors">
+                  <div className="text-emerald-400 font-medium text-sm truncate">#{ch.name}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Channel</div>
+                </button>
+              ))}
+              {boards.slice(0, 2).map((b: any) => (
+                <button key={b.id} onClick={() => onBoard(b)}
+                  className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left transition-colors">
+                  <div className="text-blue-400 font-medium text-sm truncate">{b.name}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">Board</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          {activity.length > 0 && (
+            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+              <h3 className="text-sm font-semibold text-white mb-3">Recent activity</h3>
+              <div className="space-y-2">
+                {activity.map((a: any, i: number) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${a.type === 'message' ? 'bg-emerald-400' : 'bg-blue-400'}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-300 truncate">{a.title}</p>
+                      <p className="text-xs text-gray-600">{a.context} · {new Date(a.ts).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* India features */}
+      <div className="bg-gradient-to-br from-orange-900/30 to-green-900/30 border border-orange-800/50 rounded-xl p-4">
+        <h3 className="text-sm font-semibold text-white mb-3">India features</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
+            onClick={() => alert('GST Invoice feature coming soon! Will generate GST-compliant invoices from tasks.')}>
+            <div className="text-2xl mb-1">GST</div>
+            <div className="text-xs text-gray-400">GST Invoice</div>
+          </button>
+          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
+            onClick={() => alert('UPI Payment links coming soon! Will generate UPI QR codes for task payments.')}>
+            <div className="text-2xl mb-1">UPI</div>
+            <div className="text-xs text-gray-400">UPI Payment</div>
+          </button>
+          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
+            onClick={() => alert('Hindi/vernacular support coming soon! Will translate workspace to your language.')}>
+            <div className="text-2xl mb-1">Hi</div>
+            <div className="text-xs text-gray-400">Hindi mode</div>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-// ── Meetings View ─────────────────────────────────────────────
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
