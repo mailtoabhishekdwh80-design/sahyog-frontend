@@ -1566,7 +1566,6 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => { if(Array.isArray(res?.data)) setInviteMembers(res.data); });
     api.adminMembers().then(res => setMeetOrgMembers(Array.isArray(res?.data) ? res.data : []));
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
