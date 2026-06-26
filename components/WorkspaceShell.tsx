@@ -113,6 +113,12 @@ export default function WorkspaceShell() {
   const [pollOptions,     setPollOptions]     = useState(['', '']);
   const [showWhiteboard,  setShowWhiteboard]  = useState(false);
   const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -1550,11 +1556,6 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 // ── Meetings View ─────────────────────────────────────────────
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
-  const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
-  const [meetPolls, setMeetPolls] = useState<any[]>([]);
-  const [showMeetPoll, setShowMeetPoll] = useState(false);
-  const [meetPollMeetingId, setMeetPollMeetingId] = useState<string|null>(null);
-  const [showMeetWhiteboard, setShowMeetWhiteboard] = useState(false);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -1562,6 +1563,7 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
+  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch, setMemberSearch] = useState('');
@@ -1570,7 +1572,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => { if(Array.isArray(res?.data)) { setMeetOrgMembers(res.data); } });
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
@@ -1682,7 +1684,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none mb-2" />
             <div className="max-h-32 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className="w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-xs font-bold shrink-0">{m.display_name?.charAt(0)}</div>
@@ -1766,12 +1768,12 @@ function MeetingsView() {
                         <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
                         <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">Recur</button>
                         <button onClick={async () => {
-                          setMeetPollMeetingId(m.id);
+                          setActiveMeetingId(m.id);
                           const res = await api.getPolls(m.id);
-                          setMeetPolls(res?.data || []);
-                          setShowMeetPoll(true);
+                          setPolls(res?.data || []);
+                          setShowPollCreate(true);
                         }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Meeting polls">Poll</button>
-                        <button onClick={() => { setMeetPollMeetingId(m.id); setShowMeetWhiteboard(true); }}
+                        <button onClick={() => { setActiveMeetingId(m.id); setShowWhiteboard(true); }}
                           className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Whiteboard">Board</button>
                       </div>
                     )}
@@ -1780,6 +1782,96 @@ function MeetingsView() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+
+      {/* Poll modal */}
+      {showMeetPoll && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowMeetPoll(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Meeting Poll</span>
+              <button onClick={() => setShowMeetPoll(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
+              <input value={meetPollQ} onChange={e => setMeetPollQ(e.target.value)}
+                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+              <button onClick={async () => {
+                if (!meetPollQ.trim() || !meetPollMeetingId) return;
+                await api.createPoll(meetPollMeetingId, meetPollQ.trim(), ['Yes','No','Maybe']);
+                const res = await api.getPolls(meetPollMeetingId);
+                setMeetPolls(res?.data || []);
+                setMeetPollQ('');
+              }} disabled={!meetPollQ.trim()} className="w-full text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg">
+                Launch poll (Yes/No/Maybe)
+              </button>
+            </div>
+            {meetPolls.map((p: any) => {
+              const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
+              const voteCount = Object.keys(p.votes || {}).length;
+              return (
+                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">{p.question}</p>
+                  <div className="space-y-2">
+                    {opts.map((opt: string, i: number) => {
+                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
+                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
+                      return (
+                        <button key={i} onClick={async () => {
+                          await api.votePoll(p.id, i);
+                          const res = await api.getPolls(meetPollMeetingId!);
+                          setMeetPolls(res?.data || []);
+                        }} className="w-full text-left">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm text-white flex-1">{opt}</span>
+                            <span className="text-xs text-gray-400">{votes} ({pct}%)</span>
+                          </div>
+                          <div className="bg-gray-700 rounded-full h-1.5">
+                            <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: pct + '%' }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Whiteboard modal */}
+      {showMeetWhiteboard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowMeetWhiteboard(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">Whiteboard</span>
+              <div className="flex gap-2">
+                <button onClick={() => { const c = document.getElementById('wb') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }}
+                  className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
+                <button onClick={() => { const c = document.getElementById('wb') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }}
+                  className="text-xs bg-emerald-700 text-white px-3 py-1.5 rounded-lg">Save PNG</button>
+                <button onClick={() => setShowMeetWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+              </div>
+            </div>
+            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
+              <canvas id="wb" className="w-full h-full cursor-crosshair"
+                onMouseDown={e => {
+                  const canvas = document.getElementById('wb') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) return;
+                  canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+                  ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+                  let drawing = true;
+                  const rect = canvas.getBoundingClientRect();
+                  ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                  const move = (ev: MouseEvent) => { if(drawing) { ctx.lineTo(ev.clientX-rect.left, ev.clientY-rect.top); ctx.stroke(); } };
+                  const up = () => { drawing = false; canvas.removeEventListener('mousemove', move); canvas.removeEventListener('mouseup', up); };
+                  canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up);
+                }} />
+            </div>
+          </div>
         </div>
       )}
     </div>
