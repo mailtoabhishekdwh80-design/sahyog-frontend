@@ -154,7 +154,6 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
             ))}
           </div>
         </div>
-      </div>
     )}
     </div>
   );
