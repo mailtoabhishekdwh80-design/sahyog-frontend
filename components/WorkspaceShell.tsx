@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -536,7 +532,7 @@ export default function WorkspaceShell() {
               className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Browse
             </button>
-            <button onClick={logout} title="Sign out"
+            <button onClick={() => api.logout()} title="Sign out"
               className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Sign out
             </button>
