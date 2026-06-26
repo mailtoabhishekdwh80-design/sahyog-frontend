@@ -15,7 +15,6 @@ type Task = {
   list_id: string; priority: string; position: number;
   due_date?: string; assignees?: any[]; labels?: any[];
   checklist_total?: number; checklist_done?: number; comment_count?: number;
-  cover_color?: string; cover_url?: string;
 };
 
 const PC: Record<string, string> = {
@@ -39,6 +38,33 @@ function DroppableList({ list, children, isOver }: { list: List; children: React
   return (
     <div ref={setNodeRef} className={`flex-1 overflow-y-auto p-2 space-y-2 min-h-[120px] rounded-b-xl transition-colors ${isOver ? 'bg-emerald-900/10' : ''}`}>
       {children}
+    {/* ─── TEMPLATES MODAL ─── */}
+    {showTemplates && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        onClick={e => { if (e.target === e.currentTarget) setShowTemplates(false); }}>
+        <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-white font-semibold text-lg">📐 Board templates</h3>
+            <button onClick={() => setShowTemplates(false)} className="text-gray-500 hover:text-white">✕</button>
+          </div>
+          <p className="text-gray-500 text-sm">Pick a template to add lists to this board instantly</p>
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((t: any) => (
+              <button key={t.id} onClick={() => applyTemplate(t.id)}
+                className="bg-gray-800 hover:bg-gray-700 rounded-xl p-4 text-left border border-gray-700 hover:border-emerald-500 transition-colors">
+                <div className="text-sm font-semibold text-white mb-1">{t.name}</div>
+                <div className="text-xs text-gray-500 mb-2">{t.description}</div>
+                <div className="flex flex-wrap gap-1">
+                  {t.lists.map((l: string) => (
+                    <span key={l} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">{l}</span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
@@ -103,7 +129,33 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
           </div>
         )}
       </div>
+    {/* ─── TEMPLATES MODAL ─── */}
+    {showTemplates && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        onClick={e => { if (e.target === e.currentTarget) setShowTemplates(false); }}>
+        <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-white font-semibold text-lg">📐 Board templates</h3>
+            <button onClick={() => setShowTemplates(false)} className="text-gray-500 hover:text-white">✕</button>
+          </div>
+          <p className="text-gray-500 text-sm">Pick a template to add lists to this board instantly</p>
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((t: any) => (
+              <button key={t.id} onClick={() => applyTemplate(t.id)}
+                className="bg-gray-800 hover:bg-gray-700 rounded-xl p-4 text-left border border-gray-700 hover:border-emerald-500 transition-colors">
+                <div className="text-sm font-semibold text-white mb-1">{t.name}</div>
+                <div className="text-xs text-gray-500 mb-2">{t.description}</div>
+                <div className="flex flex-wrap gap-1">
+                  {t.lists.map((l: string) => (
+                    <span key={l} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">{l}</span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+    )}
     </div>
   );
 }
@@ -634,6 +686,33 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           </div>
         </div>
       )}
+    {/* ─── TEMPLATES MODAL ─── */}
+    {showTemplates && (
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        onClick={e => { if (e.target === e.currentTarget) setShowTemplates(false); }}>
+        <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-white font-semibold text-lg">📐 Board templates</h3>
+            <button onClick={() => setShowTemplates(false)} className="text-gray-500 hover:text-white">✕</button>
+          </div>
+          <p className="text-gray-500 text-sm">Pick a template to add lists to this board instantly</p>
+          <div className="grid grid-cols-2 gap-3">
+            {templates.map((t: any) => (
+              <button key={t.id} onClick={() => applyTemplate(t.id)}
+                className="bg-gray-800 hover:bg-gray-700 rounded-xl p-4 text-left border border-gray-700 hover:border-emerald-500 transition-colors">
+                <div className="text-sm font-semibold text-white mb-1">{t.name}</div>
+                <div className="text-xs text-gray-500 mb-2">{t.description}</div>
+                <div className="flex flex-wrap gap-1">
+                  {t.lists.map((l: string) => (
+                    <span key={l} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">{l}</span>
+                  ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }

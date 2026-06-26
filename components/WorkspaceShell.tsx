@@ -454,7 +454,16 @@ export default function WorkspaceShell() {
 
           {/* Boards */}
           <div className="pt-2">
-            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider">Boards</div>
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Boards</span>
+              <button onClick={async () => {
+                const name = prompt('Board name?');
+                if (!name) return;
+                const wsRes = await api.workspaces();
+                const wsId = wsRes?.data?.[0]?.id;
+                if (wsId) { await api.createBoard(name, wsId); const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
+              }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New board">+</button>
+            </div>
             {boards.map(b => (
               <button key={b.id} onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
                 className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
@@ -527,7 +536,7 @@ export default function WorkspaceShell() {
               className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Browse
             </button>
-            <button onClick={() => api.logout()} title="Sign out"
+            <button onClick={logout} title="Sign out"
               className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
               Sign out
             </button>
@@ -616,6 +625,8 @@ export default function WorkspaceShell() {
               <div className="ml-auto flex items-center gap-1">
                 <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pins">📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
+                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, `@here`); alert('All channel members notified!'); } }}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Notify all members">@here</button>
                 <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
@@ -1352,7 +1363,10 @@ function MeetingsView() {
                       </a>
                     )}
                     {m.status === 'scheduled' && (
-                      <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
+                      <div className="flex gap-1">
+                        <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">🔔</button>
+                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set recurring">🔁</button>
+                      </div>
                     )}
                   </div>
                 </div>
