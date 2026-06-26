@@ -156,7 +156,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }),
     }),
-  confirmUpload: (data: Record<string, any>) =>
     apiFetch('/files/confirm', { method: 'POST', body: JSON.stringify(data) }),
   getFiles: (workspaceId?: string) =>
     apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
@@ -214,9 +213,7 @@ export const api = {
   markAllRead:      () => apiFetch('/users/me/notifications/read-all', { method: 'POST' }),
 
   // File uploads
-  getUploadUrl: (fileName: string, mimeType: string, sizeBytes: number, workspaceId: string) =>
     apiFetch('/files/upload-url', { method: 'POST', body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }) }),
-  confirmUpload: (fileId: string) =>
     apiFetch('/files/' + fileId + '/confirm', { method: 'POST' }),
 
   // Bookmarks
