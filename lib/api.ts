@@ -156,7 +156,6 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ fileName, mimeType, sizeBytes, workspaceId }),
     }),
-    apiFetch('/files/confirm', { method: 'POST', body: JSON.stringify(data) }),
   getFiles: (workspaceId?: string) =>
     apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
   getDownloadUrl: (fileId: string) =>
