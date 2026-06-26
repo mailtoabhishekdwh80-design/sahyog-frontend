@@ -292,7 +292,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800 bg-gray-900 shrink-0 flex-wrap">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-800 bg-gray-900 shrink-0 overflow-x-auto">
         <button onClick={onBack} className="text-gray-500 hover:text-white">&#8592;</button>
         <span className="font-semibold text-white truncate">{boardName}</span>
         <span className="text-xs text-gray-500">{tasks.length} tasks</span>
