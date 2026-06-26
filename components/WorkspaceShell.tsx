@@ -1772,5 +1772,3 @@ function MeetingsView() {
     </div>
   );
 }
-/ /   f i x e d  
- 
