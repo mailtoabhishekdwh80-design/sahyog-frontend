@@ -244,6 +244,31 @@ export const api = {
   setCoverColor:   (taskId: string, coverColor: string) =>
     apiFetch('/boards/task/' + taskId + '/cover', { method: 'PATCH', body: JSON.stringify({ coverColor }) }),
 
+  // Card dependencies
+  getDependencies: (taskId: string) => apiFetch('/boards/task/' + taskId + '/dependencies'),
+  addDependency:   (taskId: string, data: any) =>
+    apiFetch('/boards/task/' + taskId + '/dependencies', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Time tracking
+  logTime:    (taskId: string, minutes: number, note?: string) =>
+    apiFetch('/boards/task/' + taskId + '/time', { method: 'POST', body: JSON.stringify({ minutes, note }) }),
+  getTimeLogs: (taskId: string) => apiFetch('/boards/task/' + taskId + '/time'),
+
+  // Subtasks
+  getSubtasks:  (taskId: string) => apiFetch('/boards/task/' + taskId + '/subtasks'),
+  addSubtask:   (taskId: string, title: string) =>
+    apiFetch('/boards/task/' + taskId + '/subtasks', { method: 'POST', body: JSON.stringify({ title }) }),
+
+  // Board analytics
+  boardAnalytics: (boardId: string) => apiFetch('/boards/' + boardId + '/analytics'),
+
+  // Meeting polls
+  createPoll:  (meetingId: string, question: string, options: string[]) =>
+    apiFetch('/boards/meeting-polls', { method: 'POST', body: JSON.stringify({ meetingId, question, options }) }),
+  votePoll:    (pollId: string, optionIndex: number) =>
+    apiFetch('/boards/meeting-polls/' + pollId + '/vote', { method: 'POST', body: JSON.stringify({ optionIndex }) }),
+  getPolls:    (meetingId: string) => apiFetch('/boards/meeting-polls/' + meetingId),
+
   // Board templates
   getTemplates:    () => apiFetch('/boards/templates'),
   applyTemplate:   (boardId: string, templateId: string) =>

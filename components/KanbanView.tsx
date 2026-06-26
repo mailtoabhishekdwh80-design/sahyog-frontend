@@ -131,9 +131,20 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [checklist,     setChecklist]     = useState<any[]>([]);
   const [newCheckItem,  setNewCheckItem]  = useState('');
   const [attachments,   setAttachments]   = useState<any[]>([]);
+  const [subtasks,      setSubtasks]      = useState<any[]>([]);
+  const [newSubtask,    setNewSubtask]    = useState('');
+  const [dependencies,  setDependencies]  = useState<any[]>([]);
+  const [timeLogs,      setTimeLogs]      = useState<any[]>([]);
+  const [totalMinutes,  setTotalMinutes]  = useState(0);
+  const [logMins,       setLogMins]       = useState('');
+  const [logNote,       setLogNote]       = useState('');
+  const [boardAnalytics,setBoardAnalytics]= useState<any>(null);
+  const [showBoardAnalytics,setShowBoardAnalytics] = useState(false);
+  const [showCalendar,  setShowCalendar]  = useState(false);
+  const [calMonth,      setCalMonth]      = useState(new Date());
   const [activity,      setActivity]      = useState<any[]>([]);
   const [orgMembers,    setOrgMembers]    = useState<any[]>([]);
-  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'|'attachments'|'activity'>('details');
+  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'|'attachments'|'activity'|'subtasks'|'time'|'deps'>('details');
   const attachFileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -210,14 +221,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     setEditDesc(task.description || ''); setEditPriority(task.priority);
     setEditDueDate(task.due_date ? task.due_date.split('T')[0] : '');
     setTaskTab('details');
-    const [commRes, checkRes, attRes, actRes] = await Promise.all([
+    const [commRes, checkRes, attRes, actRes, subRes, depRes, timeRes] = await Promise.all([
       api.getComments(task.id), api.getChecklist(task.id),
       api.getAttachments(task.id), api.getActivity(task.id),
+      api.getSubtasks(task.id), api.getDependencies(task.id), api.getTimeLogs(task.id),
     ]);
     setComments(commRes?.data || []);
     setChecklist(checkRes?.data || []);
     setAttachments(attRes?.data || []);
     setActivity(actRes?.data || []);
+    setSubtasks(subRes?.data || []);
+    setDependencies(depRes?.data || []);
+    setTimeLogs(timeRes?.data?.logs || []);
+    setTotalMinutes(timeRes?.data?.totalMinutes || 0);
   }
 
   async function saveTask() {
@@ -268,6 +284,39 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     setAttachments(res?.data || []);
   }
 
+  async function loadBoardAnalytics() {
+    const res = await api.boardAnalytics(boardId);
+    setBoardAnalytics(res?.data);
+    setShowBoardAnalytics(true);
+  }
+
+  async function addSubtaskFn() {
+    if (!newSubtask.trim() || !selectedTask) return;
+    await api.addSubtask(selectedTask.id, newSubtask.trim());
+    setNewSubtask('');
+    const res = await api.getSubtasks(selectedTask.id);
+    setSubtasks(res?.data || []);
+  }
+
+  async function logTimeFn() {
+    if (!logMins || !selectedTask) return;
+    await api.logTime(selectedTask.id, parseInt(logMins), logNote || undefined);
+    setLogMins(''); setLogNote('');
+    const res = await api.getTimeLogs(selectedTask.id);
+    setTimeLogs(res?.data?.logs || []);
+    setTotalMinutes(res?.data?.totalMinutes || 0);
+  }
+
+  function getTasksForDay(day: number) {
+    return tasks.filter(t => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date);
+      return d.getFullYear() === calMonth.getFullYear() &&
+             d.getMonth() === calMonth.getMonth() &&
+             d.getDate() === day;
+    });
+  }
+
   async function loadTemplates() {
     const fallback = [
       { id: 'scrum',   name: 'Scrum Sprint',    description: 'Backlog to Done',        lists: ['Backlog','Sprint','In Progress','Review','Done'] },
@@ -313,6 +362,14 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
           </button>
+          <button onClick={loadBoardAnalytics}
+            className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            Analytics
+          </button>
+          <button onClick={() => setShowCalendar(s => !s)}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${showCalendar ? 'bg-emerald-700 text-white border-emerald-600' : 'text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 border-gray-700'}`}>
+            Calendar
+          </button>
           <div className="relative">
             <button onClick={() => setShowBgPicker(s => !s)}
               className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
@@ -334,6 +391,44 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           </button>
         </div>
       </div>
+
+      {/* Calendar view */}
+      {showCalendar && (
+        <div className="shrink-0 border-b border-gray-800 bg-gray-900 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
+              className="text-gray-500 hover:text-white px-2 py-1 rounded">prev</button>
+            <span className="text-white font-semibold text-sm">
+              {calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
+            </span>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
+              className="text-gray-500 hover:text-white px-2 py-1 rounded">next</button>
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
+              <div key={d} className="text-xs text-gray-500 text-center py-1">{d}</div>
+            ))}
+            {Array.from({ length: new Date(calMonth.getFullYear(), calMonth.getMonth(), 1).getDay() }).map((_, i) => (
+              <div key={`e${i}`} />
+            ))}
+            {Array.from({ length: new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate() }).map((_, i) => {
+              const day = i + 1;
+              const dayTasks = getTasksForDay(day);
+              const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth();
+              return (
+                <div key={day} className={`min-h-12 rounded-lg p-1 ${isToday ? 'bg-emerald-950/50 border border-emerald-800' : 'bg-gray-800/40'}`}>
+                  <div className={`text-xs mb-1 w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-gray-500'}`}>{day}</div>
+                  {dayTasks.slice(0, 2).map(t => (
+                    <div key={t.id} onClick={() => openTask(t)}
+                      className="text-xs bg-emerald-900/60 text-emerald-300 rounded px-1 py-0.5 mb-0.5 truncate cursor-pointer hover:bg-emerald-900">{t.title}</div>
+                  ))}
+                  {dayTasks.length > 2 && <div className="text-xs text-gray-500">+{dayTasks.length - 2}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Board */}
       <div className="flex-1 overflow-x-auto overflow-y-hidden" style={{ background: boardBg }}>
@@ -421,6 +516,9 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   { id: 'details',     label: 'Details' },
                   { id: 'comments',    label: `Comments (${comments.length})` },
                   { id: 'checklist',   label: `Checklist (${checklist.filter((c: any) => c.is_checked).length}/${checklist.length})` },
+                  { id: 'subtasks',    label: `Subtasks (${subtasks.length})` },
+                  { id: 'time',        label: `Time (${Math.floor(totalMinutes/60)}h${totalMinutes%60}m)` },
+                  { id: 'deps',        label: 'Dependencies' },
                   { id: 'attachments', label: `Files (${attachments.length})` },
                   { id: 'activity',    label: 'Activity' },
                 ].map(tab => (
@@ -603,6 +701,102 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                 </div>
               )}
 
+              {/* Subtasks */}
+              {taskTab === 'subtasks' && (
+                <div className="p-5 space-y-3">
+                  <div className="flex gap-2">
+                    <input value={newSubtask} onChange={e => setNewSubtask(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && addSubtaskFn()}
+                      placeholder="Add subtask..." className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                    <button onClick={addSubtaskFn} disabled={!newSubtask.trim()}
+                      className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
+                  </div>
+                  {subtasks.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No subtasks yet</p>}
+                  {subtasks.map((s: any) => (
+                    <div key={s.id} className="flex items-center gap-3 bg-gray-800 rounded-lg p-3">
+                      <div className={`w-2 h-2 rounded-full ${PC[s.priority] ? 'bg-current' : 'bg-gray-500'}`} />
+                      <span className="text-sm text-white flex-1">{s.title}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded ${PC[s.priority] || PC.medium}`}>{s.priority}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Time tracking */}
+              {taskTab === 'time' && (
+                <div className="p-5 space-y-4">
+                  <div className="bg-gray-800 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-emerald-400">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</div>
+                    <div className="text-xs text-gray-500 mt-1">Total time logged</div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Minutes</label>
+                      <input type="number" value={logMins} onChange={e => setLogMins(e.target.value)}
+                        placeholder="e.g. 90" className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Note</label>
+                      <input value={logNote} onChange={e => setLogNote(e.target.value)}
+                        placeholder="What did you do?" className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                    </div>
+                  </div>
+                  <button onClick={logTimeFn} disabled={!logMins}
+                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm py-2.5 rounded-xl">Log time</button>
+                  <div className="space-y-2 pt-2 border-t border-gray-800">
+                    {timeLogs.length === 0 && <p className="text-gray-600 text-sm text-center py-2">No time logged yet</p>}
+                    {timeLogs.map((l: any, i: number) => (
+                      <div key={i} className="flex items-center gap-3 bg-gray-800 rounded-lg p-2.5">
+                        <div className="text-sm font-semibold text-emerald-400 w-16">{Math.floor(l.minutes/60)}h {l.minutes%60}m</div>
+                        <div className="flex-1">
+                          <div className="text-xs text-white">{l.display_name}</div>
+                          {l.note && <div className="text-xs text-gray-500">{l.note}</div>}
+                        </div>
+                        <div className="text-xs text-gray-600">{new Date(l.logged_at).toLocaleDateString('en-IN')}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Dependencies */}
+              {taskTab === 'deps' && (
+                <div className="p-5 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={async () => {
+                      const id = prompt('Task ID that this task BLOCKS:');
+                      if (!id || !selectedTask) return;
+                      await api.addDependency(selectedTask.id, { blocksTaskId: id });
+                      const res = await api.getDependencies(selectedTask.id);
+                      setDependencies(res?.data || []);
+                    }} className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left border border-gray-700 hover:border-orange-500 transition-colors">
+                      <div className="text-sm font-semibold text-orange-400 mb-1">Blocks</div>
+                      <div className="text-xs text-gray-500">This task must be done first</div>
+                    </button>
+                    <button onClick={async () => {
+                      const id = prompt('Task ID that BLOCKS this task:');
+                      if (!id || !selectedTask) return;
+                      await api.addDependency(selectedTask.id, { blockedByTaskId: id });
+                      const res = await api.getDependencies(selectedTask.id);
+                      setDependencies(res?.data || []);
+                    }} className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left border border-gray-700 hover:border-red-500 transition-colors">
+                      <div className="text-sm font-semibold text-red-400 mb-1">Blocked by</div>
+                      <div className="text-xs text-gray-500">This task is waiting on another</div>
+                    </button>
+                  </div>
+                  {dependencies.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No dependencies set</p>}
+                  {dependencies.map((d: any) => (
+                    <div key={d.id} className="flex items-center gap-3 bg-gray-800 rounded-lg p-3">
+                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${d.type === 'blocks' ? 'bg-orange-900/40 text-orange-400' : 'bg-red-900/40 text-red-400'}`}>
+                        {d.type === 'blocks' ? 'Blocks' : 'Blocked by'}
+                      </span>
+                      <span className="text-sm text-white flex-1">{d.related_title}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${PC[d.related_priority] || PC.medium}`}>{d.related_priority}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Activity */}
               {taskTab === 'activity' && (
                 <div className="p-5 space-y-3">
@@ -631,6 +825,65 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm transition-colors">
                   {saving ? 'Saving...' : 'Save changes'}
                 </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Board analytics modal */}
+      {showBoardAnalytics && boardAnalytics && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowBoardAnalytics(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Board Analytics</span>
+              <button onClick={() => setShowBoardAnalytics(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-gray-800 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-white">{boardAnalytics.summary?.total || 0}</div>
+                <div className="text-xs text-gray-500 mt-1">Total tasks</div>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-red-400">{boardAnalytics.summary?.overdue || 0}</div>
+                <div className="text-xs text-gray-500 mt-1">Overdue</div>
+              </div>
+              <div className="bg-gray-800 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-orange-400">{boardAnalytics.summary?.critical || 0}</div>
+                <div className="text-xs text-gray-500 mt-1">Critical</div>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Tasks by list</div>
+              <div className="space-y-2">
+                {boardAnalytics.byList?.map((l: any, i: number) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: LC[i % LC.length] }} />
+                    <span className="text-sm text-white flex-1">{l.name}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="bg-gray-800 rounded-full h-1.5 w-24">
+                        <div className="bg-emerald-500 h-1.5 rounded-full"
+                          style={{ width: `${boardAnalytics.summary?.total > 0 ? (l.count / boardAnalytics.summary.total) * 100 : 0}%` }} />
+                      </div>
+                      <span className="text-xs text-gray-400 w-6 text-right">{l.count}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {boardAnalytics.byAssignee?.length > 0 && (
+              <div>
+                <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Top assignees</div>
+                <div className="space-y-2">
+                  {boardAnalytics.byAssignee.map((a: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-6 h-6 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold text-white">{a.display_name?.charAt(0)}</div>
+                      <span className="text-sm text-white flex-1">{a.display_name}</span>
+                      <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{a.task_count} tasks</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
