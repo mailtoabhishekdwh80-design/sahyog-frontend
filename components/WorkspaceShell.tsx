@@ -846,13 +846,38 @@ export default function WorkspaceShell() {
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Schedule panel */}
+            {showSchedule && (
+              <div className="px-4 py-2 border-t border-gray-800 bg-gray-900/80 flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-gray-400">Schedule:</span>
+                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
+                <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
+                <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()}
+                  className="text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg">Send</button>
+                <button onClick={() => setShowSchedule(false)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+              </div>
+            )}
+
             {/* Composer */}
             <div className="px-4 py-3 border-t border-gray-800 bg-gray-900 shrink-0">
               <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
               <div className="flex items-end gap-2 bg-gray-800 rounded-xl px-3 py-2 border border-gray-700 focus-within:border-gray-500">
                 <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-                  className="text-gray-500 hover:text-gray-300 disabled:opacity-50 pb-0.5" title="Upload file">
-                  {uploading ? '⏳' : '📎'}
+                  className="text-xs text-gray-500 hover:text-gray-300 disabled:opacity-50 pb-0.5" title="Upload file">
+                  {uploading ? '...' : 'File'}
+                </button>
+                <button onClick={recording ? stopRecordingVoice : startRecordingVoice}
+                  className={`text-xs pb-0.5 px-1 rounded ${recording ? 'text-red-400 animate-pulse font-medium' : 'text-gray-500 hover:text-gray-300'}`}
+                  title={recording ? 'Stop recording' : 'Voice message'}>
+                  {recording ? 'Stop' : 'Voice'}
+                </button>
+                <button onClick={() => setShowSchedule(s => !s)}
+                  className={`text-xs pb-0.5 px-1 rounded ${showSchedule ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`}
+                  title="Schedule message">
+                  Later
                 </button>
                 <textarea value={newMessage}
                   onChange={e => { setNewMessage(e.target.value); }}
