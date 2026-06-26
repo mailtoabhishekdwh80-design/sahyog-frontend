@@ -113,12 +113,6 @@ export default function WorkspaceShell() {
   const [pollOptions,     setPollOptions]     = useState(['', '']);
   const [showWhiteboard,  setShowWhiteboard]  = useState(false);
   const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
-  const [polls,           setPolls]           = useState<any[]>([]);
-  const [showPollCreate,  setShowPollCreate]  = useState(false);
-  const [pollQuestion,    setPollQuestion]    = useState('');
-  const [pollOptions,     setPollOptions]     = useState(['', '']);
-  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
-  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -1563,7 +1557,6 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
-  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch, setMemberSearch] = useState('');
