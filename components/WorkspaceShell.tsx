@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -588,7 +584,7 @@ export default function WorkspaceShell() {
     <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background: theme === 'light' ? '#f8f9fa' : '#1a1d21',color: theme === 'light' ? '#1a1d21' : '#d1d2d3'}}>
 
       {/* ══ SIDEBAR ══ */}
-      <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
+      <div style={{width:240,background: theme==='light'?'#f0f0f0':'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
         {/* Workspace name + search */}
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -716,7 +712,7 @@ export default function WorkspaceShell() {
       </div>
 
       {/* ══ MAIN CONTENT ══ */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#313338'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background: theme==='light'?'#ffffff':'#313338'}}>
 
         {/* ── CHANNEL VIEW ── */}
         {activeChannel && !activeBoard && !activeDM && (
