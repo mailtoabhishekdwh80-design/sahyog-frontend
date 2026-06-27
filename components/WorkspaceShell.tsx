@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -128,6 +124,17 @@ export default function WorkspaceShell() {
   const [scheduleTime,   setScheduleTime]   = useState('');
   // ── Messaging features ──
   const [showFormatBar,  setShowFormatBar]  = useState(false);
+  const [theme,          setTheme]          = useState<'dark'|'light'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('dt_theme') as any) || 'dark';
+    return 'dark';
+  });
+  const [showShortcuts,  setShowShortcuts]  = useState(false);
+  const [tourStep,       setTourStep]       = useState<number|null>(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('dt_tour_done')) return 0;
+    return null;
+  });
+  const [notifPrefs,     setNotifPrefs]     = useState<Record<string,string>>({});
+  const [showNotifPrefs, setShowNotifPrefs] = useState(false);
   const [editingMsgId,   setEditingMsgId]   = useState<string|null>(null);
   const [editingContent, setEditingContent] = useState('');
   const [editHistory,    setEditHistory]    = useState<any[]>([]);
@@ -574,7 +581,9 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div style={{display:'flex',height:'100vh',background:'#1a1d21',color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div style={{display:'flex',height:'100vh',background: theme === 'light' ? '#f8f9fa' : '#1a1d21'
+      ,color: theme === 'light' ? '#1a1d21' : '#d1d2d3'}}
+      data-theme={theme},color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
 
       {/* ══ SIDEBAR ══ */}
       <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
@@ -688,6 +697,17 @@ export default function WorkspaceShell() {
               <div style={{fontSize:11,color:'#9ea3a8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
             </div>
           </button>
+          <button onClick={() => {
+              const t = theme === 'dark' ? 'light' : 'dark';
+              setTheme(t);
+              localStorage.setItem('dt_theme', t);
+              document.documentElement.setAttribute('data-theme', t);
+            }} title="Toggle theme"
+            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts (?)"
+            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
           <button onClick={() => api.logout()} title="Sign out"
             style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>↪</button>
         </div>
@@ -724,6 +744,7 @@ export default function WorkspaceShell() {
                 <button onClick={loadPins} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
                 <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
+                <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
                 <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
                 <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
                 <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
@@ -792,6 +813,15 @@ export default function WorkspaceShell() {
 
             {/* Messages */}
             <div style={{flex:1,overflowY:'auto',padding:'16px 16px 8px',display:'flex',flexDirection:'column',gap:0}}>
+              {messages.length === 0 && !showMsgSearch && (
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,gap:16,padding:40,opacity:.6}}>
+                  <div style={{fontSize:48}}>💬</div>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:6}}>No messages yet</div>
+                    <div style={{fontSize:14,color:'#80848e'}}>Be the first to send a message in #{activeChannel?.name}</div>
+                  </div>
+                </div>
+              )}
               {(showMsgSearch ? msgSearchResults : messages).map(msg => {
                 const rendered = renderMessage(msg.content);
                 return (

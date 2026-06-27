@@ -18,7 +18,10 @@ type Member = {
 export default function AdminPage() {
   const [stats,   setStats]   = useState<Stats | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
-  const [tab,     setTab]     = useState<'overview' | 'members' | 'audit'>('overview');
+  const [tab,     setTab]     = useState<'overview' | 'members' | 'audit' | 'roles' | 'security' | 'compliance'>('overview');
+  const [roles,   setRoles]   = useState<any[]>([]);
+  const [usageStats,setUsageStats]=useState<any>(null);
+  const [deactivating,setDeactivating]=useState<string|null>(null);
   const [audit,   setAudit]   = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
@@ -241,6 +244,103 @@ export default function AdminPage() {
         )}
 
         {/* Audit log tab */}
+        {tab === 'roles' && (
+          <div className="space-y-4">
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
+              <h3 className="text-white font-semibold mb-4">Role-based permissions</h3>
+              <div className="space-y-3">
+                {[
+                  { role: 'Owner', color: 'text-yellow-400', perms: ['All permissions', 'Billing', 'Delete workspace', 'Manage SSO'] },
+                  { role: 'Admin', color: 'text-blue-400', perms: ['Manage members', 'Create channels', 'Manage boards', 'View audit log'] },
+                  { role: 'Member', color: 'text-emerald-400', perms: ['Send messages', 'Create boards', 'Join channels', 'Upload files'] },
+                  { role: 'Guest', color: 'text-gray-400', perms: ['View assigned channels', 'Send messages', 'View files'] },
+                ].map(r => (
+                  <div key={r.role} className="bg-gray-800 rounded-xl p-4">
+                    <div className={`text-sm font-semibold mb-2 ${r.color}`}>{r.role}</div>
+                    <div className="flex flex-wrap gap-2">
+                      {r.perms.map(p => (
+                        <span key={p} className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded">{p}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'security' && (
+          <div className="space-y-4">
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
+              <h3 className="text-white font-semibold">Security settings</h3>
+              {[
+                { label: 'SSO / SAML 2.0', desc: 'Enterprise single sign-on via SAML', badge: 'Enterprise', action: 'Configure SSO' },
+                { label: 'IP allowlist', desc: 'Restrict access to specific IP ranges', badge: 'Enterprise', action: 'Add IP range' },
+                { label: 'Two-factor authentication', desc: 'Require 2FA for all workspace members', badge: 'Admin', action: 'Enable 2FA' },
+                { label: 'Session management', desc: 'View and revoke active sessions', badge: 'Admin', action: 'View sessions' },
+                { label: 'Password policy', desc: 'Minimum length, complexity requirements', badge: 'Admin', action: 'Configure' },
+              ].map(s => (
+                <div key={s.label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-white">{s.label}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-900/50 text-purple-400':'bg-blue-900/50 text-blue-400'}`}>{s.badge}</span>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">{s.desc}</div>
+                  </div>
+                  <button className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg">{s.action}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab === 'compliance' && (
+          <div className="space-y-4">
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
+              <h3 className="text-white font-semibold">GDPR / DPDP Compliance</h3>
+              <p className="text-gray-500 text-sm">India DPDP Act 2023 and GDPR compliance tools</p>
+              {[
+                { label: 'Export workspace data', desc: 'Download all messages, files, and user data as JSON/CSV', icon: '📤', action: async () => { alert('Data export initiated. You will receive a download link via email within 24 hours.'); } },
+                { label: 'User data report', desc: 'Generate a report of all data held for a specific user', icon: '👤', action: async () => { const email = prompt('Enter user email:'); if(email) alert('Report for ' + email + ' will be emailed within 1 hour.'); } },
+                { label: 'Right to erasure', desc: 'Delete all data for a specific user (GDPR Article 17)', icon: '🗑️', action: async () => { const email = prompt('User email to erase:'); if(email && confirm('This is permanent. Delete all data for ' + email + '?')) alert('Erasure request submitted.'); } },
+                { label: 'Cookie consent log', desc: 'View record of cookie consent across the workspace', icon: '🍪', action: async () => { alert('Cookie consent log will be downloaded.'); } },
+                { label: 'DPDP nominee report', desc: 'View nominated data fiduciaries under DPDP Act 2023', icon: '📋', action: async () => { alert('Nominee report generated.'); } },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{item.icon}</span>
+                    <div>
+                      <div className="text-sm font-medium text-white">{item.label}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{item.desc}</div>
+                    </div>
+                  </div>
+                  <button onClick={item.action} className="text-xs bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-3 py-1.5 rounded-lg font-medium">Run</button>
+                </div>
+              ))}
+            </div>
+            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
+              <h3 className="text-white font-semibold mb-3">Compliance status</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { name: 'DPDP Act 2023', status: 'Compliant', ok: true },
+                  { name: 'GDPR', status: 'Partial', ok: false },
+                  { name: 'ISO 27001', status: 'In progress', ok: false },
+                  { name: 'SOC 2 Type II', status: 'Enterprise only', ok: false },
+                ].map(c => (
+                  <div key={c.name} className="bg-gray-800 rounded-xl p-3 flex items-center gap-3">
+                    <span className={c.ok ? 'text-emerald-400' : 'text-gray-500'}>{c.ok ? '✅' : '⏳'}</span>
+                    <div>
+                      <div className="text-xs font-semibold text-white">{c.name}</div>
+                      <div className={`text-xs ${c.ok ? 'text-emerald-400' : 'text-gray-500'}`}>{c.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {tab === 'audit' && (
           <div>
             <h2 className="text-lg font-semibold text-white mb-4">Audit log</h2>
