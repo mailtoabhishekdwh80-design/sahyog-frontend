@@ -1,193 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  }
+  
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Deemona Teams Professional Theme ── */
-:root {
-  --sidebar-bg: #1a1d21;
-  --main-bg: #222529;
-  --surface: #2b2d31;
-  --surface-hover: #35373b;
-  --border: rgba(255,255,255,0.08);
-  --text-primary: #f2f3f5;
-  --text-secondary: #b5bac1;
-  --text-muted: #80848e;
-  --accent: #4ade80;
-  --accent-hover: #22c55e;
-  --accent-dim: rgba(74,222,128,0.15);
-  --red: #e01e5a;
-  --blue: #007a5a;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background: var(--main-bg);
-  color: var(--text-primary);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
-
-/* Override Tailwind gray classes with professional colors */
-.bg-gray-950 { background: var(--sidebar-bg) !important; }
-.bg-gray-900 { background: var(--sidebar-bg) !important; }
-.bg-gray-800 { background: var(--surface) !important; }
-.bg-gray-700 { background: var(--surface-hover) !important; }
-.border-gray-800 { border-color: var(--border) !important; }
-.border-gray-700 { border-color: rgba(255,255,255,0.12) !important; }
-.text-gray-400 { color: var(--text-secondary) !important; }
-.text-gray-500 { color: var(--text-muted) !important; }
-.text-gray-300 { color: var(--text-secondary) !important; }
-.text-gray-200 { color: var(--text-primary) !important; }
-.text-white { color: var(--text-primary) !important; }
-
-/* Message hover */
-.hover\:bg-gray-800\/50:hover { background: rgba(255,255,255,0.03) !important; }
-.hover\:bg-gray-800:hover { background: var(--surface) !important; }
-
-/* Active states */
-.bg-emerald-900\/50 { background: var(--accent-dim) !important; }
-.text-emerald-300 { color: var(--accent) !important; }
-.bg-emerald-600, .bg-emerald-700 { background: #248046 !important; }
-.bg-emerald-700:hover { background: #1a6035 !important; }
-.hover\:bg-emerald-600:hover { background: #1a6035 !important; }
-.text-emerald-400 { color: var(--accent) !important; }
-
-/* Input fields */
-input, textarea, select {
-  font-family: inherit;
-}
-
-/* Modals */
-.fixed.inset-0 > div {
-  border-radius: 12px !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
-}
-
-/* Channel header */
-.border-b.border-gray-800 {
-  border-bottom-color: var(--border) !important;
-}
-
-/* Rounded corners upgrade */
-.rounded-xl { border-radius: 8px !important; }
-.rounded-2xl { border-radius: 12px !important; }
-
-/* Message composer */
-.rounded-xl.px-3.py-2.border.border-gray-700 {
-  background: var(--surface) !important;
-  border-color: rgba(255,255,255,0.1) !important;
-  border-radius: 8px !important;
-}
-
-/* Send button */
-.text-lg.pb-0\.5 {
-  background: var(--blue) !important;
-  color: #fff !important;
-  padding: 6px 12px !important;
-  border-radius: 6px !important;
-  font-size: 14px !important;
-}
-
-/* Buttons */
-button {
-  font-family: inherit;
-}
-
-/* Notification badge */
-.bg-red-600 { background: var(--red) !important; }
-
-/* Purple DM active */
-.bg-purple-900\/50 { background: rgba(88,101,242,0.2) !important; }
-.text-purple-300 { color: #c9cdfb !important; }
-
-/* Focus rings */
-*:focus-visible {
-  outline: 2px solid var(--accent) !important;
-  outline-offset: 2px;
-}
-
-/* Channel # symbol */
-.text-gray-500.text-\[13px\] { color: var(--text-muted) !important; }
-
-/* Unread badges */
-.bg-emerald-600.text-white.text-xs.rounded-full { 
-  background: var(--red) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  min-width: 18px !important;
-  height: 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 9px !important;
-}
-
-/* Professional modal overlay */
-.bg-black\/70 { background: rgba(0,0,0,0.75) !important; }
-
-/* Cards in modals */
-.bg-gray-900.rounded-2xl {
-  background: #2b2d31 !important;
-}
-
-/* Kanban board background */
-.bg-gray-900\/95 { background: rgba(30,32,35,0.97) !important; }
-
-/* Task cards */
-.bg-gray-800.rounded-lg {
-  background: #313338 !important;
-}
-
-/* Message timestamp */
-.text-xs.text-gray-600 { color: var(--text-muted) !important; }
-
-/* ── Kanban fixes ── */
-.kanban-board { background: #313338 !important; }
-
-/* Fix white text on white background issue */
-.bg-white { background: #313338 !important; }
-input, textarea, select {
-  color: #f2f3f5 !important;
-  background: #1e1f22 !important;
-}
-input::placeholder, textarea::placeholder { color: #80848e !important; }
-
-/* Task cards */
-.shadow-sm { box-shadow: none !important; }
-.border { border-color: rgba(255,255,255,0.08) !important; }
-
-/* Kanban columns */
-.bg-gray-100 { background: #2b2d31 !important; }
-.bg-gray-50 { background: #232428 !important; }
-.text-gray-900 { color: #f2f3f5 !important; }
-.text-gray-800 { color: #d1d2d3 !important; }
-.text-gray-700 { color: #b5bac1 !important; }
-.text-gray-600 { color: #80848e !important; }
-
-/* Fix black backgrounds in kanban */
-.bg-black\/20 { background: rgba(0,0,0,0.2) !important; }
-.bg-black\/40 { background: rgba(0,0,0,0.4) !important; }
-
-/* Priority badges */
-.bg-red-100 { background: rgba(237,66,69,0.15) !important; }
-.bg-orange-100 { background: rgba(250,166,26,0.15) !important; }
-.bg-blue-100 { background: rgba(0,122,204,0.15) !important; }
-.bg-gray-200 { background: rgba(255,255,255,0.08) !important; }
-
-/* Sidebar width */
-.w-56 { width: 240px !important; }
-
-/* Channel header text */
-h1, h2, h3 { color: #f2f3f5 !important; }
-
-/* Active board item */
-.bg-blue-900\/50 { background: rgba(88,101,242,0.2) !important; }
-.text-blue-300 { color: #c9cdfb !important; }

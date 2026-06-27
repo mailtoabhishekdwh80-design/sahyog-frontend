@@ -113,12 +113,6 @@ export default function WorkspaceShell() {
   const [aiLoading,      setAiLoading]      = useState(false);
   const [aiSummary,      setAiSummary]      = useState('');
   const [showAISummary,  setShowAISummary]  = useState(false);
-  const [polls,           setPolls]           = useState<any[]>([]);
-  const [showPollCreate,  setShowPollCreate]  = useState(false);
-  const [pollQuestion,    setPollQuestion]    = useState('');
-  const [pollOptions,     setPollOptions]     = useState(['', '']);
-  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
-  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -500,396 +494,532 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div style={{display:'flex',height:'100vh',background:'#1a1d21',color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div className="flex h-screen bg-gray-950 text-white overflow-hidden">
 
-      {/* ══ SIDEBAR ══ */}
-      <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
-        {/* Workspace name + search */}
-        <div style={{padding:'16px 16px 8px'}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-            <span style={{fontSize:15,fontWeight:700,color:'#fff',letterSpacing:-0.3}}>{activeWs?.name || 'Deemona Teams'}</span>
-            <button style={{width:24,height:24,borderRadius:6,background:'rgba(255,255,255,0.08)',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+      {/* ── SIDEBAR ── */}
+      <div className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
+        {/* Workspace header */}
+        <div className="px-3 py-3 border-b border-gray-800">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
+              {activeWs?.name?.charAt(0) || 'S'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate">{activeWs?.name || 'Deemona Teams'}</div>
+              <div className="text-xs text-gray-500 truncate">{user?.email}</div>
+              {(user?.status_emoji || user?.status_text) && (
+                <div className="text-xs text-gray-400 truncate">{user?.status_emoji} {user?.status_text}</div>
+              )}
+            </div>
           </div>
-          {/* Search bar */}
-          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(255,255,255,0.08)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#9ea3a8',fontSize:13}}>
-            🔍 <span>Search</span>
-            <span style={{marginLeft:'auto',fontSize:11,opacity:.5}}>Ctrl+K</span>
-          </button>
         </div>
 
-        {/* Nav items */}
-        <div style={{flex:1,overflowY:'auto',padding:'0 8px 8px'}}>
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
+          {/* Home */}
+          <button onClick={() => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }}
+            className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'home' && !activeChannel && !activeBoard && !activeDM ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+            🏠 <span>Home</span>
+          </button>
 
-          {/* Direct Messages */}
-          <div style={{marginBottom:4}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
+          {/* Notifications */}
+          <button onClick={() => setShowNotifs(s => !s)}
+            className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800">
+            🔔 <span>Notifications</span>
+            {unreadCount > 0 && <span className="ml-auto bg-red-600 text-white text-xs rounded-full px-1.5">{unreadCount}</span>}
+          </button>
+
+          {/* DMs */}
+          <div className="pt-2">
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Direct Messages</span>
               <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4,display:'flex',alignItems:'center'}}>+</button>
+                className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
             </div>
             {dmList.map((dm: any) => (
               <button key={dm.id} onClick={() => openDM(dm)}
-                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeDM?.id === dm.id ? 'rgba(255,255,255,0.1)' : 'transparent',color: activeDM?.id === dm.id ? '#fff' : '#9ea3a8',transition:'all .1s'}}>
-                <div style={{position:'relative',flexShrink:0}}>
-                  <div style={{width:22,height:22,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff'}}>
-                    {dm.other_name?.charAt(0) || '?'}
-                  </div>
-                  <span style={{position:'absolute',bottom:-1,right:-1,width:8,height:8,borderRadius:'50%',border:'2px solid #1a1d21',background: onlineUsers.has(dm.other_id) ? '#2bac76' : '#616061'}}/>
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeDM?.id === dm.id ? 'bg-purple-900/50 text-purple-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                <div className="w-4 h-4 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  {dm.other_name?.charAt(0) || '?'}
                 </div>
-                <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{dm.other_name || dm.name}</span>
+                <span className="truncate">{dm.other_name || dm.name}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ml-auto shrink-0 ${onlineUsers.has(dm.other_id) ? 'bg-emerald-400' : 'bg-gray-600'}`} />
               </button>
             ))}
           </div>
 
           {/* Channels */}
-          <div style={{marginBottom:4}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
-              <button onClick={() => setShowNewChannel(true)}
-                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+          <div className="pt-2">
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Channels</span>
+              <button onClick={() => setShowNewChannel(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New channel">+</button>
             </div>
-            {channels.filter(c => c.type !== 'direct').slice(0, 15).map(ch => (
+            {channels.filter(c => c.type !== 'direct').slice(0, 10).map(ch => (
               <button key={ch.id} onClick={() => openChannel(ch)}
-                style={{width:'100%',display:'flex',alignItems:'center',gap:6,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeChannel?.id === ch.id ? 'rgba(74,222,128,0.12)' : 'transparent',color: activeChannel?.id === ch.id ? '#fff' : (ch.unread_count ?? 0) > 0 ? '#fff' : '#9ea3a8',fontWeight: (ch.unread_count ?? 0) > 0 ? 700 : 400,transition:'all .1s'}}>
-                <span style={{fontSize:14,color: activeChannel?.id === ch.id ? '#4ade80' : '#9ea3a8',fontWeight:400}}>#</span>
-                <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ch.name}</span>
+                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeChannel?.id === ch.id ? 'bg-emerald-900/50 text-emerald-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                <span className="text-gray-500">#</span>
+                <span className="truncate">{ch.name}</span>
                 {(ch.unread_count ?? 0) > 0 && (
-                  <span style={{background:'#e01e5a',color:'#fff',fontSize:10,fontWeight:700,padding:'1px 5px',borderRadius:10,marginLeft:'auto'}}>{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
+                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
           </div>
 
           {/* Boards */}
-          <div style={{marginBottom:4}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
+          <div className="pt-2">
+            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
+              <span>Boards</span>
               <button onClick={async () => {
                 const name = prompt('Board name?');
                 if (!name) return;
                 const wsRes = await api.workspaces();
                 const wsId = wsRes?.data?.[0]?.id;
                 if (wsId) { await api.createBoard(name, wsId); const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
-              }} style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+              }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New board">+</button>
             </div>
             {boards.map(b => (
-              <div key={b.id} style={{display:'flex',alignItems:'center',gap:2}}>
+              <div key={b.id} className="flex items-center group">
                 <button onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
-                  style={{flex:1,display:'flex',alignItems:'center',gap:7,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeBoard?.id === b.id ? 'rgba(255,255,255,0.1)' : 'transparent',color: activeBoard?.id === b.id ? '#fff' : '#9ea3a8',transition:'all .1s'}}>
-                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#9ea3a8'}}>B</span>
-                  <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.name}</span>
+                  className={`flex-1 text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+                  <span className="text-xs">B</span><span className="truncate">{b.name}</span>
                 </button>
+                <button onClick={async () => {
+                  if (!confirm('Delete board "' + b.name + '"?')) return;
+                  await apiFetch('/boards/' + b.id, { method: 'DELETE' });
+                  if (activeBoard?.id === b.id) setActiveBoard(null);
+                  const wsRes = await api.workspaces();
+                  const wsId = wsRes?.data?.[0]?.id;
+                  if (wsId) { const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
+                }} className="hidden group-hover:block text-gray-600 hover:text-red-400 text-xs px-1.5 py-1 rounded">x</button>
               </div>
             ))}
           </div>
 
-          {/* More links */}
-          <div style={{marginTop:8,paddingTop:8,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
-            {[
-              { icon:'🔖', label:'Saved messages', action: loadBookmarks },
-              { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
-              { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
-            ].map((item, i) => (
-              <button key={i} onClick={item.action}
-                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#9ea3a8',transition:'all .1s',fontSize:14}}>
-                <span>{item.icon}</span><span>{item.label}</span>
-              </button>
-            ))}
+          {/* System links */}
+          <div className="pt-2">
+            <button onClick={() => setActiveView('meetings')}
+              className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'meetings' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+              📹 <span>Meetings</span>
+            </button>
+            <a href="/admin" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
+              🛡️ <span>Admin</span>
+            </a>
+            <a href="/settings" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
+              ⚙️ <span>Settings</span>
+            </a>
+            <button onClick={() => setShowStatus(true)}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              <span>{user?.status_emoji || '😊'}</span><span className="truncate">{user?.status_text || 'Set status'}</span>
+            </button>
+            <button onClick={loadBookmarks}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              🔖 <span>Saved messages</span>
+            </button>
+            <button onClick={loadChannelBrowser}
+              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
+              🔭 <span>Browse channels</span>
+            </button>
           </div>
         </div>
 
         {/* User footer */}
-        <div style={{padding:'8px 12px',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'center',gap:8}}>
-          <button onClick={() => setShowStatus(true)} style={{display:'flex',alignItems:'center',gap:8,background:'none',border:'none',cursor:'pointer',flex:1,padding:'4px 0',textAlign:'left'}}>
-            <div style={{position:'relative',flexShrink:0}}>
-              <div style={{width:30,height:30,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff'}}>
-                {user?.display_name?.charAt(0) || '?'}
+        <div className="px-3 py-3 border-t border-gray-800 space-y-2">
+          {/* User info + status */}
+          <button onClick={() => setShowStatus(true)}
+            className="w-full flex items-center gap-2 hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors text-left">
+            <div className="relative shrink-0">
+              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">
+                {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
               </div>
-              <span style={{position:'absolute',bottom:0,right:0,width:9,height:9,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : '#2bac76'}}/>
+              {/* Availability dot based on status */}
+              <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-gray-900 ${
+                user?.status_text?.toLowerCase().includes('meeting') ? 'bg-red-500' :
+                user?.status_text?.toLowerCase().includes('vacation') ? 'bg-yellow-500' :
+                user?.status_text?.toLowerCase().includes('focus') || user?.status_text?.toLowerCase().includes('disturb') ? 'bg-yellow-500' :
+                user?.status_text?.toLowerCase().includes('sick') ? 'bg-gray-500' :
+                'bg-emerald-400'
+              }`} />
             </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
-              <div style={{fontSize:11,color:'#9ea3a8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white truncate">
+                {user?.display_name || user?.email?.split('@')[0]}
+              </div>
+              <div className="text-xs text-gray-500 truncate">
+                {user?.status_text ? `${user?.status_emoji || ''} ${user?.status_text}` : 'Set a status...'}
+              </div>
             </div>
           </button>
-          <button onClick={() => api.logout()} title="Sign out"
-            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>↪</button>
+          {/* Quick actions row */}
+          <div className="flex items-center gap-1">
+            <button onClick={loadBookmarks} title="Saved messages"
+              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Saved
+            </button>
+            <button onClick={loadChannelBrowser} title="Browse channels"
+              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Browse
+            </button>
+            <button onClick={() => api.logout()} title="Sign out"
+              className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
+              Sign out
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ══ MAIN CONTENT ══ */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#313338'}}>
+      {/* ── MAIN CONTENT ── */}
+      <div className="flex-1 flex overflow-hidden">
 
-        {/* ── CHANNEL VIEW ── */}
-        {activeChannel && !activeBoard && !activeDM && (
-          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
-            {/* Channel header */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{fontSize:18,color:'#80848e',fontWeight:400}}>#</span>
-                <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeChannel.name}</span>
-                {activeChannel.description && <span style={{fontSize:13,color:'#80848e',marginLeft:4}}>{activeChannel.description}</span>}
+        {/* DM View */}
+        {activeDM && !activeChannel && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
+              <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold">
+                {activeDM.other_name?.charAt(0) || '?'}
               </div>
-              <div style={{display:'flex',alignItems:'center',gap:4}}>
-                <button onClick={loadPins} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
-                <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
-                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
-                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
-                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
-                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
-                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
-                <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
-                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
-                <span style={{fontSize:12,color:'#80848e',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(255,255,255,0.08)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
+              <span className="font-semibold text-white">{activeDM.other_name || activeDM.name}</span>
+              {onlineUsers.has(activeDM.other_id) && (
+                <span className="text-xs text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />Active now
+                </span>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {dmMessages.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-purple-800 flex items-center justify-center text-2xl font-bold mx-auto mb-3">
+                    {activeDM.other_name?.charAt(0) || '?'}
+                  </div>
+                  <p className="text-white font-semibold">{activeDM.other_name}</p>
+                  <p className="text-gray-500 text-sm mt-1">Start a conversation</p>
+                </div>
+              )}
+              {dmMessages.map((msg: any) => {
+                const rendered = renderMessage(msg.content);
+                return (
+                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1 rounded-lg">
+                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {(msg.sender_name || msg.display_name)?.charAt(0) || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm font-semibold text-white">{msg.sender_name || msg.display_name}</span>
+                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                      {rendered.isFile ? (
+                        rendered.isImage ? (
+                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer" onClick={() => window.open(rendered.url, '_blank')} />
+                        ) : (
+                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 max-w-xs">
+                            📎 <span className="truncate">{rendered.name}</span>
+                          </a>
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900">
+              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+              <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
+                <button onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-gray-300">{uploading ? '⏳' : '📎'}</button>
+                <input value={dmNewMsg} onChange={e => setDmNewMsg(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendDMMessage()}
+                  placeholder={`Message ${activeDM.other_name || ''}...`}
+                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
+                <button onClick={sendDMMessage} disabled={!dmNewMsg.trim()} className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg">↑</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Channel View */}
+        {activeChannel && (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Channel header */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
+              <span className="text-gray-400">#</span>
+              <span className="font-semibold text-white">{activeChannel.name}</span>
+              {activeChannel.description && <span className="text-xs text-gray-500 hidden md:block">— {activeChannel.description}</span>}
+              <div className="ml-auto flex items-center gap-1">
+                <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pins">📌</button>
+                <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
+                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, `@here`); alert('All channel members notified!'); } }}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Notify all members">@here</button>
+                <button onClick={loadAnalytics}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Channel analytics">Analytics</button>
+                <button onClick={() => setShowAI(s => !s)}
+                  className={`text-xs px-2 py-1 rounded hover:bg-gray-800 font-medium ${showAI ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="AI Assistant">AI</button>
+                <button onClick={summarizeChannel}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Summarize channel">Summarize</button>
+                <button onClick={loadScheduled}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Scheduled messages">Scheduled</button>
+                <button onClick={loadCustomEmojis}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Custom emoji">Emoji</button>
+                <button onClick={() => setShowConnect(true)}
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Deemona Connect">Connect</button>
+                <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
 
-            {/* Message search bar */}
+            {/* Channel search */}
             {showMsgSearch && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#2b2d31'}}>
-                <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search messages..." autoFocus
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+              <div className="px-4 py-2 border-b border-gray-800 bg-gray-900/80">
+                <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
+                  placeholder={`Search in #${activeChannel.name}...`} autoFocus
+                  className="w-full bg-gray-800 text-sm text-white placeholder-gray-500 rounded-lg px-3 py-1.5 focus:outline-none border border-gray-700 focus:border-emerald-500" />
+                {msgSearch && (
+                  <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                    {msgSearchResults.length === 0 && <p className="text-xs text-gray-600 px-1">No results</p>}
+                    {msgSearchResults.map(m => (
+                      <div key={m.id} className="text-xs bg-gray-800 rounded-lg px-3 py-2">
+                        <span className="text-gray-400 font-medium">{m.sender_name}</span>
+                        <span className="text-gray-300 ml-2">{m.content?.substring(0, 80)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
-            {/* AI Panel */}
-            {showAI && (
-              <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',background:'#1e2124',display:'flex',flexDirection:'column',height:300,flexShrink:0}}>
-                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>AI</div>
-                    <span style={{fontSize:13,fontWeight:700,color:'#fff'}}>Deemona AI</span>
-                    <span style={{fontSize:12,color:'#80848e'}}>Ask anything about this channel</span>
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {messages.map(msg => {
+                const rendered = renderMessage(msg.content);
+                return (
+                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1.5 rounded-lg group relative">
+                    {/* Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 relative">
+                      {msg.sender_name?.charAt(0) || '?'}
+                      {onlineUsers.has(msg.sender_id) && (
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-950" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2 mb-0.5">
+                        <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
+                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                        {msg.is_edited && <span className="text-xs text-gray-600 italic">(edited)</span>}
+                        {msg.is_pinned && <span className="text-xs text-yellow-500">📌</span>}
+                      </div>
+
+                      {editingMsg === msg.id ? (
+                        <div className="flex gap-2 mt-1">
+                          <input autoFocus value={editContent} onChange={e => setEditContent(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') saveEditMessage(msg.id); if (e.key === 'Escape') setEditingMsg(null); }}
+                            className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-1.5 border border-emerald-500 focus:outline-none" />
+                          <button onClick={() => saveEditMessage(msg.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
+                          <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                        </div>
+                      ) : rendered.isFile ? (
+                        rendered.isImage ? (
+                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer hover:opacity-90" onClick={() => window.open(rendered.url, '_blank')} />
+                        ) : (
+                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 max-w-xs">
+                            📎 <span className="truncate">{rendered.name}</span>
+                          </a>
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-200 break-words leading-relaxed whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
+                      )}
+
+                      {/* Reactions */}
+                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {Object.entries(msg.reactions).map(([emoji, count]) => (
+                            <button key={emoji} onClick={() => addReaction(msg, emoji)}
+                              className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded-full text-xs border border-gray-700">
+                              {emoji} <span className="text-gray-400">{count as number}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Thread replies */}
+                      {(msg.reply_count ?? 0) > 0 && (
+                        <button onClick={() => openThread(msg)} className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                          💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Hover actions */}
+                    <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
+                      {[...['👍','❤️','😂','🎉','🔥'], ...customEmojis.slice(0,3).map((e: any) => e.name)].map(emoji => (
+                        <button key={emoji} onClick={() => addReaction(msg, emoji)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
+                      ))}
+                      <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>
+                      <div className="relative">
+                        <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">⋯</button>
+                        {msgMenuId === msg.id && (
+                          <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
+                            <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
+                            <button onClick={() => bookmarkMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">🔖 Save message</button>
+                            {msg.sender_id === user?.id && <>
+                              <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
+                              <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
+                            </>}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:16}}>✕</button>
+                );
+              })}
+              {typingUsers.length > 0 && (
+                <div className="text-xs text-gray-500 px-2 animate-pulse">{typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...</div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* AI Assistant Panel */}
+            {showAI && (
+              <div className="border-t border-gray-800 bg-gray-950 flex flex-col" style={{height:'320px'}}>
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">A</div>
+                    <span className="text-sm font-semibold text-white">Deemona AI</span>
+                    <span className="text-xs text-gray-500">Ask anything about this channel or workspace</span>
+                  </div>
+                  <button onClick={() => setShowAI(false)} className="text-gray-500 hover:text-white text-xs">x</button>
                 </div>
-                <div style={{flex:1,overflowY:'auto',padding:'12px 16px',display:'flex',flexDirection:'column',gap:8}}>
+                <div className="flex-1 overflow-y-auto p-3 space-y-3">
                   {aiMessages.length === 0 && (
-                    <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-                      {['Summarize recent discussion','What are the action items?','Draft a reply','Translate to Hindi'].map(s => (
-                        <button key={s} onClick={() => setAiInput(s)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 12px',color:'#b5bac1',fontSize:12,cursor:'pointer'}}>{s}</button>
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-500 text-center py-2">Ask me anything! Try:</p>
+                      {['Summarize recent discussion', 'What are the action items?', 'Draft a reply to the last message', 'Translate last message to Hindi'].map(s => (
+                        <button key={s} onClick={() => { setAiInput(s); }}
+                          className="w-full text-left text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg transition-colors">
+                          {s}
+                        </button>
                       ))}
                     </div>
                   )}
                   {aiMessages.map((m, i) => (
-                    <div key={i} style={{display:'flex',gap:8,justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start'}}>
-                      {m.role === 'assistant' && <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff',flexShrink:0}}>AI</div>}
-                      <div style={{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:13,lineHeight:1.5,background: m.role === 'user' ? '#248046' : 'rgba(255,255,255,0.08)',color: m.role === 'user' ? '#fff' : '#d1d2d3'}}>{m.content}</div>
+                    <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {m.role === 'assistant' && (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
+                      )}
+                      <div className={`max-w-xs rounded-xl px-3 py-2 text-xs ${m.role === 'user' ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-200'}`}>
+                        {m.content}
+                      </div>
                     </div>
                   ))}
-                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(255,255,255,0.08)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#80848e',fontStyle:'italic'}}>Thinking...</div></div>}
+                  {aiLoading && (
+                    <div className="flex gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
+                      <div className="bg-gray-800 rounded-xl px-3 py-2 text-xs text-gray-400 animate-pulse">Thinking...</div>
+                    </div>
+                  )}
                 </div>
-                <div style={{padding:'8px 16px',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8}}>
-                  <input value={aiInput} onChange={e => setAiInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
-                    placeholder="Ask Deemona AI..." style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
-                  <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading} style={{background:'#248046',border:'none',borderRadius:6,padding:'7px 14px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',opacity: aiInput.trim() ? 1 : 0.5}}>Send</button>
+                <div className="px-3 py-2 border-t border-gray-800 flex gap-2 shrink-0">
+                  <input value={aiInput} onChange={e => setAiInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
+                    placeholder="Ask Deemona AI..."
+                    className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                  <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading}
+                    className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs px-3 py-2 rounded-lg">Send</button>
                 </div>
               </div>
             )}
 
             {/* Schedule panel */}
             {showSchedule && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#2b2d31',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                <span style={{fontSize:12,color:'#80848e'}}>Schedule for:</span>
-                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
-                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+              <div className="px-4 py-2 border-t border-gray-800 bg-gray-900/80 flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-gray-400">Schedule:</span>
+                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
                 <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
-                <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()} style={{background:'#248046',border:'none',borderRadius:6,padding:'5px 12px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',opacity: scheduleDate && scheduleTime && newMessage.trim() ? 1 : 0.5}}>Schedule</button>
-                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12}}>Cancel</button>
+                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
+                <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()}
+                  className="text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg">Send</button>
+                <button onClick={() => setShowSchedule(false)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
               </div>
             )}
 
-            {/* Messages */}
-            <div style={{flex:1,overflowY:'auto',padding:'16px 16px 8px',display:'flex',flexDirection:'column',gap:0}}>
-              {(showMsgSearch ? msgSearchResults : messages).map(msg => {
-                const rendered = renderMessage(msg.content);
-                return (
-                  <div key={msg.id} className="group"
-                    style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6,borderLeft: msg.is_pinned ? '2px solid #f59e0b' : 'none',background: msg.is_pinned ? 'rgba(245,158,11,0.04)' : 'transparent',cursor:'default'}}
-                    onMouseEnter={e => { if(!msg.is_pinned)(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background= msg.is_pinned ? 'rgba(245,158,11,0.04)' : 'transparent'; }}>
-                    <div style={{width:36,height:36,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0,marginTop:2}}>
-                      {msg.sender_name?.charAt(0) || '?'}
-                    </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#80848e'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
-                        {msg.is_edited && <span style={{fontSize:11,color:'#616061'}}>(edited)</span>}
-                        {msg.is_pinned && <span style={{fontSize:11,color:'#f59e0b'}}>pinned</span>}
-                      </div>
-                      {rendered.isFile ? (
-                        rendered.isImage
-                          ? <img src={rendered.url} alt={rendered.name} style={{maxWidth:360,maxHeight:260,borderRadius:8,marginTop:4,objectFit:'cover'}} />
-                          : <a href={rendered.url} target="_blank" rel="noopener noreferrer" style={{display:'inline-flex',alignItems:'center',gap:6,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 12px',color:'#00aff4',fontSize:13,textDecoration:'none',marginTop:4}}>📎 {rendered.name}</a>
-                      ) : (
-                        <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5,wordBreak:'break-word'}} dangerouslySetInnerHTML={{__html: rendered.html || ''}} />
-                      )}
-                      {/* Reactions */}
-                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
-                          {Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
-                              style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#d1d2d3',display:'flex',alignItems:'center',gap:4}}>
-                              {emoji} <span style={{fontSize:12,color:'#80848e'}}>{count as number}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {/* Thread count */}
-                      {(msg.reply_count ?? 0) > 0 && (
-                        <button onClick={() => openThread(msg)} style={{background:'none',border:'none',color:'#00aff4',fontSize:12,cursor:'pointer',marginTop:2,padding:0}}>
-                          {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
-                        </button>
-                      )}
-                    </div>
-                    {/* Message actions on hover */}
-                    <div className="hidden group-hover:flex" style={{gap:2,flexShrink:0,marginTop:2}}>
-                      {['👍','❤️','😂','🎉'].map(e => (
-                        <button key={e} onClick={() => api.addReaction(msg.id, activeChannel!.id, e).then(() => openChannel(activeChannel!))}
-                          style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 6px',fontSize:13,cursor:'pointer'}}>
-                          {e}
-                        </button>
-                      ))}
-                      <button onClick={() => openThread(msg)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#b5bac1'}}>Reply</button>
-                      {msg.sender_id === user?.id && (
-                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => openChannel(activeChannel!))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-
             {/* Composer */}
-            <div style={{padding:'0 16px 16px',flexShrink:0}}>
-              <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',overflow:'hidden'}}>
-                <div style={{display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
-                  <input ref={fileInputRef} type="file" style={{display:'none'}} onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
-                  <button onClick={() => fileInputRef.current?.click()} disabled={uploading} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
-                  <button onClick={recording ? stopRecordingVoice : startRecordingVoice} style={{background:'none',border:'none',color: recording ? '#ed4245' : '#80848e',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>{recording ? '⏹ Stop' : '🎤'}</button>
-                  <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                    placeholder={`Message #${activeChannel.name}`} rows={1}
-                    style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
-                  <button onClick={() => setShowSchedule(s => !s)} style={{background:'none',border:'none',color: showSchedule ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>🕒</button>
-                  <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
-                    style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,flexShrink:0,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
-                </div>
+            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900 shrink-0">
+              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+              <div className="flex items-end gap-2 bg-gray-800 rounded-xl px-3 py-2 border border-gray-700 focus-within:border-gray-500">
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                  className="text-xs text-gray-500 hover:text-gray-300 disabled:opacity-50 pb-0.5" title="Upload file">
+                  {uploading ? '...' : 'File'}
+                </button>
+                <button onClick={recording ? stopRecordingVoice : startRecordingVoice}
+                  className={`text-xs pb-0.5 px-1 rounded ${recording ? 'text-red-400 animate-pulse font-medium' : 'text-gray-500 hover:text-gray-300'}`}
+                  title={recording ? 'Stop recording' : 'Voice message'}>
+                  {recording ? 'Stop' : 'Voice'}
+                </button>
+                <button onClick={() => setShowSchedule(s => !s)}
+                  className={`text-xs pb-0.5 px-1 rounded ${showSchedule ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`}
+                  title="Schedule message">
+                  Later
+                </button>
+                <textarea value={newMessage}
+                  onChange={e => { setNewMessage(e.target.value); }}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                  placeholder={`Message #${activeChannel.name}...`} rows={1}
+                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none resize-none max-h-32" />
+                <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
+                  className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg pb-0.5">↑</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── DM VIEW ── */}
-        {activeDM && !activeChannel && !activeBoard && (
-          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
-            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0}}>
-              <div style={{width:28,height:28,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',marginRight:10}}>
-                {activeDM.other_name?.charAt(0) || '?'}
-              </div>
-              <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</span>
-              <span style={{width:8,height:8,borderRadius:'50%',background: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e',marginLeft:8}}/>
-              <span style={{fontSize:12,color:'#80848e',marginLeft:4}}>{onlineUsers.has(activeDM.other_id) ? 'Active now' : 'Offline'}</span>
-            </div>
-            <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:0}}>
-              {dmMessages.map(msg => {
-                const isMe = msg.sender_id === user?.id;
-                return (
-                  <div key={msg.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6}}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='transparent'}>
-                    <div style={{width:36,height:36,borderRadius:'50%',background: isMe ? '#248046' : '#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0,marginTop:2}}>
-                      {msg.sender_name?.charAt(0) || '?'}
-                    </div>
-                    <div style={{flex:1}}>
-                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#80848e'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
-                      </div>
-                      <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-            <div style={{padding:'0 16px 16px',flexShrink:0}}>
-              <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
-                <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
-                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMessage();} }}
-                  placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
-                  style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
-                <button onClick={sendMessage} disabled={!newMessage.trim()}
-                  style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── BOARD VIEW ── */}
+        {/* Board View */}
         {activeBoard && !activeChannel && !activeDM && (
-          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',minHeight:0}}>
-            <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
-          </div>
+          <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
         )}
 
-        {/* ── HOME / MEETINGS VIEW ── */}
+        {/* Home / Meetings / Admin View */}
         {!activeChannel && !activeBoard && !activeDM && (
-          <div style={{flex:1,overflowY:'auto',minHeight:0}}>
+          <div className="flex-1 overflow-y-auto">
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
             {activeView === 'meetings' && <MeetingsView />}
           </div>
         )}
+      </div>
 
-      {/* ── THREAD PANEL ── */}
+      {/* Thread panel */}
       {threadMsg && (
-        <div style={{width:360,borderLeft:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',background:'#313338',flexShrink:0}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>Thread</span>
-            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:18}}>✕</button>
+        <div className="w-80 flex flex-col border-l border-gray-800 bg-gray-900 shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+            <span className="text-sm font-semibold text-white">Thread</span>
+            <button onClick={() => setThreadMsg(null)} className="text-gray-500 hover:text-white">✕</button>
           </div>
-          <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
-            <div style={{display:'flex',gap:12,marginBottom:16,paddingBottom:16,borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-              <div style={{width:36,height:36,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0}}>
-                {threadMsg.sender_name?.charAt(0)}
-              </div>
-              <div>
-                <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
-                  <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{threadMsg.sender_name}</span>
-                  <span style={{fontSize:12,color:'#80848e'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
-                </div>
-                <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
-              </div>
+          <div className="px-4 py-3 border-b border-gray-800 bg-gray-800/40">
+            <div className="flex gap-2">
+              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">{threadMsg.sender_name?.charAt(0)}</div>
+              <div><span className="text-xs font-semibold text-white">{threadMsg.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{threadMsg.content}</p></div>
             </div>
-            {threadMessages.map(r => (
-              <div key={r.id} style={{display:'flex',gap:10,marginBottom:12}}>
-                <div style={{width:28,height:28,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0}}>
-                  {r.sender_name?.charAt(0)}
-                </div>
-                <div>
-                  <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:2}}>
-                    <span style={{fontSize:13,fontWeight:700,color:'#f2f3f5'}}>{r.sender_name}</span>
-                    <span style={{fontSize:11,color:'#80848e'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
-                  </div>
-                  <div style={{fontSize:14,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(r.content).html || r.content}} />
-                </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {threadMessages.map((m: any) => (
+              <div key={m.id} className="flex gap-2">
+                <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">{m.sender_name?.charAt(0)}</div>
+                <div><span className="text-xs font-semibold text-white">{m.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{m.content}</p></div>
               </div>
             ))}
           </div>
-          <div style={{padding:'8px 16px 16px'}}>
-            <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8,padding:'10px 14px'}}>
-              <textarea value={threadReply} onChange={e => setThreadReply(e.target.value)}
-                onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendThreadReply();} }}
-                placeholder="Reply in thread" rows={1} style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:14,resize:'none',fontFamily:'inherit'}} />
-              <button onClick={sendThreadReply} disabled={!threadReply.trim()} style={{background:'#248046',border:'none',borderRadius:6,padding:'5px 10px',color:'#fff',cursor:'pointer',fontSize:14,opacity: threadReply.trim() ? 1 : 0.4}}>↑</button>
+          <div className="p-3 border-t border-gray-800">
+            <div className="flex gap-2 bg-gray-800 rounded-lg px-3 py-2">
+              <input value={threadReply} onChange={e => setThreadReply(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && sendThreadReply()}
+                placeholder="Reply in thread..."
+                className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
+              <button onClick={sendThreadReply} disabled={!threadReply.trim()} className="text-emerald-400 disabled:text-gray-600 text-sm">↑</button>
             </div>
           </div>
         </div>
       )}
-      </div>
 
       {/* ── MODALS ── */}
 
@@ -898,7 +1028,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
@@ -924,7 +1054,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529"}}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
               <span className="text-white font-semibold">📌 Pinned messages</span>
               <button onClick={() => setShowPins(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -975,125 +1105,6 @@ export default function WorkspaceShell() {
                 Create channel
               </button>
               <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Meeting polls modal */}
-      {showPollCreate && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowPollCreate(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <span className="text-white font-semibold">Meeting Polls</span>
-              <button onClick={() => setShowPollCreate(false)} className="text-gray-500 hover:text-white">x</button>
-            </div>
-            {/* Create poll */}
-            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
-              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
-                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
-              {pollOptions.map((opt, i) => (
-                <div key={i} className="flex gap-2">
-                  <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
-                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
-                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-400 hover:text-white">+ Add option</button>
-                <button onClick={async () => {
-                  if (!pollQuestion.trim() || !activeMeetingId) return;
-                  const validOpts = pollOptions.filter(o => o.trim());
-                  if (validOpts.length < 2) { alert('Add at least 2 options'); return; }
-                  await api.createPoll(activeMeetingId, pollQuestion.trim(), validOpts);
-                  setPollQuestion(''); setPollOptions(['', '']);
-                  const res = await api.getPolls(activeMeetingId);
-                  setPolls(res?.data || []);
-                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
-              </div>
-            </div>
-            {/* Existing polls */}
-            {polls.map((p: any) => {
-              const voteCount = Object.keys(p.votes || {}).length;
-              const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
-              return (
-                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
-                  <p className="text-sm font-semibold text-white">{p.question}</p>
-                  <div className="space-y-2">
-                    {opts.map((opt: string, i: number) => {
-                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
-                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
-                      return (
-                        <button key={i} onClick={async () => {
-                          await api.votePoll(p.id, i);
-                          const res = await api.getPolls(activeMeetingId!);
-                          setPolls(res?.data || []);
-                        }} className="w-full text-left">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm text-white flex-1">{opt}</span>
-                            <span className="text-xs text-gray-400">{votes} votes ({pct}%)</span>
-                          </div>
-                          <div className="bg-gray-700 rounded-full h-1.5">
-                            <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-xs text-gray-600">{voteCount} total votes</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Whiteboard modal */}
-      {showWhiteboard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
-              <span className="text-white font-semibold">Whiteboard</span>
-              <button onClick={() => setShowWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
-            </div>
-            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
-              <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
-                style={{ touchAction: 'none' }}
-                onMouseDown={e => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const ctx = canvas.getContext('2d');
-                  if (!ctx) return;
-                  canvas.width = canvas.offsetWidth;
-                  canvas.height = canvas.offsetHeight;
-                  ctx.strokeStyle = '#1a1a1a';
-                  ctx.lineWidth = 2;
-                  ctx.lineCap = 'round';
-                  let drawing = true;
-                  const rect = canvas.getBoundingClientRect();
-                  ctx.beginPath();
-                  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-                  const onMove = (ev: MouseEvent) => { if (drawing) { ctx.lineTo(ev.clientX - rect.left, ev.clientY - rect.top); ctx.stroke(); } };
-                  const onUp = () => { drawing = false; canvas.removeEventListener('mousemove', onMove); canvas.removeEventListener('mouseup', onUp); };
-                  canvas.addEventListener('mousemove', onMove);
-                  canvas.addEventListener('mouseup', onUp);
-                }}
-              />
-              <div className="absolute top-3 left-3 flex gap-2">
-                <button onClick={() => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const ctx = canvas.getContext('2d');
-                  if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Clear</button>
-                <button onClick={() => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const link = document.createElement('a');
-                  link.download = 'whiteboard.png';
-                  link.href = canvas.toDataURL();
-                  link.click();
-                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Save PNG</button>
-              </div>
             </div>
           </div>
         </div>
@@ -1156,7 +1167,7 @@ export default function WorkspaceShell() {
       {showScheduled && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowScheduled(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529"}}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
               <span className="text-white font-semibold">Scheduled messages</span>
               <button onClick={() => setShowScheduled(false)} className="text-gray-500 hover:text-white">x</button>
             </div>
@@ -1304,7 +1315,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
               <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
               <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -1332,7 +1343,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
               <span className="text-white font-semibold">🔭 Browse channels</span>
               <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -1633,6 +1644,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
+  const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -1640,7 +1652,6 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
-  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch,setMemberSearch]= useState('');
@@ -1654,7 +1665,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
+    api.adminMembers().then(res => setMeetOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
@@ -1771,7 +1782,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
@@ -1796,7 +1807,7 @@ function MeetingsView() {
       {/* Calendar view */}
       {view === 'calendar' && (
         <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
             <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
@@ -1922,7 +1933,7 @@ function MeetingsView() {
       {showWB && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
