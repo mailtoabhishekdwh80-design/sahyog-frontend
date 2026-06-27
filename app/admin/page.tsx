@@ -22,7 +22,6 @@ export default function AdminPage() {
   const [roles,   setRoles]   = useState<any[]>([]);
   const [usageStats,setUsageStats]=useState<any>(null);
   const [deactivating,setDeactivating]=useState<string|null>(null);
-  const [deactivating,setDeactivating]=useState<string|null>(null);
   const [audit,   setAudit]   = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
