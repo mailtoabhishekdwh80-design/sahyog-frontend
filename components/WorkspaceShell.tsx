@@ -795,7 +795,7 @@ export default function WorkspaceShell() {
                     {/* Message actions on hover */}
                     <div className="hidden group-hover:flex" style={{gap:2,flexShrink:0,marginTop:2}}>
                       {['👍','❤️','😂','🎉'].map(e => (
-                        <button key={e} onClick={() => api.addReaction(msg.id, e).then(() => loadMessages(activeChannel!.id))}
+                        <button key={e} onClick={() => api.addReaction(msg.id, activeChannel!.id, e).then(() => openChannel(activeChannel!))}
                           style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 6px',fontSize:13,cursor:'pointer'}}>
                           {e}
                         </button>
