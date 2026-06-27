@@ -159,6 +159,18 @@ export default function WorkspaceShell() {
   const [fwdMsg,         setFwdMsg]         = useState<any>(null);
   const [showFwd,        setShowFwd]        = useState(false);
   const [reminderMsg,    setReminderMsg]    = useState<any>(null);
+  // ── New features ──
+  const [dmSearch,       setDmSearch]       = useState('');
+  const [dmSearchResults,setDmSearchResults]= useState<any[]>([]);
+  const [channelQuery,   setChannelQuery]   = useState('');
+  const [showChannelAC,  setShowChannelAC]  = useState(false);
+  const [emojiQuery,     setEmojiQuery]     = useState('');
+  const [showEmojiAC,    setShowEmojiAC]    = useState(false);
+  const [translating,    setTranslating]    = useState<string|null>(null);
+  const [translations,   setTranslations]   = useState<Record<string,string>>({});
+  const [wsReconnecting, setWsReconnecting] = useState(false);
+  const [loadingMsgs,    setLoadingMsgs]    = useState(false);
+  const [readReceipts,   setReadReceipts]   = useState<Record<string,string[]>>({});
   const [showSlashMenu,  setShowSlashMenu]  = useState(false);
   const [channelDescEdit,setChannelDescEdit]= useState(false);
   const [newChannelDesc, setNewChannelDesc] = useState('');
@@ -279,11 +291,106 @@ export default function WorkspaceShell() {
 
   // ── Channels ────────────────────────────────────────────────
   async function openChannel(ch: Channel) {
+    setLoadingMsgs(true);
     setActiveChannel(ch); setActiveBoard(null); setActiveDM(null); setActiveView('home');
     setMessages([]); setShowMsgSearch(false); setMsgSearch('');
     const res = await api.messages(ch.id);
     setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
     subscribe(ch.id);
+  }
+
+  // ── WebSocket reconnection ──
+  const wsRef = useRef<WebSocket|null>(null);
+  function setupWSReconnection(ws: WebSocket) {
+    ws.onclose = () => {
+      setWsReconnecting(true);
+      let attempts = 0;
+      const retry = setInterval(() => {
+        attempts++;
+        if (attempts > 10) { clearInterval(retry); return; }
+        try {
+          const newWs = new WebSocket(process.env.NEXT_PUBLIC_WS_URL || '');
+          newWs.onopen = () => {
+            setWsReconnecting(false);
+            clearInterval(retry);
+            wsRef.current = newWs;
+            // Resync messages after reconnect
+            if (activeChannel) openChannel(activeChannel);
+          };
+          newWs.onerror = () => {};
+        } catch {}
+      }, 3000 * attempts);
+    };
+  }
+
+  // ── DM search ──
+  async function searchDMs(q: string) {
+    setDmSearch(q);
+    if (!q.trim() || !activeDM) { setDmSearchResults([]); return; }
+    const filtered = dmMessages.filter(m =>
+      m.content.toLowerCase().includes(q.toLowerCase()) ||
+      m.sender_name.toLowerCase().includes(q.toLowerCase())
+    );
+    setDmSearchResults(filtered);
+  }
+
+  // ── Message translation ──
+  async function translateMessage(msgId: string, content: string) {
+    if (translations[msgId]) { setTranslations(p => { const n={...p}; delete n[msgId]; return n; }); return; }
+    setTranslating(msgId);
+    const res = await apiFetch('/ai/translate', { method:'POST', body: JSON.stringify({ text: content, targetLang: 'Hindi' }) });
+    setTranslating(null);
+    if (res?.data?.translation) {
+      setTranslations(p => ({ ...p, [msgId]: res.data.translation }));
+    }
+  }
+
+  // ── Read receipts ──
+  async function markDMRead(dmId: string) {
+    await apiFetch('/channels/' + dmId + '/read', { method: 'POST' }).catch(() => {});
+  }
+
+  // ── Emoji autocomplete ──
+  const EMOJI_MAP: Record<string, string> = {
+    thumbsup:'👍', heart:'❤️', laugh:'😂', fire:'🔥', check:'✅', star:'⭐',
+    rocket:'🚀', tada:'🎉', eyes:'👀', wave:'👋', clap:'👏', pray:'🙏',
+    thinking:'🤔', smile:'😊', cry:'😢', angry:'😠', cool:'😎', party:'🥳',
+    india:'🇮🇳', rupee:'💰', phone:'📱', email:'📧', calendar:'📅', clock:'⏰'
+  };
+
+  function handleComposerInput(val: string) {
+    setNewMessage(val);
+    if (activeChannel) saveDraft(activeChannel.id, val);
+
+    // Mention autocomplete
+    const atMatch = val.match(/@(\w*)$/);
+    if (atMatch) { setMentionQuery(atMatch[1]); setShowMentions(true); setShowChannelAC(false); setShowEmojiAC(false); }
+    else setShowMentions(false);
+
+    // Channel autocomplete
+    const hashMatch = val.match(/#(\w*)$/);
+    if (hashMatch) { setChannelQuery(hashMatch[1]); setShowChannelAC(true); setShowMentions(false); setShowEmojiAC(false); }
+    else setShowChannelAC(false);
+
+    // Emoji autocomplete
+    const colonMatch = val.match(/:(\w+)$/);
+    if (colonMatch && colonMatch[1].length >= 2) { setEmojiQuery(colonMatch[1]); setShowEmojiAC(true); setShowMentions(false); setShowChannelAC(false); }
+    else setShowEmojiAC(false);
+
+    // Slash commands
+    setShowSlashMenu(val.startsWith('/') && val.length > 0 && !val.includes(' '));
+  }
+
+  function insertChannelRef(name: string) {
+    const newVal = newMessage.replace(/#\w*$/, '#' + name + ' ');
+    setNewMessage(newVal); setShowChannelAC(false);
+    document.getElementById('msg-composer')?.focus();
+  }
+
+  function insertEmoji(emoji: string) {
+    const newVal = newMessage.replace(/:\w+$/, emoji + ' ');
+    setNewMessage(newVal); setShowEmojiAC(false);
+    document.getElementById('msg-composer')?.focus();
   }
 
   // ── Channel member list ──
@@ -830,7 +937,14 @@ export default function WorkspaceShell() {
       {/* ══ MAIN CONTENT ══ */}
       <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background: theme==='light'?'#ffffff':'#313338'}}>
 
-        {/* ── CHANNEL VIEW ── */}
+        {/* ── WS RECONNECTING BANNER ── */}
+      {wsReconnecting && (
+        <div style={{background:'#f59e0b',color:'#000',fontSize:12,fontWeight:600,textAlign:'center',padding:'6px',flexShrink:0}}>
+          ⚠️ Connection lost — reconnecting... Messages will sync when reconnected.
+        </div>
+      )}
+
+      {/* ── CHANNEL VIEW ── */}
         {activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
             {/* Channel header */}
@@ -932,7 +1046,23 @@ export default function WorkspaceShell() {
 
             {/* Messages */}
             <div style={{flex:1,overflowY:'auto',padding:'16px 16px 8px',display:'flex',flexDirection:'column',gap:0}}>
-              {messages.length === 0 && !showMsgSearch && (
+              {loadingMsgs && (
+                <div style={{padding:'16px',display:'flex',flexDirection:'column',gap:12}}>
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                      <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.06)',flexShrink:0,animation:'pulse 1.5s ease-in-out infinite'}}/>
+                      <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
+                        <div style={{height:12,background:'rgba(255,255,255,0.06)',borderRadius:4,width:'20%',animation:'pulse 1.5s ease-in-out infinite'}}/>
+                        <div style={{height:14,background:'rgba(255,255,255,0.06)',borderRadius:4,width: i%2===0?'70%':'50%',animation:'pulse 1.5s ease-in-out infinite'}}/>
+                        {i%3===0 && <div style={{height:14,background:'rgba(255,255,255,0.06)',borderRadius:4,width:'40%',animation:'pulse 1.5s ease-in-out infinite'}}/>}
+                      </div>
+                    </div>
+                  ))}
+                  <style>{`@keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }`}</style>
+                </div>
+              )}
+
+              {messages.length === 0 && !showMsgSearch && !loadingMsgs && (
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,gap:16,padding:40,opacity:.6}}>
                   <div style={{fontSize:48}}>💬</div>
                   <div style={{textAlign:'center'}}>
@@ -976,6 +1106,14 @@ export default function WorkspaceShell() {
                       ) : (
                         <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5,wordBreak:'break-word'}} dangerouslySetInnerHTML={{__html: rendered.html || ''}} />
                       )}
+                      {/* Translation */}
+                      {translations[msg.id] && (
+                        <div style={{fontSize:14,color:'#818cf8',lineHeight:1.5,marginTop:4,padding:'6px 10px',background:'rgba(99,102,241,0.08)',borderRadius:6,borderLeft:'2px solid #818cf8'}}>
+                          <span style={{fontSize:10,color:'#6366f1',fontWeight:600,display:'block',marginBottom:2}}>Hindi translation:</span>
+                          {translations[msg.id]}
+                        </div>
+                      )}
+
                       {/* Reactions */}
                       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
@@ -1085,6 +1223,37 @@ export default function WorkspaceShell() {
                   </div>
                 )}
 
+                {/* Channel autocomplete */}
+                {showChannelAC && (
+                  <div style={{padding:'4px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    {channels.filter(c => c.type !== 'direct' && c.name.toLowerCase().includes(channelQuery.toLowerCase())).slice(0,6).map((ch: any) => (
+                      <button key={ch.id} onClick={() => insertChannelRef(ch.name)}
+                        style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#b5bac1',cursor:'pointer',fontSize:13,borderRadius:4}}>
+                        <span style={{color:'#80848e',fontSize:15}}>#</span>
+                        <div>
+                          <span style={{color:'#f2f3f5',fontWeight:600}}>{ch.name}</span>
+                          {ch.description && <span style={{color:'#80848e',marginLeft:6,fontSize:12}}>{ch.description}</span>}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Emoji autocomplete */}
+                {showEmojiAC && (
+                  <div style={{padding:'4px',borderBottom:'1px solid rgba(255,255,255,0.06)',display:'flex',flexWrap:'wrap',gap:2}}>
+                    {Object.entries(EMOJI_MAP).filter(([k]) => k.includes(emojiQuery)).slice(0,12).map(([key, emoji]) => (
+                      <button key={key} onClick={() => insertEmoji(emoji)} title={':'+key+':'}
+                        style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'4px 8px',cursor:'pointer',fontSize:16}}>
+                        {emoji}
+                      </button>
+                    ))}
+                    {Object.entries(EMOJI_MAP).filter(([k]) => k.includes(emojiQuery)).length === 0 && (
+                      <span style={{fontSize:12,color:'#80848e',padding:'6px 10px'}}>No emoji found for :{emojiQuery}</span>
+                    )}
+                  </div>
+                )}
+
                 {/* Slash command menu */}
                 {showSlashMenu && (
                   <div style={{padding:'4px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
@@ -1113,7 +1282,7 @@ export default function WorkspaceShell() {
                   <button onClick={() => setShowGifPicker(s => !s)} title="GIF"
                     style={{background: showGifPicker ? 'rgba(74,222,128,0.1)' : 'none',border:'none',color: showGifPicker ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:12,padding:'2px 6px',borderRadius:4,flexShrink:0,fontWeight:700}}>GIF</button>
                   <textarea id="msg-composer" value={newMessage}
-                    onChange={e => handleMentionInput(e.target.value)}
+                    onChange={e => handleComposerInput(e.target.value)}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
                       if (e.key === 'Escape') { setShowSlashMenu(false); setShowFormatBar(false); }
@@ -1138,21 +1307,32 @@ export default function WorkspaceShell() {
         {/* ── DM VIEW ── */}
         {activeDM && !activeChannel && !activeBoard && (
           <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
-            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0}}>
-              <div style={{width:28,height:28,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',marginRight:10}}>
-                {activeDM.other_name?.charAt(0) || '?'}
+            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0,gap:12}}>
+              <div style={{position:'relative',flexShrink:0}}>
+                <div style={{width:32,height:32,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff'}}>
+                  {activeDM.other_name?.charAt(0) || '?'}
+                </div>
+                <span style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',border:'2px solid #313338',background: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e'}}/>
               </div>
-              <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</span>
-              <span style={{width:8,height:8,borderRadius:'50%',background: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e',marginLeft:8}}/>
-              <span style={{fontSize:12,color:'#80848e',marginLeft:4}}>{onlineUsers.has(activeDM.other_id) ? 'Active now' : 'Offline'}</span>
+              <div>
+                <div style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</div>
+                <div style={{fontSize:11,color: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e'}}>
+                  {onlineUsers.has(activeDM.other_id) ? '🟢 Active now' : '⚫ Offline'}
+                </div>
+              </div>
+              <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
+                <input value={dmSearch} onChange={e => searchDMs(e.target.value)}
+                  placeholder="Search messages..." style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none',width:180}} />
+              </div>
             </div>
             <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:0}}>
-              {dmMessages.map(msg => {
+              {(dmSearch ? dmSearchResults : dmMessages).map((msg, idx) => {
                 const isMe = msg.sender_id === user?.id;
+                const isLast = idx === (dmSearch ? dmSearchResults : dmMessages).length - 1;
                 return (
-                  <div key={msg.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6}}
+                  <div key={msg.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6,background: dmSearch && dmSearchResults.includes(msg) ? 'rgba(99,102,241,0.08)' : 'transparent'}}
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='transparent'}>
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background= dmSearch ? 'rgba(99,102,241,0.08)' : 'transparent'}>
                     <div style={{width:36,height:36,borderRadius:'50%',background: isMe ? '#248046' : '#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0,marginTop:2}}>
                       {msg.sender_name?.charAt(0) || '?'}
                     </div>
@@ -1162,6 +1342,12 @@ export default function WorkspaceShell() {
                         <span style={{fontSize:12,color:'#80848e'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                       </div>
                       <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
+                      {/* Read receipts - show on last message sent by me */}
+                      {isMe && isLast && (
+                        <div style={{fontSize:11,color: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e',marginTop:2,textAlign:'right'}}>
+                          {onlineUsers.has(activeDM.other_id) ? '✓✓ Seen' : '✓ Delivered'}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
