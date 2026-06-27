@@ -144,6 +144,21 @@ export default function WorkspaceShell() {
   const [showJumpDate,   setShowJumpDate]   = useState(false);
   const [jumpDate,       setJumpDate]       = useState('');
   const [slashCmd,       setSlashCmd]       = useState('');
+  // ── New messaging features ──
+  const [mentionQuery,   setMentionQuery]   = useState('');
+  const [showMentions,   setShowMentions]   = useState(false);
+  const [showGifPicker,  setShowGifPicker]  = useState(false);
+  const [gifSearch,      setGifSearch]      = useState('');
+  const [mutedChannels,  setMutedChannels]  = useState<string[]>(() => JSON.parse(localStorage.getItem('muted_channels')||'[]'));
+  const [showChannelMembers, setShowChannelMembers] = useState(false);
+  const [channelMembers, setChannelMembers] = useState<any[]>([]);
+  const [dndEnabled,     setDndEnabled]     = useState(false);
+  const [dndUntil,       setDndUntil]       = useState('');
+  const [starredMsgs,    setStarredMsgs]    = useState<string[]>(() => JSON.parse(localStorage.getItem('starred_msgs')||'[]'));
+  const [showStarred,    setShowStarred]    = useState(false);
+  const [fwdMsg,         setFwdMsg]         = useState<any>(null);
+  const [showFwd,        setShowFwd]        = useState(false);
+  const [reminderMsg,    setReminderMsg]    = useState<any>(null);
   const [showSlashMenu,  setShowSlashMenu]  = useState(false);
   const [channelDescEdit,setChannelDescEdit]= useState(false);
   const [newChannelDesc, setNewChannelDesc] = useState('');
@@ -269,6 +284,107 @@ export default function WorkspaceShell() {
     const res = await api.messages(ch.id);
     setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
     subscribe(ch.id);
+  }
+
+  // ── Channel member list ──
+  async function loadChannelMembers() {
+    if (!activeChannel) return;
+    const res = await apiFetch('/channels/' + activeChannel.id + '/members');
+    setChannelMembers(res?.data || []);
+    setShowChannelMembers(true);
+  }
+
+  // ── Mute/unmute channel ──
+  function toggleMute(channelId: string) {
+    const muted = mutedChannels.includes(channelId)
+      ? mutedChannels.filter(id => id !== channelId)
+      : [...mutedChannels, channelId];
+    setMutedChannels(muted);
+    localStorage.setItem('muted_channels', JSON.stringify(muted));
+  }
+
+  // ── Leave channel ──
+  async function leaveChannel(channelId: string) {
+    if (!confirm('Leave this channel?')) return;
+    await apiFetch('/channels/' + channelId + '/leave', { method: 'POST' });
+    setActiveChannel(null);
+    const wsRes = await api.workspaces();
+    const wsId = wsRes?.data?.[0]?.id;
+    if (wsId) { const r = await api.channels(wsId); setChannels(Array.isArray(r?.data) ? r.data : []); }
+  }
+
+  // ── Star/unstar message ──
+  function toggleStarMessage(msgId: string) {
+    const starred = starredMsgs.includes(msgId)
+      ? starredMsgs.filter(id => id !== msgId)
+      : [...starredMsgs, msgId];
+    setStarredMsgs(starred);
+    localStorage.setItem('starred_msgs', JSON.stringify(starred));
+  }
+
+  // ── Copy message link ──
+  function copyMessageLink(msgId: string) {
+    const url = window.location.origin + '/workspace?channel=' + activeChannel?.id + '&msg=' + msgId;
+    navigator.clipboard.writeText(url).then(() => alert('Message link copied!')).catch(() => {});
+  }
+
+  // ── Forward message ──
+  function forwardMessage(msg: any) {
+    setFwdMsg(msg);
+    setShowFwd(true);
+  }
+
+  // ── Send message reminder ──
+  function setMessageReminder(msg: any, minutes: number) {
+    setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('Deemona Teams reminder', {
+          body: msg.content.substring(0, 80),
+          icon: '/favicon.ico'
+        });
+      } else {
+        alert('Reminder: ' + msg.content.substring(0, 80));
+      }
+    }, minutes * 60 * 1000);
+    alert('Reminder set for ' + minutes + ' minute' + (minutes > 1 ? 's' : '') + ' from now!');
+  }
+
+  // ── @channel mention ──
+  async function notifyChannel() {
+    if (!activeChannel) return;
+    if (!confirm('@channel will notify ALL members of this channel. Continue?')) return;
+    await apiFetch('/channels/' + activeChannel.id + '/notify-all', { method: 'POST', body: JSON.stringify({ message: '@channel' }) });
+    alert('All channel members notified!');
+  }
+
+  // ── Mention autocomplete ──
+  function handleMentionInput(val: string) {
+    setNewMessage(val);
+    const atMatch = val.match(/@(\w*)$/);
+    if (atMatch) {
+      setMentionQuery(atMatch[1]);
+      setShowMentions(true);
+    } else {
+      setShowMentions(false);
+    }
+    setShowSlashMenu(val.startsWith('/') && val.length > 0 && !val.includes(' '));
+    if (activeChannel) saveDraft(activeChannel.id, val);
+  }
+
+  function insertMention(name: string) {
+    const newVal = newMessage.replace(/@\w*$/, '@' + name + ' ');
+    setNewMessage(newVal);
+    setShowMentions(false);
+    document.getElementById('msg-composer')?.focus();
+  }
+
+  // ── DND ──
+  function enableDND(hours: number) {
+    const until = new Date(Date.now() + hours * 3600000).toISOString();
+    setDndEnabled(true);
+    setDndUntil(until);
+    localStorage.setItem('dnd_until', until);
+    alert('Do not disturb enabled for ' + hours + ' hour' + (hours > 1 ? 's' : '') + '.');
   }
 
   // ── Format helpers ──
@@ -743,6 +859,11 @@ export default function WorkspaceShell() {
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
                 <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
                 <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
+                <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
+                <button onClick={() => toggleMute(activeChannel?.id||'')} style={{background: mutedChannels.includes(activeChannel?.id||'') ? 'rgba(237,66,69,0.15)' : 'none',border:'none',color: mutedChannels.includes(activeChannel?.id||'') ? '#ed4245' : '#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Mute/unmute channel">{mutedChannels.includes(activeChannel?.id||'') ? '🔕' : '🔔'}</button>
+                <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
+                <button onClick={() => setShowStarred(s => !s)} style={{background: showStarred ? 'rgba(251,191,36,0.15)' : 'none',border:'none',color: showStarred ? '#fbbf24' : '#80848e',cursor:'pointer',fontSize:14,padding:'4px 8px',borderRadius:6}} title="Starred messages">⭐</button>
+                <button onClick={() => leaveChannel(activeChannel?.id||'')} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Leave channel">Leave</button>
                 <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
                 <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
                 <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
@@ -925,6 +1046,45 @@ export default function WorkspaceShell() {
                     <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
                 )}
+                {/* Mention autocomplete */}
+                {showMentions && (
+                  <div style={{padding:'4px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    {(orgMembers as any[]).filter((m: any) => m.display_name?.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0,6).map((m: any) => (
+                      <button key={m.id} onClick={() => insertMention(m.display_name)}
+                        style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#b5bac1',cursor:'pointer',fontSize:13,borderRadius:4}}>
+                        <div style={{width:24,height:24,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>{m.display_name?.charAt(0)}</div>
+                        <div>
+                          <span style={{color:'#f2f3f5',fontWeight:600}}>{m.display_name}</span>
+                          <span style={{color:'#80848e',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* GIF Picker */}
+                {showGifPicker && (
+                  <div style={{padding:8,borderBottom:'1px solid rgba(255,255,255,0.06)',background:'rgba(0,0,0,0.2)'}}>
+                    <input value={gifSearch} onChange={e => setGifSearch(e.target.value)} placeholder="Search GIFs..."
+                      style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#f2f3f5',fontSize:13,outline:'none',marginBottom:8}} />
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:4,maxHeight:160,overflowY:'auto'}}>
+                      {[
+                        {url:'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif',label:'👍'},
+                        {url:'https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif',label:'🎉'},
+                        {url:'https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif',label:'❤️'},
+                        {url:'https://media.giphy.com/media/3og0IMJcSI8p6hYQXS/giphy.gif',label:'😂'},
+                        {url:'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',label:'👏'},
+                        {url:'https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif',label:'🔥'},
+                      ].map(gif => (
+                        <button key={gif.url} onClick={() => { setNewMessage(gif.url); setShowGifPicker(false); }} style={{padding:0,border:'none',borderRadius:6,overflow:'hidden',cursor:'pointer',background:'none'}}>
+                          <img src={gif.url} alt={gif.label} style={{width:'100%',height:60,objectFit:'cover',borderRadius:6}} />
+                        </button>
+                      ))}
+                    </div>
+                    <p style={{fontSize:11,color:'#80848e',marginTop:4,textAlign:'center'}}>Powered by Giphy • Click to insert</p>
+                  </div>
+                )}
+
                 {/* Slash command menu */}
                 {showSlashMenu && (
                   <div style={{padding:'4px',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
@@ -950,13 +1110,10 @@ export default function WorkspaceShell() {
                   <button onClick={() => setShowFormatBar(s => !s)}
                     title="Formatting"
                     style={{background: showFormatBar ? 'rgba(74,222,128,0.1)' : 'none',border:'none',color: showFormatBar ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'2px 6px',borderRadius:4,flexShrink:0,fontWeight:700}}>Aa</button>
+                  <button onClick={() => setShowGifPicker(s => !s)} title="GIF"
+                    style={{background: showGifPicker ? 'rgba(74,222,128,0.1)' : 'none',border:'none',color: showGifPicker ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:12,padding:'2px 6px',borderRadius:4,flexShrink:0,fontWeight:700}}>GIF</button>
                   <textarea id="msg-composer" value={newMessage}
-                    onChange={e => {
-                      const val = e.target.value;
-                      setNewMessage(val);
-                      if (activeChannel) saveDraft(activeChannel.id, val);
-                      setShowSlashMenu(val.startsWith('/') && val.length > 0 && !val.includes(' '));
-                    }}
+                    onChange={e => handleMentionInput(e.target.value)}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
                       if (e.key === 'Escape') { setShowSlashMenu(false); setShowFormatBar(false); }
@@ -1088,6 +1245,90 @@ export default function WorkspaceShell() {
 
       {/* ── MODALS ── */}
 
+      {/* ── CHANNEL MEMBERS PANEL ── */}
+      {showChannelMembers && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowChannelMembers(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">#{activeChannel?.name} members ({channelMembers.length})</span>
+              <button onClick={() => setShowChannelMembers(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {channelMembers.map((m: any) => (
+                <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800">
+                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{m.display_name?.charAt(0)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-white font-medium">{m.display_name}</div>
+                    <div className="text-xs text-gray-500">{m.designation || m.email}</div>
+                  </div>
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${onlineUsers.has(m.id) ? 'bg-emerald-400' : 'bg-gray-600'}`}/>
+                </div>
+              ))}
+              {channelMembers.length === 0 && <p className="text-gray-500 text-sm text-center py-4">No members found</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── STARRED MESSAGES ── */}
+      {showStarred && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowStarred(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">⭐ Starred messages</span>
+              <button onClick={() => setShowStarred(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            {messages.filter(m => starredMsgs.includes(m.id)).length === 0
+              ? <p className="text-gray-500 text-sm text-center py-6">No starred messages in this channel.<br/>Hover over a message and click ☆ to star it.</p>
+              : messages.filter(m => starredMsgs.includes(m.id)).map(msg => (
+                <div key={msg.id} className="flex gap-3 p-3 bg-gray-800 rounded-xl mb-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{msg.sender_name?.charAt(0)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
+                      <span className="text-xs text-gray-500">{new Date(msg.sent_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</span>
+                    </div>
+                    <p className="text-sm text-gray-300 line-clamp-2">{msg.content}</p>
+                  </div>
+                  <button onClick={() => toggleStarMessage(msg.id)} className="text-yellow-400 hover:text-gray-400 flex-shrink-0">★</button>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      )}
+
+      {/* ── FORWARD MESSAGE MODAL ── */}
+      {showFwd && fwdMsg && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowFwd(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">Forward message</span>
+              <button onClick={() => setShowFwd(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="bg-gray-800 rounded-xl p-3 mb-4">
+              <p className="text-xs text-gray-500 mb-1">From {fwdMsg.sender_name}:</p>
+              <p className="text-sm text-gray-300 line-clamp-3">{fwdMsg.content}</p>
+            </div>
+            <p className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wider">Forward to channel:</p>
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {channels.filter(c => c.type !== 'direct').map(ch => (
+                <button key={ch.id} onClick={async () => {
+                  await api.sendMessage(ch.id, '[Forwarded from #' + (activeChannel?.name||'') + '] ' + fwdMsg.content);
+                  setShowFwd(false);
+                  alert('Message forwarded to #' + ch.name);
+                }} className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800 text-sm text-gray-300">
+                  <span className="text-gray-500">#</span> {ch.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── NOTIFICATION PREFERENCES MODAL ── */}
       {showNotifPrefs && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
@@ -1121,6 +1362,22 @@ export default function WorkspaceShell() {
                   <input type="checkbox" defaultChecked={k!=='email_digest'} />
                 </label>
               ))}
+            </div>
+            <div className="border-t border-gray-800 pt-4 mt-2 space-y-2">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Do Not Disturb</p>
+              <div className="flex gap-2 flex-wrap">
+                {[[1,'1 hour'],[4,'4 hours'],[8,'Until tomorrow'],[0,'Turn off']].map(([h,label]) => (
+                  <button key={label} onClick={() => h === 0 ? (setDndEnabled(false), localStorage.removeItem('dnd_until')) : enableDND(h as number)}
+                    className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${dndEnabled && h !== 0 ? 'bg-red-900/30 border-red-800 text-red-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 mt-3 font-semibold">Browser notifications</p>
+              <button onClick={() => Notification.requestPermission().then(p => alert('Permission: ' + p))}
+                className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg w-full text-left">
+                Enable desktop notifications
+              </button>
             </div>
             <button onClick={() => setShowNotifPrefs(false)} className="w-full mt-4 bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Done</button>
           </div>
@@ -2181,6 +2438,15 @@ function MeetingsView() {
                     {m.status === 'scheduled' && (
                       <>
                         <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">Bell</button>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-500">RSVP:</span>
+                      {[['✓','going','emerald'],['?','maybe','yellow'],['✗','no','red']].map(([icon,status,color]) => (
+                        <button key={status} onClick={async () => {
+                          await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) });
+                          alert('RSVP updated: ' + status);
+                        }} className={`text-xs px-1.5 py-0.5 rounded font-bold bg-${color}-900/30 text-${color}-400 hover:bg-${color}-900/50`}>{icon}</button>
+                      ))}
+                    </div>
                         <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recur</button>
                       </>
                     )}

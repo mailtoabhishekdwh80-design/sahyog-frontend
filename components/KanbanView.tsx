@@ -80,12 +80,12 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
           )}
           {(task.comment_count || 0) > 0 && <span className="text-xs text-gray-500">💬 {task.comment_count}</span>}
           {/* Vote count */}
-          {((task as any).vote_count || 0) > 0 && (
-            <span className="text-xs text-blue-400">👍 {(task as any).vote_count}</span>
+          {(task.vote_count || 0) > 0 && (
+            <span className="text-xs text-blue-400">👍 {task.vote_count}</span>
           )}
           {/* Card aging indicator */}
-          {(task as any).updated_at && (() => {
-            const days = Math.floor((Date.now() - new Date((task as any).updated_at).getTime()) / 86400000);
+          {task.updated_at && (() => {
+            const days = Math.floor((Date.now() - new Date(task.updated_at).getTime()) / 86400000);
             if (days >= 7) return <span className={`text-xs ${days >= 14 ? 'text-red-400' : 'text-yellow-500'}`} title={`No activity for ${days} days`}>⏳ {days}d</span>;
             return null;
           })()}
@@ -195,6 +195,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [listColors,     setListColors]     = useState<Record<string,string>>({});
   const [showListColor,  setShowListColor]  = useState<string|null>(null);
   const [showBoardInvite,setShowBoardInvite]= useState(false);
+  const [boardSearch,    setBoardSearch]    = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [showActivity,   setShowActivity]   = useState(false);
+  const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
   const [aiSuggestedTasks, setAiSuggestedTasks] = useState<any[]>([]);
@@ -544,6 +548,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Invite Link
           </button>
+          <input value={boardSearch} onChange={e => setBoardSearch(e.target.value)}
+            placeholder="Search tasks..." className="text-xs bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1.5 rounded-lg outline-none focus:border-emerald-500 w-36" />
+          <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}
+            className="text-xs bg-gray-800 border border-gray-700 text-gray-300 px-2 py-1.5 rounded-lg outline-none">
+            <option value="all">All priorities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
           <button onClick={loadBoardAnalytics}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Analytics
