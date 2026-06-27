@@ -85,7 +85,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
           )}
           {/* Card aging indicator */}
           {(task as any).updated_at && (() => {
-            const days = Math.floor((Date.now() - new Date(task.updated_at).getTime()) / 86400000);
+            const days = Math.floor((Date.now() - new Date((task as any).updated_at).getTime()) / 86400000);
             if (days >= 7) return <span className={`text-xs ${days >= 14 ? 'text-red-400' : 'text-yellow-500'}`} title={`No activity for ${days} days`}>⏳ {days}d</span>;
             return null;
           })()}
