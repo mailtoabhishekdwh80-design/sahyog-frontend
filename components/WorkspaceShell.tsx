@@ -660,6 +660,8 @@ export default function WorkspaceShell() {
           {/* More links */}
           <div style={{marginTop:8,paddingTop:8,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
             {[
+              { icon:'📹', label:'Meetings', action: () => { setActiveView('meetings'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
+              { icon:'🏠', label:'Home', action: () => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
               { icon:'🔖', label:'Saved messages', action: loadBookmarks },
               { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
               { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
