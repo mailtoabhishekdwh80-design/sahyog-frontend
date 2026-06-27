@@ -910,7 +910,7 @@ export default function WorkspaceShell() {
                 <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
               </div>
             </div>
-            {threadReplies.map(r => (
+            {replies.map(r => (
               <div key={r.id} style={{display:'flex',gap:10,marginBottom:12}}>
                 <div style={{width:28,height:28,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0}}>
                   {r.sender_name?.charAt(0)}
