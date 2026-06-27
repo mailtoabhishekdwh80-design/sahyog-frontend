@@ -160,7 +160,6 @@ export default function WorkspaceShell() {
   const [showFwd,        setShowFwd]        = useState(false);
   const [reminderMsg,    setReminderMsg]    = useState<any>(null);
   // ── New features ──
-  const [dmSearch,       setDmSearch]       = useState('');
   const [dmSearchResults,setDmSearchResults]= useState<any[]>([]);
   const [channelQuery,   setChannelQuery]   = useState('');
   const [showChannelAC,  setShowChannelAC]  = useState(false);
@@ -300,7 +299,6 @@ export default function WorkspaceShell() {
   }
 
   // ── WebSocket reconnection ──
-  const wsRef = useRef<WebSocket|null>(null);
   function setupWSReconnection(ws: WebSocket) {
     ws.onclose = () => {
       setWsReconnecting(true);
