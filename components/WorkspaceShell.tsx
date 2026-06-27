@@ -160,6 +160,7 @@ export default function WorkspaceShell() {
   const [showFwd,        setShowFwd]        = useState(false);
   const [reminderMsg,    setReminderMsg]    = useState<any>(null);
   // ── New features ──
+  const [dmSearch,       setDmSearch]       = useState('');
   const [dmSearchResults,setDmSearchResults]= useState<any[]>([]);
   const [channelQuery,   setChannelQuery]   = useState('');
   const [showChannelAC,  setShowChannelAC]  = useState(false);
@@ -290,7 +291,7 @@ export default function WorkspaceShell() {
 
   // ── Channels ────────────────────────────────────────────────
   async function openChannel(ch: Channel) {
-    setLoadingMsgs(true);
+    setLoadingMsgs(true); setMessages([]);
     setActiveChannel(ch); setActiveBoard(null); setActiveDM(null); setActiveView('home');
     setMessages([]); setShowMsgSearch(false); setMsgSearch('');
     const res = await api.messages(ch.id);
@@ -299,6 +300,7 @@ export default function WorkspaceShell() {
   }
 
   // ── WebSocket reconnection ──
+  const wsRef = useRef<WebSocket|null>(null);
   function setupWSReconnection(ws: WebSocket) {
     ws.onclose = () => {
       setWsReconnecting(true);
@@ -1315,7 +1317,7 @@ export default function WorkspaceShell() {
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</div>
                 <div style={{fontSize:11,color: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e'}}>
-                  {onlineUsers.has(activeDM.other_id) ? '🟢 Active now' : '⚫ Offline'}
+                  {onlineUsers.has(activeDM.other_id) ? '🟢 Active now' : '⚫ Last seen recently'}
                 </div>
               </div>
               <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
@@ -1343,7 +1345,7 @@ export default function WorkspaceShell() {
                       {/* Read receipts - show on last message sent by me */}
                       {isMe && isLast && (
                         <div style={{fontSize:11,color: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e',marginTop:2,textAlign:'right'}}>
-                          {onlineUsers.has(activeDM.other_id) ? '✓✓ Seen' : '✓ Delivered'}
+                          {'✓✓ Delivered'}
                         </div>
                       )}
                     </div>
