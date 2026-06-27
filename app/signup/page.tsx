@@ -83,7 +83,7 @@ export default function SignupPage() {
             <span className="text-white font-bold text-xl">S</span>
           </div>
           <h1 className="text-white text-2xl font-bold">Create your workspace</h1>
-          <p className="text-gray-400 text-sm mt-1">Start collaborating with your team on Sahyog</p>
+          <p className="text-gray-400 text-sm mt-1">Start collaborating with your team on Deemona Teams</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">

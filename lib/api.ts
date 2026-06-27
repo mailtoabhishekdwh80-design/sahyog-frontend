@@ -1,4 +1,4 @@
-// lib/api.ts — Sahyog API client
+// lib/api.ts — Deemona Teams API client
 const API_BASE = 'https://sahyog-api-ajbr.onrender.com/api/v1';
 
 // ── Token storage ─────────────────────────────────────────────
@@ -289,7 +289,7 @@ export const api = {
   addCustomEmoji:     (name: string, url: string) =>
     apiFetch('/channels/custom-emojis', { method: 'POST', body: JSON.stringify({ name, url }) }),
 
-  // Sahyog Connect (cross-org)
+  // Deemona Connect (cross-org)
   connectInvite:      (email: string, channelId: string, orgName: string) =>
     apiFetch('/channels/connect-invite', { method: 'POST', body: JSON.stringify({ email, channelId, orgName }) }),
 

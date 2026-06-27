@@ -81,7 +81,7 @@ export default function AdminPage() {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-sm">S</div>
           <div>
-            <div className="font-semibold text-white">Sahyog Admin</div>
+            <div className="font-semibold text-white">Deemona Teams Admin</div>
             <div className="text-xs text-gray-500">Organization dashboard</div>
           </div>
         </div>

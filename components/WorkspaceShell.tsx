@@ -113,6 +113,18 @@ export default function WorkspaceShell() {
   const [aiLoading,      setAiLoading]      = useState(false);
   const [aiSummary,      setAiSummary]      = useState('');
   const [showAISummary,  setShowAISummary]  = useState(false);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -180,9 +192,9 @@ export default function WorkspaceShell() {
 
   // ── WebSocket ───────────────────────────────────────────────
   function connectWS() {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('sahyog_token') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('deemona-teams_token') : null;
     if (!token) return;
-    const ws = new WebSocket(`wss://sahyog-api-ajbr.onrender.com/ws?token=${token}`);
+    const ws = new WebSocket(`wss://deemona-teams-api-ajbr.onrender.com/ws?token=${token}`);
     ws.onopen = () => { wsRef.current = ws; };
     ws.onmessage = (e) => {
       try {
@@ -427,7 +439,7 @@ export default function WorkspaceShell() {
     setCustomEmojis(res?.data || []);
   }
 
-  // ── Sahyog Connect ───────────────────────────────────────
+  // ── Deemona Connect ───────────────────────────────────────
   async function sendConnectInvite() {
     if (!connectEmail.trim() || !activeChannel) return;
     await api.connectInvite(connectEmail.trim(), activeChannel.id, connectOrg.trim());
@@ -505,7 +517,7 @@ export default function WorkspaceShell() {
               {activeWs?.name?.charAt(0) || 'S'}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate">{activeWs?.name || 'Sahyog'}</div>
+              <div className="text-sm font-semibold text-white truncate">{activeWs?.name || 'Deemona Teams'}</div>
               <div className="text-xs text-gray-500 truncate">{user?.email}</div>
               {(user?.status_emoji || user?.status_text) && (
                 <div className="text-xs text-gray-400 truncate">{user?.status_emoji} {user?.status_text}</div>
@@ -762,7 +774,7 @@ export default function WorkspaceShell() {
                 <button onClick={loadCustomEmojis}
                   className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Custom emoji">Emoji</button>
                 <button onClick={() => setShowConnect(true)}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Sahyog Connect">Connect</button>
+                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Deemona Connect">Connect</button>
                 <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
               </div>
             </div>
@@ -884,7 +896,7 @@ export default function WorkspaceShell() {
                 <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 shrink-0">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">A</div>
-                    <span className="text-sm font-semibold text-white">Sahyog AI</span>
+                    <span className="text-sm font-semibold text-white">Deemona AI</span>
                     <span className="text-xs text-gray-500">Ask anything about this channel or workspace</span>
                   </div>
                   <button onClick={() => setShowAI(false)} className="text-gray-500 hover:text-white text-xs">x</button>
@@ -921,7 +933,7 @@ export default function WorkspaceShell() {
                 <div className="px-3 py-2 border-t border-gray-800 flex gap-2 shrink-0">
                   <input value={aiInput} onChange={e => setAiInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
-                    placeholder="Ask Sahyog AI..."
+                    placeholder="Ask Deemona AI..."
                     className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:border-emerald-500" />
                   <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading}
                     className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs px-3 py-2 rounded-lg">Send</button>
@@ -1110,6 +1122,125 @@ export default function WorkspaceShell() {
         </div>
       )}
 
+      {/* Meeting polls modal */}
+      {showPollCreate && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowPollCreate(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Meeting Polls</span>
+              <button onClick={() => setShowPollCreate(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            {/* Create poll */}
+            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
+              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
+                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="flex gap-2">
+                  <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
+                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-400 hover:text-white">+ Add option</button>
+                <button onClick={async () => {
+                  if (!pollQuestion.trim() || !activeMeetingId) return;
+                  const validOpts = pollOptions.filter(o => o.trim());
+                  if (validOpts.length < 2) { alert('Add at least 2 options'); return; }
+                  await api.createPoll(activeMeetingId, pollQuestion.trim(), validOpts);
+                  setPollQuestion(''); setPollOptions(['', '']);
+                  const res = await api.getPolls(activeMeetingId);
+                  setPolls(res?.data || []);
+                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
+              </div>
+            </div>
+            {/* Existing polls */}
+            {polls.map((p: any) => {
+              const voteCount = Object.keys(p.votes || {}).length;
+              const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
+              return (
+                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">{p.question}</p>
+                  <div className="space-y-2">
+                    {opts.map((opt: string, i: number) => {
+                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
+                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
+                      return (
+                        <button key={i} onClick={async () => {
+                          await api.votePoll(p.id, i);
+                          const res = await api.getPolls(activeMeetingId!);
+                          setPolls(res?.data || []);
+                        }} className="w-full text-left">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm text-white flex-1">{opt}</span>
+                            <span className="text-xs text-gray-400">{votes} votes ({pct}%)</span>
+                          </div>
+                          <div className="bg-gray-700 rounded-full h-1.5">
+                            <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-600">{voteCount} total votes</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Whiteboard modal */}
+      {showWhiteboard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
+              <span className="text-white font-semibold">Whiteboard</span>
+              <button onClick={() => setShowWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
+              <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
+                style={{ touchAction: 'none' }}
+                onMouseDown={e => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) return;
+                  canvas.width = canvas.offsetWidth;
+                  canvas.height = canvas.offsetHeight;
+                  ctx.strokeStyle = '#1a1a1a';
+                  ctx.lineWidth = 2;
+                  ctx.lineCap = 'round';
+                  let drawing = true;
+                  const rect = canvas.getBoundingClientRect();
+                  ctx.beginPath();
+                  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                  const onMove = (ev: MouseEvent) => { if (drawing) { ctx.lineTo(ev.clientX - rect.left, ev.clientY - rect.top); ctx.stroke(); } };
+                  const onUp = () => { drawing = false; canvas.removeEventListener('mousemove', onMove); canvas.removeEventListener('mouseup', onUp); };
+                  canvas.addEventListener('mousemove', onMove);
+                  canvas.addEventListener('mouseup', onUp);
+                }}
+              />
+              <div className="absolute top-3 left-3 flex gap-2">
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Clear</button>
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const link = document.createElement('a');
+                  link.download = 'whiteboard.png';
+                  link.href = canvas.toDataURL();
+                  link.click();
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Save PNG</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Analytics modal */}
       {showAnalytics && analytics && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowAnalytics(false); }}>
@@ -1217,13 +1348,13 @@ export default function WorkspaceShell() {
         </div>
       )}
 
-      {/* Sahyog Connect modal */}
+      {/* Deemona Connect modal */}
       {showConnect && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowConnect(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-white font-semibold">Sahyog Connect</span>
+                <span className="text-white font-semibold">Deemona Connect</span>
                 <p className="text-xs text-gray-500 mt-0.5">Invite external teams to collaborate</p>
               </div>
               <button onClick={() => setShowConnect(false)} className="text-gray-500 hover:text-white">x</button>
@@ -1644,7 +1775,6 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
-  const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -1652,6 +1782,7 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
+  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch,setMemberSearch]= useState('');
@@ -1665,7 +1796,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => setMeetOrgMembers(Array.isArray(res?.data) ? res.data : []));
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
@@ -1782,7 +1913,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>

@@ -1,5 +1,5 @@
 // lib/useWebSocket.ts
-// Real-time WebSocket hook for Sahyog
+// Real-time WebSocket hook for Deemona Teams
 
 import { useEffect, useRef, useCallback } from 'react';
 import { tokenStore } from './api';
