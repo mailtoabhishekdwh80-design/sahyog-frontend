@@ -17,6 +17,10 @@ export default function SettingsPage() {
 
   // Profile
   const [displayName, setDisplayName] = useState('');
+  const [phone,       setPhone]       = useState('');
+  const [waTestMsg,   setWaTestMsg]   = useState('');
+  const [waSending,   setWaSending]   = useState(false);
+  const [waResult,    setWaResult]    = useState('');
   const [designation, setDesignation] = useState('');
   const [department,  setDepartment]  = useState('');
   const [timezone,    setTimezone]    = useState('Asia/Kolkata');
@@ -53,6 +57,7 @@ export default function SettingsPage() {
     const u = meRes?.data;
     setUser(u);
     setDisplayName(u?.display_name || '');
+    setPhone(u?.phone || '');
     setDesignation(u?.designation || '');
     setDepartment(u?.department || '');
     setTimezone(u?.timezone || 'Asia/Kolkata');
@@ -78,7 +83,7 @@ export default function SettingsPage() {
 
   async function saveProfile() {
     setSaving(true);
-    const res = await api.updateProfile({ displayName, designation, department, timezone });
+    const res = await api.updateProfile({ displayName, designation, department, timezone, phone });
     setSaving(false);
     if (res?.data) showSuccess('Profile updated successfully!');
     else showError(res?.error?.message || 'Failed to update profile');
@@ -253,6 +258,32 @@ export default function SettingsPage() {
                   <option value="Asia/Singapore">Singapore (SGT +8)</option>
                 </select>
               </div>
+              <div>
+                <label className={labelClass}>WhatsApp number (with country code)</label>
+                <input value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} placeholder="+91 98765 43210" />
+                <p className="text-xs text-gray-600 mt-1">Used for WhatsApp meeting reminders and notifications</p>
+              </div>
+
+              {phone && (
+                <div className="bg-gray-800 rounded-xl p-4 space-y-3 border border-gray-700">
+                  <p className="text-xs font-semibold text-white">Test WhatsApp notification</p>
+                  <input value={waTestMsg} onChange={e => setWaTestMsg(e.target.value)}
+                    className={inputClass} placeholder="Test message to send..." />
+                  <div className="flex gap-2 items-center">
+                    <button onClick={async () => {
+                      if (!waTestMsg.trim() || !phone) return;
+                      setWaSending(true);
+                      const res = await api.sendWhatsApp(phone, waTestMsg.trim());
+                      setWaSending(false);
+                      setWaResult(res?.data?.sid ? 'Sent! Check your WhatsApp.' : res?.data?.message || 'Failed to send.');
+                    }} disabled={waSending || !waTestMsg.trim()} className={btnClass + ' flex-1'}>
+                      {waSending ? 'Sending...' : 'Send test WhatsApp'}
+                    </button>
+                    {waResult && <p className="text-xs text-emerald-400">{waResult}</p>}
+                  </div>
+                </div>
+              )}
+
               <button onClick={saveProfile} disabled={saving} className={btnClass}>
                 {saving ? 'Saving...' : 'Save profile'}
               </button>
