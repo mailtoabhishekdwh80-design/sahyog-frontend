@@ -355,13 +355,21 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     setAiLoading(true);
     setAiError('');
     setAiSuggestedTasks([]);
-    const res = await api.aiSuggestTasks(aiProjectDesc.trim(), boardId); console.log("AI res:", JSON.stringify(res));
+    const res = await api.aiSuggestTasks(aiProjectDesc.trim(), boardId);
     setAiLoading(false);
-    if (res?.data?.tasks?.length > 0) {
-      setAiSuggestedTasks(res.data.tasks);
+    let parsedTasks = res?.data?.tasks || [];
+    if (parsedTasks.length === 0 && res?.data?.raw) {
+      try {
+        const rawText = res.data.raw;
+        const cleaned = rawText.replace(/```json\n?|```/g, '').trim();
+        const match = cleaned.match(/\[[\s\S]+\]/);
+        if (match) parsedTasks = JSON.parse(match[0]);
+      } catch(e) { console.log('Parse error:', e); }
+    }
+    if (parsedTasks.length > 0) {
+      setAiSuggestedTasks(parsedTasks);
     } else {
-      const errMsg = res?.data?.error || res?.data?.raw || 'Could not generate tasks. Try a more detailed description.';
-      setAiError(typeof errMsg === 'string' ? errMsg.substring(0, 200) : 'No tasks returned. Check AI configuration.');
+      setAiError('Could not generate tasks. Try a more detailed description.');
     }
   }
 
