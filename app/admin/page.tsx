@@ -96,10 +96,15 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-gray-900 rounded-xl p-1 border border-gray-800 w-fit">
-          {[['overview','Overview'],['members','Members'],['audit','Audit Log'],['roles','Roles'],['security','Security'],['compliance','Compliance']].map(([t,label]) => (
-            <button key={t} onClick={() => { setTab(t as any); if (t === 'audit') loadAudit(); }}
-              className={'px-4 py-2 rounded-lg text-sm font-medium transition-colors ' + (tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white')}>
-              {label}
+          {(['overview', 'members', 'audit'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); if (t === 'audit') loadAudit(); }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {t === 'overview' ? '📊 Overview' : t === 'members' ? '👥 Members' : '📋 Audit Log'}
             </button>
           ))}
         </div>
