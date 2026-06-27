@@ -62,7 +62,7 @@ export default function SignupPage() {
         // Store token and redirect
         localStorage.setItem('sahyog_token',   data.data.accessToken);
         localStorage.setItem('sahyog_refresh', data.data.refreshToken);
-        window.location.href = '/';
+        window.location.href = '/workspace';
       } else {
         setError(data?.error?.message || 'Registration failed');
       }

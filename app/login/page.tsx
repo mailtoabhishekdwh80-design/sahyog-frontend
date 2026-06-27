@@ -12,7 +12,7 @@ export default function LoginPage() {
     setLoading(true); setError('');
     const result = await api.login(email, password);
     if (result.ok) {
-      window.location.href = '/';
+      window.location.href = '/workspace';
     } else {
       setError(result.error || 'Login failed');
     }
