@@ -802,7 +802,7 @@ export default function WorkspaceShell() {
                       ))}
                       <button onClick={() => openThread(msg)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#b5bac1'}}>Reply</button>
                       {msg.sender_id === user?.id && (
-                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => loadMessages(activeChannel!.id))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
+                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => openChannel(activeChannel!))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
                       )}
                     </div>
                   </div>
