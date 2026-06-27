@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -581,9 +585,7 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div style={{display:'flex',height:'100vh',background: theme === 'light' ? '#f8f9fa' : '#1a1d21'
-      ,color: theme === 'light' ? '#1a1d21' : '#d1d2d3'}}
-      data-theme={theme},color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background: theme === 'light' ? '#f8f9fa' : '#1a1d21',color: theme === 'light' ? '#1a1d21' : '#d1d2d3'}}>
 
       {/* ══ SIDEBAR ══ */}
       <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
