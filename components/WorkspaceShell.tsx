@@ -778,7 +778,7 @@ export default function WorkspaceShell() {
                       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
                           {Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => loadMessages(activeChannel!.id))}
+                            <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
                               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#d1d2d3',display:'flex',alignItems:'center',gap:4}}>
                               {emoji} <span style={{fontSize:12,color:'#80848e'}}>{count as number}</span>
                             </button>
