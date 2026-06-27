@@ -149,12 +149,12 @@ export default function WorkspaceShell() {
   const [showMentions,   setShowMentions]   = useState(false);
   const [showGifPicker,  setShowGifPicker]  = useState(false);
   const [gifSearch,      setGifSearch]      = useState('');
-  const [mutedChannels,  setMutedChannels]  = useState<string[]>(() => JSON.parse(localStorage.getItem('muted_channels')||'[]'));
+  const [mutedChannels,  setMutedChannels]  = useState<string[]>(() => { try { return JSON.parse((typeof window!=='undefined'&&localStorage.getItem('muted_channels'))||'[]'); } catch{return[];} });
   const [showChannelMembers, setShowChannelMembers] = useState(false);
   const [channelMembers, setChannelMembers] = useState<any[]>([]);
   const [dndEnabled,     setDndEnabled]     = useState(false);
   const [dndUntil,       setDndUntil]       = useState('');
-  const [starredMsgs,    setStarredMsgs]    = useState<string[]>(() => JSON.parse(localStorage.getItem('starred_msgs')||'[]'));
+  const [starredMsgs,    setStarredMsgs]    = useState<string[]>(() => { try { return JSON.parse((typeof window!=='undefined'&&localStorage.getItem('starred_msgs'))||'[]'); } catch{return[];} });
   const [showStarred,    setShowStarred]    = useState(false);
   const [fwdMsg,         setFwdMsg]         = useState<any>(null);
   const [showFwd,        setShowFwd]        = useState(false);
@@ -431,7 +431,7 @@ export default function WorkspaceShell() {
 
   // ── Load draft ──
   function loadDraft(channelId: string) {
-    return localStorage.getItem('draft_' + channelId) || '';
+    return (typeof window !== 'undefined' && localStorage.getItem('draft_' + channelId)) || '';
   }
 
   // ── Update channel description ──
