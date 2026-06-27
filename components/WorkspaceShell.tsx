@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -277,12 +281,6 @@ export default function WorkspaceShell() {
   }
 
   // ── Edit message ──
-  async function saveEditMessage() {
-    if (!editingMsgId || !editingContent.trim()) return;
-    await apiFetch('/channels/messages/' + editingMsgId, { method:'PATCH', body: JSON.stringify({ content: editingContent }) });
-    setEditingMsgId(null);
-    if (activeChannel) openChannel(activeChannel);
-  }
 
   // ── Slash commands ──
   function handleSlashCommand(cmd: string) {
@@ -812,10 +810,10 @@ export default function WorkspaceShell() {
                       {editingMsgId === msg.id ? (
                         <div style={{marginTop:4}}>
                           <textarea value={editingContent} onChange={e => setEditingContent(e.target.value)} rows={2} autoFocus
-                            onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();saveEditMessage();} if(e.key==='Escape'){setEditingMsgId(null);} }}
+                            onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();saveEditMessage(editingMsgId!);} if(e.key==='Escape'){setEditingMsgId(null);} }}
                             style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px 10px',color:'#f2f3f5',fontSize:14,resize:'none',fontFamily:'inherit'}} />
                           <div style={{display:'flex',gap:6,marginTop:4}}>
-                            <button onClick={saveEditMessage} style={{background:'#248046',border:'none',borderRadius:5,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer',fontWeight:600}}>Save</button>
+                            <button onClick={() => saveEditMessage(editingMsgId!)} style={{background:'#248046',border:'none',borderRadius:5,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer',fontWeight:600}}>Save</button>
                             <button onClick={() => setEditingMsgId(null)} style={{background:'none',border:'1px solid rgba(255,255,255,0.1)',borderRadius:5,padding:'4px 10px',color:'#b5bac1',fontSize:12,cursor:'pointer'}}>Cancel</button>
                             <span style={{fontSize:11,color:'#80848e',alignSelf:'center'}}>Enter to save · Esc to cancel</span>
                           </div>
