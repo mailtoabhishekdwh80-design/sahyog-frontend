@@ -1088,6 +1088,74 @@ export default function WorkspaceShell() {
 
       {/* ── MODALS ── */}
 
+      {/* ── NOTIFICATION PREFERENCES MODAL ── */}
+      {showNotifPrefs && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowNotifPrefs(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">Notification preferences</span>
+              <button onClick={() => setShowNotifPrefs(false)} className="text-gray-500 hover:text-white text-xl leading-none">x</button>
+            </div>
+            <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Channel: #{activeChannel?.name || 'none'}</p>
+            {[
+              { key:'all', label:'All messages', desc:'Notify for every message' },
+              { key:'mentions', label:'Mentions only', desc:'Only when @mentioned' },
+              { key:'mute', label:'Muted', desc:'No notifications' },
+            ].map(opt => (
+              <label key={opt.key} className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-800 cursor-pointer mb-1">
+                <input type="radio" name="notif_pref" value={opt.key}
+                  checked={(notifPrefs[activeChannel?.id||''] || 'mentions') === opt.key}
+                  onChange={() => { const p={...notifPrefs,[activeChannel?.id||'']:opt.key}; setNotifPrefs(p); localStorage.setItem('notif_prefs',JSON.stringify(p)); }} />
+                <div>
+                  <div className="text-sm text-white font-medium">{opt.label}</div>
+                  <div className="text-xs text-gray-500">{opt.desc}</div>
+                </div>
+              </label>
+            ))}
+            <div className="border-t border-gray-800 pt-4 mt-2 space-y-2">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Email</p>
+              {[['email_mentions','Email on @mention'],['email_dms','Email on DM'],['email_digest','Daily digest 8AM IST']].map(([k,l]) => (
+                <label key={k} className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-800 rounded-lg">
+                  <span className="text-sm text-gray-300">{l}</span>
+                  <input type="checkbox" defaultChecked={k!=='email_digest'} />
+                </label>
+              ))}
+            </div>
+            <button onClick={() => setShowNotifPrefs(false)} className="w-full mt-4 bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Done</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── KEYBOARD SHORTCUTS MODAL ── */}
+      {showShortcuts && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowShortcuts(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
+              <span className="text-white font-semibold text-lg">Keyboard shortcuts</span>
+              <button onClick={() => setShowShortcuts(false)} className="text-gray-500 hover:text-white text-xl leading-none">x</button>
+            </div>
+            <div className="p-6 grid grid-cols-2 gap-x-8 gap-y-3">
+              {[
+                ['Ctrl+K','Global search'],['?','Show shortcuts'],['Escape','Close panel'],
+                ['Enter','Send message'],['Shift+Enter','New line'],['/','Slash commands'],
+                ['Ctrl+B','Bold text'],['Ctrl+I','Italic text'],
+                ['Ctrl+/','Toggle shortcuts'],['Up arrow','Edit last message'],
+              ].map(([key,desc]) => (
+                <div key={key} className="flex items-center justify-between gap-4">
+                  <span className="text-gray-400 text-sm">{desc}</span>
+                  <kbd className="bg-gray-800 border border-gray-600 text-gray-300 text-xs px-2 py-1 rounded font-mono whitespace-nowrap">{key}</kbd>
+                </div>
+              ))}
+            </div>
+            <div className="px-6 pb-5 text-center">
+              <button onClick={() => setShowShortcuts(false)} className="text-xs text-gray-500 hover:text-gray-300">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Notifications */}
       {showNotifs && (
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
