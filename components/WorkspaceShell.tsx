@@ -867,10 +867,10 @@ export default function WorkspaceShell() {
             <div style={{padding:'0 16px 16px',flexShrink:0}}>
               <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
                 <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
-                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendDM();} }}
+                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMessage();} }}
                   placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
                   style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
-                <button onClick={sendDM} disabled={!newMessage.trim()}
+                <button onClick={sendMessage} disabled={!newMessage.trim()}
                   style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
               </div>
             </div>
