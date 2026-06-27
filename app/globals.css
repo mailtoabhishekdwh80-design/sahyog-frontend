@@ -1,31 +1,441 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  }
-  
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════
+   DEEMONA TEAMS — PROFESSIONAL THEME
+   Strategy: CSS-only overrides, no JSX changes
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --dt-sidebar:   #1a1d21;
+  --dt-main:      #313338;
+  --dt-surface:   #2b2d31;
+  --dt-surface2:  #232428;
+  --dt-hover:     rgba(255,255,255,0.06);
+  --dt-border:    rgba(255,255,255,0.08);
+  --dt-text:      #f2f3f5;
+  --dt-text2:     #b5bac1;
+  --dt-muted:     #80848e;
+  --dt-green:     #248046;
+  --dt-green-l:   #2dc771;
+  --dt-accent:    rgba(45,199,113,0.15);
+  --dt-red:       #da373c;
+  --dt-purple:    #5865f2;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  background: var(--dt-main) !important;
+  color: var(--dt-text) !important;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Sidebar background ── */
+.bg-gray-900 { background: var(--dt-sidebar) !important; }
+.bg-gray-950 { background: var(--dt-sidebar) !important; }
+
+/* ── Main area ── */
+.bg-gray-950.text-white { background: var(--dt-sidebar) !important; }
+
+/* ── Surface elements ── */
+.bg-gray-800 { background: var(--dt-surface) !important; }
+.bg-gray-700 { background: var(--dt-surface2) !important; }
+
+/* ── Text colors ── */
+.text-white   { color: var(--dt-text)  !important; }
+.text-gray-200 { color: var(--dt-text)  !important; }
+.text-gray-300 { color: var(--dt-text2) !important; }
+.text-gray-400 { color: var(--dt-text2) !important; }
+.text-gray-500 { color: var(--dt-muted) !important; }
+.text-gray-600 { color: var(--dt-muted) !important; }
+
+/* ── Borders ── */
+.border-gray-800 { border-color: var(--dt-border) !important; }
+.border-gray-700 { border-color: rgba(255,255,255,0.12) !important; }
+.border-gray-600 { border-color: rgba(255,255,255,0.16) !important; }
+
+/* ── Hover states ── */
+.hover\:bg-gray-800:hover         { background: var(--dt-hover)   !important; }
+.hover\:bg-gray-800\/50:hover     { background: var(--dt-hover)   !important; }
+.hover\:bg-gray-700:hover         { background: var(--dt-surface) !important; }
+
+/* ── Active channel/board ── */
+.bg-emerald-900\/50  { background: var(--dt-accent) !important; }
+.text-emerald-300    { color: var(--dt-green-l)     !important; }
+.text-emerald-400    { color: var(--dt-green-l)     !important; }
+.bg-emerald-600      { background: var(--dt-green)  !important; }
+.bg-emerald-700      { background: var(--dt-green)  !important; }
+.hover\:bg-emerald-600:hover { background: #1a6035 !important; }
+
+/* ── DM active ── */
+.bg-purple-900\/50 { background: rgba(88,101,242,0.2) !important; }
+.text-purple-300   { color: #c9cdfb !important; }
+
+/* ── Blue board active ── */
+.bg-blue-900\/50 { background: rgba(88,101,242,0.2) !important; }
+.text-blue-300   { color: #c9cdfb !important; }
+
+/* ── Notification badges ── */
+.bg-red-600 { background: var(--dt-red) !important; }
+
+/* ── Sidebar width upgrade ── */
+.w-56 { width: 248px !important; }
+
+/* ── Workspace header ── */
+.px-3.py-3.border-b.border-gray-800 {
+  padding: 14px 14px 10px !important;
+}
+
+/* ── Channel/section labels ── */
+.text-xs.text-gray-500.px-2.mb-1.uppercase.tracking-wider {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  color: var(--dt-muted) !important;
+  padding: 6px 8px 3px !important;
+}
+
+/* ── Nav items ── */
+.text-sm.flex.items-center.gap-2 {
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  padding: 5px 10px !important;
+}
+
+/* ── Channel items ── */
+.text-sm.flex.items-center.gap-1\.5 {
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+}
+
+/* ── Message area ── */
+.flex-1.overflow-y-auto.p-4.space-y-1 {
+  padding: 16px !important;
+  gap: 2px !important;
+}
+
+/* ── Message hover ── */
+.group.flex.items-start.gap-3.px-2.py-1.rounded-lg {
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  transition: background 0.1s !important;
+}
+
+/* ── Message sender name ── */
+.text-sm.font-semibold.text-white {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+/* ── Message text ── */
+.text-sm.text-gray-200.leading-relaxed {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  color: var(--dt-text2) !important;
+}
+
+/* ── Message timestamp ── */
+.text-xs.text-gray-500 {
+  font-size: 11px !important;
+  color: var(--dt-muted) !important;
+}
+
+/* ── Composer area ── */
+.px-4.py-3.border-t.border-gray-800.bg-gray-900.shrink-0 {
+  padding: 8px 16px 16px !important;
+  background: var(--dt-sidebar) !important;
+}
+
+/* ── Composer input wrapper ── */
+.flex.items-end.gap-2.bg-gray-800.rounded-xl.px-3.py-2.border.border-gray-700 {
+  background: var(--dt-surface) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+}
+
+/* ── Composer textarea ── */
+.flex-1.bg-transparent.border-none.outline-none.resize-none {
+  color: var(--dt-text) !important;
+  font-size: 15px !important;
+}
+
+/* ── Send button ── */
+.text-emerald-400.hover\:text-emerald-300.disabled\:text-gray-600.font-bold.text-lg.pb-0\.5 {
+  background: var(--dt-green) !important;
+  color: #fff !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+/* ── Channel header ── */
+.flex.items-center.justify-between.px-4.py-3.border-b.border-gray-800,
+.flex.items-center.justify-between.px-5.py-4.border-b.border-gray-800,
+.flex.items-center.justify-between.px-5.py-3.border-b.border-gray-800 {
+  padding: 0 16px !important;
+  height: 49px !important;
+  background: var(--dt-sidebar) !important;
+}
+
+/* ── Channel name in header ── */
+.font-semibold.text-white {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+}
+
+/* ── Header action buttons ── */
+.text-gray-500.hover\:text-gray-300.text-sm.px-2.py-1.rounded.hover\:bg-gray-800,
+.text-gray-500.hover\:text-gray-300.text-xs.px-2.py-1.rounded.hover\:bg-gray-800 {
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  color: var(--dt-muted) !important;
+  transition: all 0.15s !important;
+}
+
+/* ── Avatar circles ── */
+.w-7.h-7.rounded-full,
+.w-8.h-8.rounded-full {
+  font-weight: 700 !important;
+}
+
+/* ── Workspace avatar ── */
+.w-7.h-7.bg-emerald-600.rounded-lg {
+  background: var(--dt-green) !important;
+  border-radius: 8px !important;
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+/* ── User footer ── */
+.px-3.py-3.border-t.border-gray-800.space-y-2 {
+  padding: 10px 12px !important;
+  border-top: 1px solid var(--dt-border) !important;
+}
+
+/* ── User name in footer ── */
+.text-xs.font-medium.text-white.truncate {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+/* ── Modals ── */
+.fixed.inset-0.bg-black\/70 {
+  background: rgba(0,0,0,0.8) !important;
+  backdrop-filter: blur(2px) !important;
+}
+
+.bg-gray-900.rounded-2xl.border.border-gray-700 {
+  background: var(--dt-surface) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5) !important;
+}
+
+/* ── Kanban board ── */
+.flex.gap-4.overflow-x-auto.p-4 {
+  padding: 20px !important;
+  gap: 16px !important;
+}
+
+/* ── Kanban list headers ── */
+.text-sm.font-semibold.flex.items-center.gap-2 {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+}
+
+/* ── Kanban task cards ── */
+.bg-gray-800.rounded-lg.p-3.shadow-sm.cursor-grab {
+  background: var(--dt-surface2) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  transition: all 0.1s !important;
+}
+.bg-gray-800.rounded-lg.p-3.shadow-sm.cursor-grab:hover {
+  background: #2e3035 !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+}
+
+/* ── Task card title ── */
+.text-sm.font-medium.text-white.mb-1 {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+/* ── Priority badges ── */
+.text-xs.px-1\.5.py-0\.5.rounded.font-medium {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+.bg-red-900\/50.text-red-300     { background: rgba(218,55,60,0.2)   !important; color: #f87171 !important; }
+.bg-orange-900\/50.text-orange-300 { background: rgba(250,140,0,0.2)  !important; color: #fb923c !important; }
+.bg-blue-900\/50.text-blue-300   { background: rgba(88,101,242,0.2) !important; color: #93c5fd !important; }
+.bg-gray-700.text-gray-300       { background: rgba(255,255,255,0.08) !important; color: var(--dt-text2) !important; }
+
+/* ── Kanban column ── */
+.bg-gray-900\/95.rounded-xl {
+  background: rgba(30,31,34,0.95) !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* ── Kanban toolbar ── */
+.flex.items-center.gap-2.px-4.py-2.border-b.border-gray-800 {
+  padding: 10px 16px !important;
+  background: var(--dt-sidebar) !important;
+}
+.text-xs.text-gray-400.hover\:text-white.bg-gray-800.hover\:bg-gray-700.px-3.py-1\.5.rounded-lg.border.border-gray-700 {
+  font-size: 12px !important;
+  padding: 5px 12px !important;
+  border-radius: 6px !important;
+  background: var(--dt-surface) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  color: var(--dt-text2) !important;
+  transition: all 0.15s !important;
+}
+
+/* ── Add task button ── */
+.text-gray-600.hover\:text-gray-400.text-sm.py-2.text-left.w-full {
+  color: var(--dt-muted) !important;
+  font-size: 13px !important;
+  padding: 8px 4px !important;
+  transition: color 0.15s !important;
+}
+.text-gray-600.hover\:text-gray-400.text-sm.py-2.text-left.w-full:hover {
+  color: var(--dt-text2) !important;
+}
+
+/* ── Home view cards ── */
+.bg-gray-900.rounded-xl.p-4 {
+  background: var(--dt-surface) !important;
+  border: 1px solid var(--dt-border) !important;
+  border-radius: 10px !important;
+}
+.bg-gray-800.rounded-lg.p-3 {
+  background: var(--dt-surface2) !important;
+  border-radius: 8px !important;
+}
+
+/* ── Settings page ── */
+.bg-gray-900.rounded-2xl.p-6.border.border-gray-800.space-y-5 {
+  background: var(--dt-surface) !important;
+  border-color: var(--dt-border) !important;
+  border-radius: 12px !important;
+}
+
+/* ── Input fields ── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+  font-family: inherit !important;
+  background: var(--dt-surface2) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+  color: var(--dt-text) !important;
+  border-radius: 6px !important;
+  transition: border-color 0.15s !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--dt-green-l) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px rgba(45,199,113,0.3) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--dt-muted) !important;
+}
+select option {
+  background: var(--dt-surface) !important;
+  color: var(--dt-text) !important;
+}
+
+/* ── Buttons ── */
+button { font-family: inherit !important; }
+
+/* ── Focus rings ── */
+*:focus-visible {
+  outline: 2px solid var(--dt-green-l) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── Login/signup pages ── */
+.min-h-screen.bg-gray-950 { background: var(--dt-sidebar) !important; }
+.bg-gray-900.rounded-2xl.p-8 {
+  background: var(--dt-surface) !important;
+  border: 1px solid var(--dt-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+}
+
+/* ── Sidebar section spacing ── */
+.pt-2 { padding-top: 12px !important; }
+.space-y-0\.5 > * + * { margin-top: 2px !important; }
+
+/* ── Reactions ── */
+.flex.flex-wrap.gap-1.mt-1 button {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 12px !important;
+  padding: 2px 8px !important;
+  font-size: 13px !important;
+  color: var(--dt-text2) !important;
+  cursor: pointer !important;
+  transition: all 0.1s !important;
+}
+.flex.flex-wrap.gap-1.mt-1 button:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+/* ── Thread panel ── */
+.w-80.border-l.border-gray-800.flex.flex-col {
+  border-left-color: var(--dt-border) !important;
+  background: var(--dt-sidebar) !important;
+}
+
+/* ── Meeting cards ── */
+.bg-gray-900.rounded-xl.p-5 {
+  background: var(--dt-surface) !important;
+  border: 1px solid var(--dt-border) !important;
+  border-radius: 12px !important;
+}
+
+/* ── Channel analytics ── */
+.bg-gray-800.rounded-xl.p-4 {
+  background: var(--dt-surface2) !important;
+  border-radius: 10px !important;
+}
+
+/* ── AI panel ── */
+.bg-gray-900\/95 {
+  background: rgba(27,29,32,0.97) !important;
+  border-top: 1px solid var(--dt-border) !important;
+}
+
+/* ── Smooth transitions ── */
+button, a { transition: background 0.12s, color 0.12s, border-color 0.12s !important; }
