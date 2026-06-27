@@ -730,7 +730,7 @@ export default function WorkspaceShell() {
                       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
                           {Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button key={emoji} onClick={() => api.addReaction(msg.id, emoji).then(() => loadMessages(activeChannel!.id))}
+                            <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
                               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#d1d2d3',display:'flex',alignItems:'center',gap:4}}>
                               {emoji} <span style={{fontSize:12,color:'#80848e'}}>{count as number}</span>
                             </button>
@@ -747,14 +747,14 @@ export default function WorkspaceShell() {
                     {/* Message actions on hover */}
                     <div className="hidden group-hover:flex" style={{gap:2,flexShrink:0,marginTop:2}}>
                       {['👍','❤️','😂','🎉'].map(e => (
-                        <button key={e} onClick={() => api.addReaction(msg.id, e).then(() => loadMessages(activeChannel!.id))}
+                        <button key={e} onClick={() => api.addReaction(msg.id, activeChannel!.id, e).then(() => openChannel(activeChannel!))}
                           style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 6px',fontSize:13,cursor:'pointer'}}>
                           {e}
                         </button>
                       ))}
                       <button onClick={() => openThread(msg)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#b5bac1'}}>Reply</button>
                       {msg.sender_id === user?.id && (
-                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => loadMessages(activeChannel!.id))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
+                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => openChannel(activeChannel!))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
                       )}
                     </div>
                   </div>
@@ -819,10 +819,10 @@ export default function WorkspaceShell() {
             <div style={{padding:'0 16px 16px',flexShrink:0}}>
               <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
                 <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
-                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendDM();} }}
+                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMessage();} }}
                   placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
                   style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
-                <button onClick={sendDM} disabled={!newMessage.trim()}
+                <button onClick={sendMessage} disabled={!newMessage.trim()}
                   style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
               </div>
             </div>
