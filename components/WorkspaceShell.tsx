@@ -119,6 +119,12 @@ export default function WorkspaceShell() {
   const [pollOptions,     setPollOptions]     = useState(['', '']);
   const [showWhiteboard,  setShowWhiteboard]  = useState(false);
   const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -502,54 +508,6 @@ export default function WorkspaceShell() {
   return (
     <div style={{display:'flex',height:'100vh',background:'#1a1d21',color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
 
-      {/* ══ ICON RAIL (leftmost column like Slack) ══ */}
-      <div style={{width:68,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',alignItems:'center',padding:'12px 0',gap:4,flexShrink:0}}>
-        {/* Workspace avatar */}
-        <button onClick={() => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }}
-          title={activeWs?.name}
-          style={{width:36,height:36,borderRadius:8,background:'#4ade80',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:'#0a1628',border:'none',cursor:'pointer',marginBottom:8,flexShrink:0}}>
-          {activeWs?.name?.charAt(0) || 'D'}
-        </button>
-
-        <div style={{width:28,height:1,background:'rgba(255,255,255,0.1)',margin:'4px 0'}}/>
-
-        {[
-          { icon: '⊞', label: 'Home', action: () => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }, active: activeView === 'home' && !activeChannel && !activeBoard && !activeDM },
-          { icon: '💬', label: 'Messages', action: () => {}, active: !!activeChannel || !!activeDM },
-          { icon: '✓', label: 'Boards', action: () => {}, active: !!activeBoard },
-          { icon: '📹', label: 'Meetings', action: () => { setActiveView('meetings'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }, active: activeView === 'meetings' },
-        ].map((item, i) => (
-          <button key={i} onClick={item.action} title={item.label}
-            style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,border:'none',cursor:'pointer',transition:'all .15s',background: item.active ? 'rgba(74,222,128,0.15)' : 'transparent',color: item.active ? '#4ade80' : '#9ea3a8',outline: item.active ? '2px solid rgba(74,222,128,0.4)' : 'none'}}>
-            {item.icon}
-          </button>
-        ))}
-
-        <div style={{flex:1}}/>
-
-        <div style={{width:28,height:1,background:'rgba(255,255,255,0.1)',margin:'4px 0'}}/>
-
-        {/* Notification bell */}
-        <button onClick={() => setShowNotifs(s => !s)} title="Notifications"
-          style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,border:'none',cursor:'pointer',background:'transparent',color:'#9ea3a8',position:'relative'}}>
-          🔔
-          {unreadCount > 0 && <span style={{position:'absolute',top:2,right:2,width:16,height:16,background:'#e01e5a',borderRadius:'50%',fontSize:9,fontWeight:700,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center'}}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
-        </button>
-
-        {/* Settings */}
-        <a href="/settings" title="Settings"
-          style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,background:'transparent',color:'#9ea3a8',textDecoration:'none'}}>
-          ⚙️
-        </a>
-
-        {/* User avatar */}
-        <button onClick={() => setShowStatus(true)} title="Set status"
-          style={{width:36,height:36,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',border:'none',cursor:'pointer',position:'relative',marginTop:4}}>
-          {user?.display_name?.charAt(0) || '?'}
-          <span style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : user?.status_text?.toLowerCase().includes('vacation') ? '#f59e0b' : '#2bac76'}}/>
-        </button>
-      </div>
-
       {/* ══ SIDEBAR ══ */}
       <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
         {/* Workspace name + search */}
@@ -778,7 +736,7 @@ export default function WorkspaceShell() {
                       {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
                           {Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
+                            <button key={emoji} onClick={() => api.addReaction(msg.id, emoji).then(() => loadMessages(activeChannel!.id))}
                               style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#d1d2d3',display:'flex',alignItems:'center',gap:4}}>
                               {emoji} <span style={{fontSize:12,color:'#80848e'}}>{count as number}</span>
                             </button>
@@ -795,14 +753,14 @@ export default function WorkspaceShell() {
                     {/* Message actions on hover */}
                     <div className="hidden group-hover:flex" style={{gap:2,flexShrink:0,marginTop:2}}>
                       {['👍','❤️','😂','🎉'].map(e => (
-                        <button key={e} onClick={() => api.addReaction(msg.id, activeChannel!.id, e).then(() => openChannel(activeChannel!))}
+                        <button key={e} onClick={() => api.addReaction(msg.id, e).then(() => loadMessages(activeChannel!.id))}
                           style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 6px',fontSize:13,cursor:'pointer'}}>
                           {e}
                         </button>
                       ))}
                       <button onClick={() => openThread(msg)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#b5bac1'}}>Reply</button>
                       {msg.sender_id === user?.id && (
-                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => openChannel(activeChannel!))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
+                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => loadMessages(activeChannel!.id))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
                       )}
                     </div>
                   </div>
@@ -867,10 +825,10 @@ export default function WorkspaceShell() {
             <div style={{padding:'0 16px 16px',flexShrink:0}}>
               <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
                 <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
-                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMessage();} }}
+                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendDM();} }}
                   placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
                   style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
-                <button onClick={sendMessage} disabled={!newMessage.trim()}
+                <button onClick={sendDM} disabled={!newMessage.trim()}
                   style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
               </div>
             </div>
@@ -879,12 +837,14 @@ export default function WorkspaceShell() {
 
         {/* ── BOARD VIEW ── */}
         {activeBoard && !activeChannel && !activeDM && (
-          <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
+          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',minHeight:0}}>
+            <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
+          </div>
         )}
 
         {/* ── HOME / MEETINGS VIEW ── */}
         {!activeChannel && !activeBoard && !activeDM && (
-          <div style={{flex:1,overflowY:'auto'}}>
+          <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
             {activeView === 'meetings' && <MeetingsView />}
           </div>
@@ -910,7 +870,7 @@ export default function WorkspaceShell() {
                 <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
               </div>
             </div>
-            {threadMessages.map(r => (
+            {threadReplies.map(r => (
               <div key={r.id} style={{display:'flex',gap:10,marginBottom:12}}>
                 <div style={{width:28,height:28,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0}}>
                   {r.sender_name?.charAt(0)}
