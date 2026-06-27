@@ -632,7 +632,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   </div>
                   <DroppableList list={list} isOver={isOver}>
                     <SortableContext items={listTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                      {listTasks.map(task => (
+                      {listTasks.filter(task => {
+                        if (boardSearch && !task.title.toLowerCase().includes(boardSearch.toLowerCase())) return false;
+                        if (priorityFilter !== 'all' && task.priority !== priorityFilter) return false;
+                        return true;
+                      }).map(task => (
                         <TaskCard key={task.id} task={task} onClick={() => openTask(task)} />
                       ))}
                     </SortableContext>
