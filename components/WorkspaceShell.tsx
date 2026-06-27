@@ -113,6 +113,18 @@ export default function WorkspaceShell() {
   const [aiLoading,      setAiLoading]      = useState(false);
   const [aiSummary,      setAiSummary]      = useState('');
   const [showAISummary,  setShowAISummary]  = useState(false);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
+  const [polls,           setPolls]           = useState<any[]>([]);
+  const [showPollCreate,  setShowPollCreate]  = useState(false);
+  const [pollQuestion,    setPollQuestion]    = useState('');
+  const [pollOptions,     setPollOptions]     = useState(['', '']);
+  const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
   const [scheduleTime,   setScheduleTime]   = useState('');
@@ -494,532 +506,173 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div className="flex h-screen bg-gray-950 text-white overflow-hidden">
+    <div style={{display:'flex',height:'100vh',background:'#1a1d21',color:'#d1d2d3',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
 
-      {/* ── SIDEBAR ── */}
-      <div className="w-56 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
-        {/* Workspace header */}
-        <div className="px-3 py-3 border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-emerald-600 rounded-lg flex items-center justify-center text-xs font-bold shrink-0">
-              {activeWs?.name?.charAt(0) || 'S'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-white truncate">{activeWs?.name || 'Deemona Teams'}</div>
-              <div className="text-xs text-gray-500 truncate">{user?.email}</div>
-              {(user?.status_emoji || user?.status_text) && (
-                <div className="text-xs text-gray-400 truncate">{user?.status_emoji} {user?.status_text}</div>
-              )}
-            </div>
+      {/* ══ ICON RAIL (leftmost column like Slack) ══ */}
+      <div style={{width:68,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',alignItems:'center',padding:'12px 0',gap:4,flexShrink:0}}>
+        {/* Workspace avatar */}
+        <button onClick={() => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }}
+          title={activeWs?.name}
+          style={{width:36,height:36,borderRadius:8,background:'#4ade80',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:'#0a1628',border:'none',cursor:'pointer',marginBottom:8,flexShrink:0}}>
+          {activeWs?.name?.charAt(0) || 'D'}
+        </button>
+
+        <div style={{width:28,height:1,background:'rgba(255,255,255,0.1)',margin:'4px 0'}}/>
+
+        {[
+          { icon: '⊞', label: 'Home', action: () => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }, active: activeView === 'home' && !activeChannel && !activeBoard && !activeDM },
+          { icon: '💬', label: 'Messages', action: () => {}, active: !!activeChannel || !!activeDM },
+          { icon: '✓', label: 'Boards', action: () => {}, active: !!activeBoard },
+          { icon: '📹', label: 'Meetings', action: () => { setActiveView('meetings'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }, active: activeView === 'meetings' },
+        ].map((item, i) => (
+          <button key={i} onClick={item.action} title={item.label}
+            style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,border:'none',cursor:'pointer',transition:'all .15s',background: item.active ? 'rgba(74,222,128,0.15)' : 'transparent',color: item.active ? '#4ade80' : '#9ea3a8',outline: item.active ? '2px solid rgba(74,222,128,0.4)' : 'none'}}>
+            {item.icon}
+          </button>
+        ))}
+
+        <div style={{flex:1}}/>
+
+        <div style={{width:28,height:1,background:'rgba(255,255,255,0.1)',margin:'4px 0'}}/>
+
+        {/* Notification bell */}
+        <button onClick={() => setShowNotifs(s => !s)} title="Notifications"
+          style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,border:'none',cursor:'pointer',background:'transparent',color:'#9ea3a8',position:'relative'}}>
+          🔔
+          {unreadCount > 0 && <span style={{position:'absolute',top:2,right:2,width:16,height:16,background:'#e01e5a',borderRadius:'50%',fontSize:9,fontWeight:700,color:'#fff',display:'flex',alignItems:'center',justifyContent:'center'}}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+        </button>
+
+        {/* Settings */}
+        <a href="/settings" title="Settings"
+          style={{width:36,height:36,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,background:'transparent',color:'#9ea3a8',textDecoration:'none'}}>
+          ⚙️
+        </a>
+
+        {/* User avatar */}
+        <button onClick={() => setShowStatus(true)} title="Set status"
+          style={{width:36,height:36,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',border:'none',cursor:'pointer',position:'relative',marginTop:4}}>
+          {user?.display_name?.charAt(0) || '?'}
+          <span style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : user?.status_text?.toLowerCase().includes('vacation') ? '#f59e0b' : '#2bac76'}}/>
+        </button>
+      </div>
+
+      {/* ══ SIDEBAR ══ */}
+      <div style={{width:240,background:'#1a1d21',borderRight:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',flexShrink:0}}>
+        {/* Workspace name + search */}
+        <div style={{padding:'16px 16px 8px'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+            <span style={{fontSize:15,fontWeight:700,color:'#fff',letterSpacing:-0.3}}>{activeWs?.name || 'Deemona Teams'}</span>
+            <button style={{width:24,height:24,borderRadius:6,background:'rgba(255,255,255,0.08)',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
           </div>
+          {/* Search bar */}
+          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(255,255,255,0.08)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#9ea3a8',fontSize:13}}>
+            🔍 <span>Search</span>
+            <span style={{marginLeft:'auto',fontSize:11,opacity:.5}}>Ctrl+K</span>
+          </button>
         </div>
 
-        {/* Nav */}
-        <div className="flex-1 overflow-y-auto py-2 px-2 space-y-0.5">
-          {/* Home */}
-          <button onClick={() => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); }}
-            className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'home' && !activeChannel && !activeBoard && !activeDM ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-            🏠 <span>Home</span>
-          </button>
+        {/* Nav items */}
+        <div style={{flex:1,overflowY:'auto',padding:'0 8px 8px'}}>
 
-          {/* Notifications */}
-          <button onClick={() => setShowNotifs(s => !s)}
-            className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800">
-            🔔 <span>Notifications</span>
-            {unreadCount > 0 && <span className="ml-auto bg-red-600 text-white text-xs rounded-full px-1.5">{unreadCount}</span>}
-          </button>
-
-          {/* DMs */}
-          <div className="pt-2">
-            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
-              <span>Direct Messages</span>
+          {/* Direct Messages */}
+          <div style={{marginBottom:4}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
+              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
               <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New DM">+</button>
+                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4,display:'flex',alignItems:'center'}}>+</button>
             </div>
             {dmList.map((dm: any) => (
               <button key={dm.id} onClick={() => openDM(dm)}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeDM?.id === dm.id ? 'bg-purple-900/50 text-purple-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-                <div className="w-4 h-4 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">
-                  {dm.other_name?.charAt(0) || '?'}
+                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeDM?.id === dm.id ? 'rgba(255,255,255,0.1)' : 'transparent',color: activeDM?.id === dm.id ? '#fff' : '#9ea3a8',transition:'all .1s'}}>
+                <div style={{position:'relative',flexShrink:0}}>
+                  <div style={{width:22,height:22,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff'}}>
+                    {dm.other_name?.charAt(0) || '?'}
+                  </div>
+                  <span style={{position:'absolute',bottom:-1,right:-1,width:8,height:8,borderRadius:'50%',border:'2px solid #1a1d21',background: onlineUsers.has(dm.other_id) ? '#2bac76' : '#616061'}}/>
                 </div>
-                <span className="truncate">{dm.other_name || dm.name}</span>
-                <span className={`w-1.5 h-1.5 rounded-full ml-auto shrink-0 ${onlineUsers.has(dm.other_id) ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+                <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{dm.other_name || dm.name}</span>
               </button>
             ))}
           </div>
 
           {/* Channels */}
-          <div className="pt-2">
-            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
-              <span>Channels</span>
-              <button onClick={() => setShowNewChannel(true)} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New channel">+</button>
+          <div style={{marginBottom:4}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
+              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
+              <button onClick={() => setShowNewChannel(true)}
+                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
-            {channels.filter(c => c.type !== 'direct').slice(0, 10).map(ch => (
+            {channels.filter(c => c.type !== 'direct').slice(0, 15).map(ch => (
               <button key={ch.id} onClick={() => openChannel(ch)}
-                className={`w-full text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeChannel?.id === ch.id ? 'bg-emerald-900/50 text-emerald-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-                <span className="text-gray-500">#</span>
-                <span className="truncate">{ch.name}</span>
+                style={{width:'100%',display:'flex',alignItems:'center',gap:6,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeChannel?.id === ch.id ? 'rgba(74,222,128,0.12)' : 'transparent',color: activeChannel?.id === ch.id ? '#fff' : (ch.unread_count ?? 0) > 0 ? '#fff' : '#9ea3a8',fontWeight: (ch.unread_count ?? 0) > 0 ? 700 : 400,transition:'all .1s'}}>
+                <span style={{fontSize:14,color: activeChannel?.id === ch.id ? '#4ade80' : '#9ea3a8',fontWeight:400}}>#</span>
+                <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ch.name}</span>
                 {(ch.unread_count ?? 0) > 0 && (
-                  <span className="ml-auto bg-emerald-600 text-white text-xs rounded-full px-1.5">{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
+                  <span style={{background:'#e01e5a',color:'#fff',fontSize:10,fontWeight:700,padding:'1px 5px',borderRadius:10,marginLeft:'auto'}}>{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
           </div>
 
           {/* Boards */}
-          <div className="pt-2">
-            <div className="text-xs text-gray-500 px-2 mb-1 uppercase tracking-wider flex items-center justify-between">
-              <span>Boards</span>
+          <div style={{marginBottom:4}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
+              <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
               <button onClick={async () => {
                 const name = prompt('Board name?');
                 if (!name) return;
                 const wsRes = await api.workspaces();
                 const wsId = wsRes?.data?.[0]?.id;
                 if (wsId) { await api.createBoard(name, wsId); const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
-              }} className="text-gray-600 hover:text-gray-300 text-base leading-none" title="New board">+</button>
+              }} style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
             {boards.map(b => (
-              <div key={b.id} className="flex items-center group">
+              <div key={b.id} style={{display:'flex',alignItems:'center',gap:2}}>
                 <button onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
-                  className={`flex-1 text-left px-2 py-1 rounded text-sm flex items-center gap-1.5 ${activeBoard?.id === b.id ? 'bg-blue-900/50 text-blue-300' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-                  <span className="text-xs">B</span><span className="truncate">{b.name}</span>
+                  style={{flex:1,display:'flex',alignItems:'center',gap:7,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeBoard?.id === b.id ? 'rgba(255,255,255,0.1)' : 'transparent',color: activeBoard?.id === b.id ? '#fff' : '#9ea3a8',transition:'all .1s'}}>
+                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#9ea3a8'}}>B</span>
+                  <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.name}</span>
                 </button>
-                <button onClick={async () => {
-                  if (!confirm('Delete board "' + b.name + '"?')) return;
-                  await apiFetch('/boards/' + b.id, { method: 'DELETE' });
-                  if (activeBoard?.id === b.id) setActiveBoard(null);
-                  const wsRes = await api.workspaces();
-                  const wsId = wsRes?.data?.[0]?.id;
-                  if (wsId) { const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
-                }} className="hidden group-hover:block text-gray-600 hover:text-red-400 text-xs px-1.5 py-1 rounded">x</button>
               </div>
             ))}
           </div>
 
-          {/* System links */}
-          <div className="pt-2">
-            <button onClick={() => setActiveView('meetings')}
-              className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 ${activeView === 'meetings' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
-              📹 <span>Meetings</span>
-            </button>
-            <a href="/admin" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
-              🛡️ <span>Admin</span>
-            </a>
-            <a href="/settings" className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 block mt-0.5">
-              ⚙️ <span>Settings</span>
-            </a>
-            <button onClick={() => setShowStatus(true)}
-              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
-              <span>{user?.status_emoji || '😊'}</span><span className="truncate">{user?.status_text || 'Set status'}</span>
-            </button>
-            <button onClick={loadBookmarks}
-              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
-              🔖 <span>Saved messages</span>
-            </button>
-            <button onClick={loadChannelBrowser}
-              className="w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 text-gray-400 hover:text-white hover:bg-gray-800 mt-0.5">
-              🔭 <span>Browse channels</span>
-            </button>
+          {/* More links */}
+          <div style={{marginTop:8,paddingTop:8,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+            {[
+              { icon:'🔖', label:'Saved messages', action: loadBookmarks },
+              { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
+              { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
+            ].map((item, i) => (
+              <button key={i} onClick={item.action}
+                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#9ea3a8',transition:'all .1s',fontSize:14}}>
+                <span>{item.icon}</span><span>{item.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* User footer */}
-        <div className="px-3 py-3 border-t border-gray-800 space-y-2">
-          {/* User info + status */}
-          <button onClick={() => setShowStatus(true)}
-            className="w-full flex items-center gap-2 hover:bg-gray-800 rounded-lg px-2 py-1.5 transition-colors text-left">
-            <div className="relative shrink-0">
-              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">
-                {user?.display_name?.charAt(0) || user?.email?.charAt(0) || '?'}
+        <div style={{padding:'8px 12px',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'center',gap:8}}>
+          <button onClick={() => setShowStatus(true)} style={{display:'flex',alignItems:'center',gap:8,background:'none',border:'none',cursor:'pointer',flex:1,padding:'4px 0',textAlign:'left'}}>
+            <div style={{position:'relative',flexShrink:0}}>
+              <div style={{width:30,height:30,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff'}}>
+                {user?.display_name?.charAt(0) || '?'}
               </div>
-              {/* Availability dot based on status */}
-              <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-gray-900 ${
-                user?.status_text?.toLowerCase().includes('meeting') ? 'bg-red-500' :
-                user?.status_text?.toLowerCase().includes('vacation') ? 'bg-yellow-500' :
-                user?.status_text?.toLowerCase().includes('focus') || user?.status_text?.toLowerCase().includes('disturb') ? 'bg-yellow-500' :
-                user?.status_text?.toLowerCase().includes('sick') ? 'bg-gray-500' :
-                'bg-emerald-400'
-              }`} />
+              <span style={{position:'absolute',bottom:0,right:0,width:9,height:9,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : '#2bac76'}}/>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-white truncate">
-                {user?.display_name || user?.email?.split('@')[0]}
-              </div>
-              <div className="text-xs text-gray-500 truncate">
-                {user?.status_text ? `${user?.status_emoji || ''} ${user?.status_text}` : 'Set a status...'}
-              </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
+              <div style={{fontSize:11,color:'#9ea3a8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
             </div>
           </button>
-          {/* Quick actions row */}
-          <div className="flex items-center gap-1">
-            <button onClick={loadBookmarks} title="Saved messages"
-              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
-              Saved
-            </button>
-            <button onClick={loadChannelBrowser} title="Browse channels"
-              className="flex-1 text-xs text-gray-500 hover:text-white hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
-              Browse
-            </button>
-            <button onClick={() => api.logout()} title="Sign out"
-              className="flex-1 text-xs text-gray-500 hover:text-red-400 hover:bg-gray-800 px-2 py-1.5 rounded transition-colors text-center">
-              Sign out
-            </button>
-          </div>
+          <button onClick={() => api.logout()} title="Sign out"
+            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>↪</button>
         </div>
       </div>
 
-      {/* ── MAIN CONTENT ── */}
-      <div className="flex-1 flex overflow-hidden">
-
-        {/* DM View */}
-        {activeDM && !activeChannel && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
-              <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold">
-                {activeDM.other_name?.charAt(0) || '?'}
-              </div>
-              <span className="font-semibold text-white">{activeDM.other_name || activeDM.name}</span>
-              {onlineUsers.has(activeDM.other_id) && (
-                <span className="text-xs text-emerald-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />Active now
-                </span>
-              )}
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {dmMessages.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 rounded-full bg-purple-800 flex items-center justify-center text-2xl font-bold mx-auto mb-3">
-                    {activeDM.other_name?.charAt(0) || '?'}
-                  </div>
-                  <p className="text-white font-semibold">{activeDM.other_name}</p>
-                  <p className="text-gray-500 text-sm mt-1">Start a conversation</p>
-                </div>
-              )}
-              {dmMessages.map((msg: any) => {
-                const rendered = renderMessage(msg.content);
-                return (
-                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1 rounded-lg">
-                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-                      {(msg.sender_name || msg.display_name)?.charAt(0) || '?'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-sm font-semibold text-white">{msg.sender_name || msg.display_name}</span>
-                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                      {rendered.isFile ? (
-                        rendered.isImage ? (
-                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer" onClick={() => window.open(rendered.url, '_blank')} />
-                        ) : (
-                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 max-w-xs">
-                            📎 <span className="truncate">{rendered.name}</span>
-                          </a>
-                        )
-                      ) : (
-                        <p className="text-sm text-gray-300 mt-0.5 break-words leading-relaxed" dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900">
-              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
-              <div className="flex gap-2 bg-gray-800 rounded-xl px-3 py-2">
-                <button onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-gray-300">{uploading ? '⏳' : '📎'}</button>
-                <input value={dmNewMsg} onChange={e => setDmNewMsg(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendDMMessage()}
-                  placeholder={`Message ${activeDM.other_name || ''}...`}
-                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
-                <button onClick={sendDMMessage} disabled={!dmNewMsg.trim()} className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg">↑</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Channel View */}
-        {activeChannel && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Channel header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800 bg-gray-900 shrink-0">
-              <span className="text-gray-400">#</span>
-              <span className="font-semibold text-white">{activeChannel.name}</span>
-              {activeChannel.description && <span className="text-xs text-gray-500 hidden md:block">— {activeChannel.description}</span>}
-              <div className="ml-auto flex items-center gap-1">
-                <button onClick={loadPins} className="text-gray-500 hover:text-gray-300 text-sm px-2 py-1 rounded hover:bg-gray-800" title="Pins">📌</button>
-                <button onClick={() => setShowMsgSearch(s => !s)} className={`text-sm px-2 py-1 rounded hover:bg-gray-800 ${showMsgSearch ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="Search in channel">🔍</button>
-                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, `@here`); alert('All channel members notified!'); } }}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Notify all members">@here</button>
-                <button onClick={loadAnalytics}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Channel analytics">Analytics</button>
-                <button onClick={() => setShowAI(s => !s)}
-                  className={`text-xs px-2 py-1 rounded hover:bg-gray-800 font-medium ${showAI ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`} title="AI Assistant">AI</button>
-                <button onClick={summarizeChannel}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Summarize channel">Summarize</button>
-                <button onClick={loadScheduled}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Scheduled messages">Scheduled</button>
-                <button onClick={loadCustomEmojis}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Custom emoji">Emoji</button>
-                <button onClick={() => setShowConnect(true)}
-                  className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800" title="Deemona Connect">Connect</button>
-                <button onClick={() => setShowSearch(true)} className="text-gray-500 hover:text-gray-300 text-xs px-2 py-1 rounded hover:bg-gray-800 hidden md:block">Ctrl+K</button>
-              </div>
-            </div>
-
-            {/* Channel search */}
-            {showMsgSearch && (
-              <div className="px-4 py-2 border-b border-gray-800 bg-gray-900/80">
-                <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)}
-                  placeholder={`Search in #${activeChannel.name}...`} autoFocus
-                  className="w-full bg-gray-800 text-sm text-white placeholder-gray-500 rounded-lg px-3 py-1.5 focus:outline-none border border-gray-700 focus:border-emerald-500" />
-                {msgSearch && (
-                  <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
-                    {msgSearchResults.length === 0 && <p className="text-xs text-gray-600 px-1">No results</p>}
-                    {msgSearchResults.map(m => (
-                      <div key={m.id} className="text-xs bg-gray-800 rounded-lg px-3 py-2">
-                        <span className="text-gray-400 font-medium">{m.sender_name}</span>
-                        <span className="text-gray-300 ml-2">{m.content?.substring(0, 80)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {messages.map(msg => {
-                const rendered = renderMessage(msg.content);
-                return (
-                  <div key={msg.id} className="flex gap-3 hover:bg-gray-800/40 px-2 py-1.5 rounded-lg group relative">
-                    {/* Avatar */}
-                    <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 relative">
-                      {msg.sender_name?.charAt(0) || '?'}
-                      {onlineUsers.has(msg.sender_id) && (
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-gray-950" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 mb-0.5">
-                        <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
-                        <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
-                        {msg.is_edited && <span className="text-xs text-gray-600 italic">(edited)</span>}
-                        {msg.is_pinned && <span className="text-xs text-yellow-500">📌</span>}
-                      </div>
-
-                      {editingMsg === msg.id ? (
-                        <div className="flex gap-2 mt-1">
-                          <input autoFocus value={editContent} onChange={e => setEditContent(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') saveEditMessage(msg.id); if (e.key === 'Escape') setEditingMsg(null); }}
-                            className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-1.5 border border-emerald-500 focus:outline-none" />
-                          <button onClick={() => saveEditMessage(msg.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Save</button>
-                          <button onClick={() => setEditingMsg(null)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
-                        </div>
-                      ) : rendered.isFile ? (
-                        rendered.isImage ? (
-                          <img src={rendered.url} alt={rendered.name} className="mt-1 max-w-xs max-h-48 rounded-lg border border-gray-700 cursor-pointer hover:opacity-90" onClick={() => window.open(rendered.url, '_blank')} />
-                        ) : (
-                          <a href={rendered.url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 max-w-xs">
-                            📎 <span className="truncate">{rendered.name}</span>
-                          </a>
-                        )
-                      ) : (
-                        <p className="text-sm text-gray-200 break-words leading-relaxed whitespace-pre-wrap"
-                          dangerouslySetInnerHTML={{ __html: rendered.html || '' }} />
-                      )}
-
-                      {/* Reactions */}
-                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {Object.entries(msg.reactions).map(([emoji, count]) => (
-                            <button key={emoji} onClick={() => addReaction(msg, emoji)}
-                              className="flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-0.5 rounded-full text-xs border border-gray-700">
-                              {emoji} <span className="text-gray-400">{count as number}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Thread replies */}
-                      {(msg.reply_count ?? 0) > 0 && (
-                        <button onClick={() => openThread(msg)} className="mt-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                          💬 {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Hover actions */}
-                    <div className="absolute right-2 top-1 hidden group-hover:flex items-center gap-0.5 bg-gray-900 border border-gray-700 rounded-lg px-1 py-0.5 shadow-lg z-10">
-                      {[...['👍','❤️','😂','🎉','🔥'], ...customEmojis.slice(0,3).map((e: any) => e.name)].map(emoji => (
-                        <button key={emoji} onClick={() => addReaction(msg, emoji)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">{emoji}</button>
-                      ))}
-                      <button onClick={() => openThread(msg)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm" title="Reply in thread">💬</button>
-                      <div className="relative">
-                        <button onClick={() => setMsgMenuId(msgMenuId === msg.id ? null : msg.id)} className="hover:bg-gray-800 px-1.5 py-0.5 rounded text-sm">⋯</button>
-                        {msgMenuId === msg.id && (
-                          <div className="absolute right-0 top-7 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-20 py-1 min-w-40">
-                            <button onClick={() => pinMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">📌 Pin message</button>
-                            <button onClick={() => bookmarkMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">🔖 Save message</button>
-                            {msg.sender_id === user?.id && <>
-                              <button onClick={() => startEditMessage(msg)} className="w-full text-left px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800">✏️ Edit</button>
-                              <button onClick={() => deleteMessage(msg.id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-gray-800">🗑️ Delete</button>
-                            </>}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {typingUsers.length > 0 && (
-                <div className="text-xs text-gray-500 px-2 animate-pulse">{typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...</div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* AI Assistant Panel */}
-            {showAI && (
-              <div className="border-t border-gray-800 bg-gray-950 flex flex-col" style={{height:'320px'}}>
-                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white">A</div>
-                    <span className="text-sm font-semibold text-white">Deemona AI</span>
-                    <span className="text-xs text-gray-500">Ask anything about this channel or workspace</span>
-                  </div>
-                  <button onClick={() => setShowAI(false)} className="text-gray-500 hover:text-white text-xs">x</button>
-                </div>
-                <div className="flex-1 overflow-y-auto p-3 space-y-3">
-                  {aiMessages.length === 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-500 text-center py-2">Ask me anything! Try:</p>
-                      {['Summarize recent discussion', 'What are the action items?', 'Draft a reply to the last message', 'Translate last message to Hindi'].map(s => (
-                        <button key={s} onClick={() => { setAiInput(s); }}
-                          className="w-full text-left text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg transition-colors">
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {aiMessages.map((m, i) => (
-                    <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      {m.role === 'assistant' && (
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
-                      )}
-                      <div className={`max-w-xs rounded-xl px-3 py-2 text-xs ${m.role === 'user' ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-200'}`}>
-                        {m.content}
-                      </div>
-                    </div>
-                  ))}
-                  {aiLoading && (
-                    <div className="flex gap-2">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white shrink-0">A</div>
-                      <div className="bg-gray-800 rounded-xl px-3 py-2 text-xs text-gray-400 animate-pulse">Thinking...</div>
-                    </div>
-                  )}
-                </div>
-                <div className="px-3 py-2 border-t border-gray-800 flex gap-2 shrink-0">
-                  <input value={aiInput} onChange={e => setAiInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
-                    placeholder="Ask Deemona AI..."
-                    className="flex-1 bg-gray-800 text-white text-xs rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:border-emerald-500" />
-                  <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading}
-                    className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs px-3 py-2 rounded-lg">Send</button>
-                </div>
-              </div>
-            )}
-
-            {/* Schedule panel */}
-            {showSchedule && (
-              <div className="px-4 py-2 border-t border-gray-800 bg-gray-900/80 flex items-center gap-2 flex-wrap">
-                <span className="text-xs text-gray-400">Schedule:</span>
-                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
-                <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                  className="bg-gray-800 text-white text-xs rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none" />
-                <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()}
-                  className="text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg">Send</button>
-                <button onClick={() => setShowSchedule(false)} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
-              </div>
-            )}
-
-            {/* Composer */}
-            <div className="px-4 py-3 border-t border-gray-800 bg-gray-900 shrink-0">
-              <input ref={fileInputRef} type="file" className="hidden" onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
-              <div className="flex items-end gap-2 bg-gray-800 rounded-xl px-3 py-2 border border-gray-700 focus-within:border-gray-500">
-                <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-                  className="text-xs text-gray-500 hover:text-gray-300 disabled:opacity-50 pb-0.5" title="Upload file">
-                  {uploading ? '...' : 'File'}
-                </button>
-                <button onClick={recording ? stopRecordingVoice : startRecordingVoice}
-                  className={`text-xs pb-0.5 px-1 rounded ${recording ? 'text-red-400 animate-pulse font-medium' : 'text-gray-500 hover:text-gray-300'}`}
-                  title={recording ? 'Stop recording' : 'Voice message'}>
-                  {recording ? 'Stop' : 'Voice'}
-                </button>
-                <button onClick={() => setShowSchedule(s => !s)}
-                  className={`text-xs pb-0.5 px-1 rounded ${showSchedule ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'}`}
-                  title="Schedule message">
-                  Later
-                </button>
-                <textarea value={newMessage}
-                  onChange={e => { setNewMessage(e.target.value); }}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
-                  placeholder={`Message #${activeChannel.name}...`} rows={1}
-                  className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none resize-none max-h-32" />
-                <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
-                  className="text-emerald-400 hover:text-emerald-300 disabled:text-gray-600 font-bold text-lg pb-0.5">↑</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Board View */}
-        {activeBoard && !activeChannel && !activeDM && (
-          <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
-        )}
-
-        {/* Home / Meetings / Admin View */}
-        {!activeChannel && !activeBoard && !activeDM && (
-          <div className="flex-1 overflow-y-auto">
-            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView />}
-          </div>
-        )}
-      </div>
-
-      {/* Thread panel */}
-      {threadMsg && (
-        <div className="w-80 flex flex-col border-l border-gray-800 bg-gray-900 shrink-0">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
-            <span className="text-sm font-semibold text-white">Thread</span>
-            <button onClick={() => setThreadMsg(null)} className="text-gray-500 hover:text-white">✕</button>
-          </div>
-          <div className="px-4 py-3 border-b border-gray-800 bg-gray-800/40">
-            <div className="flex gap-2">
-              <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">{threadMsg.sender_name?.charAt(0)}</div>
-              <div><span className="text-xs font-semibold text-white">{threadMsg.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{threadMsg.content}</p></div>
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
-            {threadMessages.map((m: any) => (
-              <div key={m.id} className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold shrink-0">{m.sender_name?.charAt(0)}</div>
-                <div><span className="text-xs font-semibold text-white">{m.sender_name}</span><p className="text-xs text-gray-300 mt-0.5">{m.content}</p></div>
-              </div>
-            ))}
-          </div>
-          <div className="p-3 border-t border-gray-800">
-            <div className="flex gap-2 bg-gray-800 rounded-lg px-3 py-2">
-              <input value={threadReply} onChange={e => setThreadReply(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && sendThreadReply()}
-                placeholder="Reply in thread..."
-                className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none" />
-              <button onClick={sendThreadReply} disabled={!threadReply.trim()} className="text-emerald-400 disabled:text-gray-600 text-sm">↑</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ══ MAIN CONTENT ══ */}
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#313338'}}>
 
       {/* ── MODALS ── */}
 
@@ -1028,7 +681,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
@@ -1054,7 +707,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529"}}>
               <span className="text-white font-semibold">📌 Pinned messages</span>
               <button onClick={() => setShowPins(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -1105,6 +758,125 @@ export default function WorkspaceShell() {
                 Create channel
               </button>
               <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Meeting polls modal */}
+      {showPollCreate && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowPollCreate(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-semibold">Meeting Polls</span>
+              <button onClick={() => setShowPollCreate(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            {/* Create poll */}
+            <div className="bg-gray-800 rounded-xl p-4 space-y-3">
+              <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
+                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="flex gap-2">
+                  <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
+                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:border-emerald-500" />
+                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-400 hover:text-white">+ Add option</button>
+                <button onClick={async () => {
+                  if (!pollQuestion.trim() || !activeMeetingId) return;
+                  const validOpts = pollOptions.filter(o => o.trim());
+                  if (validOpts.length < 2) { alert('Add at least 2 options'); return; }
+                  await api.createPoll(activeMeetingId, pollQuestion.trim(), validOpts);
+                  setPollQuestion(''); setPollOptions(['', '']);
+                  const res = await api.getPolls(activeMeetingId);
+                  setPolls(res?.data || []);
+                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
+              </div>
+            </div>
+            {/* Existing polls */}
+            {polls.map((p: any) => {
+              const voteCount = Object.keys(p.votes || {}).length;
+              const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
+              return (
+                <div key={p.id} className="bg-gray-800 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-white">{p.question}</p>
+                  <div className="space-y-2">
+                    {opts.map((opt: string, i: number) => {
+                      const votes = Object.values(p.votes || {}).filter((v: any) => v === i).length;
+                      const pct = voteCount > 0 ? Math.round((votes/voteCount)*100) : 0;
+                      return (
+                        <button key={i} onClick={async () => {
+                          await api.votePoll(p.id, i);
+                          const res = await api.getPolls(activeMeetingId!);
+                          setPolls(res?.data || []);
+                        }} className="w-full text-left">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm text-white flex-1">{opt}</span>
+                            <span className="text-xs text-gray-400">{votes} votes ({pct}%)</span>
+                          </div>
+                          <div className="bg-gray-700 rounded-full h-1.5">
+                            <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-gray-600">{voteCount} total votes</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Whiteboard modal */}
+      {showWhiteboard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
+              <span className="text-white font-semibold">Whiteboard</span>
+              <button onClick={() => setShowWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
+              <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
+                style={{ touchAction: 'none' }}
+                onMouseDown={e => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) return;
+                  canvas.width = canvas.offsetWidth;
+                  canvas.height = canvas.offsetHeight;
+                  ctx.strokeStyle = '#1a1a1a';
+                  ctx.lineWidth = 2;
+                  ctx.lineCap = 'round';
+                  let drawing = true;
+                  const rect = canvas.getBoundingClientRect();
+                  ctx.beginPath();
+                  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+                  const onMove = (ev: MouseEvent) => { if (drawing) { ctx.lineTo(ev.clientX - rect.left, ev.clientY - rect.top); ctx.stroke(); } };
+                  const onUp = () => { drawing = false; canvas.removeEventListener('mousemove', onMove); canvas.removeEventListener('mouseup', onUp); };
+                  canvas.addEventListener('mousemove', onMove);
+                  canvas.addEventListener('mouseup', onUp);
+                }}
+              />
+              <div className="absolute top-3 left-3 flex gap-2">
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const ctx = canvas.getContext('2d');
+                  if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Clear</button>
+                <button onClick={() => {
+                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
+                  const link = document.createElement('a');
+                  link.download = 'whiteboard.png';
+                  link.href = canvas.toDataURL();
+                  link.click();
+                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Save PNG</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1167,7 +939,7 @@ export default function WorkspaceShell() {
       {showScheduled && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowScheduled(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529"}}>
               <span className="text-white font-semibold">Scheduled messages</span>
               <button onClick={() => setShowScheduled(false)} className="text-gray-500 hover:text-white">x</button>
             </div>
@@ -1315,7 +1087,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
               <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -1343,7 +1115,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">🔭 Browse channels</span>
               <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
@@ -1644,7 +1416,6 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 
 function MeetingsView() {
   const [meetings,    setMeetings]    = useState<any[]>([]);
-  const [meetOrgMembers, setMeetOrgMembers] = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
@@ -1652,6 +1423,7 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
+  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch,setMemberSearch]= useState('');
@@ -1665,7 +1437,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => setMeetOrgMembers(Array.isArray(res?.data) ? res.data : []));
+    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
@@ -1782,7 +1554,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
@@ -1807,7 +1579,7 @@ function MeetingsView() {
       {/* Calendar view */}
       {view === 'calendar' && (
         <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
             <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
@@ -1933,7 +1705,7 @@ function MeetingsView() {
       {showWB && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
           <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-800 shrink-0">
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
