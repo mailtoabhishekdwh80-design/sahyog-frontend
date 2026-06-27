@@ -674,6 +674,275 @@ export default function WorkspaceShell() {
       {/* ══ MAIN CONTENT ══ */}
       <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#313338'}}>
 
+        {/* ── CHANNEL VIEW ── */}
+        {activeChannel && !activeBoard && !activeDM && (
+          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+            {/* Channel header */}
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0}}>
+              <div style={{display:'flex',alignItems:'center',gap:8}}>
+                <span style={{fontSize:18,color:'#80848e',fontWeight:400}}>#</span>
+                <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeChannel.name}</span>
+                {activeChannel.description && <span style={{fontSize:13,color:'#80848e',marginLeft:4}}>{activeChannel.description}</span>}
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:4}}>
+                <button onClick={loadPins} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
+                <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
+                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
+                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
+                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
+                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
+                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
+                <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
+                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
+                <span style={{fontSize:12,color:'#80848e',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(255,255,255,0.08)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
+              </div>
+            </div>
+
+            {/* Message search bar */}
+            {showMsgSearch && (
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#2b2d31'}}>
+                <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search messages..." autoFocus
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+              </div>
+            )}
+
+            {/* AI Panel */}
+            {showAI && (
+              <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',background:'#1e2124',display:'flex',flexDirection:'column',height:300,flexShrink:0}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>AI</div>
+                    <span style={{fontSize:13,fontWeight:700,color:'#fff'}}>Deemona AI</span>
+                    <span style={{fontSize:12,color:'#80848e'}}>Ask anything about this channel</span>
+                  </div>
+                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:16}}>✕</button>
+                </div>
+                <div style={{flex:1,overflowY:'auto',padding:'12px 16px',display:'flex',flexDirection:'column',gap:8}}>
+                  {aiMessages.length === 0 && (
+                    <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+                      {['Summarize recent discussion','What are the action items?','Draft a reply','Translate to Hindi'].map(s => (
+                        <button key={s} onClick={() => setAiInput(s)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 12px',color:'#b5bac1',fontSize:12,cursor:'pointer'}}>{s}</button>
+                      ))}
+                    </div>
+                  )}
+                  {aiMessages.map((m, i) => (
+                    <div key={i} style={{display:'flex',gap:8,justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start'}}>
+                      {m.role === 'assistant' && <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff',flexShrink:0}}>AI</div>}
+                      <div style={{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:13,lineHeight:1.5,background: m.role === 'user' ? '#248046' : 'rgba(255,255,255,0.08)',color: m.role === 'user' ? '#fff' : '#d1d2d3'}}>{m.content}</div>
+                    </div>
+                  ))}
+                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(255,255,255,0.08)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#80848e',fontStyle:'italic'}}>Thinking...</div></div>}
+                </div>
+                <div style={{padding:'8px 16px',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8}}>
+                  <input value={aiInput} onChange={e => setAiInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
+                    placeholder="Ask Deemona AI..." style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                  <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading} style={{background:'#248046',border:'none',borderRadius:6,padding:'7px 14px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',opacity: aiInput.trim() ? 1 : 0.5}}>Send</button>
+                </div>
+              </div>
+            )}
+
+            {/* Schedule panel */}
+            {showSchedule && (
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#2b2d31',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                <span style={{fontSize:12,color:'#80848e'}}>Schedule for:</span>
+                <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
+                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+                <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                  style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+                <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()} style={{background:'#248046',border:'none',borderRadius:6,padding:'5px 12px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',opacity: scheduleDate && scheduleTime && newMessage.trim() ? 1 : 0.5}}>Schedule</button>
+                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12}}>Cancel</button>
+              </div>
+            )}
+
+            {/* Messages */}
+            <div style={{flex:1,overflowY:'auto',padding:'16px 16px 8px',display:'flex',flexDirection:'column',gap:0}}>
+              {(showMsgSearch ? msgSearchResults : messages).map(msg => {
+                const rendered = renderMessage(msg.content);
+                return (
+                  <div key={msg.id} className="group"
+                    style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6,borderLeft: msg.is_pinned ? '2px solid #f59e0b' : 'none',background: msg.is_pinned ? 'rgba(245,158,11,0.04)' : 'transparent',cursor:'default'}}
+                    onMouseEnter={e => { if(!msg.is_pinned)(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background= msg.is_pinned ? 'rgba(245,158,11,0.04)' : 'transparent'; }}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0,marginTop:2}}>
+                      {msg.sender_name?.charAt(0) || '?'}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
+                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
+                        <span style={{fontSize:12,color:'#80848e'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                        {msg.is_edited && <span style={{fontSize:11,color:'#616061'}}>(edited)</span>}
+                        {msg.is_pinned && <span style={{fontSize:11,color:'#f59e0b'}}>pinned</span>}
+                      </div>
+                      {rendered.isFile ? (
+                        rendered.isImage
+                          ? <img src={rendered.url} alt={rendered.name} style={{maxWidth:360,maxHeight:260,borderRadius:8,marginTop:4,objectFit:'cover'}} />
+                          : <a href={rendered.url} target="_blank" rel="noopener noreferrer" style={{display:'inline-flex',alignItems:'center',gap:6,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 12px',color:'#00aff4',fontSize:13,textDecoration:'none',marginTop:4}}>📎 {rendered.name}</a>
+                      ) : (
+                        <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5,wordBreak:'break-word'}} dangerouslySetInnerHTML={{__html: rendered.html || ''}} />
+                      )}
+                      {/* Reactions */}
+                      {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:4}}>
+                          {Object.entries(msg.reactions).map(([emoji, count]) => (
+                            <button key={emoji} onClick={() => api.addReaction(msg.id, emoji).then(() => loadMessages(activeChannel!.id))}
+                              style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#d1d2d3',display:'flex',alignItems:'center',gap:4}}>
+                              {emoji} <span style={{fontSize:12,color:'#80848e'}}>{count as number}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {/* Thread count */}
+                      {(msg.reply_count ?? 0) > 0 && (
+                        <button onClick={() => openThread(msg)} style={{background:'none',border:'none',color:'#00aff4',fontSize:12,cursor:'pointer',marginTop:2,padding:0}}>
+                          {msg.reply_count} {msg.reply_count === 1 ? 'reply' : 'replies'}
+                        </button>
+                      )}
+                    </div>
+                    {/* Message actions on hover */}
+                    <div className="hidden group-hover:flex" style={{gap:2,flexShrink:0,marginTop:2}}>
+                      {['👍','❤️','😂','🎉'].map(e => (
+                        <button key={e} onClick={() => api.addReaction(msg.id, e).then(() => loadMessages(activeChannel!.id))}
+                          style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 6px',fontSize:13,cursor:'pointer'}}>
+                          {e}
+                        </button>
+                      ))}
+                      <button onClick={() => openThread(msg)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#b5bac1'}}>Reply</button>
+                      {msg.sender_id === user?.id && (
+                        <button onClick={() => api.deleteMessage(activeChannel!.id, msg.id).then(() => loadMessages(activeChannel!.id))} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'3px 8px',fontSize:11,cursor:'pointer',color:'#ed4245'}}>Del</button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Composer */}
+            <div style={{padding:'0 16px 16px',flexShrink:0}}>
+              <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',overflow:'hidden'}}>
+                <div style={{display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
+                  <input ref={fileInputRef} type="file" style={{display:'none'}} onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
+                  <button onClick={() => fileInputRef.current?.click()} disabled={uploading} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
+                  <button onClick={recording ? stopRecordingVoice : startRecordingVoice} style={{background:'none',border:'none',color: recording ? '#ed4245' : '#80848e',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>{recording ? '⏹ Stop' : '🎤'}</button>
+                  <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+                    placeholder={`Message #${activeChannel.name}`} rows={1}
+                    style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
+                  <button onClick={() => setShowSchedule(s => !s)} style={{background:'none',border:'none',color: showSchedule ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>🕒</button>
+                  <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
+                    style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,flexShrink:0,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── DM VIEW ── */}
+        {activeDM && !activeChannel && !activeBoard && (
+          <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#313338',flexShrink:0}}>
+              <div style={{width:28,height:28,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',marginRight:10}}>
+                {activeDM.other_name?.charAt(0) || '?'}
+              </div>
+              <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</span>
+              <span style={{width:8,height:8,borderRadius:'50%',background: onlineUsers.has(activeDM.other_id) ? '#2bac76' : '#80848e',marginLeft:8}}/>
+              <span style={{fontSize:12,color:'#80848e',marginLeft:4}}>{onlineUsers.has(activeDM.other_id) ? 'Active now' : 'Offline'}</span>
+            </div>
+            <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:0}}>
+              {dmMessages.map(msg => {
+                const isMe = msg.sender_id === user?.id;
+                return (
+                  <div key={msg.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'4px 8px',borderRadius:6}}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='transparent'}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background: isMe ? '#248046' : '#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0,marginTop:2}}>
+                      {msg.sender_name?.charAt(0) || '?'}
+                    </div>
+                    <div style={{flex:1}}>
+                      <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
+                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
+                        <span style={{fontSize:12,color:'#80848e'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                      </div>
+                      <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+            <div style={{padding:'0 16px 16px',flexShrink:0}}>
+              <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'flex-end',gap:8,padding:'10px 14px'}}>
+                <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
+                  onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendDM();} }}
+                  placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
+                  style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
+                <button onClick={sendDM} disabled={!newMessage.trim()}
+                  style={{background:'#248046',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOARD VIEW ── */}
+        {activeBoard && !activeChannel && !activeDM && (
+          <KanbanView boardId={activeBoard.id} boardName={activeBoard.name} onBack={() => setActiveBoard(null)} />
+        )}
+
+        {/* ── HOME / MEETINGS VIEW ── */}
+        {!activeChannel && !activeBoard && !activeDM && (
+          <div style={{flex:1,overflowY:'auto'}}>
+            {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
+            {activeView === 'meetings' && <MeetingsView />}
+          </div>
+        )}
+
+      {/* ── THREAD PANEL ── */}
+      {threadMsg && (
+        <div style={{width:360,borderLeft:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column',background:'#313338',flexShrink:0}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+            <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>Thread</span>
+            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:18}}>✕</button>
+          </div>
+          <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
+            <div style={{display:'flex',gap:12,marginBottom:16,paddingBottom:16,borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+              <div style={{width:36,height:36,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0}}>
+                {threadMsg.sender_name?.charAt(0)}
+              </div>
+              <div>
+                <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
+                  <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{threadMsg.sender_name}</span>
+                  <span style={{fontSize:12,color:'#80848e'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                </div>
+                <div style={{fontSize:15,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
+              </div>
+            </div>
+            {threadReplies.map(r => (
+              <div key={r.id} style={{display:'flex',gap:10,marginBottom:12}}>
+                <div style={{width:28,height:28,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0}}>
+                  {r.sender_name?.charAt(0)}
+                </div>
+                <div>
+                  <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:2}}>
+                    <span style={{fontSize:13,fontWeight:700,color:'#f2f3f5'}}>{r.sender_name}</span>
+                    <span style={{fontSize:11,color:'#80848e'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                  </div>
+                  <div style={{fontSize:14,color:'#d1d2d3',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(r.content).html || r.content}} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{padding:'8px 16px 16px'}}>
+            <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8,padding:'10px 14px'}}>
+              <textarea value={threadReply} onChange={e => setThreadReply(e.target.value)}
+                onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendThreadReply();} }}
+                placeholder="Reply in thread" rows={1} style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:14,resize:'none',fontFamily:'inherit'}} />
+              <button onClick={sendThreadReply} disabled={!threadReply.trim()} style={{background:'#248046',border:'none',borderRadius:6,padding:'5px 10px',color:'#fff',cursor:'pointer',fontSize:14,opacity: threadReply.trim() ? 1 : 0.4}}>↑</button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+
       {/* ── MODALS ── */}
 
       {/* Notifications */}
