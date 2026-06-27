@@ -411,8 +411,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
         rows.push([task.title, list.name, task.priority || '', task.due_date || '', task.assignee_name || '']);
       });
     });
-    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('
-');
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href=url; a.download=boardName+'.csv'; a.click();
