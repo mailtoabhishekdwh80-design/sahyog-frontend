@@ -7,7 +7,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { api } from '../lib/api';
+import { api, apiFetch } from '../lib/api';
 
 type List = { id: string; name: string; position: number };
 type Task = {
@@ -52,7 +52,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.3 : 1 }}
       {...attributes} {...listeners}
       onClick={onClick}
-      className="bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 cursor-grab active:cursor-grabbing select-none overflow-hidden"
+      className="bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 cursor-grab active:cursor-grabbing select-none overflow-hidden group/card"
     >
       {task.cover_color && <div style={{ backgroundColor: task.cover_color }} className="h-8 w-full" />}
       <div className="p-3">
@@ -79,6 +79,16 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
             </span>
           )}
           {(task.comment_count || 0) > 0 && <span className="text-xs text-gray-500">💬 {task.comment_count}</span>}
+          {/* Vote count */}
+          {(task.vote_count || 0) > 0 && (
+            <span className="text-xs text-blue-400">👍 {task.vote_count}</span>
+          )}
+          {/* Card aging indicator */}
+          {task.updated_at && (() => {
+            const days = Math.floor((Date.now() - new Date(task.updated_at).getTime()) / 86400000);
+            if (days >= 7) return <span className={`text-xs ${days >= 14 ? 'text-red-400' : 'text-yellow-500'}`} title={`No activity for ${days} days`}>⏳ {days}d</span>;
+            return null;
+          })()}
           {task.assignees && task.assignees.length > 0 && (
             <div className="flex -space-x-1 ml-auto">
               {task.assignees.slice(0, 3).map((a: any) => (
@@ -179,6 +189,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   // Templates
   const [showTemplates,  setShowTemplates]  = useState(false);
   const [showAISuggest,  setShowAISuggest]  = useState(false);
+  // ── Kanban feature state ──
+  const [quickEditTask,  setQuickEditTask]  = useState<any>(null);
+  const [exportLoading,  setExportLoading]  = useState(false);
+  const [listColors,     setListColors]     = useState<Record<string,string>>({});
+  const [showListColor,  setShowListColor]  = useState<string|null>(null);
+  const [showBoardInvite,setShowBoardInvite]= useState(false);
+  const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
   const [aiSuggestedTasks, setAiSuggestedTasks] = useState<any[]>([]);
   const [aiLoading,      setAiLoading]      = useState(false);
@@ -385,6 +402,59 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     loadBoard();
   }
 
+  // ── Export board to CSV ──
+  function exportBoardCSV() {
+    setExportLoading(true);
+    const rows = [['Title','List','Priority','Due Date','Assignee']];
+    lists.forEach((list: any) => {
+      (list.tasks || []).forEach((task: any) => {
+        rows.push([task.title, list.name, task.priority || '', task.due_date || '', task.assignee_name || '']);
+      });
+    });
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('
+');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=boardName+'.csv'; a.click();
+    URL.revokeObjectURL(url);
+    setExportLoading(false);
+  }
+
+  // ── Copy/duplicate task ──
+  async function duplicateTask(task: any) {
+    await api.createTask(boardId, task.title + ' (copy)', task.list_id, task.priority || 'medium');
+    loadBoard();
+  }
+
+  // ── Archive list ──
+  async function archiveList(listId: string) {
+    if (!confirm('Archive this list? Tasks will be hidden.')) return;
+    await apiFetch('/boards/lists/' + listId + '/archive', { method: 'POST' });
+    loadBoard();
+  }
+
+  // ── Generate board invite link ──
+  function generateInviteLink() {
+    const url = window.location.origin + '/workspace?board=' + boardId + '&invite=true';
+    setBoardInviteUrl(url);
+    setShowBoardInvite(true);
+    navigator.clipboard.writeText(url).catch(() => {});
+  }
+
+  // ── Card aging calculation ──
+  function getCardAge(updatedAt: string): number {
+    if (!updatedAt) return 0;
+    return Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  function getAgingStyle(updatedAt: string): object {
+    const days = getCardAge(updatedAt);
+    if (days < 3) return {};
+    if (days < 7) return {opacity: 0.85, borderLeft: '2px solid #f59e0b'};
+    if (days < 14) return {opacity: 0.7, borderLeft: '2px solid #ef4444'};
+    return {opacity: 0.55, borderLeft: '2px solid #7f1d1d', filter: 'grayscale(20%)'};
+  }
+
   async function loadBoardAnalytics() {
     const res = await api.boardAnalytics(boardId);
     setBoardAnalytics(res?.data);
@@ -466,6 +536,14 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           <button onClick={loadTemplates}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
+          </button>
+          <button onClick={exportBoardCSV} disabled={exportLoading}
+            className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            {exportLoading ? 'Exporting...' : 'Export CSV'}
+          </button>
+          <button onClick={generateInviteLink}
+            className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            Invite Link
           </button>
           <button onClick={loadBoardAnalytics}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
@@ -940,6 +1018,27 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Board Invite Modal */}
+      {showBoardInvite && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowBoardInvite(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Invite to board</h3>
+              <button onClick={() => setShowBoardInvite(false)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <p className="text-gray-400 text-sm mb-3">Share this link to invite people to this board:</p>
+            <div className="flex gap-2">
+              <input value={boardInviteUrl} readOnly
+                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-300 outline-none" />
+              <button onClick={() => { navigator.clipboard.writeText(boardInviteUrl); alert('Copied!'); }}
+                className="bg-emerald-700 hover:bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-medium">Copy</button>
+            </div>
+            <p className="text-xs text-gray-600 mt-3">Anyone with this link can view this board (requires workspace login)</p>
           </div>
         </div>
       )}
