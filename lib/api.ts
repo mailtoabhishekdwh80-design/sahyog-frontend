@@ -149,7 +149,7 @@ export const api = {
   tasks:      (boardId: string) => apiFetch(`/boards/${boardId}/tasks`),
   createList: (boardId: string, name: string, position: number) =>
     apiFetch(`/boards/${boardId}/lists`, { method: 'POST', body: JSON.stringify({ name, position }) }),
-  createTask: (boardId: string, title: string, listId: string, description?: string) =>
+  createTask: (boardId: string, title: string, listId: string, priority?: string, description?: string) =>
     apiFetch(`/boards/${boardId}/tasks`, { method: 'POST', body: JSON.stringify({ title, listId, description }) }),
   updateTask: (taskId: string, data: Record<string, any>) =>
     apiFetch(`/boards/task/${taskId}`, { method: 'PATCH', body: JSON.stringify(data) }),

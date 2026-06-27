@@ -95,6 +95,67 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
   );
 }
 
+function AITaskResults({ tasks, onAdd, onBack, listName }: { tasks: any[]; onAdd: (t: any[]) => void; onBack: () => void; listName: string }) {
+  const [selected, setSelected] = useState<Set<number>>(new Set(tasks.map((_, i) => i)));
+
+  const toggle = (i: number) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  const PC: Record<string, string> = {
+    critical: 'text-red-400 bg-red-900/30 border-red-800',
+    high: 'text-orange-400 bg-orange-900/30 border-orange-800',
+    medium: 'text-blue-400 bg-blue-900/30 border-blue-800',
+    low: 'text-gray-400 bg-gray-800 border-gray-700',
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-white font-medium">AI generated {tasks.length} tasks</p>
+          <p className="text-xs text-gray-500 mt-0.5">Select which tasks to add to "{listName}"</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={() => setSelected(new Set(tasks.map((_,i) => i)))} className="text-xs text-emerald-400 hover:text-emerald-300">Select all</button>
+          <button onClick={() => setSelected(new Set())} className="text-xs text-gray-500 hover:text-gray-300">Deselect all</button>
+        </div>
+      </div>
+      <div className="space-y-2">
+        {tasks.map((task: any, i: number) => (
+          <div key={i} onClick={() => toggle(i)}
+            className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${selected.has(i) ? 'bg-emerald-900/20 border-emerald-700' : 'bg-gray-800 border-gray-700 opacity-60'}`}>
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${selected.has(i) ? 'bg-emerald-600 border-emerald-600' : 'border-gray-600'}`}>
+              {selected.has(i) && <span className="text-white text-xs">✓</span>}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-white font-medium">{task.title}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full border ${PC[task.priority] || PC.medium}`}>{task.priority}</span>
+              </div>
+              {task.description && <p className="text-xs text-gray-500 mt-1">{task.description}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-3 pt-2 border-t border-gray-800">
+        <button onClick={onBack} className="flex-1 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 py-2.5 rounded-xl transition-colors">
+          Back
+        </button>
+        <button onClick={() => onAdd(tasks.filter((_, i) => selected.has(i)))}
+          disabled={selected.size === 0}
+          className="flex-1 text-sm text-white bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 disabled:opacity-50 py-2.5 rounded-xl font-medium transition-all">
+          Add {selected.size} task{selected.size !== 1 ? 's' : ''} to board
+        </button>
+      </div>
+    </div>
+  );
+}
+
 interface Props { boardId: string; boardName: string; onBack: () => void; }
 
 export default function KanbanView({ boardId, boardName, onBack }: Props) {
@@ -116,7 +177,12 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [newListName,  setNewListName]  = useState('');
 
   // Templates
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [showTemplates,  setShowTemplates]  = useState(false);
+  const [showAISuggest,  setShowAISuggest]  = useState(false);
+  const [aiProjectDesc,  setAiProjectDesc]  = useState('');
+  const [aiSuggestedTasks, setAiSuggestedTasks] = useState<any[]>([]);
+  const [aiLoading,      setAiLoading]      = useState(false);
+  const [aiError,        setAiError]        = useState('');
   const [templates,     setTemplates]     = useState<any[]>([]);
 
   // Task modal
@@ -284,6 +350,32 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     setAttachments(res?.data || []);
   }
 
+  async function suggestTasksWithAI() {
+    if (!aiProjectDesc.trim()) return;
+    setAiLoading(true);
+    setAiError('');
+    setAiSuggestedTasks([]);
+    const res = await api.aiSuggestTasks(aiProjectDesc.trim(), boardId);
+    setAiLoading(false);
+    if (res?.data?.tasks?.length > 0) {
+      setAiSuggestedTasks(res.data.tasks);
+    } else {
+      setAiError('Could not generate tasks. Try a more detailed description.');
+    }
+  }
+
+  async function createAISuggestedTasks(selectedTasks: any[]) {
+    if (!lists.length) { alert('Add a list to the board first!'); return; }
+    const firstList = lists[0];
+    for (const task of selectedTasks) {
+      await api.createTask(boardId, task.title, firstList.id, task.priority || 'medium');
+    }
+    setShowAISuggest(false);
+    setAiSuggestedTasks([]);
+    setAiProjectDesc('');
+    loadBoard();
+  }
+
   async function loadBoardAnalytics() {
     const res = await api.boardAnalytics(boardId);
     setBoardAnalytics(res?.data);
@@ -358,6 +450,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
         </div>
         {/* Toolbar row */}
         <div className="flex items-center gap-2 px-3 pb-2 overflow-x-auto">
+          <button onClick={() => setShowAISuggest(true)}
+            className="text-xs text-white bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 px-3 py-1.5 rounded-lg font-medium">
+            AI Tasks
+          </button>
           <button onClick={loadTemplates}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
@@ -834,6 +930,66 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   <span className="text-white text-xs opacity-70">{c.name}</span>
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Task Suggestion Modal */}
+      {showAISuggest && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) { setShowAISuggest(false); setAiSuggestedTasks([]); } }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800 shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white">AI</div>
+              <div>
+                <h3 className="text-white font-semibold">AI Task Generator</h3>
+                <p className="text-xs text-gray-500">Describe your project and Deemona AI will create tasks for you</p>
+              </div>
+              <button onClick={() => { setShowAISuggest(false); setAiSuggestedTasks([]); }} className="ml-auto text-gray-500 hover:text-white">x</button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {aiSuggestedTasks.length === 0 ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-2 block font-medium uppercase tracking-wider">Project description</label>
+                    <textarea value={aiProjectDesc} onChange={e => setAiProjectDesc(e.target.value)}
+                      rows={5} placeholder="Describe your project in detail. For example: 'Build a mobile app for food delivery in India. Users can browse restaurants, order food, track delivery in real-time. Needs payment integration with UPI and WhatsApp notifications.'"
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 resize-none placeholder-gray-600" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      'E-commerce website with payment gateway and inventory management',
+                      'Mobile app for cab booking with GPS tracking and driver app',
+                      'SaaS dashboard for HR management with payroll and attendance',
+                      'Food delivery platform with restaurant onboarding and UPI payments',
+                    ].map(s => (
+                      <button key={s} onClick={() => setAiProjectDesc(s)}
+                        className="text-left text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white px-3 py-2.5 rounded-xl border border-gray-700 hover:border-emerald-600 transition-colors">
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                  {aiError && <p className="text-red-400 text-sm">{aiError}</p>}
+                  <button onClick={suggestTasksWithAI} disabled={!aiProjectDesc.trim() || aiLoading}
+                    className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-all">
+                    {aiLoading ? 'Deemona AI is thinking...' : 'Generate tasks with AI'}
+                  </button>
+                  {aiLoading && (
+                    <div className="flex items-center gap-3 bg-gray-800 rounded-xl p-4">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white animate-pulse">AI</div>
+                      <div className="flex-1">
+                        <p className="text-sm text-white">Analyzing your project...</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Breaking down into actionable tasks</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <AITaskResults tasks={aiSuggestedTasks} onAdd={createAISuggestedTasks} onBack={() => setAiSuggestedTasks([])} listName={lists[0]?.name || 'first list'} />
+              )}
             </div>
           </div>
         </div>
