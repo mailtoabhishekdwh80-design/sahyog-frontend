@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -3064,9 +3068,9 @@ function MeetingsView() {
                 {/* Host video tile */}
                 <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(74,222,128,0.3)',position:'relative'}}>
                   <div style={{width:56,height:56,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>
-                    {(user as any)?.display_name?.charAt(0) || 'Y'}
+                    {'Y'}
                   </div>
-                  <span style={{fontSize:13,color:'#f2f3f5'}}>{(user as any)?.display_name || 'You'}</span>
+                  <span style={{fontSize:13,color:'#f2f3f5'}}>{'You'}</span>
                   <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#4ade80',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
                   <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
@@ -3109,7 +3113,7 @@ function MeetingsView() {
                 <div style={{display:'flex',gap:8,marginTop:10,background:'rgba(0,0,0,0.5)',borderRadius:40,padding:'8px 16px'}}>
                   {['👍','❤️','😂','🎉','👏','🔥','😮','🙏'].map(e => (
                     <button key={e} onClick={() => {
-                      setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text: e + ' reacted', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      setInMeetingChat(c => [...c, { sender:'You', text: e + ' reacted', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                       setInMeetingEmoji(null);
                     }} style={{background:'none',border:'none',fontSize:24,cursor:'pointer',borderRadius:8,padding:4}}
                     onMouseEnter={e2=>(e2.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.1)'}
@@ -3145,7 +3149,7 @@ function MeetingsView() {
                 <label style={{marginLeft:'auto',cursor:'pointer'}}>
                   <input type="file" style={{display:'none'}} onChange={e => {
                     const file = e.target.files?.[0];
-                    if(file) setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:'📎 Shared: '+file.name, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                    if(file) setInMeetingChat(c => [...c, { sender:'You', text:'📎 Shared: '+file.name, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                   }} />
                   <span style={{fontSize:16,color:'#80848e',cursor:'pointer'}} title="Share document">📎</span>
                 </label>
@@ -3155,14 +3159,14 @@ function MeetingsView() {
                 <input value={inMeetingMsg} onChange={e=>setInMeetingMsg(e.target.value)}
                   onKeyDown={e => {
                     if (e.key==='Enter' && inMeetingMsg.trim()) {
-                      setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      setInMeetingChat(c => [...c, { sender:'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                       setInMeetingMsg('');
                     }
                   }}
                   placeholder="Send a message..." style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 10px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
                 <button onClick={() => {
                   if(!inMeetingMsg.trim()) return;
-                  setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                  setInMeetingChat(c => [...c, { sender:'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                   setInMeetingMsg('');
                 }} style={{background:'#248046',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>→</button>
               </div>
