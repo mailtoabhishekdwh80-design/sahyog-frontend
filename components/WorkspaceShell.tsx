@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -2582,6 +2586,7 @@ function MeetingsView() {
   const [micOn,        setMicOn]        = useState(false);
   const [cameraOn,     setCameraOn]     = useState(false);
   const [screenOn,     setScreenOn]     = useState(false);
+  const [recording,    setRecording]    = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
   const [meetingParticipants, setMeetingParticipants] = useState<any[]>([]);
   const [showAddPeople, setShowAddPeople] = useState(false);
@@ -2594,6 +2599,7 @@ function MeetingsView() {
   const [allMuted,       setAllMuted]        = useState(false);
   const [showHostControls,setShowHostControls]=useState<string|null>(null);
   const [meetingLocked,  setMeetingLocked]   = useState(false);
+  const [waitingRoom,    setWaitingRoom]      = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
