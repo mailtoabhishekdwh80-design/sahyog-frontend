@@ -3178,7 +3178,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
           <div style={{display:'flex',flex:1,overflow:'hidden'}}>
             {/* Video area */}
             <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,position:'relative'}}
-              onClick={() => { setShowParticipants(false); setShowChatMenu(false); }}>
+              onClick={e => { if(e.target===e.currentTarget) { setShowParticipants(false); setShowChatMenu(false); setShowHostControls(null); } }}>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
                 {/* Host video tile */}
                 <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(74,222,128,0.3)',position:'relative'}}>
