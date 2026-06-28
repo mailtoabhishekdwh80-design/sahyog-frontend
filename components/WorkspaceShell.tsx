@@ -3066,9 +3066,9 @@ function MeetingsView() {
               <span style={{fontSize:12,color: monthlyMins >= MONTHLY_LIMIT_MINS*0.9 ? '#ed4245' : '#80848e'}}>
                 {Math.floor((MONTHLY_LIMIT_MINS-monthlyMins)/60)}h {(MONTHLY_LIMIT_MINS-monthlyMins)%60}m remaining this month
               </span>
-              {/* Participants panel */}
+              {/* Participants panel - floating panel, doesn't cover video */}
               {showParticipants && (
-                <div style={{position:'absolute',top:52,left:0,right:0,background:'#1a1d21',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:12,zIndex:10,maxHeight:320,overflowY:'auto',margin:'0 16px'}}>
+                <div style={{position:'absolute',top:52,left:12,width:280,background:'#1e2124',border:'1px solid rgba(255,255,255,0.12)',borderRadius:12,padding:12,zIndex:20,maxHeight:'calc(100% - 120px)',overflowY:'auto',boxShadow:'0 8px 32px rgba(0,0,0,0.5)'}}>
                   <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
                     <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({meetingParticipants.length || participantCount})</span>
                     <button onClick={() => setShowAddPeople(true)} style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600}}>+ Invite</button>
