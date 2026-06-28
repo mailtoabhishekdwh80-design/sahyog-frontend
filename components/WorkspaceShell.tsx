@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -3051,12 +3055,6 @@ function MeetingsView() {
                 {Math.floor((MONTHLY_LIMIT_MINS-monthlyMins)/60)}h {(MONTHLY_LIMIT_MINS-monthlyMins)%60}m remaining this month
               </span>
               <button onClick={() => {
-                setShowInMeeting(false);
-                setActiveMeeting(null);
-                setParticipantCount(p => Math.max(0, p-1));
-                setMonthlyMins(p => p + Math.floor(Math.random()*30+10));
-              }} onClick={() => {
-                  // Stop all media streams on leave
                   (window as any)._micStream?.getTracks().forEach((t:any) => t.stop());
                   (window as any)._camStream?.getTracks().forEach((t:any) => t.stop());
                   (window as any)._screenStream?.getTracks().forEach((t:any) => t.stop());
