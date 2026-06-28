@@ -2551,7 +2551,6 @@ function MeetingsView() {
   const [meetDur,     setMeetDur]     = useState(60);
   const [startNow,    setStartNow]    = useState(true);
   const [saving,      setSaving]      = useState(false);
-  const [orgMembers,  setOrgMembers]  = useState<any[]>([]);
   const [invitedIds,  setInvitedIds]  = useState<string[]>([]);
   const [meetDesc,    setMeetDesc]    = useState('');
   const [memberSearch,setMemberSearch]= useState('');
@@ -2583,7 +2582,6 @@ function MeetingsView() {
   const [micOn,        setMicOn]        = useState(false);
   const [cameraOn,     setCameraOn]     = useState(false);
   const [screenOn,     setScreenOn]     = useState(false);
-  const [recording,    setRecording]    = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
   const [meetingParticipants, setMeetingParticipants] = useState<any[]>([]);
   const [showAddPeople, setShowAddPeople] = useState(false);
@@ -2596,7 +2594,6 @@ function MeetingsView() {
   const [allMuted,       setAllMuted]        = useState(false);
   const [showHostControls,setShowHostControls]=useState<string|null>(null);
   const [meetingLocked,  setMeetingLocked]   = useState(false);
-  const [waitingRoom,    setWaitingRoom]      = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
