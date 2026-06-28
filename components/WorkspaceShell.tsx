@@ -8,7 +8,11 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
+type Message   = {
+  id: string; content: string; sender_name: string; sender_id: string;
+  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
+  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
+};
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -2862,8 +2866,7 @@ function MeetingsView() {
                           {[
                             { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setActiveMeetingId(null); } },
                             { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setActiveMeetingId(null); } },
-                            { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000
-Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setActiveMeetingId(null); } },
+                            { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000 | Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setActiveMeetingId(null); } },
                             { label:'📋 Meeting agenda', fn: () => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); setActiveMeetingId(null); } },
                             { label:'👥 Attendance', fn: () => { loadAttendance(m.id); setActiveMeetingId(null); } },
                             { label:'📝 Post summary', fn: () => { postSummaryToChannel(m); setActiveMeetingId(null); } },
