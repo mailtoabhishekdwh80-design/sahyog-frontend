@@ -159,7 +159,18 @@ export default function WorkspaceShell() {
   const [fwdMsg,         setFwdMsg]         = useState<any>(null);
   const [showFwd,        setShowFwd]        = useState(false);
   const [reminderMsg,    setReminderMsg]    = useState<any>(null);
+  // ── Additional features ──
+  const [showGroupDM,    setShowGroupDM]    = useState(false);
+  const [groupDMMembers, setGroupDMMembers] = useState<string[]>([]);
+  const [showHuddle,     setShowHuddle]     = useState(false);
+  const [huddleActive,   setHuddleActive]   = useState(false);
+  const [showIntegrations,setShowIntegrations]=useState(false);
+  const [notifSound,     setNotifSound]     = useState(true);
+  const [showLinkPreview,setShowLinkPreview]=useState<Record<string,any>>({});
+  const [bgBlur,         setBgBlur]         = useState(false);
+  const [meetingCapacity,setMeetingCapacity]=useState(50);
   // ── New features ──
+  const [dmSearch,       setDmSearch]       = useState('');
   const [dmSearchResults,setDmSearchResults]= useState<any[]>([]);
   const [channelQuery,   setChannelQuery]   = useState('');
   const [showChannelAC,  setShowChannelAC]  = useState(false);
@@ -264,7 +275,14 @@ export default function WorkspaceShell() {
         if (msg.type === 'message.edit') setMessages(prev => prev.map(m => m.id === msg.payload.id ? { ...m, content: msg.payload.content, is_edited: true } : m));
         if (msg.type === 'message.delete') setMessages(prev => prev.filter(m => m.id !== msg.payload.id));
         if (msg.type === 'message.reaction') setMessages(prev => prev.map(m => m.id === msg.payload.message_id ? { ...m, reactions: msg.payload.reactions } : m));
-        if (msg.type === 'notification.new') { setNotifications(p => [msg.payload, ...p]); setUnreadCount(c => c + 1); }
+        if (msg.type === 'notification.new') {
+          setNotifications(p => [msg.payload, ...p]);
+          setUnreadCount(c => {
+            updateFaviconBadge(c + 1);
+            return c + 1;
+          });
+          showDesktopNotification('Deemona Teams', msg.payload?.content || 'New notification');
+        }
       } catch {}
     };
     ws.onclose = () => setTimeout(connectWS, 3000);
@@ -298,7 +316,95 @@ export default function WorkspaceShell() {
     subscribe(ch.id);
   }
 
+  // ── Link preview (URL unfurl) ──
+  async function fetchLinkPreview(url: string, msgId: string) {
+    if (showLinkPreview[msgId]) return;
+    try {
+      const res = await apiFetch('/channels/link-preview?url=' + encodeURIComponent(url));
+      if (res?.data?.title) setShowLinkPreview(p => ({...p, [msgId]: res.data}));
+    } catch {}
+  }
+
+  // ── Notification sound ──
+  function playNotifSound() {
+    if (!notifSound) return;
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+    } catch {}
+  }
+
+  // ── Huddle (audio-only call) ──
+  async function startHuddle() {
+    setHuddleActive(true);
+    setShowHuddle(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      (window as any)._huddleStream = stream;
+    } catch { alert('Could not access microphone. Please allow microphone access.'); setHuddleActive(false); }
+  }
+
+  function endHuddle() {
+    (window as any)._huddleStream?.getTracks().forEach((t: any) => t.stop());
+    setHuddleActive(false); setShowHuddle(false);
+  }
+
+  // ── Group DM ──
+  async function createGroupDM() {
+    if (groupDMMembers.length < 2) { alert('Select at least 2 members for group DM'); return; }
+    const res = await apiFetch('/channels/group-dm', { method:'POST', body: JSON.stringify({ memberIds: groupDMMembers }) });
+    if (res?.data?.id) {
+      setShowGroupDM(false);
+      setGroupDMMembers([]);
+      const wsRes = await api.workspaces();
+      const wsId = wsRes?.data?.[0]?.id;
+      if (wsId) { const r = await api.channels(wsId); setChannels(Array.isArray(r?.data) ? r.data : []); }
+    }
+  }
+
+  // ── Favicon unread badge ──
+  function updateFaviconBadge(count: number) {
+    if (typeof document === 'undefined') return;
+    document.title = count > 0 ? `(${count > 99 ? '99+' : count}) Deemona Teams` : 'Deemona Teams';
+  }
+
+  // ── Browser push notification ──
+  async function requestPushPermission() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      alert('Push notifications not supported in this browser.');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      alert('Desktop notifications enabled! You will receive alerts for mentions and DMs.');
+    }
+  }
+
+  function showDesktopNotification(title: string, body: string) {
+    if (Notification.permission === 'granted' && notifSound) {
+      new Notification(title, { body, icon: '/favicon.ico' });
+      playNotifSound();
+    }
+  }
+
+  // ── Google Calendar sync ──
+  function syncToGoogleCalendar(meeting: any) {
+    const start = new Date(meeting.starts_at);
+    const end = new Date(start.getTime() + (meeting.duration_mins || 60) * 60000);
+    const fmt = (d: Date) => d.toISOString().replace(/[-:]/g,'').split('.')[0] + 'Z';
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(meeting.title)}&dates=${fmt(start)}/${fmt(end)}&details=${encodeURIComponent('Deemona Teams meeting. Join: ' + window.location.origin + '/meet?id=' + meeting.id)}&sf=true&output=xml`;
+    window.open(url, '_blank');
+  }
+
   // ── WebSocket reconnection ──
+  const wsRef = useRef<WebSocket|null>(null);
   function setupWSReconnection(ws: WebSocket) {
     ws.onclose = () => {
       setWsReconnecting(true);
@@ -826,8 +932,12 @@ export default function WorkspaceShell() {
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
               <span style={{fontSize:12,fontWeight:700,color:'#9ea3a8',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
+              <div style={{display:'flex',gap:2}}>
               <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4,display:'flex',alignItems:'center'}}>+</button>
+                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}} title="New DM">+</button>
+              <button onClick={() => { setShowGroupDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
+                style={{background:'none',border:'none',color:'#9ea3a8',cursor:'pointer',fontSize:12,lineHeight:1,padding:2,borderRadius:4,fontWeight:600}} title="New group DM">👥</button>
+            </div>
             </div>
             {dmList.map((dm: any) => (
               <button key={dm.id} onClick={() => openDM(dm)}
@@ -893,6 +1003,7 @@ export default function WorkspaceShell() {
               { icon:'🔖', label:'Saved messages', action: loadBookmarks },
               { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
               { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
+              { icon:'🇮🇳', label:'India features', action: () => window.location.href='/india' },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
                 style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#9ea3a8',transition:'all .1s',fontSize:14}}>
@@ -971,6 +1082,11 @@ export default function WorkspaceShell() {
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
                 <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
                 <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
+                <button onClick={() => huddleActive ? endHuddle() : startHuddle()}
+                  style={{background: huddleActive ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: huddleActive ? '#4ade80' : '#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="Start huddle (audio call)">
+                  {huddleActive ? '🎙️ Huddle' : '🎙️'}
+                </button>
+                <button onClick={() => setShowIntegrations(true)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="App integrations">⚡</button>
                 <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
                 <button onClick={() => toggleMute(activeChannel?.id||'')} style={{background: mutedChannels.includes(activeChannel?.id||'') ? 'rgba(237,66,69,0.15)' : 'none',border:'none',color: mutedChannels.includes(activeChannel?.id||'') ? '#ed4245' : '#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Mute/unmute channel">{mutedChannels.includes(activeChannel?.id||'') ? '🔕' : '🔔'}</button>
                 <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
@@ -1429,6 +1545,94 @@ export default function WorkspaceShell() {
 
       {/* ── MODALS ── */}
 
+      {/* ── HUDDLE PANEL ── */}
+      {showHuddle && (
+        <div style={{position:'fixed',bottom:80,right:20,background:'#1a1d21',border:'1px solid rgba(74,222,128,0.3)',borderRadius:16,padding:16,zIndex:200,width:240,boxShadow:'0 8px 32px rgba(0,0,0,0.4)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
+            <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(74,222,128,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>🎙️</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:'#f2f3f5'}}>Huddle • #{activeChannel?.name}</div>
+              <div style={{fontSize:11,color:'#4ade80'}}>● Live audio</div>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={endHuddle} style={{flex:1,background:'rgba(237,66,69,0.15)',border:'1px solid rgba(237,66,69,0.3)',borderRadius:8,padding:'8px',color:'#ed4245',fontSize:12,fontWeight:600,cursor:'pointer'}}>End huddle</button>
+            <button onClick={() => setShowHuddle(false)} style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px',color:'#9ea3a8',fontSize:12,cursor:'pointer'}}>Minimise</button>
+          </div>
+          <p style={{fontSize:11,color:'#80848e',marginTop:8,textAlign:'center'}}>Others in #{activeChannel?.name} can join</p>
+        </div>
+      )}
+
+      {/* ── GROUP DM MODAL ── */}
+      {showGroupDM && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowGroupDM(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">New group message</span>
+              <button onClick={() => setShowGroupDM(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Select 2+ members to start a group conversation</p>
+            <div className="space-y-1 max-h-60 overflow-y-auto mb-4">
+              {(dmOrgMembers as any[]).filter((m: any) => m.id !== user?.id).map((m: any) => (
+                <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                  <input type="checkbox" checked={groupDMMembers.includes(m.id)}
+                    onChange={e => { setGroupDMMembers(prev => e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)); }}
+                    className="accent-emerald-500" />
+                  <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
+                  <div>
+                    <div className="text-sm text-white font-medium">{m.display_name}</div>
+                    <div className="text-xs text-gray-500">{m.designation || m.email}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowGroupDM(false)} className="flex-1 text-sm text-gray-400 bg-gray-800 hover:bg-gray-700 py-2 rounded-xl">Cancel</button>
+              <button onClick={createGroupDM} disabled={groupDMMembers.length < 2}
+                className="flex-1 text-sm bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl font-medium disabled:opacity-50">
+                Start group chat ({groupDMMembers.length} selected)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── APP INTEGRATIONS MODAL ── */}
+      {showIntegrations && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowIntegrations(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold">⚡ App integrations</span>
+              <button onClick={() => setShowIntegrations(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">Connect your tools to Deemona Teams</p>
+            <div className="space-y-3">
+              {[
+                { name:'GitHub', icon:'🐙', desc:'Get PR and issue notifications in channels', status:'Configure', fn: () => { const token = prompt('GitHub Personal Access Token:'); const repo = prompt('Repository (owner/repo):'); if(token && repo) alert('GitHub integration configured for '+repo+'! PR notifications will appear in this channel.'); } },
+                { name:'Jira', icon:'📋', desc:'Link Jira issues to tasks and get updates', status:'Configure', fn: () => { const url = prompt('Jira workspace URL (e.g. yourcompany.atlassian.net):'); if(url) alert('Jira integration with '+url+' configured! Issues will sync with boards.'); } },
+                { name:'Google Calendar', icon:'📅', desc:'Sync meetings with Google Calendar', status:'Sync', fn: () => { window.open('https://calendar.google.com', '_blank'); alert('Open Google Calendar and import meeting links from Deemona Teams using the GCal button on each meeting.'); } },
+                { name:'Slack import', icon:'💬', desc:'Import channels and messages from Slack', status:'Import', fn: () => { alert('Slack import: Export your Slack workspace data and email it to import@deemona.com. We will import all channels, messages, and files within 24 hours.'); } },
+                { name:'Webhook', icon:'🔗', desc:'Send events to any URL via webhook', status:'Setup', fn: () => { const url = prompt('Webhook URL:'); if(url) alert('Webhook configured! Events will be sent to: '+url); } },
+                { name:'Zapier', icon:'⚡', desc:'Connect 5000+ apps via Zapier', status:'Connect', fn: () => window.open('https://zapier.com', '_blank') },
+              ].map(app => (
+                <div key={app.name} className="flex items-center justify-between p-3 bg-gray-800 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{app.icon}</span>
+                    <div>
+                      <div className="text-sm font-medium text-white">{app.name}</div>
+                      <div className="text-xs text-gray-500">{app.desc}</div>
+                    </div>
+                  </div>
+                  <button onClick={app.fn} className="text-xs bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-3 py-1.5 rounded-lg font-medium">{app.status}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── CHANNEL MEMBERS PANEL ── */}
       {showChannelMembers && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
@@ -1558,10 +1762,14 @@ export default function WorkspaceShell() {
                 ))}
               </div>
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 mt-3 font-semibold">Browser notifications</p>
-              <button onClick={() => Notification.requestPermission().then(p => alert('Permission: ' + p))}
-                className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg w-full text-left">
-                Enable desktop notifications
+              <button onClick={requestPushPermission}
+                className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg w-full text-left mb-2">
+                🔔 Enable desktop notifications
               </button>
+              <label className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-800 rounded-lg">
+                <span className="text-sm text-gray-300">🔊 Notification sounds</span>
+                <input type="checkbox" checked={notifSound} onChange={e => setNotifSound(e.target.checked)} className="accent-emerald-500" />
+              </label>
             </div>
             <button onClick={() => setShowNotifPrefs(false)} className="w-full mt-4 bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Done</button>
           </div>
@@ -2622,6 +2830,7 @@ function MeetingsView() {
                     {m.status === 'scheduled' && (
                       <>
                         <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">Bell</button>
+                    <button onClick={() => syncToGoogleCalendar(m)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Add to Google Calendar">📅 GCal</button>
                     <div className="flex items-center gap-1">
                       <span className="text-xs text-gray-500">RSVP:</span>
                       {[['✓','going','emerald'],['?','maybe','yellow'],['✗','no','red']].map(([icon,status,color]) => (

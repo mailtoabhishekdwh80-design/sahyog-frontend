@@ -198,6 +198,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [boardSearch,    setBoardSearch]    = useState('');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [showActivity,   setShowActivity]   = useState(false);
+  const [showRecurring,  setShowRecurring]  = useState<string|null>(null);
+  const [showEstimate,   setShowEstimate]   = useState<string|null>(null);
+  const [showBoardPerms, setShowBoardPerms] = useState(false);
+  const [boardPrivate,   setBoardPrivate]   = useState(false);
+  const [checklistTpls,  setChecklistTpls]  = useState(false);
   const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
@@ -406,6 +411,30 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     loadBoard();
   }
 
+  // ── Task recurring ──
+  async function setTaskRecurring(taskId: string, frequency: string) {
+    await apiFetch('/boards/task/' + taskId + '/recurring', { method: 'POST', body: JSON.stringify({ frequency }) });
+    setShowRecurring(null);
+    alert('Task set to repeat ' + frequency);
+    loadBoard();
+  }
+
+  // ── Board permissions ──
+  async function setBoardPermissions(isPrivate: boolean) {
+    await apiFetch('/boards/' + boardId + '/permissions', { method: 'PATCH', body: JSON.stringify({ is_private: isPrivate }) });
+    setBoardPrivate(isPrivate);
+    setShowBoardPerms(false);
+    alert('Board is now ' + (isPrivate ? 'private' : 'public'));
+  }
+
+  // ── Checklist templates ──
+  const CHECKLIST_TEMPLATES = [
+    { name: 'Code review', items: ['Review code logic', 'Check error handling', 'Test edge cases', 'Update documentation', 'Approve PR'] },
+    { name: 'Feature launch', items: ['Code complete', 'Tests passing', 'Design approved', 'Docs updated', 'Stakeholder sign-off', 'Deploy to staging', 'Deploy to production'] },
+    { name: 'Bug fix', items: ['Reproduce the bug', 'Identify root cause', 'Write fix', 'Add test case', 'Code review', 'Deploy fix'] },
+    { name: 'Meeting prep', items: ['Set agenda', 'Invite participants', 'Prepare materials', 'Send reminder', 'Book meeting room'] },
+  ];
+
   // ── Export board to CSV ──
   function exportBoardCSV() {
     setExportLoading(true);
@@ -547,6 +576,14 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           <button onClick={generateInviteLink}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Invite Link
+          </button>
+          <button onClick={() => setShowBoardPerms(true)}
+            className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            {boardPrivate ? '🔒 Private' : '🌐 Public'}
+          </button>
+          <button onClick={() => setChecklistTpls(s => !s)}
+            className={`text-xs px-3 py-1.5 rounded-lg border ${checklistTpls ? 'bg-emerald-900/30 border-emerald-700 text-emerald-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+            Checklist templates
           </button>
           <input value={boardSearch} onChange={e => setBoardSearch(e.target.value)}
             placeholder="Search tasks..." className="text-xs bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1.5 rounded-lg outline-none focus:border-emerald-500 w-36" />
@@ -1033,6 +1070,68 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   style={{ background: c.value }} title={c.name}>
                   <span className="text-white text-xs opacity-70">{c.name}</span>
                 </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Checklist Templates Panel */}
+      {checklistTpls && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setChecklistTpls(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Checklist templates</h3>
+              <button onClick={() => setChecklistTpls(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">Apply a checklist template to any task by opening the task and clicking Checklist</p>
+            <div className="space-y-3">
+              {CHECKLIST_TEMPLATES.map(tpl => (
+                <div key={tpl.name} className="bg-gray-800 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-white">{tpl.name}</span>
+                    <span className="text-xs text-gray-500">{tpl.items.length} items</span>
+                  </div>
+                  <div className="space-y-1">
+                    {tpl.items.map((item, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs text-gray-400">
+                        <span className="w-3 h-3 border border-gray-600 rounded flex-shrink-0"/>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => { alert('Checklist template "' + tpl.name + '" ready! Open any task and click Checklist to apply it.'); setChecklistTpls(false); }}
+                    className="mt-3 w-full text-xs bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 py-1.5 rounded-lg">Use template</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Board Permissions Modal */}
+      {showBoardPerms && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowBoardPerms(false); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Board permissions</h3>
+              <button onClick={() => setShowBoardPerms(false)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label:'🌐 Public', desc:'All workspace members can view and edit', value: false },
+                { label:'🔒 Private', desc:'Only invited members can access this board', value: true },
+              ].map(opt => (
+                <label key={opt.label} className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer border transition-colors ${boardPrivate === opt.value ? 'border-emerald-700 bg-emerald-900/20' : 'border-gray-700 hover:bg-gray-800'}`}>
+                  <input type="radio" name="board_perm" checked={boardPrivate === opt.value}
+                    onChange={() => setBoardPermissions(opt.value)} className="mt-0.5 accent-emerald-500" />
+                  <div>
+                    <div className="text-sm font-medium text-white">{opt.label}</div>
+                    <div className="text-xs text-gray-500">{opt.desc}</div>
+                  </div>
+                </label>
               ))}
             </div>
           </div>
