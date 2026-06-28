@@ -210,6 +210,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [estimateHours,  setEstimateHours]  = useState('');
   const [showWatcher,    setShowWatcher]    = useState<string|null>(null);
   const [showCrossBoard, setShowCrossBoard] = useState<string|null>(null);
+  const [allBoards, setAllBoards] = useState<any[]>([]);
   const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
@@ -457,6 +458,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   }
 
   // ── Move card to another board ──
+  async function loadAllBoards() { const ws = await api.workspaces(); const wsId = ws?.data?.[0]?.id; if(wsId){const r=await api.boards(wsId);setAllBoards(Array.isArray(r?.data)?r.data:[]);} }
   async function moveToBoard(taskId: string, targetBoardId: string) {
     await apiFetch('/boards/task/' + taskId + '/move-board', { method:'POST', body: JSON.stringify({ targetBoardId }) });
     setShowCrossBoard(null);
@@ -1205,7 +1207,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             </div>
             <p className="text-xs text-gray-500 mb-3">Select a board to move this task to:</p>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {boards.filter((b: any) => b.id !== boardId).map((b: any) => (
+              {allBoards.filter((b: any) => b.id !== boardId).map((b: any) => (
                 <button key={b.id} onClick={() => moveToBoard(showCrossBoard!, b.id)}
                   className="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm text-white flex items-center gap-2">
                   <span className="text-gray-500 text-xs">B</span>{b.name}
