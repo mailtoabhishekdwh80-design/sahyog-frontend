@@ -2580,6 +2580,10 @@ function MeetingsView() {
   const [inMeetingMsg, setInMeetingMsg] = useState('');
   const [inMeetingEmoji,setInMeetingEmoji]=useState<string|null>(null);
   const [activeMeeting, setActiveMeeting]= useState<any>(null);
+  const [micOn,        setMicOn]        = useState(false);
+  const [cameraOn,     setCameraOn]     = useState(false);
+  const [screenOn,     setScreenOn]     = useState(false);
+  const [recording,    setRecording]    = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
@@ -3051,7 +3055,18 @@ function MeetingsView() {
                 setActiveMeeting(null);
                 setParticipantCount(p => Math.max(0, p-1));
                 setMonthlyMins(p => p + Math.floor(Math.random()*30+10));
-              }} style={{background:'#ed4245',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:600}}>
+              }} onClick={() => {
+                  // Stop all media streams on leave
+                  (window as any)._micStream?.getTracks().forEach((t:any) => t.stop());
+                  (window as any)._camStream?.getTracks().forEach((t:any) => t.stop());
+                  (window as any)._screenStream?.getTracks().forEach((t:any) => t.stop());
+                  (window as any)._recStream?.getTracks().forEach((t:any) => t.stop());
+                  if ((window as any)._meetRecorder?.state === 'recording') (window as any)._meetRecorder.stop();
+                  setMicOn(false); setCameraOn(false); setScreenOn(false); setRecording(false);
+                  setShowInMeeting(false); setActiveMeeting(null);
+                  setParticipantCount((p:number) => Math.max(0, p-1));
+                  setMonthlyMins((p:number) => p + Math.floor(Math.random()*30+10));
+                }} style={{background:'#ed4245',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:600}}>
                 Leave meeting
               </button>
             </div>
@@ -3063,10 +3078,12 @@ function MeetingsView() {
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
                 {/* Host video tile */}
                 <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(74,222,128,0.3)',position:'relative'}}>
-                  <div style={{width:56,height:56,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>
-                    {'Y'}
-                  </div>
-                  <span style={{fontSize:13,color:'#f2f3f5'}}>{'You'}</span>
+                  {cameraOn
+                    ? <video id="local-video" autoPlay muted playsInline style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10,position:'absolute',top:0,left:0}} />
+                    : <div style={{width:56,height:56,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>Y</div>
+                  }
+                  {!cameraOn && <span style={{fontSize:13,color:'#f2f3f5'}}>You</span>}
+                  {micOn && <span style={{position:'absolute',bottom:8,right:8,fontSize:11,color:'#4ade80',background:'rgba(0,0,0,0.6)',padding:'2px 6px',borderRadius:4}}>🎙️ Live</span>}
                   <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#4ade80',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
                   <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
@@ -3089,52 +3106,138 @@ function MeetingsView() {
               {/* Controls bar */}
               <div style={{display:'flex',gap:10,marginTop:20,background:'rgba(0,0,0,0.5)',borderRadius:40,padding:'10px 20px',flexWrap:'wrap',justifyContent:'center'}}>
                 {([
-                  {icon:'🎙️', label:'Mic', active:true,  action: async () => {
-                    try { const s = await navigator.mediaDevices.getUserMedia({audio:true}); s.getTracks().forEach(t=>t.stop()); alert('Microphone connected!'); } catch { alert('Could not access microphone. Please allow microphone permission in browser.'); }
-                  }},
-                  {icon:'📷', label:'Camera', active:true, action: async () => {
-                    try { const s = await navigator.mediaDevices.getUserMedia({video:true}); s.getTracks().forEach(t=>t.stop()); alert('Camera connected!'); } catch { alert('Could not access camera. Please allow camera permission in browser.'); }
-                  }},
-                  {icon:'🖥️', label:'Share screen', active:true, action: async () => {
-                    try { const s = await (navigator.mediaDevices as any).getDisplayMedia({video:true}); s.getTracks().forEach((t:any)=>t.stop()); alert('Screen sharing started!'); } catch { alert('Screen sharing cancelled or not supported.'); }
-                  }},
-                  {icon: handRaised ? '✋' : '🤚', label: handRaised ? 'Lower hand' : 'Raise hand', active: handRaised, action: () => {
-                    setHandRaised(h => !h);
-                    setInMeetingChat((c:any) => [...c, { sender:'System', text: handRaised ? 'You lowered your hand' : 'You raised your hand ✋', time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-                  }},
-                  {icon:'😊', label:'React', active: !!inMeetingEmoji, action: () => setInMeetingEmoji((e:any) => e ? null : 'show')},
-                  {icon:'🔴', label:'Record', active: false, action: async () => {
-                    try {
-                      const stream = await (navigator.mediaDevices as any).getDisplayMedia({video:true, audio:true});
-                      const recorder = new MediaRecorder(stream);
-                      const chunks: Blob[] = [];
-                      recorder.ondataavailable = (e:any) => chunks.push(e.data);
-                      recorder.onstop = () => {
-                        const blob = new Blob(chunks, {type:'video/webm'});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a'); a.href=url; a.download='meeting-recording.webm'; a.click();
-                        URL.revokeObjectURL(url);
-                      };
-                      recorder.start();
-                      setInMeetingChat((c:any) => [...c, { sender:'System', text:'Recording started. Click Record again to stop.', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-                      (window as any)._meetRecorder = recorder;
-                      setTimeout(() => { if ((window as any)._meetRecorder?.state === 'recording') { (window as any)._meetRecorder.stop(); stream.getTracks().forEach((t:any)=>t.stop()); } }, 3600000);
-                    } catch {
-                      if ((window as any)._meetRecorder?.state === 'recording') {
-                        (window as any)._meetRecorder.stop();
-                        setInMeetingChat((c:any) => [...c, { sender:'System', text:'Recording stopped. Downloading...', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                  {
+                    icon: micOn ? '🎙️' : '🔇',
+                    label: micOn ? 'Mic ON' : 'Mic OFF',
+                    active: micOn,
+                    color: micOn ? '#4ade80' : '#ed4245',
+                    action: async () => {
+                      if (micOn) {
+                        (window as any)._micStream?.getTracks().forEach((t:any) => t.stop());
+                        (window as any)._micStream = null;
+                        setMicOn(false);
+                        setInMeetingChat((c:any) => [...c, { sender:'System', text:'🔇 Your microphone is now OFF', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                       } else {
-                        alert('Could not start recording. Allow screen share permission.');
+                        try {
+                          const s = await navigator.mediaDevices.getUserMedia({audio:true});
+                          (window as any)._micStream = s;
+                          setMicOn(true);
+                          setInMeetingChat((c:any) => [...c, { sender:'System', text:'🎙️ Your microphone is now ON', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                        } catch { alert('Could not access microphone. Please allow microphone permission in browser settings.'); }
                       }
                     }
-                  }},
-                  {icon:'💬', label:'Chat', active:false, action: () => setInMeetingChat((c:any) => [...c, { sender:'System', text:'Chat panel is open on the right side.', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }])},
-                ] as {icon:string,label:string,active:boolean,action:()=>void}[]).map(ctrl => (
+                  },
+                  {
+                    icon: cameraOn ? '📷' : '📷',
+                    label: cameraOn ? 'Camera ON' : 'Camera OFF',
+                    active: cameraOn,
+                    color: cameraOn ? '#4ade80' : '#ed4245',
+                    action: async () => {
+                      if (cameraOn) {
+                        (window as any)._camStream?.getTracks().forEach((t:any) => t.stop());
+                        (window as any)._camStream = null;
+                        setCameraOn(false);
+                        setInMeetingChat((c:any) => [...c, { sender:'System', text:'📷 Your camera is now OFF', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                        const v = document.getElementById('local-video') as HTMLVideoElement;
+                        if (v) { v.srcObject = null; }
+                      } else {
+                        try {
+                          const s = await navigator.mediaDevices.getUserMedia({video:true});
+                          (window as any)._camStream = s;
+                          setCameraOn(true);
+                          const v = document.getElementById('local-video') as HTMLVideoElement;
+                          if (v) { v.srcObject = s; v.play(); }
+                          setInMeetingChat((c:any) => [...c, { sender:'System', text:'📷 Your camera is now ON', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                        } catch { alert('Could not access camera. Please allow camera permission in browser settings.'); }
+                      }
+                    }
+                  },
+                  {
+                    icon: screenOn ? '🖥️' : '💻',
+                    label: screenOn ? 'Screen ON' : 'Share screen',
+                    active: screenOn,
+                    color: screenOn ? '#4ade80' : undefined,
+                    action: async () => {
+                      if (screenOn) {
+                        (window as any)._screenStream?.getTracks().forEach((t:any) => t.stop());
+                        setScreenOn(false);
+                        setInMeetingChat((c:any) => [...c, { sender:'System', text:'🖥️ Screen sharing stopped', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      } else {
+                        try {
+                          const s = await (navigator.mediaDevices as any).getDisplayMedia({video:true, audio:true});
+                          (window as any)._screenStream = s;
+                          s.getVideoTracks()[0].onended = () => { setScreenOn(false); };
+                          setScreenOn(true);
+                          setInMeetingChat((c:any) => [...c, { sender:'System', text:'🖥️ You are now sharing your screen', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                        } catch { alert('Screen sharing cancelled or not supported in this browser.'); }
+                      }
+                    }
+                  },
+                  {
+                    icon: handRaised ? '✋' : '🤚',
+                    label: handRaised ? 'Lower hand' : 'Raise hand',
+                    active: handRaised,
+                    color: handRaised ? '#fbbf24' : undefined,
+                    action: () => {
+                      setHandRaised((h:boolean) => !h);
+                      setInMeetingChat((c:any) => [...c, { sender:'System', text: handRaised ? 'You lowered your hand' : '✋ You raised your hand', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                    }
+                  },
+                  {icon:'😊', label:'React', active: !!inMeetingEmoji, color: undefined, action: () => setInMeetingEmoji((e:any) => e ? null : 'show')},
+                  {
+                    icon: recording ? '⏹️' : '🔴',
+                    label: recording ? 'Stop rec' : 'Record',
+                    active: recording,
+                    color: recording ? '#ed4245' : undefined,
+                    action: async () => {
+                      if (recording) {
+                        (window as any)._meetRecorder?.stop();
+                        (window as any)._recStream?.getTracks().forEach((t:any) => t.stop());
+                        setRecording(false);
+                        setInMeetingChat((c:any) => [...c, { sender:'System', text:'⏹️ Recording stopped — downloading...', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      } else {
+                        try {
+                          // Use existing screen stream or request new one
+                          let stream = (window as any)._screenStream;
+                          if (!stream) {
+                            stream = await (navigator.mediaDevices as any).getDisplayMedia({video:true, audio:true});
+                            (window as any)._recStream = stream;
+                          }
+                          // Mix with mic if on
+                          const micStream = (window as any)._micStream;
+                          let tracks = [...stream.getTracks()];
+                          if (micStream) tracks = [...tracks, ...micStream.getAudioTracks()];
+                          const combined = new MediaStream(tracks);
+                          const recorder = new MediaRecorder(combined, {mimeType:'video/webm;codecs=vp9,opus'});
+                          const chunks: Blob[] = [];
+                          recorder.ondataavailable = (e:any) => { if(e.data.size>0) chunks.push(e.data); };
+                          recorder.onstop = () => {
+                            const blob = new Blob(chunks, {type:'video/webm'});
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = 'deemona-meeting-' + new Date().toISOString().slice(0,10) + '.webm'; a.click();
+                            setTimeout(() => URL.revokeObjectURL(url), 5000);
+                          };
+                          recorder.start(1000);
+                          (window as any)._meetRecorder = recorder;
+                          setRecording(true);
+                          setInMeetingChat((c:any) => [...c, { sender:'System', text:'🔴 Recording started. Click Stop rec to finish.', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                        } catch(e:any) {
+                          if (e?.name === 'NotSupportedError') {
+                            alert('Recording format not supported. Try Chrome or Edge.');
+                          } else {
+                            alert('To record: first click "Share screen" to share your screen, then click Record.');
+                          }
+                        }
+                      }
+                    }
+                  },
+                ] as {icon:string,label:string,active:boolean,color?:string,action:()=>void}[]).map(ctrl => (
                   <div key={ctrl.label} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <button onClick={ctrl.action} title={ctrl.label}
-                      style={{background: ctrl.active ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)', border: ctrl.active ? '1px solid rgba(74,222,128,0.4)' : '1px solid rgba(255,255,255,0.1)', borderRadius:'50%',width:48,height:48,cursor:'pointer',fontSize:20,display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s'}}
+                      style={{background: ctrl.active ? (ctrl.color ? ctrl.color+'33' : 'rgba(74,222,128,0.2)') : 'rgba(255,255,255,0.08)', border: `1px solid ${ctrl.active ? (ctrl.color || '#4ade80')+'66' : 'rgba(255,255,255,0.1)'}`, borderRadius:'50%',width:52,height:52,cursor:'pointer',fontSize:22,display:'flex',alignItems:'center',justifyContent:'center',transition:'all .15s',position:'relative'}}
                       onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.2)'}
-                      onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background= ctrl.active ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.08)'}>
+                      onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background= ctrl.active ? (ctrl.color ? ctrl.color+'33' : 'rgba(74,222,128,0.2)') : 'rgba(255,255,255,0.08)'}>
                       {ctrl.icon}
                     </button>
                     <span style={{fontSize:10,color:'#80848e',whiteSpace:'nowrap'}}>{ctrl.label}</span>
