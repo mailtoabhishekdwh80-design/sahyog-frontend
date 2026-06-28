@@ -393,41 +393,6 @@ export default function WorkspaceShell() {
     }
   }
 
-  // ── Google Calendar sync ──
-  // ── Meeting limits enforcement ──
-  async function loadMonthlyUsage() {
-    const res = await apiFetch('/meetings/monthly-usage');
-    setMonthlyMins(res?.data?.total_minutes || 0);
-  }
-
-  function checkMeetingLimits(meeting: any): { allowed: boolean; reason?: string } {
-    // Check monthly 72-hour limit
-    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
-    if (remaining <= 0) {
-      return { allowed: false, reason: 'Monthly video meeting limit of 72 hours has been reached. Limit resets on the 1st of next month.' };
-    }
-    // Check participant limit
-    if (participantCount >= MAX_PARTICIPANTS) {
-      return { allowed: false, reason: 'This meeting has reached the maximum limit of 500 participants.' };
-    }
-    return { allowed: true };
-  }
-
-  function joinMeetingWithCheck(meeting: any) {
-    const check = checkMeetingLimits(meeting);
-    if (!check.allowed) {
-      alert('Cannot join meeting: ' + check.reason);
-      return;
-    }
-    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
-    const remainingHrs = Math.floor(remaining / 60);
-    const remainingMins = remaining % 60;
-    setActiveMeeting(meeting);
-    setParticipantCount(p => p + 1);
-    setShowInMeeting(true);
-    setInMeetingChat([{ sender:'System', text:`Welcome to "${meeting.title}". Monthly usage remaining: ${remainingHrs}h ${remainingMins}m of 72h.`, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-  }
-
   function syncToGoogleCalendar(meeting: any) {
     const start = new Date(meeting.starts_at);
     const end = new Date(start.getTime() + (meeting.duration_mins || 60) * 60000);
