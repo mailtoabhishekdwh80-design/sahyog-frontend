@@ -1495,7 +1495,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} />}
           </div>
         )}
 
@@ -2546,7 +2546,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView() {
+function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
