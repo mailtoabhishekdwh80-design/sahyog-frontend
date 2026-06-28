@@ -1213,7 +1213,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   <span className="text-gray-500 text-xs">B</span>{b.name}
                 </button>
               ))}
-              {boards.filter((b: any) => b.id !== boardId).length === 0 && (
+              {allBoards.filter((b: any) => b.id !== boardId).length === 0 && (
                 <p className="text-gray-500 text-sm text-center py-4">No other boards available</p>
               )}
             </div>
