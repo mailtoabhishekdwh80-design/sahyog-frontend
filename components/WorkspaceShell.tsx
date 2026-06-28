@@ -2610,7 +2610,6 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.orgMembers().then(res => { const m = Array.isArray(res?.data) ? res.data : []; setOrgMembers(m); });
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
