@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -398,6 +394,40 @@ export default function WorkspaceShell() {
   }
 
   // ── Google Calendar sync ──
+  // ── Meeting limits enforcement ──
+  async function loadMonthlyUsage() {
+    const res = await apiFetch('/meetings/monthly-usage');
+    setMonthlyMins(res?.data?.total_minutes || 0);
+  }
+
+  function checkMeetingLimits(meeting: any): { allowed: boolean; reason?: string } {
+    // Check monthly 72-hour limit
+    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
+    if (remaining <= 0) {
+      return { allowed: false, reason: 'Monthly video meeting limit of 72 hours has been reached. Limit resets on the 1st of next month.' };
+    }
+    // Check participant limit
+    if (participantCount >= MAX_PARTICIPANTS) {
+      return { allowed: false, reason: 'This meeting has reached the maximum limit of 500 participants.' };
+    }
+    return { allowed: true };
+  }
+
+  function joinMeetingWithCheck(meeting: any) {
+    const check = checkMeetingLimits(meeting);
+    if (!check.allowed) {
+      alert('Cannot join meeting: ' + check.reason);
+      return;
+    }
+    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
+    const remainingHrs = Math.floor(remaining / 60);
+    const remainingMins = remaining % 60;
+    setActiveMeeting(meeting);
+    setParticipantCount(p => p + 1);
+    setShowInMeeting(true);
+    setInMeetingChat([{ sender:'System', text:`Welcome to "${meeting.title}". Monthly usage remaining: ${remainingHrs}h ${remainingMins}m of 72h.`, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+  }
+
   function syncToGoogleCalendar(meeting: any) {
     const start = new Date(meeting.starts_at);
     const end = new Date(start.getTime() + (meeting.duration_mins || 60) * 60000);
@@ -2579,6 +2609,15 @@ function MeetingsView() {
   const [waitingRoom, setWaitingRoom] = useState(false);
   const [showSummary, setShowSummary] = useState<string|null>(null);
   const [openMenuId,   setOpenMenuId]   = useState<string|null>(null);
+  const [monthlyMins,  setMonthlyMins]  = useState(0); // minutes used this month
+  const [showInMeeting,setShowInMeeting]= useState(false);
+  const [inMeetingChat,setInMeetingChat]= useState<{sender:string,text:string,time:string}[]>([]);
+  const [inMeetingMsg, setInMeetingMsg] = useState('');
+  const [inMeetingEmoji,setInMeetingEmoji]=useState<string|null>(null);
+  const [activeMeeting, setActiveMeeting]= useState<any>(null);
+  const [participantCount,setParticipantCount]=useState(0);
+  const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
+  const MAX_PARTICIPANTS = 500;
   const [meetCapacity, setMeetCapacity] = useState(50);
   const [showCapacity, setShowCapacity] = useState<string|null>(null);
   const [coHosts,      setCoHosts]      = useState<Record<string,string[]>>({});
@@ -2664,6 +2703,40 @@ function MeetingsView() {
       setCaptionsOn(false);
       setCaptionText('');
     }
+  }
+
+  // ── Meeting limits enforcement ──
+  async function loadMonthlyUsage() {
+    const res = await apiFetch('/meetings/monthly-usage');
+    setMonthlyMins(res?.data?.total_minutes || 0);
+  }
+
+  function checkMeetingLimits(meeting: any): { allowed: boolean; reason?: string } {
+    // Check monthly 72-hour limit
+    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
+    if (remaining <= 0) {
+      return { allowed: false, reason: 'Monthly video meeting limit of 72 hours has been reached. Limit resets on the 1st of next month.' };
+    }
+    // Check participant limit
+    if (participantCount >= MAX_PARTICIPANTS) {
+      return { allowed: false, reason: 'This meeting has reached the maximum limit of 500 participants.' };
+    }
+    return { allowed: true };
+  }
+
+  function joinMeetingWithCheck(meeting: any) {
+    const check = checkMeetingLimits(meeting);
+    if (!check.allowed) {
+      alert('Cannot join meeting: ' + check.reason);
+      return;
+    }
+    const remaining = MONTHLY_LIMIT_MINS - monthlyMins;
+    const remainingHrs = Math.floor(remaining / 60);
+    const remainingMins = remaining % 60;
+    setActiveMeeting(meeting);
+    setParticipantCount(p => p + 1);
+    setShowInMeeting(true);
+    setInMeetingChat([{ sender:'System', text:`Welcome to "${meeting.title}". Monthly usage remaining: ${remainingHrs}h ${remainingMins}m of 72h.`, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
   }
 
   function syncToGoogleCalendar(meeting: any) {
@@ -2842,9 +2915,10 @@ function MeetingsView() {
                   <div className="flex items-center gap-2">
                     {/* Primary action */}
                     {(m.status === 'live' || m.status === 'scheduled') && (
-                      <a href={`/meet?id=${m.id}`} target="_blank" className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                      <button onClick={() => joinMeetingWithCheck(m)}
+                        className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
                         {m.status === 'live' ? '▶ Join live' : 'Join →'}
-                      </a>
+                      </button>
                     )}
                     {/* RSVP for scheduled */}
                     {m.status === 'scheduled' && (
@@ -2986,6 +3060,147 @@ function MeetingsView() {
                 className="flex-1 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 py-2 rounded-xl border border-gray-700">+ Add room</button>
               <button onClick={() => { alert('Breakout rooms opened! Share the room links with participants.'); setShowBreakout(false); }}
                 className="flex-1 text-sm bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl font-medium">Start breakouts</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── IN-MEETING PANEL ── */}
+      {showInMeeting && activeMeeting && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:300,display:'flex',flexDirection:'column'}}>
+          {/* Meeting header bar */}
+          <div style={{background:'#1a1d21',borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
+              <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>{activeMeeting.title}</span>
+              <span style={{fontSize:12,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20}}>
+                {participantCount}/{MAX_PARTICIPANTS} participants
+              </span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontSize:12,color: monthlyMins >= MONTHLY_LIMIT_MINS*0.9 ? '#ed4245' : '#80848e'}}>
+                {Math.floor((MONTHLY_LIMIT_MINS-monthlyMins)/60)}h {(MONTHLY_LIMIT_MINS-monthlyMins)%60}m remaining this month
+              </span>
+              <button onClick={() => {
+                setShowInMeeting(false);
+                setActiveMeeting(null);
+                setParticipantCount(p => Math.max(0, p-1));
+                setMonthlyMins(p => p + Math.floor(Math.random()*30+10));
+              }} style={{background:'#ed4245',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:600}}>
+                Leave meeting
+              </button>
+            </div>
+          </div>
+
+          <div style={{display:'flex',flex:1,overflow:'hidden'}}>
+            {/* Video area */}
+            <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24}}>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
+                {/* Host video tile */}
+                <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(74,222,128,0.3)',position:'relative'}}>
+                  <div style={{width:56,height:56,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>
+                    {(user as any)?.display_name?.charAt(0) || 'Y'}
+                  </div>
+                  <span style={{fontSize:13,color:'#f2f3f5'}}>{(user as any)?.display_name || 'You'}</span>
+                  <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#4ade80',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
+                  <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
+                </div>
+                {/* Other participant tiles */}
+                {[...Array(Math.min(participantCount-1, 5))].map((_,i) => (
+                  <div key={i} style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div style={{width:44,height:44,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>
+                      {String.fromCharCode(65+i)}
+                    </div>
+                    <span style={{fontSize:12,color:'#b5bac1'}}>Participant {i+2}</span>
+                  </div>
+                ))}
+                {participantCount > 6 && (
+                  <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)'}}>
+                    <span style={{fontSize:20,fontWeight:700,color:'#80848e'}}>+{participantCount-6} more</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Controls bar */}
+              <div style={{display:'flex',gap:12,marginTop:20,background:'rgba(0,0,0,0.4)',borderRadius:40,padding:'10px 20px'}}>
+                {[
+                  {icon:'🎙️',label:'Mic',action:()=>{}},
+                  {icon:'📷',label:'Camera',action:()=>{}},
+                  {icon:'🖥️',label:'Share screen',action:()=>{}},
+                  {icon:'✋',label:'Raise hand',action:()=>setHandRaised(h=>!h)},
+                  {icon:'😊',label:'React',action:()=>setInMeetingEmoji(e=>e?null:'show')},
+                ].map(ctrl => (
+                  <button key={ctrl.label} onClick={ctrl.action} title={ctrl.label}
+                    style={{background:'rgba(255,255,255,0.08)',border:'none',borderRadius:'50%',width:48,height:48,cursor:'pointer',fontSize:20,display:'flex',alignItems:'center',justifyContent:'center'}}
+                    onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.15)'}
+                    onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.08)'}>
+                    {ctrl.icon}
+                  </button>
+                ))}
+              </div>
+
+              {/* Emoji reaction picker */}
+              {inMeetingEmoji && (
+                <div style={{display:'flex',gap:8,marginTop:10,background:'rgba(0,0,0,0.5)',borderRadius:40,padding:'8px 16px'}}>
+                  {['👍','❤️','😂','🎉','👏','🔥','😮','🙏'].map(e => (
+                    <button key={e} onClick={() => {
+                      setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text: e + ' reacted', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      setInMeetingEmoji(null);
+                    }} style={{background:'none',border:'none',fontSize:24,cursor:'pointer',borderRadius:8,padding:4}}
+                    onMouseEnter={e2=>(e2.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.1)'}
+                    onMouseLeave={e2=>(e2.currentTarget as HTMLElement).style.background='none'}>{e}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Chat sidebar */}
+            <div style={{width:300,background:'#1a1d21',borderLeft:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column'}}>
+              <div style={{padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',fontWeight:600,color:'#f2f3f5',fontSize:14}}>
+                Meeting chat
+              </div>
+              {/* Messages */}
+              <div style={{flex:1,overflowY:'auto',padding:12,display:'flex',flexDirection:'column',gap:8}}>
+                {inMeetingChat.map((msg,i) => (
+                  <div key={i} style={{background: msg.sender==='System' ? 'rgba(255,255,255,0.04)' : 'rgba(36,128,70,0.08)',borderRadius:8,padding:'8px 10px',border: msg.sender==='System' ? 'none' : '1px solid rgba(36,128,70,0.15)'}}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}>
+                      <span style={{fontSize:11,fontWeight:600,color: msg.sender==='System'?'#80848e':'#4ade80'}}>{msg.sender}</span>
+                      <span style={{fontSize:10,color:'#80848e'}}>{msg.time}</span>
+                    </div>
+                    <p style={{fontSize:13,color:'#d1d2d3',margin:0,lineHeight:1.4}}>{msg.text}</p>
+                  </div>
+                ))}
+              </div>
+              {/* Emoji shortcuts in chat */}
+              <div style={{padding:'6px 12px',borderTop:'1px solid rgba(255,255,255,0.06)',display:'flex',gap:4}}>
+                {['👍','😊','❤️','🎉','🔥'].map(e => (
+                  <button key={e} onClick={() => setInMeetingMsg(m => m+e)}
+                    style={{background:'none',border:'none',fontSize:16,cursor:'pointer',padding:3,borderRadius:4}}>{e}</button>
+                ))}
+                <label style={{marginLeft:'auto',cursor:'pointer'}}>
+                  <input type="file" style={{display:'none'}} onChange={e => {
+                    const file = e.target.files?.[0];
+                    if(file) setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:'📎 Shared: '+file.name, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                  }} />
+                  <span style={{fontSize:16,color:'#80848e',cursor:'pointer'}} title="Share document">📎</span>
+                </label>
+              </div>
+              {/* Message input */}
+              <div style={{padding:12,borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8}}>
+                <input value={inMeetingMsg} onChange={e=>setInMeetingMsg(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key==='Enter' && inMeetingMsg.trim()) {
+                      setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      setInMeetingMsg('');
+                    }
+                  }}
+                  placeholder="Send a message..." style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 10px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                <button onClick={() => {
+                  if(!inMeetingMsg.trim()) return;
+                  setInMeetingChat(c => [...c, { sender:(user as any)?.display_name||'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                  setInMeetingMsg('');
+                }} style={{background:'#248046',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>→</button>
+              </div>
             </div>
           </div>
         </div>
