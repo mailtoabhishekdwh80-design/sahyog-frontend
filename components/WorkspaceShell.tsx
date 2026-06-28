@@ -2821,7 +2821,7 @@ function MeetingsView() {
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:border-emerald-500 mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
-              {orgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
+              {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-emerald-700' : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? 'bg-emerald-600 text-white' : 'bg-gray-600 text-gray-200'}`}>
@@ -3545,7 +3545,7 @@ function MeetingsView() {
 
             {/* Member list */}
             <div style={{maxHeight:240,overflowY:'auto',marginBottom:14}}>
-              {(orgMembers as any[])
+              {(meetOrgMembers as any[])
                 .filter((m:any) => !meetingParticipants.find(p => p.id===m.id))
                 .filter((m:any) => !addPeopleSearch || m.display_name?.toLowerCase().includes(addPeopleSearch.toLowerCase()) || m.email?.toLowerCase().includes(addPeopleSearch.toLowerCase()))
                 .map((m:any) => (
@@ -3573,7 +3573,7 @@ function MeetingsView() {
                   </div>
                 ))
               }
-              {(orgMembers as any[]).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
+              {(meetOrgMembers as any[]).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
                 <p style={{fontSize:13,color:'#80848e',textAlign:'center',padding:16}}>All workspace members have been added</p>
               )}
             </div>
@@ -3641,7 +3641,7 @@ function MeetingsView() {
             </div>
             <p className="text-xs text-gray-500 mb-3">Select members to assign as co-hosts</p>
             <div className="space-y-1 max-h-56 overflow-y-auto mb-4">
-              {(orgMembers as any[]).map((m: any) => (
+              {(meetOrgMembers as any[]).map((m: any) => (
                 <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   <input type="checkbox"
                     checked={(coHosts[showCoHost!] || []).includes(m.id)}
