@@ -3139,17 +3139,23 @@ function MeetingsView() {
                   <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
                 {/* Other participant tiles */}
-                {[...Array(Math.min(participantCount-1, 5))].map((_,i) => (
-                  <div key={i} style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)'}}>
-                    <div style={{width:44,height:44,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>
-                      {String.fromCharCode(65+i)}
-                    </div>
-                    <span style={{fontSize:12,color:'#b5bac1'}}>Participant {i+2}</span>
+                {/* Participant tiles - real names */}
+                {meetingParticipants.slice(0,5).map((p:any,i:number) => (
+                  <div key={i} style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)',position:'relative'}}>
+                    <div style={{width:44,height:44,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>{p.name?.charAt(0)||'?'}</div>
+                    <span style={{fontSize:12,color:'#b5bac1'}}>{p.name}</span>
+                    <span style={{position:'absolute',bottom:6,left:8,fontSize:10,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'1px 5px',borderRadius:4}}>{p.email?.split('@')[0]}</span>
                   </div>
                 ))}
-                {participantCount > 6 && (
-                  <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)'}}>
-                    <span style={{fontSize:20,fontWeight:700,color:'#80848e'}}>+{participantCount-6} more</span>
+                {meetingParticipants.length===0 && (
+                  <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,0.1)'}}>
+                    <span style={{fontSize:28,marginBottom:6}}>👥</span>
+                    <span style={{fontSize:12,color:'#80848e'}}>Add people to see them here</span>
+                  </div>
+                )}
+                {meetingParticipants.length>5 && (
+                  <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <span style={{fontSize:20,fontWeight:700,color:'#80848e'}}>+{meetingParticipants.length-5} more</span>
                   </div>
                 )}
               </div>
