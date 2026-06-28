@@ -3066,46 +3066,54 @@ function MeetingsView() {
               <span style={{fontSize:12,color: monthlyMins >= MONTHLY_LIMIT_MINS*0.9 ? '#ed4245' : '#80848e'}}>
                 {Math.floor((MONTHLY_LIMIT_MINS-monthlyMins)/60)}h {(MONTHLY_LIMIT_MINS-monthlyMins)%60}m remaining this month
               </span>
-              {/* Participants panel - floating panel, doesn't cover video */}
+              {/* Participants dropdown — anchored to button, no video overlap */}
               {showParticipants && (
-                <div style={{position:'absolute',top:52,left:12,width:280,background:'#1e2124',border:'1px solid rgba(255,255,255,0.12)',borderRadius:12,padding:12,zIndex:20,maxHeight:'calc(100% - 120px)',overflowY:'auto',boxShadow:'0 8px 32px rgba(0,0,0,0.5)'}}>
-                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-                    <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({meetingParticipants.length || participantCount})</span>
-                    <button onClick={() => setShowAddPeople(true)} style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600}}>+ Invite</button>
+                <div style={{position:'absolute',top:44,left:8,background:'#2b2d31',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,zIndex:50,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                  onClick={e => e.stopPropagation()}>
+                  {/* Header */}
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid rgba(255,255,255,0.08)',background:'#1e2124'}}>
+                    <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({1 + meetingParticipants.length})</span>
+                    <button onClick={() => { setShowAddPeople(true); setShowParticipants(false); }}
+                      style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:6,padding:'3px 10px',cursor:'pointer',fontWeight:600}}>
+                      + Invite
+                    </button>
                   </div>
-                  {/* Host */}
-                  <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                    <div style={{width:32,height:32,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',flexShrink:0}}>Y</div>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:13,color:'#f2f3f5',fontWeight:500}}>You (Host)</div>
-                      <div style={{fontSize:11,color:'#4ade80'}}>🎙️ {micOn?'Mic on':'Mic off'} · 📷 {cameraOn?'Camera on':'Camera off'}</div>
+                  {/* Scrollable list */}
+                  <div style={{maxHeight:280,overflowY:'auto'}}>
+                    {/* Host row */}
+                    <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 14px',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+                      <div style={{width:28,height:28,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>Y</div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,color:'#f2f3f5',fontWeight:500}}>You (Host)</div>
+                        <div style={{fontSize:10,color:'#4ade80'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
+                      </div>
+                      <span style={{fontSize:10,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 5px',borderRadius:4,flexShrink:0}}>Host</span>
                     </div>
-                    <span style={{fontSize:11,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 6px',borderRadius:4}}>Host</span>
+                    {/* Other participants */}
+                    {meetingParticipants.map((p, i) => (
+                      <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 14px',borderBottom:'1px solid rgba(255,255,255,0.04)'}}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.04)'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='transparent'}>
+                        <div style={{width:28,height:28,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>
+                          {p.name?.charAt(0)||'P'}
+                        </div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13,color:'#f2f3f5',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
+                          <div style={{fontSize:10,color:'#80848e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
+                        </div>
+                        <button onClick={() => {
+                          setMeetingParticipants(prev => prev.filter((_,j) => j!==i));
+                          setParticipantCount(c => Math.max(1,c-1));
+                          setInMeetingChat((c:any) => [...c,{sender:'System',text:p.name+' was removed from the meeting',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
+                        }} style={{fontSize:10,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                    {meetingParticipants.length === 0 && (
+                      <div style={{padding:'14px',fontSize:12,color:'#80848e',textAlign:'center'}}>No other participants yet</div>
+                    )}
                   </div>
-                  {/* Dynamic participants */}
-                  {meetingParticipants.map((p, i) => (
-                    <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                      <div style={{width:32,height:32,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',flexShrink:0}}>
-                        {p.name?.charAt(0) || 'P'}
-                      </div>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:13,color:'#f2f3f5'}}>{p.name}</div>
-                        <div style={{fontSize:11,color:'#80848e'}}>{p.email}</div>
-                      </div>
-                      <button onClick={() => {
-                        setMeetingParticipants(prev => prev.filter((_,j) => j!==i));
-                        setParticipantCount(c => Math.max(1, c-1));
-                        setInMeetingChat((c:any) => [...c, { sender:'System', text:`${p.name} was removed from the meeting`, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-                      }} style={{fontSize:11,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:6,padding:'3px 8px',cursor:'pointer'}}>
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  {meetingParticipants.length === 0 && participantCount <= 1 && (
-                    <div style={{fontSize:12,color:'#80848e',textAlign:'center',padding:'12px 0'}}>
-                      No other participants yet. Click + Invite to add people.
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -3127,7 +3135,8 @@ function MeetingsView() {
 
           <div style={{display:'flex',flex:1,overflow:'hidden'}}>
             {/* Video area */}
-            <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24}}>
+            <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,position:'relative'}}
+              onClick={() => { setShowParticipants(false); setShowChatMenu(false); }}>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
                 {/* Host video tile */}
                 <div style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(74,222,128,0.3)',position:'relative'}}>
