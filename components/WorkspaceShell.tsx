@@ -2834,46 +2834,59 @@ function MeetingsView() {
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[m.status] || STATUS_COLORS.ended}`}>{m.status}</span>
-                  <div className="flex gap-1 flex-wrap justify-end">
+                  <div className="flex items-center gap-2">
+                    {/* Primary action */}
                     {(m.status === 'live' || m.status === 'scheduled') && (
-                      <a href={`/meet?id=${m.id}`} target="_blank" className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg">
-                        {m.status === 'live' ? 'Join' : 'Join →'}
+                      <a href={`/meet?id=${m.id}`} target="_blank" className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                        {m.status === 'live' ? '▶ Join live' : 'Join →'}
                       </a>
                     )}
+                    {/* RSVP for scheduled */}
                     {m.status === 'scheduled' && (
-                      <>
-                        <button onClick={() => sendReminder(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Send reminder">Bell</button>
-                    <button onClick={() => syncToGoogleCalendar(m)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Add to Google Calendar">📅 GCal</button>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-gray-500">RSVP:</span>
-                      {[['✓','going','emerald'],['?','maybe','yellow'],['✗','no','red']].map(([icon,status,color]) => (
-                        <button key={status} onClick={async () => {
-                          await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) });
-                          alert('RSVP updated: ' + status);
-                        }} className={`text-xs px-1.5 py-0.5 rounded font-bold bg-${color}-900/30 text-${color}-400 hover:bg-${color}-900/50`}>{icon}</button>
-                      ))}
+                      <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
+                        <span className="text-xs text-gray-500">RSVP:</span>
+                        {[['✓','going'],['?','maybe'],['✗','no']].map(([icon,status]) => (
+                          <button key={status} onClick={async () => { await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) }); alert('RSVP: ' + status); }}
+                            className="text-xs px-1.5 py-0.5 rounded hover:bg-gray-700 text-gray-300 font-bold">{icon}</button>
+                        ))}
+                      </div>
+                    )}
+                    {/* Hamburger menu */}
+                    <div className="relative" style={{position:'relative'}}>
+                      <button onClick={() => setActiveMeetingId(activeMeetingId === m.id ? null : m.id)}
+                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg font-bold">
+                        ⋯
+                      </button>
+                      {activeMeetingId === m.id && (
+                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#2b2d31',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                          {[
+                            { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setActiveMeetingId(null); } },
+                            { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setActiveMeetingId(null); } },
+                            { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000
+Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setActiveMeetingId(null); } },
+                            { label:'📋 Meeting agenda', fn: () => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); setActiveMeetingId(null); } },
+                            { label:'👥 Attendance', fn: () => { loadAttendance(m.id); setActiveMeetingId(null); } },
+                            { label:'📝 Post summary', fn: () => { postSummaryToChannel(m); setActiveMeetingId(null); } },
+                            { label:'🗳️ Create poll', fn: () => { openPoll(m.id); setActiveMeetingId(null); } },
+                            { label:'🖊️ Whiteboard', fn: () => { setPollMeetId(m.id); setShowWB(true); setActiveMeetingId(null); } },
+                            { label:'🔁 Make recurring', fn: () => { makeRecurring(m.id); setActiveMeetingId(null); } },
+                            { label: captionsOn ? '🔴 Stop captions' : '💬 Live captions', fn: () => { toggleCaptions(); setActiveMeetingId(null); } },
+                            { label: handRaised ? '✋ Lower hand' : '✋ Raise hand', fn: () => { setHandRaised(h => !h); setActiveMeetingId(null); } },
+                            { label:'🚪 Breakout rooms', fn: () => { setShowBreakout(true); setActiveMeetingId(null); } },
+                            { label:'👥 Set capacity', fn: () => { setShowCapacity(m.id); setActiveMeetingId(null); } },
+                            { label:'🎤 Assign co-host', fn: () => { setShowCoHost(m.id); setActiveMeetingId(null); } },
+                            ...(m.metadata?.recording_url ? [{ label:'🎥 View recording', fn: () => { window.open(m.metadata.recording_url, '_blank'); setActiveMeetingId(null); } }] : []),
+                          ].map(item => (
+                            <button key={item.label} onClick={item.fn}
+                              style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background:'none',border:'none',color:'#b5bac1',cursor:'pointer',fontSize:13,borderRadius:6,whiteSpace:'nowrap'}}
+                              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.06)'}
+                              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='none'}>
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                        <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recur</button>
-                      </>
-                    )}
-                    <button onClick={() => alert('Dial-in Number: +91-22-6880-0000\nMeeting ID: ' + m.id.slice(0,8).toUpperCase() + '\n\nCall the number and enter the Meeting ID when prompted.')} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Dial-in by phone">📞</button>
-                    <button onClick={() => openPoll(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Poll</button>
-                    <button onClick={() => { setPollMeetId(m.id); setShowWB(true); }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Board</button>
-                    <button onClick={() => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Agenda</button>
-                    <button onClick={() => loadAttendance(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Attendance</button>
-                    <button onClick={() => postSummaryToChannel(m)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Summary</button>
-                    <button onClick={toggleCaptions} className={`text-xs px-2 py-1.5 rounded-lg ${captionsOn ? 'bg-emerald-700 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
-                      {captionsOn ? 'CC On' : 'CC'}
-                    </button>
-                    <button onClick={() => setHandRaised(h => !h)} className={`text-xs px-2 py-1.5 rounded-lg ${handRaised ? 'bg-yellow-600 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
-                      {handRaised ? '✋ Lowered' : '✋ Raise'}
-                    </button>
-                    <button onClick={() => setShowBreakout(true)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Breakout</button>
-                    <button onClick={() => setShowCapacity(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set capacity">👥 Cap</button>
-                    <button onClick={() => setShowCoHost(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Co-host">🎤 Co-host</button>
-                    {m.metadata?.recording_url && (
-                      <a href={m.metadata.recording_url} target="_blank" className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recording</a>
-                    )}
                   </div>
                 </div>
               </div>
