@@ -2591,6 +2591,12 @@ function MeetingsView() {
   const [chatMode,       setChatMode]       = useState<'everyone'|'private'>('everyone');
   const [privateTarget,  setPrivateTarget]  = useState<any>(null);
   const [showChatMenu,   setShowChatMenu]   = useState(false);
+  const [participantMics, setParticipantMics] = useState<Record<string,boolean>>({});
+  const [participantCams, setParticipantCams] = useState<Record<string,boolean>>({});
+  const [allMuted,       setAllMuted]        = useState(false);
+  const [showHostControls,setShowHostControls]=useState<string|null>(null);
+  const [meetingLocked,  setMeetingLocked]   = useState(false);
+  const [waitingRoom,    setWaitingRoom]      = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
@@ -3099,6 +3105,44 @@ function MeetingsView() {
                 style={{fontSize:12,color:'#4ade80',background:'rgba(74,222,128,0.1)',padding:'4px 12px',borderRadius:20,border:'1px solid rgba(74,222,128,0.3)',cursor:'pointer',fontWeight:600}}>
                 + Add people
               </button>
+
+              {/* Host quick controls */}
+              <div style={{display:'flex',gap:6,marginLeft:8}}>
+                <button onClick={() => {
+                  setAllMuted(true);
+                  const newMics:Record<string,boolean> = {};
+                  meetingParticipants.forEach((p:any) => { newMics[p.id] = false; });
+                  setParticipantMics(newMics);
+                  setInMeetingChat((c:any) => [...c, { sender:'System', text:'🔇 Host muted all participants', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                }} title="Mute all participants"
+                  style={{fontSize:11,color:'#f59e0b',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
+                  🔇 Mute all
+                </button>
+                <button onClick={() => {
+                  setMeetingLocked(l => !l);
+                  setInMeetingChat((c:any) => [...c, { sender:'System', text: meetingLocked ? '🔓 Meeting unlocked by host' : '🔒 Meeting locked by host — no new participants can join', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                }} title={meetingLocked ? 'Unlock meeting' : 'Lock meeting — prevent new joins'}
+                  style={{fontSize:11,color: meetingLocked?'#ed4245':'#80848e',background: meetingLocked?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',border:`1px solid ${meetingLocked?'rgba(237,66,69,0.3)':'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
+                  {meetingLocked ? '🔒 Locked' : '🔓 Lock'}
+                </button>
+                <button onClick={() => {
+                  if (confirm('End meeting for ALL participants?')) {
+                    setInMeetingChat((c:any) => [...c, { sender:'System', text:'Meeting ended by host', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                    setTimeout(() => {
+                      (window as any)._micStream?.getTracks().forEach((t:any) => t.stop());
+                      (window as any)._camStream?.getTracks().forEach((t:any) => t.stop());
+                      (window as any)._screenStream?.getTracks().forEach((t:any) => t.stop());
+                      if ((window as any)._meetRecorder?.state==='recording') (window as any)._meetRecorder.stop();
+                      setMicOn(false); setCameraOn(false); setScreenOn(false); setRecording(false);
+                      setShowInMeeting(false); setActiveMeeting(null); setMeetingParticipants([]);
+                      setMonthlyMins((p:number) => p + Math.floor(Math.random()*30+10));
+                    }, 1500);
+                  }
+                }} title="End meeting for everyone"
+                  style={{fontSize:11,color:'#fff',background:'#ed4245',border:'none',borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
+                  ⏹ End for all
+                </button>
+              </div>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <span style={{fontSize:12,color: monthlyMins >= MONTHLY_LIMIT_MINS*0.9 ? '#ed4245' : '#80848e'}}>
