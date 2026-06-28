@@ -3115,16 +3115,24 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                   meetingParticipants.forEach((p:any) => { newMics[p.id] = false; });
                   setParticipantMics(newMics);
                   setInMeetingChat((c:any) => [...c, { sender:'System', text:'🔇 Host muted all participants', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-                }} title="Mute all participants"
+                }} title="Mute all participants — individual control: click on their video tile"
                   style={{fontSize:11,color:'#f59e0b',background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.3)',borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
                   🔇 Mute all
                 </button>
                 <button onClick={() => {
+                  setAllMuted(false);
+                  setParticipantMics({});
+                  setInMeetingChat((c:any) => [...c, { sender:'System', text:'🎙️ Host unmuted all participants', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                }} title="Unmute all participants"
+                  style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
+                  🎙️ Unmute all
+                </button>
+                <button onClick={() => {
                   setMeetingLocked(l => !l);
-                  setInMeetingChat((c:any) => [...c, { sender:'System', text: meetingLocked ? '🔓 Meeting unlocked by host' : '🔒 Meeting locked by host — no new participants can join', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
-                }} title={meetingLocked ? 'Unlock meeting' : 'Lock meeting — prevent new joins'}
+                  setInMeetingChat((c:any) => [...c, { sender:'System', text: meetingLocked ? '🔓 Meeting unlocked — new participants can now join' : '🔒 Meeting locked by host — no new participants can join. Current participants are not affected.', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                }} title={meetingLocked ? 'Click to unlock — allow new participants to join' : 'Click to lock — prevent any new participants from joining (existing participants stay)'}
                   style={{fontSize:11,color: meetingLocked?'#ed4245':'#80848e',background: meetingLocked?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',border:`1px solid ${meetingLocked?'rgba(237,66,69,0.3)':'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'4px 10px',cursor:'pointer',fontWeight:600,whiteSpace:'nowrap'}}>
-                  {meetingLocked ? '🔒 Locked' : '🔓 Lock'}
+                  {meetingLocked ? '🔒 Locked' : '🔓 Lock meeting'}
                 </button>
                 <button onClick={() => {
                   if (confirm('End meeting for ALL participants?')) {
