@@ -2599,7 +2599,6 @@ function MeetingsView() {
   const [allMuted,       setAllMuted]        = useState(false);
   const [showHostControls,setShowHostControls]=useState<string|null>(null);
   const [meetingLocked,  setMeetingLocked]   = useState(false);
-  const [waitingRoom,    setWaitingRoom]      = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
