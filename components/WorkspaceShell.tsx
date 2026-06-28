@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -2588,6 +2584,13 @@ function MeetingsView() {
   const [cameraOn,     setCameraOn]     = useState(false);
   const [screenOn,     setScreenOn]     = useState(false);
   const [recording,    setRecording]    = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [meetingParticipants, setMeetingParticipants] = useState<any[]>([]);
+  const [showAddPeople, setShowAddPeople] = useState(false);
+  const [addPeopleSearch, setAddPeopleSearch] = useState('');
+  const [chatMode,       setChatMode]       = useState<'everyone'|'private'>('everyone');
+  const [privateTarget,  setPrivateTarget]  = useState<any>(null);
+  const [showChatMenu,   setShowChatMenu]   = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
@@ -3046,14 +3049,62 @@ function MeetingsView() {
             <div style={{display:'flex',alignItems:'center',gap:12}}>
               <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
               <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>{activeMeeting.title}</span>
-              <span style={{fontSize:12,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20}}>
-                {participantCount}/{MAX_PARTICIPANTS} participants
-              </span>
+              <button onClick={() => setShowParticipants(s => !s)}
+                style={{fontSize:12,color:'#b5bac1',background:'rgba(255,255,255,0.06)',padding:'4px 10px',borderRadius:20,border:'1px solid rgba(255,255,255,0.1)',cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
+                👥 {participantCount}/{MAX_PARTICIPANTS} participants
+              </button>
+              <button onClick={() => setShowAddPeople(true)}
+                style={{fontSize:12,color:'#4ade80',background:'rgba(74,222,128,0.1)',padding:'4px 12px',borderRadius:20,border:'1px solid rgba(74,222,128,0.3)',cursor:'pointer',fontWeight:600}}>
+                + Add people
+              </button>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <span style={{fontSize:12,color: monthlyMins >= MONTHLY_LIMIT_MINS*0.9 ? '#ed4245' : '#80848e'}}>
                 {Math.floor((MONTHLY_LIMIT_MINS-monthlyMins)/60)}h {(MONTHLY_LIMIT_MINS-monthlyMins)%60}m remaining this month
               </span>
+              {/* Participants panel */}
+              {showParticipants && (
+                <div style={{position:'absolute',top:52,left:0,right:0,background:'#1a1d21',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:12,zIndex:10,maxHeight:320,overflowY:'auto',margin:'0 16px'}}>
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                    <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({meetingParticipants.length || participantCount})</span>
+                    <button onClick={() => setShowAddPeople(true)} style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontWeight:600}}>+ Invite</button>
+                  </div>
+                  {/* Host */}
+                  <div style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    <div style={{width:32,height:32,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',flexShrink:0}}>Y</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:13,color:'#f2f3f5',fontWeight:500}}>You (Host)</div>
+                      <div style={{fontSize:11,color:'#4ade80'}}>🎙️ {micOn?'Mic on':'Mic off'} · 📷 {cameraOn?'Camera on':'Camera off'}</div>
+                    </div>
+                    <span style={{fontSize:11,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 6px',borderRadius:4}}>Host</span>
+                  </div>
+                  {/* Dynamic participants */}
+                  {meetingParticipants.map((p, i) => (
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                      <div style={{width:32,height:32,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff',flexShrink:0}}>
+                        {p.name?.charAt(0) || 'P'}
+                      </div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:13,color:'#f2f3f5'}}>{p.name}</div>
+                        <div style={{fontSize:11,color:'#80848e'}}>{p.email}</div>
+                      </div>
+                      <button onClick={() => {
+                        setMeetingParticipants(prev => prev.filter((_,j) => j!==i));
+                        setParticipantCount(c => Math.max(1, c-1));
+                        setInMeetingChat((c:any) => [...c, { sender:'System', text:`${p.name} was removed from the meeting`, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      }} style={{fontSize:11,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:6,padding:'3px 8px',cursor:'pointer'}}>
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                  {meetingParticipants.length === 0 && participantCount <= 1 && (
+                    <div style={{fontSize:12,color:'#80848e',textAlign:'center',padding:'12px 0'}}>
+                      No other participants yet. Click + Invite to add people.
+                    </div>
+                  )}
+                </div>
+              )}
+
               <button onClick={() => {
                   (window as any)._micStream?.getTracks().forEach((t:any) => t.stop());
                   (window as any)._camStream?.getTracks().forEach((t:any) => t.stop());
@@ -3259,53 +3310,240 @@ function MeetingsView() {
             </div>
 
             {/* Chat sidebar */}
-            <div style={{width:300,background:'#1a1d21',borderLeft:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column'}}>
-              <div style={{padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)',fontWeight:600,color:'#f2f3f5',fontSize:14}}>
-                Meeting chat
+            <div style={{width:320,background:'#1a1d21',borderLeft:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column'}}>
+
+              {/* Chat header with controls */}
+              <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <span style={{fontWeight:600,color:'#f2f3f5',fontSize:14}}>
+                    {chatMode === 'private' && privateTarget
+                      ? '🔒 Private: ' + privateTarget.name
+                      : '💬 Meeting chat'}
+                  </span>
+                  {chatMode === 'private' && (
+                    <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); }}
+                      style={{fontSize:10,color:'#80848e',background:'rgba(255,255,255,0.06)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
+                      × Back to all
+                    </button>
+                  )}
+                </div>
+                <div style={{display:'flex',gap:4,position:'relative'}}>
+                  {/* Chat mode toggle */}
+                  <button onClick={() => setShowChatMenu(s => !s)}
+                    style={{fontSize:11,color:'#b5bac1',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
+                    {chatMode === 'everyone' ? '🌐 Everyone ▾' : '🔒 Private ▾'}
+                  </button>
+                  {showChatMenu && (
+                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#2b2d31',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                      <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
+                        style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#f2f3f5',cursor:'pointer',fontSize:13,borderRadius:4}}>
+                        🌐 Message everyone
+                      </button>
+                      <div style={{padding:'4px 12px',fontSize:10,color:'#80848e',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
+                      {meetingParticipants.length === 0
+                        ? <div style={{padding:'6px 12px',fontSize:12,color:'#80848e'}}>No other participants yet</div>
+                        : meetingParticipants.map((p,i) => (
+                          <button key={i} onClick={() => { setChatMode('private'); setPrivateTarget(p); setShowChatMenu(false); }}
+                            style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 12px',background: privateTarget?.id===p.id?'rgba(99,102,241,0.15)':'none',border:'none',color:'#b5bac1',cursor:'pointer',fontSize:13,borderRadius:4}}>
+                            <div style={{width:22,height:22,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',flexShrink:0}}>{p.name?.charAt(0)}</div>
+                            {p.name}
+                          </button>
+                        ))
+                      }
+                    </div>
+                  )}
+                  {/* Clear chat */}
+                  <button onClick={() => {
+                    if (confirm('Clear all meeting chat messages? This cannot be undone.')) {
+                      setInMeetingChat([{ sender:'System', text:'Chat cleared by host', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                    }
+                  }} title="Clear chat" style={{fontSize:11,color:'#80848e',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
+                    🗑️
+                  </button>
+                </div>
               </div>
+
+              {/* Private chat notice */}
+              {chatMode === 'private' && privateTarget && (
+                <div style={{padding:'6px 14px',background:'rgba(99,102,241,0.08)',borderBottom:'1px solid rgba(99,102,241,0.15)',fontSize:11,color:'#818cf8'}}>
+                  🔒 Private messages to {privateTarget.name} are only visible to you and them
+                </div>
+              )}
+
               {/* Messages */}
               <div style={{flex:1,overflowY:'auto',padding:12,display:'flex',flexDirection:'column',gap:8}}>
-                {inMeetingChat.map((msg,i) => (
-                  <div key={i} style={{background: msg.sender==='System' ? 'rgba(255,255,255,0.04)' : 'rgba(36,128,70,0.08)',borderRadius:8,padding:'8px 10px',border: msg.sender==='System' ? 'none' : '1px solid rgba(36,128,70,0.15)'}}>
-                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}>
-                      <span style={{fontSize:11,fontWeight:600,color: msg.sender==='System'?'#80848e':'#4ade80'}}>{msg.sender}</span>
-                      <span style={{fontSize:10,color:'#80848e'}}>{msg.time}</span>
+                {inMeetingChat
+                  .filter(msg => {
+                    if (chatMode === 'private' && privateTarget) {
+                      return msg.private && (msg.to === privateTarget.id || msg.from === privateTarget.id);
+                    }
+                    return !msg.private;
+                  })
+                  .map((msg:any,i:number) => (
+                    <div key={i} style={{background:
+                      msg.sender==='System' ? 'rgba(255,255,255,0.03)' :
+                      msg.private ? 'rgba(99,102,241,0.1)' :
+                      'rgba(36,128,70,0.08)',
+                      borderRadius:8,padding:'8px 10px',
+                      border: msg.sender==='System' ? 'none' : msg.private ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(36,128,70,0.12)'}}>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
+                        <span style={{fontSize:11,fontWeight:600,color:
+                          msg.sender==='System' ? '#80848e' :
+                          msg.private ? '#818cf8' :
+                          '#4ade80'}}>
+                          {msg.sender}
+                          {msg.private && <span style={{fontSize:10,color:'#6366f1',marginLeft:4}}>🔒 private</span>}
+                        </span>
+                        <span style={{fontSize:10,color:'#80848e'}}>{msg.time}</span>
+                      </div>
+                      <p style={{fontSize:13,color:'#d1d2d3',margin:0,lineHeight:1.4}}>{msg.text}</p>
                     </div>
-                    <p style={{fontSize:13,color:'#d1d2d3',margin:0,lineHeight:1.4}}>{msg.text}</p>
+                  ))
+                }
+                {inMeetingChat.filter((msg:any) => chatMode==='private' && privateTarget ? msg.private && (msg.to===privateTarget.id||msg.from===privateTarget.id) : !msg.private).length === 0 && chatMode === 'private' && (
+                  <div style={{textAlign:'center',color:'#80848e',fontSize:12,padding:16}}>
+                    🔒 Start a private conversation with {privateTarget?.name}
                   </div>
-                ))}
+                )}
               </div>
-              {/* Emoji shortcuts in chat */}
-              <div style={{padding:'6px 12px',borderTop:'1px solid rgba(255,255,255,0.06)',display:'flex',gap:4}}>
-                {['👍','😊','❤️','🎉','🔥'].map(e => (
-                  <button key={e} onClick={() => setInMeetingMsg(m => m+e)}
-                    style={{background:'none',border:'none',fontSize:16,cursor:'pointer',padding:3,borderRadius:4}}>{e}</button>
+
+              {/* Emoji + file row */}
+              <div style={{padding:'6px 12px',borderTop:'1px solid rgba(255,255,255,0.06)',display:'flex',gap:4,alignItems:'center'}}>
+                <span style={{fontSize:11,color:'#80848e',marginRight:2}}>
+                  {chatMode==='private' && privateTarget ? '🔒' : '🌐'}
+                </span>
+                {['👍','😊','❤️','🎉','🔥','👏'].map(e => (
+                  <button key={e} onClick={() => setInMeetingMsg((m:string) => m+e)}
+                    style={{background:'none',border:'none',fontSize:15,cursor:'pointer',padding:2,borderRadius:4}}>
+                    {e}
+                  </button>
                 ))}
-                <label style={{marginLeft:'auto',cursor:'pointer'}}>
+                <label style={{marginLeft:'auto',cursor:'pointer'}} title="Share document">
                   <input type="file" style={{display:'none'}} onChange={e => {
                     const file = e.target.files?.[0];
-                    if(file) setInMeetingChat(c => [...c, { sender:'You', text:'📎 Shared: '+file.name, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                    if (!file) return;
+                    const msg:any = {
+                      sender:'You', text:'📎 Shared: '+file.name,
+                      time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+                      private: chatMode==='private',
+                      to: privateTarget?.id, from:'me'
+                    };
+                    setInMeetingChat((c:any) => [...c, msg]);
                   }} />
-                  <span style={{fontSize:16,color:'#80848e',cursor:'pointer'}} title="Share document">📎</span>
+                  <span style={{fontSize:16,color:'#80848e'}}>📎</span>
                 </label>
               </div>
+
               {/* Message input */}
               <div style={{padding:12,borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',gap:8}}>
-                <input value={inMeetingMsg} onChange={e=>setInMeetingMsg(e.target.value)}
+                <input value={inMeetingMsg} onChange={e => setInMeetingMsg(e.target.value)}
                   onKeyDown={e => {
                     if (e.key==='Enter' && inMeetingMsg.trim()) {
-                      setInMeetingChat(c => [...c, { sender:'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      const msg:any = {
+                        sender:'You', text:inMeetingMsg,
+                        time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+                        private: chatMode==='private',
+                        to: privateTarget?.id, from:'me'
+                      };
+                      setInMeetingChat((c:any) => [...c, msg]);
                       setInMeetingMsg('');
                     }
                   }}
-                  placeholder="Send a message..." style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 10px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                  placeholder={chatMode==='private' && privateTarget ? `Private message to ${privateTarget.name}...` : 'Message everyone...'}
+                  style={{flex:1,background:'rgba(255,255,255,0.06)',border:`1px solid ${chatMode==='private'?'rgba(99,102,241,0.3)':'rgba(255,255,255,0.1)'}`,borderRadius:8,padding:'8px 10px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
                 <button onClick={() => {
-                  if(!inMeetingMsg.trim()) return;
-                  setInMeetingChat(c => [...c, { sender:'You', text:inMeetingMsg, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                  if (!inMeetingMsg.trim()) return;
+                  const msg:any = {
+                    sender:'You', text:inMeetingMsg,
+                    time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),
+                    private: chatMode==='private',
+                    to: privateTarget?.id, from:'me'
+                  };
+                  setInMeetingChat((c:any) => [...c, msg]);
                   setInMeetingMsg('');
-                }} style={{background:'#248046',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>→</button>
+                }} style={{background: chatMode==='private'?'#6366f1':'#248046',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>
+                  →
+                </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add People to Meeting Modal */}
+      {showAddPeople && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:400,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+          <div style={{background:'#1e2124',borderRadius:16,border:'1px solid rgba(255,255,255,0.1)',width:'100%',maxWidth:460,padding:24,boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+              <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>Add people to meeting</span>
+              <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#80848e',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
+            </div>
+
+            {/* Capacity warning */}
+            <div style={{background:'rgba(255,255,255,0.04)',borderRadius:8,padding:'8px 12px',marginBottom:14,fontSize:12,color:'#80848e'}}>
+              {participantCount}/{MAX_PARTICIPANTS} participants · {MAX_PARTICIPANTS - participantCount} slots remaining
+              {participantCount >= MAX_PARTICIPANTS * 0.9 && <span style={{color:'#f59e0b',marginLeft:8}}>⚠️ Near capacity</span>}
+            </div>
+
+            {/* Search */}
+            <input value={addPeopleSearch} onChange={e => setAddPeopleSearch(e.target.value)}
+              placeholder="Search by name or email..."
+              style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 12px',color:'#f2f3f5',fontSize:14,outline:'none',marginBottom:12,boxSizing:'border-box'}} />
+
+            {/* Member list */}
+            <div style={{maxHeight:240,overflowY:'auto',marginBottom:14}}>
+              {(orgMembers as any[])
+                .filter((m:any) => !meetingParticipants.find(p => p.id===m.id))
+                .filter((m:any) => !addPeopleSearch || m.display_name?.toLowerCase().includes(addPeopleSearch.toLowerCase()) || m.email?.toLowerCase().includes(addPeopleSearch.toLowerCase()))
+                .map((m:any) => (
+                  <div key={m.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 4px',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0}}>
+                      {m.display_name?.charAt(0) || '?'}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:14,color:'#f2f3f5',fontWeight:500}}>{m.display_name}</div>
+                      <div style={{fontSize:12,color:'#80848e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
+                    </div>
+                    <button onClick={() => {
+                      if (participantCount >= MAX_PARTICIPANTS) {
+                        alert('Meeting is full. Maximum 500 participants allowed.');
+                        return;
+                      }
+                      setMeetingParticipants(prev => [...prev, { id:m.id, name:m.display_name, email:m.email }]);
+                      setParticipantCount(c => c + 1);
+                      setInMeetingChat((c:any) => [...c, { sender:'System', text:`${m.display_name} was invited to the meeting`, time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
+                      // Also send notification via API
+                      apiFetch('/meetings/' + activeMeeting?.id + '/invite', { method:'POST', body: JSON.stringify({ userId: m.id }) }).catch(()=>{});
+                    }} style={{fontSize:12,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:6,padding:'5px 12px',cursor:'pointer',fontWeight:600,flexShrink:0}}>
+                      + Add
+                    </button>
+                  </div>
+                ))
+              }
+              {(orgMembers as any[]).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
+                <p style={{fontSize:13,color:'#80848e',textAlign:'center',padding:16}}>All workspace members have been added</p>
+              )}
+            </div>
+
+            {/* Share link */}
+            <div style={{borderTop:'1px solid rgba(255,255,255,0.08)',paddingTop:14}}>
+              <p style={{fontSize:12,color:'#80848e',marginBottom:8}}>Or share the meeting link:</p>
+              <div style={{display:'flex',gap:8}}>
+                <input readOnly value={typeof window !== 'undefined' ? window.location.origin + '/meet?id=' + activeMeeting?.id : ''}
+                  style={{flex:1,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'7px 10px',color:'#80848e',fontSize:12,outline:'none'}} />
+                <button onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/meet?id=' + activeMeeting?.id);
+                  alert('Meeting link copied!');
+                }} style={{background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.2)',borderRadius:6,padding:'7px 14px',color:'#4ade80',cursor:'pointer',fontSize:12,fontWeight:600,flexShrink:0}}>
+                  Copy link
+                </button>
+              </div>
+            </div>
+
+            <button onClick={() => { setShowAddPeople(false); setShowParticipants(true); }}
+              style={{width:'100%',marginTop:14,background:'#248046',border:'none',borderRadius:10,padding:'10px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>
+              Done — View participants
+            </button>
           </div>
         </div>
       )}
