@@ -998,10 +998,12 @@ export default function WorkspaceShell() {
             {[
               { icon:'📹', label:'Meetings', action: () => { setActiveView('meetings'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
               { icon:'🏠', label:'Home', action: () => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
+              { icon:'⚙️', label:'Settings', action: () => window.location.href='/settings' },
               { icon:'🔖', label:'Saved messages', action: loadBookmarks },
               { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
               { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
               { icon:'🇮🇳', label:'India features', action: () => window.location.href='/india' },
+              { icon:'📱', label:'WhatsApp setup', action: () => window.location.href='/settings' },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
                 style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#9ea3a8',transition:'all .1s',fontSize:14}}>
@@ -2854,6 +2856,7 @@ function MeetingsView() {
                         <button onClick={() => makeRecurring(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recur</button>
                       </>
                     )}
+                    <button onClick={() => alert('Dial-in Number: +91-22-6880-0000\nMeeting ID: ' + m.id.slice(0,8).toUpperCase() + '\n\nCall the number and enter the Meeting ID when prompted.')} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Dial-in by phone">📞</button>
                     <button onClick={() => openPoll(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Poll</button>
                     <button onClick={() => { setPollMeetId(m.id); setShowWB(true); }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Board</button>
                     <button onClick={() => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); }} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Agenda</button>
