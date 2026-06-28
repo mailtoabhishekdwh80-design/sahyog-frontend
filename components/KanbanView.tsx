@@ -83,6 +83,10 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
           {((task as any).vote_count || 0) > 0 && (
             <span className="text-xs text-blue-400">👍 {(task as any).vote_count}</span>
           )}
+          {/* Estimate display */}
+          {(task as any).estimate_hours && (
+            <span className="text-xs text-blue-400" title="Estimated time">⏱ {(task as any).estimate_hours}h</span>
+          )}
           {/* Card aging indicator */}
           {(task as any).updated_at && (() => {
             const days = Math.floor((Date.now() - new Date((task as any).updated_at).getTime()) / 86400000);
@@ -203,6 +207,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [showBoardPerms, setShowBoardPerms] = useState(false);
   const [boardPrivate,   setBoardPrivate]   = useState(false);
   const [checklistTpls,  setChecklistTpls]  = useState(false);
+  const [showEstimate,   setShowEstimate]   = useState<string|null>(null);
+  const [estimateHours,  setEstimateHours]  = useState('');
+  const [showWatcher,    setShowWatcher]    = useState<string|null>(null);
+  const [showCrossBoard, setShowCrossBoard] = useState<string|null>(null);
   const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
@@ -434,6 +442,28 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
     { name: 'Bug fix', items: ['Reproduce the bug', 'Identify root cause', 'Write fix', 'Add test case', 'Code review', 'Deploy fix'] },
     { name: 'Meeting prep', items: ['Set agenda', 'Invite participants', 'Prepare materials', 'Send reminder', 'Book meeting room'] },
   ];
+
+  // ── Task estimate ──
+  async function saveEstimate(taskId: string, hours: number) {
+    await apiFetch('/boards/task/' + taskId + '/estimate', { method:'POST', body: JSON.stringify({ estimate_hours: hours }) });
+    setShowEstimate(null);
+    loadBoard();
+  }
+
+  // ── Card watcher ──
+  async function watchTask(taskId: string) {
+    await apiFetch('/boards/task/' + taskId + '/watch', { method:'POST' });
+    setShowWatcher(null);
+    alert('You will be notified of all updates to this task.');
+  }
+
+  // ── Move card to another board ──
+  async function moveToBoard(taskId: string, targetBoardId: string) {
+    await apiFetch('/boards/task/' + taskId + '/move-board', { method:'POST', body: JSON.stringify({ targetBoardId }) });
+    setShowCrossBoard(null);
+    loadBoard();
+    alert('Task moved to selected board!');
+  }
 
   // ── Export board to CSV ──
   function exportBoardCSV() {
@@ -1133,6 +1163,58 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   </div>
                 </label>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Estimate Modal */}
+      {showEstimate && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowEstimate(null); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Set time estimate</h3>
+              <button onClick={() => setShowEstimate(null)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <div className="mb-4">
+              <label className="text-xs text-gray-500 block mb-2">Estimated hours</label>
+              <input type="number" value={estimateHours} onChange={e => setEstimateHours(e.target.value)}
+                placeholder="e.g. 4" min="0.5" step="0.5"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none" />
+              <div className="flex gap-2 mt-2">
+                {[0.5,1,2,4,8].map(h => (
+                  <button key={h} onClick={() => setEstimateHours(String(h))}
+                    className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 px-2 py-1 rounded">{h}h</button>
+                ))}
+              </div>
+            </div>
+            <button onClick={() => saveEstimate(showEstimate, parseFloat(estimateHours))}
+              className="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Save estimate</button>
+          </div>
+        </div>
+      )}
+
+      {/* Move to Board Modal */}
+      {showCrossBoard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowCrossBoard(null); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Move to another board</h3>
+              <button onClick={() => setShowCrossBoard(null)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Select a board to move this task to:</p>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {boards.filter((b: any) => b.id !== boardId).map((b: any) => (
+                <button key={b.id} onClick={() => moveToBoard(showCrossBoard!, b.id)}
+                  className="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm text-white flex items-center gap-2">
+                  <span className="text-gray-500 text-xs">B</span>{b.name}
+                </button>
+              ))}
+              {boards.filter((b: any) => b.id !== boardId).length === 0 && (
+                <p className="text-gray-500 text-sm text-center py-4">No other boards available</p>
+              )}
             </div>
           </div>
         </div>

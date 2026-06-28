@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -2576,6 +2572,11 @@ function MeetingsView() {
   const [captionText, setCaptionText] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(false);
   const [showSummary, setShowSummary] = useState<string|null>(null);
+  const [meetCapacity, setMeetCapacity] = useState(50);
+  const [showCapacity, setShowCapacity] = useState<string|null>(null);
+  const [coHosts,      setCoHosts]      = useState<Record<string,string[]>>({});
+  const [showCoHost,   setShowCoHost]   = useState<string|null>(null);
+  const [groupedNotifs,setGroupedNotifs]= useState<Record<string,any[]>>({});
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
@@ -2865,6 +2866,8 @@ function MeetingsView() {
                       {handRaised ? '✋ Lowered' : '✋ Raise'}
                     </button>
                     <button onClick={() => setShowBreakout(true)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Breakout</button>
+                    <button onClick={() => setShowCapacity(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Set capacity">👥 Cap</button>
+                    <button onClick={() => setShowCoHost(m.id)} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg" title="Co-host">🎤 Co-host</button>
                     {m.metadata?.recording_url && (
                       <a href={m.metadata.recording_url} target="_blank" className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1.5 rounded-lg">Recording</a>
                     )}
@@ -2964,6 +2967,73 @@ function MeetingsView() {
               <button onClick={() => { alert('Breakout rooms opened! Share the room links with participants.'); setShowBreakout(false); }}
                 className="flex-1 text-sm bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl font-medium">Start breakouts</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Meeting capacity modal */}
+      {showCapacity && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowCapacity(null); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Meeting capacity limit</h3>
+              <button onClick={() => setShowCapacity(null)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Set maximum number of participants</p>
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {[10,25,50,100,200,500].map(n => (
+                <button key={n} onClick={() => setMeetCapacity(n)}
+                  className={`text-sm px-3 py-2 rounded-lg border ${meetCapacity===n?'bg-emerald-700 border-emerald-600 text-white':'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+                  {n}
+                </button>
+              ))}
+            </div>
+            <input type="number" value={meetCapacity} onChange={e => setMeetCapacity(parseInt(e.target.value))}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none mb-4" />
+            <button onClick={async () => {
+              await apiFetch('/meetings/' + showCapacity + '/capacity', { method:'PATCH', body: JSON.stringify({ capacity: meetCapacity }) });
+              setShowCapacity(null);
+              alert('Capacity set to ' + meetCapacity + ' participants');
+            }} className="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Save capacity</button>
+          </div>
+        </div>
+      )}
+
+      {/* Co-host modal */}
+      {showCoHost && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowCoHost(null); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Co-host permissions</h3>
+              <button onClick={() => setShowCoHost(null)} className="text-gray-500 hover:text-white">x</button>
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Select members to assign as co-hosts</p>
+            <div className="space-y-1 max-h-56 overflow-y-auto mb-4">
+              {(orgMembers as any[]).map((m: any) => (
+                <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
+                  <input type="checkbox"
+                    checked={(coHosts[showCoHost!] || []).includes(m.id)}
+                    onChange={e => {
+                      setCoHosts(prev => ({
+                        ...prev,
+                        [showCoHost!]: e.target.checked
+                          ? [...(prev[showCoHost!]||[]), m.id]
+                          : (prev[showCoHost!]||[]).filter((id: string) => id !== m.id)
+                      }));
+                    }} className="accent-emerald-500" />
+                  <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
+                  <div className="text-sm text-white">{m.display_name}</div>
+                </label>
+              ))}
+            </div>
+            <button onClick={async () => {
+              const ids = coHosts[showCoHost!] || [];
+              await apiFetch('/meetings/' + showCoHost + '/cohosts', { method:'POST', body: JSON.stringify({ coHostIds: ids }) });
+              setShowCoHost(null);
+              alert('Co-hosts assigned: ' + ids.length + ' member' + (ids.length!==1?'s':''));
+            }} className="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-xl text-sm font-medium">Assign co-hosts</button>
           </div>
         </div>
       )}
