@@ -2599,6 +2599,7 @@ function MeetingsView() {
   const [allMuted,       setAllMuted]        = useState(false);
   const [showHostControls,setShowHostControls]=useState<string|null>(null);
   const [meetingLocked,  setMeetingLocked]   = useState(false);
+  const [waitingRoom,    setWaitingRoom]      = useState(false);
   const [participantCount,setParticipantCount]=useState(0);
   const MONTHLY_LIMIT_MINS = 72 * 60; // 72 hours = 4320 minutes
   const MAX_PARTICIPANTS = 500;
@@ -2610,7 +2611,7 @@ function MeetingsView() {
 
   useEffect(() => {
     api.meetings().then(res => setMeetings(res?.data || []));
-    api.adminMembers().then(res => setOrgMembers(Array.isArray(res?.data) ? res.data : []));
+    api.orgMembers().then(res => { const m = Array.isArray(res?.data) ? res.data : []; setOrgMembers(m); });
     const d = new Date(Date.now() + 60 * 60 * 1000);
     setMeetDate(d.toISOString().split('T')[0]);
     setMeetTime(d.toTimeString().slice(0, 5));
