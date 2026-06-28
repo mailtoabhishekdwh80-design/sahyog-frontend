@@ -8,11 +8,7 @@ import KanbanView from './KanbanView';
 type Workspace = { id: string; name: string; type: string };
 type Channel   = { id: string; name: string; type: string; description?: string; unread_count?: number };
 type Board     = { id: string; name: string };
-type Message   = {
-  id: string; content: string; sender_name: string; sender_id: string;
-  sent_at: string; is_edited?: boolean; is_pinned?: boolean;
-  reply_count?: number; reactions?: Record<string, number>; channel_id?: string;
-};
+type Message = { id: string; content: string; sender_name: string; sender_id: string; sent_at: string; is_edited?: boolean; is_pinned?: boolean; reply_count?: number; reactions?: Record<string, number>; channel_id?: string; };
 
 // ── Helpers ───────────────────────────────────────────────────
 function parseMentions(content: string) {
@@ -3192,12 +3188,60 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                   <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
                 {/* Other participant tiles */}
-                {/* Participant tiles - real names */}
+                {/* Participant tiles - click to open host controls */}
                 {meetingParticipants.slice(0,5).map((p:any,i:number) => (
-                  <div key={i} style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,0.06)',position:'relative'}}>
-                    <div style={{width:44,height:44,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>{p.name?.charAt(0)||'?'}</div>
-                    <span style={{fontSize:12,color:'#b5bac1'}}>{p.name}</span>
-                    <span style={{position:'absolute',bottom:6,left:8,fontSize:10,color:'#80848e',background:'rgba(0,0,0,0.5)',padding:'1px 5px',borderRadius:4}}>{p.email?.split('@')[0]}</span>
+                  <div key={i}
+                    onClick={e => { e.stopPropagation(); setShowHostControls(showHostControls===p.id?null:p.id); }}
+                    style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'relative',cursor:'pointer',border: showHostControls===p.id ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',transition:'border .15s',userSelect:'none'}}>
+                    <div style={{width:44,height:44,borderRadius:'50%',background:(['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'] as string[])[i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>{p.name?.charAt(0)||'?'}</div>
+                    <span style={{fontSize:12,color:'#b5bac1',fontWeight:500}}>{p.name}</span>
+                    <div style={{position:'absolute',bottom:6,left:6,display:'flex',gap:3}}>
+                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:participantMics[p.id]===false?'#ed4245':'#4ade80'}}>{participantMics[p.id]===false?'🔇':'🎙️'}</span>
+                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#80848e'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
+                    </div>
+                    <div style={{position:'absolute',top:6,right:6,fontSize:9,color:'#f59e0b',background:'rgba(0,0,0,0.6)',padding:'1px 5px',borderRadius:4,opacity: showHostControls===p.id?1:0,transition:'opacity .15s'}}>Host controls</div>
+                    {showHostControls===p.id && (
+                      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#1a1d21',border:'2px solid #f59e0b',borderRadius:12,padding:12,zIndex:50,minWidth:190,boxShadow:'0 12px 40px rgba(0,0,0,0.8)'}}
+                        onClick={e=>e.stopPropagation()}>
+                        <div style={{fontSize:12,fontWeight:700,color:'#f59e0b',marginBottom:10,textAlign:'center',borderBottom:'1px solid rgba(245,158,11,0.2)',paddingBottom:8}}>{p.name}</div>
+                        {[
+                          {label: participantMics[p.id]===false?'🎙️ Unmute mic':'🔇 Mute mic', fn:()=>{
+                            setParticipantMics((prev:any)=>({...prev,[p.id]:prev[p.id]===false?true:false}));
+                            setInMeetingChat((c:any)=>[...c,{sender:'System',text:`Host ${participantMics[p.id]===false?'unmuted':'muted'} ${p.name}'s microphone`,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
+                            setShowHostControls(null);
+                          }},
+                          {label: participantCams[p.id]===false?'📷 Enable camera':'📷 Disable camera', fn:()=>{
+                            setParticipantCams((prev:any)=>({...prev,[p.id]:prev[p.id]===false?true:false}));
+                            setInMeetingChat((c:any)=>[...c,{sender:'System',text:`Host ${participantCams[p.id]===false?'enabled':'disabled'} ${p.name}'s camera`,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
+                            setShowHostControls(null);
+                          }},
+                          {label:'🎤 Make co-host', fn:()=>{
+                            setInMeetingChat((c:any)=>[...c,{sender:'System',text:`${p.name} is now a co-host`,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
+                            setShowHostControls(null);
+                          }},
+                          {label:'💬 Private message', fn:()=>{
+                            setChatMode('private'); setPrivateTarget(p); setShowHostControls(null);
+                          }},
+                          {label:'🚫 Remove from meeting', fn:()=>{
+                            if(confirm('Remove '+p.name+' from the meeting?')){
+                              setMeetingParticipants((prev:any)=>prev.filter((_:any,j:number)=>j!==i));
+                              setParticipantCount((c:number)=>Math.max(1,c-1));
+                              setInMeetingChat((c:any)=>[...c,{sender:'System',text:`${p.name} was removed by host`,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
+                              setShowHostControls(null);
+                            }
+                          }},
+                        ].map(action=>(
+                          <button key={action.label} onClick={action.fn}
+                            style={{display:'block',width:'100%',textAlign:'left',padding:'8px 10px',background:'none',border:'none',color:'#d1d2d3',cursor:'pointer',fontSize:12,borderRadius:6,marginBottom:2}}
+                            onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.08)'}
+                            onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='none'}>
+                            {action.label}
+                          </button>
+                        ))}
+                        <button onClick={()=>setShowHostControls(null)}
+                          style={{display:'block',width:'100%',textAlign:'center',padding:'5px',background:'rgba(255,255,255,0.06)',border:'none',color:'#80848e',cursor:'pointer',fontSize:11,borderRadius:6,marginTop:6}}>Close ✕</button>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {meetingParticipants.length===0 && (
