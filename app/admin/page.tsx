@@ -96,15 +96,46 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-gray-900 rounded-xl p-1 border border-gray-800 w-fit">
-          {[['overview','Overview'],['members','Members'],['audit','Audit Log'],['roles','Roles'],['security','Security'],['compliance','Compliance']].map(([t,label]) => (
-            <button key={t} onClick={() => { setTab(t as any); if (t === 'audit') loadAudit(); }}
-              className={'px-4 py-2 rounded-lg text-sm font-medium transition-colors ' + (tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white')}>
-              {label}
+          {(['overview', 'members', 'audit'] as const).map(t => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); if (t === 'audit') loadAudit(); }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {t === 'overview' ? '📊 Overview' : t === 'members' ? '👥 Members' : '📋 Audit Log'}
             </button>
           ))}
         </div>
 
         {/* Overview tab */}
+        {/* Demo data seed button */}
+        {tab === 'overview' && (
+          <div className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">Seed demo data</p>
+              <p className="text-xs text-gray-400 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
+            </div>
+            <button onClick={async () => {
+              if (!confirm('This will add demo channels, messages, and boards to your workspace. Continue?')) return;
+              const token = localStorage.getItem('sahyog_token');
+              const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/seed-demo', {
+                method:'POST', headers:{'Authorization':'Bearer '+token}
+              });
+              const data = await res.json();
+              if (data.data?.success) {
+                alert('Demo data seeded! Refresh the workspace to see channels and boards.');
+                window.location.href = '/workspace';
+              } else {
+                alert(data.error || 'Failed to seed demo data');
+              }
+            }} className="bg-emerald-700 hover:bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4">
+              🌱 Seed demo data
+            </button>
+          </div>
+        )}
+
         {tab === 'overview' && stats && (
           <div className="space-y-8">
             <div>
