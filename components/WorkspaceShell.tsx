@@ -2578,6 +2578,7 @@ function MeetingsView() {
   const [captionText, setCaptionText] = useState('');
   const [waitingRoom, setWaitingRoom] = useState(false);
   const [showSummary, setShowSummary] = useState<string|null>(null);
+  const [openMenuId,   setOpenMenuId]   = useState<string|null>(null);
   const [meetCapacity, setMeetCapacity] = useState(50);
   const [showCapacity, setShowCapacity] = useState<string|null>(null);
   const [coHosts,      setCoHosts]      = useState<Record<string,string[]>>({});
@@ -2857,28 +2858,28 @@ function MeetingsView() {
                     )}
                     {/* Hamburger menu */}
                     <div className="relative" style={{position:'relative'}}>
-                      <button onClick={() => setActiveMeetingId(activeMeetingId === m.id ? null : m.id)}
+                      <button onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
                         className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg font-bold">
                         ⋯
                       </button>
-                      {activeMeetingId === m.id && (
+                      {openMenuId === m.id && (
                         <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#2b2d31',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                           {[
-                            { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setActiveMeetingId(null); } },
-                            { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setActiveMeetingId(null); } },
-                            { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000 | Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setActiveMeetingId(null); } },
-                            { label:'📋 Meeting agenda', fn: () => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); setActiveMeetingId(null); } },
-                            { label:'👥 Attendance', fn: () => { loadAttendance(m.id); setActiveMeetingId(null); } },
-                            { label:'📝 Post summary', fn: () => { postSummaryToChannel(m); setActiveMeetingId(null); } },
-                            { label:'🗳️ Create poll', fn: () => { openPoll(m.id); setActiveMeetingId(null); } },
-                            { label:'🖊️ Whiteboard', fn: () => { setPollMeetId(m.id); setShowWB(true); setActiveMeetingId(null); } },
-                            { label:'🔁 Make recurring', fn: () => { makeRecurring(m.id); setActiveMeetingId(null); } },
-                            { label: captionsOn ? '🔴 Stop captions' : '💬 Live captions', fn: () => { toggleCaptions(); setActiveMeetingId(null); } },
-                            { label: handRaised ? '✋ Lower hand' : '✋ Raise hand', fn: () => { setHandRaised(h => !h); setActiveMeetingId(null); } },
-                            { label:'🚪 Breakout rooms', fn: () => { setShowBreakout(true); setActiveMeetingId(null); } },
-                            { label:'👥 Set capacity', fn: () => { setShowCapacity(m.id); setActiveMeetingId(null); } },
-                            { label:'🎤 Assign co-host', fn: () => { setShowCoHost(m.id); setActiveMeetingId(null); } },
-                            ...(m.metadata?.recording_url ? [{ label:'🎥 View recording', fn: () => { window.open(m.metadata.recording_url, '_blank'); setActiveMeetingId(null); } }] : []),
+                            { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setOpenMenuId(null); } },
+                            { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setOpenMenuId(null); } },
+                            { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000 | Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setOpenMenuId(null); } },
+                            { label:'📋 Meeting agenda', fn: () => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); setOpenMenuId(null); } },
+                            { label:'👥 Attendance', fn: () => { loadAttendance(m.id); setOpenMenuId(null); } },
+                            { label:'📝 Post summary', fn: () => { postSummaryToChannel(m); setOpenMenuId(null); } },
+                            { label:'🗳️ Create poll', fn: () => { openPoll(m.id); setOpenMenuId(null); } },
+                            { label:'🖊️ Whiteboard', fn: () => { setPollMeetId(m.id); setShowWB(true); setOpenMenuId(null); } },
+                            { label:'🔁 Make recurring', fn: () => { makeRecurring(m.id); setOpenMenuId(null); } },
+                            { label: captionsOn ? '🔴 Stop captions' : '💬 Live captions', fn: () => { toggleCaptions(); setOpenMenuId(null); } },
+                            { label: handRaised ? '✋ Lower hand' : '✋ Raise hand', fn: () => { setHandRaised(h => !h); setOpenMenuId(null); } },
+                            { label:'🚪 Breakout rooms', fn: () => { setShowBreakout(true); setOpenMenuId(null); } },
+                            { label:'👥 Set capacity', fn: () => { setShowCapacity(m.id); setOpenMenuId(null); } },
+                            { label:'🎤 Assign co-host', fn: () => { setShowCoHost(m.id); setOpenMenuId(null); } },
+                            ...(m.metadata?.recording_url ? [{ label:'🎥 View recording', fn: () => { window.open(m.metadata.recording_url, '_blank'); setOpenMenuId(null); } }] : []),
                           ].map(item => (
                             <button key={item.label} onClick={item.fn}
                               style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background:'none',border:'none',color:'#b5bac1',cursor:'pointer',fontSize:13,borderRadius:6,whiteSpace:'nowrap'}}
