@@ -1004,6 +1004,7 @@ export default function WorkspaceShell() {
               { icon:'🇮🇳', label:'India features', action: () => window.location.href='/india' },
               { icon:'🛡️', label:'Security center', action: () => window.location.href='/security' },
               { icon:'📋', label:'Compliance', action: () => window.location.href='/compliance' },
+              { icon:'🏢', label:'Enterprise', action: () => window.location.href='/enterprise' },
               { icon:'📱', label:'WhatsApp setup', action: () => window.location.href='/settings' },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
