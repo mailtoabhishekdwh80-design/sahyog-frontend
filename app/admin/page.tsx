@@ -25,6 +25,7 @@ export default function AdminPage() {
   const [inviting, setInviting] = useState(false);
   const [lastInviteLink, setLastInviteLink] = useState('');
   const [lastInviteSentEmail, setLastInviteSentEmail] = useState(false);
+  const [inviteMode, setInviteMode] = useState<'specific'|'team'>('specific');
   const [roles,   setRoles]   = useState<any[]>([]);
   const [usageStats,setUsageStats]=useState<any>(null);
   const [deactivating,setDeactivating]=useState<string|null>(null);
@@ -219,7 +220,7 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">Members ({members.length})</h2>
               <div className="flex gap-2">
-                <button onClick={() => { setLastInviteLink(''); setShowInviteModal(true); }}
+                <button onClick={() => { setLastInviteLink(''); setInviteMode('specific'); setShowInviteModal(true); }}
                   className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
                   + Invite member
                 </button>
@@ -241,12 +242,29 @@ export default function AdminPage() {
                     <span className="text-white font-semibold">Invite team member</span>
                     <button onClick={() => setShowInviteModal(false)} className="text-gray-500 hover:text-white text-xl leading-none">×</button>
                   </div>
-                  <div className="mb-4">
-                    <label className="text-xs text-gray-500 block mb-1.5">Email address</label>
-                    <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
-                      placeholder="colleague@company.com" type="email"
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500" />
+                  <div className="mb-4 flex gap-2">
+                    <button type="button" onClick={() => setInviteMode('specific')}
+                      className={`flex-1 text-xs py-2 rounded-lg border ${inviteMode==='specific' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      Invite one person
+                    </button>
+                    <button type="button" onClick={() => setInviteMode('team')}
+                      className={`flex-1 text-xs py-2 rounded-lg border ${inviteMode==='team' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      Generate team link
+                    </button>
                   </div>
+
+                  {inviteMode === 'specific' ? (
+                    <div className="mb-4">
+                      <label className="text-xs text-gray-500 block mb-1.5">Email address</label>
+                      <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
+                        placeholder="colleague@company.com" type="email"
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500" />
+                    </div>
+                  ) : (
+                    <div className="mb-4 bg-gray-800/60 border border-gray-700 rounded-lg p-3">
+                      <p className="text-xs text-gray-400">Anyone with this link can join your workspace — no specific email required. Useful for quickly onboarding several teammates at once. The link stays active for 30 days unless you revoke it.</p>
+                    </div>
+                  )}
                   <div className="mb-4">
                     <label className="text-xs text-gray-500 block mb-1.5">Role</label>
                     <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
@@ -257,14 +275,14 @@ export default function AdminPage() {
                     </select>
                   </div>
                   <button onClick={async () => {
-                    if (!inviteEmail || !inviteEmail.includes('@')) { alert('Please enter a valid email address'); return; }
+                    if (inviteMode === 'specific' && (!inviteEmail || !inviteEmail.includes('@'))) { alert('Please enter a valid email address'); return; }
                     setInviting(true);
                     const tok = localStorage.getItem('sahyog_token');
                     try {
                       const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/invite', {
                         method:'POST',
                         headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
-                        body: JSON.stringify({ email: inviteEmail, role: inviteRole })
+                        body: JSON.stringify(inviteMode === 'team' ? { mode:'team', role: inviteRole } : { email: inviteEmail, role: inviteRole })
                       });
                       let data: any = null;
                       try { data = await res.json(); } catch { /* non-JSON response */ }
@@ -285,13 +303,13 @@ export default function AdminPage() {
                     setInviting(false);
                   }} disabled={inviting}
                     className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium mb-3">
-                    {inviting ? 'Sending invite...' : 'Send invite'}
+                    {inviting ? 'Creating invite...' : inviteMode === 'team' ? 'Generate link' : 'Send invite'}
                   </button>
 
                   {lastInviteLink && (
                     <div className="bg-emerald-900/20 border border-emerald-700 rounded-lg p-3 mb-3">
                       <p className="text-xs text-emerald-300 mb-2 font-medium">
-                        {lastInviteSentEmail ? '✓ Invite email sent! Or share this link directly:' : 'Email not configured — share this link directly with your team member:'}
+                        {inviteMode === 'team' ? 'Team link created — share with anyone you want to invite:' : lastInviteSentEmail ? '✓ Invite email sent! Or share this link directly:' : 'Email not configured — share this link directly with your team member:'}
                       </p>
                       <div className="flex gap-2">
                         <input readOnly value={lastInviteLink}
