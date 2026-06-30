@@ -1016,32 +1016,36 @@ export default function WorkspaceShell() {
         </div>
 
         {/* User footer */}
-        <div style={{padding:'8px 12px',borderTop:'1px solid rgba(255,255,255,0.08)',display:'flex',alignItems:'center',gap:8}}>
-          <button onClick={() => setShowStatus(true)} style={{display:'flex',alignItems:'center',gap:8,background:'none',border:'none',cursor:'pointer',flex:1,padding:'4px 0',textAlign:'left'}}>
-            <div style={{position:'relative',flexShrink:0}}>
-              <div style={{width:30,height:30,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff'}}>
-                {user?.display_name?.charAt(0) || '?'}
+        <div style={{padding:'8px 12px',borderTop:'1px solid rgba(255,255,255,0.08)'}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+            <button onClick={() => setShowStatus(true)} style={{display:'flex',alignItems:'center',gap:8,background:'none',border:'none',cursor:'pointer',flex:1,minWidth:0,padding:'4px 0',textAlign:'left'}}>
+              <div style={{position:'relative',flexShrink:0}}>
+                <div style={{width:30,height:30,borderRadius:'50%',background:'#4a9a6f',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#fff'}}>
+                  {user?.display_name?.charAt(0) || '?'}
+                </div>
+                <span style={{position:'absolute',bottom:0,right:0,width:9,height:9,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : '#2bac76'}}/>
               </div>
-              <span style={{position:'absolute',bottom:0,right:0,width:9,height:9,borderRadius:'50%',border:'2px solid #1a1d21',background: user?.status_text?.toLowerCase().includes('meeting') ? '#e01e5a' : '#2bac76'}}/>
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
-              <div style={{fontSize:11,color:'#9ea3a8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
-            </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
+                <div style={{fontSize:11,color:'#9ea3a8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
+              </div>
+            </button>
+            <button onClick={() => {
+                const t = theme === 'dark' ? 'light' : 'dark';
+                setTheme(t);
+                localStorage.setItem('dt_theme', t);
+                document.documentElement.setAttribute('data-theme', t);
+              }} title="Toggle theme"
+              style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+            <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts (?)"
+              style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
+          </div>
+          <button onClick={() => api.logout()}
+            style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'rgba(237,66,69,0.08)',border:'1px solid rgba(237,66,69,0.25)',borderRadius:8,cursor:'pointer',color:'#f87171',fontSize:13,fontWeight:600,padding:'8px 0'}}>
+            <span>↪</span><span>Sign out</span>
           </button>
-          <button onClick={() => {
-              const t = theme === 'dark' ? 'light' : 'dark';
-              setTheme(t);
-              localStorage.setItem('dt_theme', t);
-              document.documentElement.setAttribute('data-theme', t);
-            }} title="Toggle theme"
-            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-          <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts (?)"
-            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
-          <button onClick={() => api.logout()} title="Sign out"
-            style={{background:'none',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>↪</button>
         </div>
       </div>
 
@@ -2208,6 +2212,12 @@ export default function WorkspaceShell() {
               <button onClick={saveStatus} className="flex-1 bg-emerald-700 hover:bg-emerald-600 text-white font-medium py-2 rounded-xl text-sm">Save</button>
               <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
                 className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
+            </div>
+            <div className="border-t border-gray-800 pt-3">
+              <button onClick={() => api.logout()}
+                className="w-full flex items-center justify-center gap-2 bg-red-900/20 hover:bg-red-900/30 border border-red-800/40 text-red-400 font-medium py-2 rounded-xl text-sm">
+                <span>↪</span><span>Sign out</span>
+              </button>
             </div>
           </div>
         </div>
