@@ -266,14 +266,18 @@ export default function AdminPage() {
                         headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
                         body: JSON.stringify({ email: inviteEmail, role: inviteRole })
                       });
-                      const data = await res.json();
+                      let data: any = null;
+                      try { data = await res.json(); } catch { /* non-JSON response */ }
+
                       if (data?.data?.success && data?.data?.signup_link) {
                         setLastInviteLink(data.data.signup_link);
                         setLastInviteSentEmail(!!data.data.email_sent);
                         setInviteEmail('');
                         loadData();
+                      } else if (data?.error) {
+                        alert(data.error);
                       } else {
-                        alert(data?.error || 'Could not create invite. Please try again.');
+                        alert('Could not create invite (HTTP ' + res.status + '). Please try again or check server logs.');
                       }
                     } catch(e) {
                       alert('Could not reach the server to create the invite. Please check your connection and try again.');
