@@ -126,7 +126,7 @@ export default function AdminPage() {
             <button onClick={async () => {
               if (!confirm('This will add demo channels, messages, and boards to your workspace. Continue?')) return;
               const token = localStorage.getItem('sahyog_token');
-              const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/seed-demo', {
+              const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/seed-demo', {
                 method:'POST', headers:{'Authorization':'Bearer '+token}
               });
               const data = await res.json();
@@ -261,7 +261,7 @@ export default function AdminPage() {
                     setInviting(true);
                     const tok = localStorage.getItem('sahyog_token');
                     try {
-                      const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/invite', {
+                      const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/invite', {
                         method:'POST',
                         headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
                         body: JSON.stringify({ email: inviteEmail, role: inviteRole })
@@ -419,7 +419,7 @@ export default function AdminPage() {
                 { label: 'Export workspace data', desc: 'Download all messages, files, and user data as JSON/CSV', icon: '📤', action: async () => {
                   if(!confirm('Export all workspace data? This may take a few minutes.')) return;
                   const token = localStorage.getItem('sahyog_token');
-                  const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/export', {method:'POST',headers:{'Authorization':'Bearer '+token}}).catch(()=>null);
+                  const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/export', {method:'POST',headers:{'Authorization':'Bearer '+token}}).catch(()=>null);
                   alert(res?.ok ? 'Export started! Download link will be emailed within 24 hours.' : 'Export initiated. You will receive the data file via email.');
                 } },
                 { label: 'User data report', desc: 'Generate a report of all data held for a specific user', icon: '👤', action: async () => {
@@ -432,7 +432,7 @@ export default function AdminPage() {
                   if(!email) return;
                   if(!confirm('PERMANENT ACTION: Delete ALL data for ' + email + '? This cannot be undone.')) return;
                   const token = localStorage.getItem('sahyog_token');
-                  await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/erase-user', {method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>null);
+                  await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/erase-user', {method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({email})}).catch(()=>null);
                   alert('Erasure request submitted for ' + email + '. Data will be permanently deleted within 30 days per GDPR requirements.');
                 } },
                 { label: 'Cookie consent log', desc: 'View record of cookie consent across the workspace', icon: '🍪', action: async () => {
