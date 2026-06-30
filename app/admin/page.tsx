@@ -26,6 +26,8 @@ export default function AdminPage() {
   const [lastInviteLink, setLastInviteLink] = useState('');
   const [lastInviteSentEmail, setLastInviteSentEmail] = useState(false);
   const [inviteMode, setInviteMode] = useState<'specific'|'team'>('specific');
+  const [persistentLink, setPersistentLink] = useState<any>(null);
+  const [persistentLoading, setPersistentLoading] = useState(false);
   const [roles,   setRoles]   = useState<any[]>([]);
   const [usageStats,setUsageStats]=useState<any>(null);
   const [deactivating,setDeactivating]=useState<string|null>(null);
@@ -220,7 +222,19 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">Members ({members.length})</h2>
               <div className="flex gap-2">
-                <button onClick={() => { setLastInviteLink(''); setInviteMode('specific'); setShowInviteModal(true); }}
+                <button onClick={async () => {
+                    setLastInviteLink(''); setInviteMode('specific'); setShowInviteModal(true);
+                    setPersistentLoading(true);
+                    const tok = localStorage.getItem('sahyog_token');
+                    try {
+                      const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/persistent-invite', {
+                        headers: { 'Authorization': 'Bearer '+tok }
+                      });
+                      const data = await res.json();
+                      if (data?.data) setPersistentLink(data.data);
+                    } catch {}
+                    setPersistentLoading(false);
+                  }}
                   className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
                   + Invite member
                 </button>
@@ -317,9 +331,57 @@ export default function AdminPage() {
                         <button onClick={() => { navigator.clipboard.writeText(lastInviteLink); alert('Link copied!'); }}
                           className="text-xs bg-emerald-800 hover:bg-emerald-700 text-white px-3 rounded-lg shrink-0">Copy</button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">This link expires in 7 days and can only be used once.</p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {inviteMode === 'team' ? 'This link expires in 30 days and can be used by multiple people.' : 'This link expires in 30 days and can only be used once.'}
+                      </p>
                     </div>
                   )}
+
+                  {/* Permanent workspace join link — same as Slack's invite link / Trello's "anyone with this link" */}
+                  <div className="border-t border-gray-800 pt-4">
+                    <p className="text-xs text-gray-500 mb-1.5 font-medium">Or use your standing workspace link</p>
+                    <p className="text-xs text-gray-600 mb-2">Never expires, works for anyone, until you turn it off or regenerate it.</p>
+                    {persistentLoading ? (
+                      <p className="text-xs text-gray-600">Loading...</p>
+                    ) : persistentLink ? (
+                      <>
+                        <div className="flex gap-2 mb-2">
+                          <input readOnly value={persistentLink.join_url}
+                            className={`flex-1 border rounded-lg px-3 py-2 text-xs outline-none ${persistentLink.enabled ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-gray-800/50 border-gray-800 text-gray-600'}`} />
+                          <button onClick={() => { navigator.clipboard.writeText(persistentLink.join_url); alert('Link copied!'); }}
+                            disabled={!persistentLink.enabled}
+                            className="text-xs bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-white px-3 rounded-lg shrink-0">Copy</button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={async () => {
+                            const next = !persistentLink.enabled;
+                            const tok = localStorage.getItem('sahyog_token');
+                            const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/persistent-invite/toggle', {
+                              method:'POST', headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
+                              body: JSON.stringify({ enabled: next, role: persistentLink.role || 'member' })
+                            });
+                            const data = await res.json();
+                            if (data?.data) setPersistentLink((p: any) => ({ ...p, enabled: data.data.enabled }));
+                          }} className={`flex-1 text-xs py-1.5 rounded-lg border ${persistentLink.enabled ? 'bg-red-900/20 border-red-800/40 text-red-400' : 'bg-emerald-900/20 border-emerald-800/40 text-emerald-400'}`}>
+                            {persistentLink.enabled ? 'Turn off' : 'Turn on'}
+                          </button>
+                          <button onClick={async () => {
+                            if (!confirm('Regenerate this link? The old one will stop working immediately.')) return;
+                            const tok = localStorage.getItem('sahyog_token');
+                            const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/admin/persistent-invite/regenerate', {
+                              method:'POST', headers:{'Authorization':'Bearer '+tok}
+                            });
+                            const data = await res.json();
+                            if (data?.data) setPersistentLink(data.data);
+                          }} className="flex-1 text-xs py-1.5 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:text-white">
+                            Regenerate
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-xs text-red-400">Could not load workspace link. Try reopening this dialog.</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

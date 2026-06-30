@@ -190,6 +190,13 @@ export const api = {
     apiFetch('/meetings/' + id + '/resources', { method: 'POST', body: JSON.stringify(data) }),
   removeMeetingResource: (id: string, resourceId: string) =>
     apiFetch('/meetings/' + id + '/resources/' + resourceId, { method: 'DELETE' }),
+
+  // ── Persistent workspace join link (Slack/Trello-style "anyone with this link") ──
+  getPersistentInvite:      () => apiFetch('/admin/persistent-invite'),
+  regeneratePersistentInvite: () => apiFetch('/admin/persistent-invite/regenerate', { method: 'POST' }),
+  togglePersistentInvite:    (enabled: boolean, role?: string) =>
+    apiFetch('/admin/persistent-invite/toggle', { method: 'POST', body: JSON.stringify({ enabled, role }) }),
+
   getRecordings:   (id: string) => apiFetch('/meetings/' + id + '/recordings'),
   endMeeting:      (id: string) => apiFetch('/meetings/' + id + '/end', { method: 'POST' }),
   sendReminder:    (id: string) => apiFetch('/meetings/' + id + '/remind', { method: 'POST' }),

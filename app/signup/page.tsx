@@ -6,6 +6,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 export default function SignupPage() {
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [joinToken,   setJoinToken]   = useState<string | null>(null);
   const [inviteChecked, setInviteChecked] = useState(false);
   const [form, setForm] = useState({
     orgName:     '',
@@ -20,10 +21,14 @@ export default function SignupPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('invite');
-    setInviteToken(token);
+    setInviteToken(params.get('invite'));
+    setJoinToken(params.get('join'));
     setInviteChecked(true);
   }, []);
+
+  // True whenever the user is joining an existing workspace via either link type —
+  // used throughout to decide whether to show/require the org name+slug fields
+  const isJoining = !!(inviteToken || joinToken);
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -40,7 +45,7 @@ export default function SignupPage() {
   async function handleSignup() {
     setError('');
 
-    if (!inviteToken && (!form.orgName)) {
+    if (!isJoining && (!form.orgName)) {
       setError('Workspace name is required'); return;
     }
     if (!form.displayName || !form.email || !form.password) {
@@ -52,7 +57,7 @@ export default function SignupPage() {
     if (form.password !== form.confirm) {
       setError('Passwords do not match'); return;
     }
-    if (!inviteToken && !/^[a-z0-9-]+$/.test(form.orgSlug)) {
+    if (!isJoining && !/^[a-z0-9-]+$/.test(form.orgSlug)) {
       setError('Organization slug can only contain lowercase letters, numbers and hyphens'); return;
     }
 
@@ -65,6 +70,8 @@ export default function SignupPage() {
       };
       if (inviteToken) {
         body.inviteToken = inviteToken;
+      } else if (joinToken) {
+        body.joinToken = joinToken;
       } else {
         body.orgName = form.orgName;
         body.orgSlug = form.orgSlug;
@@ -100,8 +107,8 @@ export default function SignupPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 mb-4">
             <span className="text-white font-bold text-xl">S</span>
           </div>
-          <h1 className="text-white text-2xl font-bold">{inviteChecked && inviteToken ? 'Join your team' : 'Create your workspace'}</h1>
-          <p className="text-gray-400 text-sm mt-1">{inviteChecked && inviteToken ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
+          <h1 className="text-white text-2xl font-bold">{inviteChecked && isJoining ? 'Join your team' : 'Create your workspace'}</h1>
+          <p className="text-gray-400 text-sm mt-1">{inviteChecked && isJoining ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">
@@ -117,9 +124,14 @@ export default function SignupPage() {
               🎉 You're joining an existing workspace via invite. Just fill in your details below.
             </div>
           )}
+          {inviteChecked && joinToken && (
+            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-sm rounded-lg px-3 py-2.5">
+              🎉 You're joining a workspace via its shared invite link. Just fill in your details below.
+            </div>
+          )}
 
           {/* Organization fields — only shown when creating a brand new workspace */}
-          {inviteChecked && !inviteToken && (
+          {inviteChecked && !isJoining && (
             <>
               <div>
                 <label className="block text-xs text-gray-400 mb-1.5 font-medium">Organization name</label>
