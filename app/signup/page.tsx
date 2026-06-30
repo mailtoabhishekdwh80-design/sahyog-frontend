@@ -89,7 +89,11 @@ export default function SignupPage() {
         localStorage.setItem('sahyog_refresh', data.data.refreshToken);
         window.location.href = '/workspace';
       } else {
-        setError(data?.error?.message || data?.error || 'Registration failed');
+        const details = data?.error?.details;
+        const detailMsg = Array.isArray(details) && details.length
+          ? details.map((d: any) => `${d.path || 'field'}: ${d.message}`).join(' · ')
+          : '';
+        setError(detailMsg || data?.error?.message || data?.error || 'Registration failed');
       }
     } catch {
       setError('Cannot connect to server. Is the backend running?');
