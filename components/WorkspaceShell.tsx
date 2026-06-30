@@ -2576,6 +2576,11 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
   const [showWB,      setShowWB]      = useState(false);
   const [showAgenda,  setShowAgenda]  = useState<string|null>(null);
   const [agendaItems, setAgendaItems] = useState<string[]>(['']);
+  const [showResources, setShowResources] = useState<string|null>(null);
+  const [meetingResources, setMeetingResources] = useState<any[]>([]);
+  const [newResourceName, setNewResourceName] = useState('');
+  const [newResourceUrl,  setNewResourceUrl]  = useState('');
+  const [loadingResources, setLoadingResources] = useState(false);
   const [handRaised,  setHandRaised]  = useState(false);
   const [showAttend,  setShowAttend]  = useState<string|null>(null);
   const [attendance,  setAttendance]  = useState<any[]>([]);
@@ -2650,6 +2655,37 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
     await apiFetch('/meetings/' + meetingId + '/agenda', { method: 'POST', body: JSON.stringify({ items }) });
     setShowAgenda(null);
     alert('Agenda saved!');
+  }
+
+  // ── Meeting resources ──
+  async function openResources(meetingId: string) {
+    setShowResources(meetingId);
+    setLoadingResources(true);
+    const res = await apiFetch('/meetings/' + meetingId + '/resources');
+    setMeetingResources(Array.isArray(res?.data) ? res.data : []);
+    setLoadingResources(false);
+  }
+
+  async function addResourceLink(meetingId: string) {
+    if (!newResourceName.trim() || !newResourceUrl.trim()) { alert('Please enter both a name and a URL'); return; }
+    let url = newResourceUrl.trim();
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const res = await apiFetch('/meetings/' + meetingId + '/resources', {
+      method: 'POST',
+      body: JSON.stringify({ name: newResourceName.trim(), url, type: 'link' })
+    });
+    if (res?.data?.resources) {
+      setMeetingResources(res.data.resources);
+      setNewResourceName('');
+      setNewResourceUrl('');
+    } else if (res?.error) {
+      alert(res.error);
+    }
+  }
+
+  async function removeResource(meetingId: string, resourceId: string) {
+    const res = await apiFetch('/meetings/' + meetingId + '/resources/' + resourceId, { method: 'DELETE' });
+    if (res?.data?.resources) setMeetingResources(res.data.resources);
   }
 
   // ── Load attendance ──
@@ -2935,6 +2971,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                             { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setOpenMenuId(null); } },
                             { label:'📞 Dial-in info', fn: () => { alert('Dial-in: +91-22-6880-0000 | Meeting ID: ' + m.id.slice(0,8).toUpperCase()); setOpenMenuId(null); } },
                             { label:'📋 Meeting agenda', fn: () => { setShowAgenda(m.id); setAgendaItems(m.agenda || ['']); setOpenMenuId(null); } },
+                            { label:'📎 Resources', fn: () => { openResources(m.id); setOpenMenuId(null); } },
                             { label:'👥 Attendance', fn: () => { loadAttendance(m.id); setOpenMenuId(null); } },
                             { label:'📝 Post summary', fn: () => { postSummaryToChannel(m); setOpenMenuId(null); } },
                             { label:'🗳️ Create poll', fn: () => { openPoll(m.id); setOpenMenuId(null); } },
@@ -2995,6 +3032,55 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
             ))}
             <button onClick={() => setAgendaItems(a => [...a,''])} className="text-emerald-400 text-sm mt-1 mb-4">+ Add item</button>
             <button onClick={() => saveAgenda(showAgenda)} className="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-lg text-sm font-medium">Save agenda</button>
+          </div>
+        </div>
+      )}
+
+      {/* Resources modal */}
+      {showResources && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={e => { if(e.target===e.currentTarget) setShowResources(null); }}>
+          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">📎 Meeting resources</h3>
+              <button onClick={() => setShowResources(null)} className="text-gray-500 hover:text-white">✕</button>
+            </div>
+            <p className="text-gray-500 text-xs mb-3">Share links to documents, slides, or files — visible to everyone invited, whether or not they joined the call.</p>
+
+            {loadingResources ? (
+              <p className="text-gray-500 text-sm py-4 text-center">Loading...</p>
+            ) : (
+              <div className="space-y-2 mb-4 max-h-56 overflow-y-auto">
+                {meetingResources.length === 0 && (
+                  <p className="text-gray-600 text-xs text-center py-3">No resources added yet</p>
+                )}
+                {meetingResources.map((r: any) => (
+                  <div key={r.id} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
+                    <span className="text-base flex-shrink-0">🔗</span>
+                    <a href={r.url} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 min-w-0 text-sm text-emerald-400 hover:underline truncate">
+                      {r.name}
+                    </a>
+                    <button onClick={() => removeResource(showResources, r.id)}
+                      className="text-gray-600 hover:text-red-400 text-lg flex-shrink-0">×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="border-t border-gray-800 pt-3 space-y-2">
+              <input value={newResourceName} onChange={e => setNewResourceName(e.target.value)}
+                placeholder="Resource name (e.g. Sprint slides)"
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none" />
+              <input value={newResourceUrl} onChange={e => setNewResourceUrl(e.target.value)}
+                placeholder="Link (Google Drive, Notion, GitHub, etc.)"
+                onKeyDown={e => { if (e.key === 'Enter') addResourceLink(showResources); }}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none" />
+              <button onClick={() => addResourceLink(showResources)}
+                className="w-full bg-emerald-700 hover:bg-emerald-600 text-white py-2 rounded-lg text-sm font-medium">
+                + Add resource
+              </button>
+            </div>
           </div>
         </div>
       )}

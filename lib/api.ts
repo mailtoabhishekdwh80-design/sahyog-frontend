@@ -185,6 +185,11 @@ export const api = {
   getMeetingNotes: (id: string) => apiFetch('/meetings/' + id + '/notes'),
   saveMeetingNotes: (id: string, content: string) =>
     apiFetch('/meetings/' + id + '/notes', { method: 'POST', body: JSON.stringify({ content }) }),
+  getMeetingResources: (id: string) => apiFetch('/meetings/' + id + '/resources'),
+  addMeetingResource: (id: string, data: { name: string; url: string; type: 'file'|'link'; sizeBytes?: number }) =>
+    apiFetch('/meetings/' + id + '/resources', { method: 'POST', body: JSON.stringify(data) }),
+  removeMeetingResource: (id: string, resourceId: string) =>
+    apiFetch('/meetings/' + id + '/resources/' + resourceId, { method: 'DELETE' }),
   getRecordings:   (id: string) => apiFetch('/meetings/' + id + '/recordings'),
   endMeeting:      (id: string) => apiFetch('/meetings/' + id + '/end', { method: 'POST' }),
   sendReminder:    (id: string) => apiFetch('/meetings/' + id + '/remind', { method: 'POST' }),
