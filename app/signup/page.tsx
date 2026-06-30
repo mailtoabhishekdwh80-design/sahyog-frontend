@@ -1,10 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
 
 export default function SignupPage() {
   const [step, setStep] = useState<'form' | 'success'>('form');
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteChecked, setInviteChecked] = useState(false);
   const [form, setForm] = useState({
     orgName:     '',
     orgSlug:     '',
@@ -15,6 +17,13 @@ export default function SignupPage() {
   });
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite');
+    setInviteToken(token);
+    setInviteChecked(true);
+  }, []);
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -31,7 +40,10 @@ export default function SignupPage() {
   async function handleSignup() {
     setError('');
 
-    if (!form.orgName || !form.displayName || !form.email || !form.password) {
+    if (!inviteToken && (!form.orgName)) {
+      setError('Workspace name is required'); return;
+    }
+    if (!form.displayName || !form.email || !form.password) {
       setError('All fields are required'); return;
     }
     if (form.password.length < 8) {
@@ -40,22 +52,28 @@ export default function SignupPage() {
     if (form.password !== form.confirm) {
       setError('Passwords do not match'); return;
     }
-    if (!/^[a-z0-9-]+$/.test(form.orgSlug)) {
+    if (!inviteToken && !/^[a-z0-9-]+$/.test(form.orgSlug)) {
       setError('Organization slug can only contain lowercase letters, numbers and hyphens'); return;
     }
 
     setLoading(true);
     try {
+      const body: any = {
+        displayName: form.displayName,
+        email:       form.email,
+        password:    form.password,
+      };
+      if (inviteToken) {
+        body.inviteToken = inviteToken;
+      } else {
+        body.orgName = form.orgName;
+        body.orgSlug = form.orgSlug;
+      }
+
       const res = await fetch(`${API}/auth/register`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orgName:     form.orgName,
-          orgSlug:     form.orgSlug,
-          displayName: form.displayName,
-          email:       form.email,
-          password:    form.password,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data?.data?.accessToken) {
@@ -64,7 +82,7 @@ export default function SignupPage() {
         localStorage.setItem('sahyog_refresh', data.data.refreshToken);
         window.location.href = '/workspace';
       } else {
-        setError(data?.error?.message || 'Registration failed');
+        setError(data?.error?.message || data?.error || 'Registration failed');
       }
     } catch {
       setError('Cannot connect to server. Is the backend running?');
@@ -82,8 +100,8 @@ export default function SignupPage() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 mb-4">
             <span className="text-white font-bold text-xl">S</span>
           </div>
-          <h1 className="text-white text-2xl font-bold">Create your workspace</h1>
-          <p className="text-gray-400 text-sm mt-1">Start collaborating with your team on Deemona Teams</p>
+          <h1 className="text-white text-2xl font-bold">{inviteChecked && inviteToken ? 'Join your team' : 'Create your workspace'}</h1>
+          <p className="text-gray-400 text-sm mt-1">{inviteChecked && inviteToken ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">
@@ -93,35 +111,46 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Organization */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">Organization name</label>
-            <input
-              type="text"
-              value={form.orgName}
-              onChange={e => update('orgName', e.target.value)}
-              placeholder="Deemona Technologies"
-              className={inputClass}
-            />
-          </div>
-
-          {/* Slug */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-              Workspace URL
-              <span className="text-gray-600 font-normal ml-1">(auto-generated)</span>
-            </label>
-            <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 focus-within:border-emerald-500 overflow-hidden">
-              <span className="text-gray-500 text-xs px-3 py-2.5 border-r border-gray-700 bg-gray-850 shrink-0">sahyog.in/</span>
-              <input
-                type="text"
-                value={form.orgSlug}
-                onChange={e => update('orgSlug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                placeholder="deemona"
-                className="flex-1 bg-transparent text-white text-sm px-3 py-2.5 focus:outline-none placeholder-gray-500"
-              />
+          {/* Invite banner */}
+          {inviteChecked && inviteToken && (
+            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-sm rounded-lg px-3 py-2.5">
+              🎉 You're joining an existing workspace via invite. Just fill in your details below.
             </div>
-          </div>
+          )}
+
+          {/* Organization fields — only shown when creating a brand new workspace */}
+          {inviteChecked && !inviteToken && (
+            <>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Organization name</label>
+                <input
+                  type="text"
+                  value={form.orgName}
+                  onChange={e => update('orgName', e.target.value)}
+                  placeholder="Deemona Technologies"
+                  className={inputClass}
+                />
+              </div>
+
+              {/* Slug */}
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
+                  Workspace URL
+                  <span className="text-gray-600 font-normal ml-1">(auto-generated)</span>
+                </label>
+                <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 focus-within:border-emerald-500 overflow-hidden">
+                  <span className="text-gray-500 text-xs px-3 py-2.5 border-r border-gray-700 bg-gray-850 shrink-0">sahyog.in/</span>
+                  <input
+                    type="text"
+                    value={form.orgSlug}
+                    onChange={e => update('orgSlug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    placeholder="deemona"
+                    className="flex-1 bg-transparent text-white text-sm px-3 py-2.5 focus:outline-none placeholder-gray-500"
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Divider */}
           <div className="border-t border-gray-800 pt-2">
