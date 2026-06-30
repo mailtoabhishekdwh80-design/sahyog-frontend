@@ -212,13 +212,83 @@ export default function AdminPage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">Members ({members.length})</h2>
-              <button
-                onClick={loadData}
-                className="text-xs text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                ↻ Refresh
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => setShowInviteModal(true)}
+                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
+                  + Invite member
+                </button>
+                <button
+                  onClick={loadData}
+                  className="text-xs text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  ↻ Refresh
+                </button>
+              </div>
             </div>
+
+            {/* Invite modal */}
+            {showInviteModal && (
+              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+                onClick={e => { if(e.target===e.currentTarget) setShowInviteModal(false); }}>
+                <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-white font-semibold">Invite team member</span>
+                    <button onClick={() => setShowInviteModal(false)} className="text-gray-500 hover:text-white text-xl leading-none">×</button>
+                  </div>
+                  <div className="mb-4">
+                    <label className="text-xs text-gray-500 block mb-1.5">Email address</label>
+                    <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
+                      placeholder="colleague@company.com" type="email"
+                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500" />
+                  </div>
+                  <div className="mb-4">
+                    <label className="text-xs text-gray-500 block mb-1.5">Role</label>
+                    <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
+                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500">
+                      <option value="member">Member</option>
+                      <option value="admin">Admin</option>
+                      <option value="guest">Guest</option>
+                    </select>
+                  </div>
+                  <button onClick={async () => {
+                    if (!inviteEmail || !inviteEmail.includes('@')) { alert('Please enter a valid email address'); return; }
+                    setInviting(true);
+                    const tok = localStorage.getItem('sahyog_token');
+                    try {
+                      const res = await fetch((process.env.NEXT_PUBLIC_API_URL||'') + '/api/v1/admin/invite', {
+                        method:'POST',
+                        headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},
+                        body: JSON.stringify({ email: inviteEmail, role: inviteRole })
+                      });
+                      const data = await res.json();
+                      if (data?.data?.success || res.ok) {
+                        alert('Invite sent to ' + inviteEmail + '! They will receive a signup link via email.\n\nIf email is not configured yet, share this signup link directly:\n' + window.location.origin + '/signup');
+                        setShowInviteModal(false);
+                        setInviteEmail('');
+                        loadData();
+                      } else {
+                        alert(data?.error || 'Could not send invite. Share the signup link directly: ' + window.location.origin + '/signup');
+                      }
+                    } catch(e) {
+                      alert('Invite endpoint not available yet. Share this signup link directly with your team member:\n\n' + window.location.origin + '/signup');
+                    }
+                    setInviting(false);
+                  }} disabled={inviting}
+                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium mb-3">
+                    {inviting ? 'Sending invite...' : 'Send invite'}
+                  </button>
+                  <div className="border-t border-gray-800 pt-3">
+                    <p className="text-xs text-gray-500 mb-2">Or share the signup link directly:</p>
+                    <div className="flex gap-2">
+                      <input readOnly value={typeof window!=='undefined' ? window.location.origin+'/signup' : ''}
+                        className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400 text-xs outline-none" />
+                      <button onClick={() => { navigator.clipboard.writeText(window.location.origin+'/signup'); alert('Link copied!'); }}
+                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 rounded-lg border border-gray-700">Copy</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
               <table className="w-full">
                 <thead>
