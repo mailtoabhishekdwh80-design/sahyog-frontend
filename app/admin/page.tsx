@@ -19,6 +19,10 @@ export default function AdminPage() {
   const [stats,   setStats]   = useState<Stats | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [tab,     setTab]     = useState<'overview' | 'members' | 'audit' | 'roles' | 'security' | 'compliance'>('overview');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('member');
+  const [inviting, setInviting] = useState(false);
   const [roles,   setRoles]   = useState<any[]>([]);
   const [usageStats,setUsageStats]=useState<any>(null);
   const [deactivating,setDeactivating]=useState<string|null>(null);
