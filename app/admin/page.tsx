@@ -23,6 +23,8 @@ export default function AdminPage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('member');
   const [inviting, setInviting] = useState(false);
+  const [lastInviteLink, setLastInviteLink] = useState('');
+  const [lastInviteSentEmail, setLastInviteSentEmail] = useState(false);
   const [roles,   setRoles]   = useState<any[]>([]);
   const [usageStats,setUsageStats]=useState<any>(null);
   const [deactivating,setDeactivating]=useState<string|null>(null);
@@ -217,7 +219,7 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">Members ({members.length})</h2>
               <div className="flex gap-2">
-                <button onClick={() => setShowInviteModal(true)}
+                <button onClick={() => { setLastInviteLink(''); setShowInviteModal(true); }}
                   className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
                   + Invite member
                 </button>
@@ -265,31 +267,37 @@ export default function AdminPage() {
                         body: JSON.stringify({ email: inviteEmail, role: inviteRole })
                       });
                       const data = await res.json();
-                      if (data?.data?.success || res.ok) {
-                        alert('Invite sent to ' + inviteEmail + '! They will receive a signup link via email.\n\nIf email is not configured yet, share this signup link directly:\n' + window.location.origin + '/signup');
-                        setShowInviteModal(false);
+                      if (data?.data?.success && data?.data?.signup_link) {
+                        setLastInviteLink(data.data.signup_link);
+                        setLastInviteSentEmail(!!data.data.email_sent);
                         setInviteEmail('');
                         loadData();
                       } else {
-                        alert(data?.error || 'Could not send invite. Share the signup link directly: ' + window.location.origin + '/signup');
+                        alert(data?.error || 'Could not create invite. Please try again.');
                       }
                     } catch(e) {
-                      alert('Invite endpoint not available yet. Share this signup link directly with your team member:\n\n' + window.location.origin + '/signup');
+                      alert('Could not reach the server to create the invite. Please check your connection and try again.');
                     }
                     setInviting(false);
                   }} disabled={inviting}
                     className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium mb-3">
                     {inviting ? 'Sending invite...' : 'Send invite'}
                   </button>
-                  <div className="border-t border-gray-800 pt-3">
-                    <p className="text-xs text-gray-500 mb-2">Or share the signup link directly:</p>
-                    <div className="flex gap-2">
-                      <input readOnly value={typeof window!=='undefined' ? window.location.origin+'/signup' : ''}
-                        className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-400 text-xs outline-none" />
-                      <button onClick={() => { navigator.clipboard.writeText(window.location.origin+'/signup'); alert('Link copied!'); }}
-                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 rounded-lg border border-gray-700">Copy</button>
+
+                  {lastInviteLink && (
+                    <div className="bg-emerald-900/20 border border-emerald-700 rounded-lg p-3 mb-3">
+                      <p className="text-xs text-emerald-300 mb-2 font-medium">
+                        {lastInviteSentEmail ? '✓ Invite email sent! Or share this link directly:' : 'Email not configured — share this link directly with your team member:'}
+                      </p>
+                      <div className="flex gap-2">
+                        <input readOnly value={lastInviteLink}
+                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-emerald-200 text-xs outline-none" />
+                        <button onClick={() => { navigator.clipboard.writeText(lastInviteLink); alert('Link copied!'); }}
+                          className="text-xs bg-emerald-800 hover:bg-emerald-700 text-white px-3 rounded-lg shrink-0">Copy</button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">This link expires in 7 days and can only be used once.</p>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
