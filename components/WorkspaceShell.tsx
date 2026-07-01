@@ -3288,7 +3288,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                 </div>
                 {/* Other participant tiles */}
                 {/* Participant tiles - click to open host controls */}
-                {meetingParticipants.slice(0,5).map((p:any,i:number) => (
+                {/* Other participant tiles — host excluded since they have their own dedicated tile */}
+                {meetingParticipants.filter((p:any) => p.id !== user?.id).slice(0,5).map((p:any,i:number) => (
                   <div key={i}
                     onClick={e => { e.stopPropagation(); setShowHostControls(showHostControls===p.id?null:p.id); }}
                     style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'relative',cursor:'pointer',border: showHostControls===p.id ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',transition:'border .15s',userSelect:'none'}}>
@@ -3697,6 +3698,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
             {/* Member list */}
             <div style={{maxHeight:240,overflowY:'auto',marginBottom:14}}>
               {(meetOrgMembers as any[])
+                .filter((m:any) => m.id !== user?.id)
                 .filter((m:any) => !meetingParticipants.find(p => p.id===m.id))
                 .filter((m:any) => !addPeopleSearch || m.display_name?.toLowerCase().includes(addPeopleSearch.toLowerCase()) || m.email?.toLowerCase().includes(addPeopleSearch.toLowerCase()))
                 .map((m:any) => (
@@ -3724,7 +3726,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                   </div>
                 ))
               }
-              {(meetOrgMembers as any[]).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
+              {(meetOrgMembers as any[]).filter((m:any) => m.id !== user?.id).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
                 <p style={{fontSize:13,color:'#80848e',textAlign:'center',padding:16}}>All workspace members have been added</p>
               )}
             </div>
