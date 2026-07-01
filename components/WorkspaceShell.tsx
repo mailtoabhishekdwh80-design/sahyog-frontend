@@ -1498,7 +1498,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} />}
           </div>
         )}
 
@@ -2555,7 +2555,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] }) {
+function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMembers?: any[], currentUser?: any }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
@@ -3289,7 +3289,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                 {/* Other participant tiles */}
                 {/* Participant tiles - click to open host controls */}
                 {/* Other participant tiles — host excluded since they have their own dedicated tile */}
-                {meetingParticipants.filter((p:any) => p.id !== user?.id).slice(0,5).map((p:any,i:number) => (
+                {meetingParticipants.filter((p:any) => p.id !== currentUser?.id).slice(0,5).map((p:any,i:number) => (
                   <div key={i}
                     onClick={e => { e.stopPropagation(); setShowHostControls(showHostControls===p.id?null:p.id); }}
                     style={{background:'#1f2937',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'relative',cursor:'pointer',border: showHostControls===p.id ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',transition:'border .15s',userSelect:'none'}}>
@@ -3698,7 +3698,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
             {/* Member list */}
             <div style={{maxHeight:240,overflowY:'auto',marginBottom:14}}>
               {(meetOrgMembers as any[])
-                .filter((m:any) => m.id !== user?.id)
+                .filter((m:any) => m.id !== currentUser?.id)
                 .filter((m:any) => !meetingParticipants.find(p => p.id===m.id))
                 .filter((m:any) => !addPeopleSearch || m.display_name?.toLowerCase().includes(addPeopleSearch.toLowerCase()) || m.email?.toLowerCase().includes(addPeopleSearch.toLowerCase()))
                 .map((m:any) => (
@@ -3726,7 +3726,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [] }: { orgMembers?: any[] 
                   </div>
                 ))
               }
-              {(meetOrgMembers as any[]).filter((m:any) => m.id !== user?.id).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
+              {(meetOrgMembers as any[]).filter((m:any) => m.id !== currentUser?.id).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
                 <p style={{fontSize:13,color:'#80848e',textAlign:'center',padding:16}}>All workspace members have been added</p>
               )}
             </div>
