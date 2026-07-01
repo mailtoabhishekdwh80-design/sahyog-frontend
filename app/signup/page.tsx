@@ -31,14 +31,14 @@ export default function SignupPage() {
   const isJoining = !!(inviteToken || joinToken);
 
   function update(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }));
-    // Auto-generate slug from org name
     if (field === 'orgName') {
-      setForm(prev => ({
-        ...prev,
-        orgName: value,
-        orgSlug: value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''),
-      }));
+      const slug = value.toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      setForm(prev => ({ ...prev, orgName: value, orgSlug: slug }));
+    } else {
+      setForm(prev => ({ ...prev, [field]: value }));
     }
   }
 
@@ -47,6 +47,14 @@ export default function SignupPage() {
 
     if (!isJoining && (!form.orgName)) {
       setError('Workspace name is required'); return;
+    }
+    // Auto-fix slug if it somehow ended up empty (e.g. edge case with special characters)
+    if (!isJoining && !form.orgSlug) {
+      const fallbackSlug = form.orgName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'workspace';
+      setForm(prev => ({ ...prev, orgSlug: fallbackSlug }));
+      // Let React re-render with the fixed slug, then the user can click again
+      setError('Workspace URL was auto-generated as "' + fallbackSlug + '". Click create again to continue.');
+      return;
     }
     if (!form.displayName || !form.email || !form.password) {
       setError('All fields are required'); return;
