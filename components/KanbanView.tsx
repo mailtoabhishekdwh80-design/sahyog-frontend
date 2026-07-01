@@ -207,10 +207,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [showBoardPerms, setShowBoardPerms] = useState(false);
   const [boardPrivate,   setBoardPrivate]   = useState(false);
   const [checklistTpls,  setChecklistTpls]  = useState(false);
+  const [showEstimate,   setShowEstimate]   = useState<string|null>(null);
   const [estimateHours,  setEstimateHours]  = useState('');
   const [showWatcher,    setShowWatcher]    = useState<string|null>(null);
   const [showCrossBoard, setShowCrossBoard] = useState<string|null>(null);
-  const [allBoards, setAllBoards] = useState<any[]>([]);
   const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
@@ -373,15 +373,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
   async function uploadAttachment(file: File) {
     if (!selectedTask) return;
-    const wsRes = await api.workspaces();
-    const workspaceId = wsRes?.data?.[0]?.id;
-    const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
-    if (!urlRes?.data?.uploadUrl) { alert('Upload failed'); return; }
-    await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-    const fileUrl = urlRes.data.uploadUrl.split('?')[0];
-    await api.addAttachment(selectedTask.id, { fileName: file.name, fileUrl, mimeType: file.type, sizeBytes: file.size });
-    const res = await api.getAttachments(selectedTask.id);
-    setAttachments(res?.data || []);
+    try {
+      const wsRes = await api.workspaces();
+      const workspaceId = wsRes?.data?.[0]?.id;
+      const uploaded = await (api as any).uploadFile(file, workspaceId);
+      await api.addAttachment(selectedTask.id, { fileName: file.name, fileUrl: uploaded.url, mimeType: file.type, sizeBytes: file.size });
+      const res = await api.getAttachments(selectedTask.id);
+      setAttachments(res?.data || []);
+    } catch (err: any) {
+      alert('Upload failed: ' + (err?.message || 'Please try again'));
+    }
   }
 
   async function suggestTasksWithAI() {
@@ -458,7 +459,6 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   }
 
   // ── Move card to another board ──
-  async function loadAllBoards() { const ws = await api.workspaces(); const wsId = ws?.data?.[0]?.id; if(wsId){const r=await api.boards(wsId);setAllBoards(Array.isArray(r?.data)?r.data:[]);} }
   async function moveToBoard(taskId: string, targetBoardId: string) {
     await apiFetch('/boards/task/' + taskId + '/move-board', { method:'POST', body: JSON.stringify({ targetBoardId }) });
     setShowCrossBoard(null);
@@ -1207,13 +1207,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             </div>
             <p className="text-xs text-gray-500 mb-3">Select a board to move this task to:</p>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {allBoards.filter((b: any) => b.id !== boardId).map((b: any) => (
+              {boards.filter((b: any) => b.id !== boardId).map((b: any) => (
                 <button key={b.id} onClick={() => moveToBoard(showCrossBoard!, b.id)}
                   className="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm text-white flex items-center gap-2">
                   <span className="text-gray-500 text-xs">B</span>{b.name}
                 </button>
               ))}
-              {allBoards.filter((b: any) => b.id !== boardId).length === 0 && (
+              {boards.filter((b: any) => b.id !== boardId).length === 0 && (
                 <p className="text-gray-500 text-sm text-center py-4">No other boards available</p>
               )}
             </div>

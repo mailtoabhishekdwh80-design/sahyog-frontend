@@ -213,6 +213,53 @@ export const api = {
   getFiles:     (workspaceId?: string) =>
     apiFetch(`/files${workspaceId ? `?workspaceId=${workspaceId}` : ''}`),
 
+  // Complete file upload — handles both R2 (PUT) and local (POST multipart) automatically
+  uploadFile: async (file: File, workspaceId?: string): Promise<{ id?: string; url: string; name: string; size: number; mimeType: string }> => {
+    // Step 1: Get upload URL from backend
+    const urlRes = await apiFetch('/files/upload-url', {
+      method: 'POST',
+      body: JSON.stringify({ fileName: file.name, mimeType: file.type, sizeBytes: file.size, workspaceId })
+    });
+    if (!urlRes?.data) throw new Error('Could not get upload URL');
+    const { uploadUrl, downloadUrl, storageKey, method, headers: extraHeaders, mode } = urlRes.data;
+
+    // Step 2: Upload the file
+    if (mode === 'local') {
+      // Local storage: multipart POST
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = typeof window !== 'undefined' ? localStorage.getItem('sahyog_token') || '' : '';
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'X-Storage-Key': storageKey,
+          'X-File-Name':   encodeURIComponent(file.name),
+          ...(extraHeaders || {}),
+        },
+        body: formData,
+      });
+      if (!uploadRes.ok) throw new Error('Upload failed: ' + uploadRes.status);
+      const uploadData = await uploadRes.json();
+      return {
+        id:       uploadData?.data?.id,
+        url:      uploadData?.data?.downloadUrl || downloadUrl,
+        name:     file.name,
+        size:     file.size,
+        mimeType: file.type,
+      };
+    } else {
+      // R2: direct PUT with signed URL
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type, 'X-Amz-Content-Sha256': 'UNSIGNED-PAYLOAD', ...(extraHeaders || {}) },
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error('R2 upload failed: ' + uploadRes.status);
+      return { url: downloadUrl, name: file.name, size: file.size, mimeType: file.type };
+    }
+  },
+
   // Bookmarks
   getBookmarks:   () => apiFetch('/users/me/bookmarks'),
   addBookmark:    (messageId: string) =>

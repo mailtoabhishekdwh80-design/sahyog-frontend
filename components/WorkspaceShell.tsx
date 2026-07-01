@@ -855,16 +855,13 @@ export default function WorkspaceShell() {
     try {
       const wsRes = await api.workspaces();
       const workspaceId = wsRes?.data?.[0]?.id;
-      const urlRes = await api.getUploadUrl(file.name, file.type, file.size, workspaceId);
-      if (!urlRes?.data?.uploadUrl) throw new Error('No upload URL');
-      await fetch(urlRes.data.uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-      const fileUrl = urlRes.data.fileUrl || urlRes.data.uploadUrl.split('?')[0];
+      const uploaded = await (api as any).uploadFile(file, workspaceId);
       const isImage = file.type.startsWith('image/');
-      await api.sendMessage(channelId, `[${isImage ? 'image' : 'file'}:${file.name}](${fileUrl})`);
+      await api.sendMessage(channelId, `[${isImage ? 'image' : 'file'}:${file.name}](${uploaded.url})`);
       const res = await api.messages(channelId);
       if (activeChannel) setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
       else setDmMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
-    } catch { alert('Upload failed. Please try again.'); }
+    } catch (err: any) { alert('Upload failed: ' + (err?.message || 'Please try again')); }
     setUploading(false);
   }
 
