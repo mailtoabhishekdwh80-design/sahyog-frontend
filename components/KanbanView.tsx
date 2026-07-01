@@ -211,6 +211,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [showWatcher,    setShowWatcher]    = useState<string|null>(null);
   const [showCrossBoard, setShowCrossBoard] = useState<string|null>(null);
   const [boardActivity,  setBoardActivity]  = useState<any[]>([]);
+  const [boards,        setBoards]        = useState<any[]>([]);
   const [boardInviteUrl, setBoardInviteUrl] = useState('');
   const [aiProjectDesc,  setAiProjectDesc]  = useState('');
   const [aiSuggestedTasks, setAiSuggestedTasks] = useState<any[]>([]);
