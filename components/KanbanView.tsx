@@ -207,7 +207,6 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [showBoardPerms, setShowBoardPerms] = useState(false);
   const [boardPrivate,   setBoardPrivate]   = useState(false);
   const [checklistTpls,  setChecklistTpls]  = useState(false);
-  const [showEstimate,   setShowEstimate]   = useState<string|null>(null);
   const [estimateHours,  setEstimateHours]  = useState('');
   const [showWatcher,    setShowWatcher]    = useState<string|null>(null);
   const [showCrossBoard, setShowCrossBoard] = useState<string|null>(null);
