@@ -54,6 +54,7 @@ export default function WorkspaceShell() {
 
   // Search
   const [showSearch,     setShowSearch]     = useState(false);
+  const [showWsMenu,     setShowWsMenu]     = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
@@ -913,7 +914,33 @@ export default function WorkspaceShell() {
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
             <span style={{fontSize:15,fontWeight:700,color:'#fff',letterSpacing:-0.3}}>{activeWs?.name || 'Deemona Teams'}</span>
-            <button style={{width:24,height:24,borderRadius:6,background:'rgba(255,255,255,0.08)',border:'none',cursor:'pointer',color:'#9ea3a8',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+            <div style={{position:'relative'}}>
+              <button onClick={() => setShowWsMenu(m => !m)}
+                title="Create new channel or invite people"
+                style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.08)',border:'none',cursor:'pointer',color:'#f2f3f5',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+              {showWsMenu && (
+                <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#2b2d31',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                  onClick={() => setShowWsMenu(false)}>
+                  {[
+                    { icon:'#️⃣', label:'New channel',    desc:'Create a conversation channel',    fn: () => setShowNewChannel(true) },
+                    { icon:'👥', label:'Invite people',   desc:'Add members to this workspace',   fn: () => window.location.href='/admin' },
+                    { icon:'📋', label:'Browse channels', desc:'See all channels in this workspace', fn: () => loadChannelBrowser() },
+                    { icon:'🛡️', label:'Admin panel',     desc:'Manage workspace settings',        fn: () => window.location.href='/admin' },
+                  ].map(item => (
+                    <button key={item.label} onClick={item.fn}
+                      style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:'none',border:'none',cursor:'pointer',textAlign:'left',borderBottom:'1px solid rgba(255,255,255,0.04)'}}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.06)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='none'}>
+                      <span style={{fontSize:18,flexShrink:0}}>{item.icon}</span>
+                      <div>
+                        <div style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>{item.label}</div>
+                        <div style={{fontSize:11,color:'#80848e'}}>{item.desc}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           {/* Search bar */}
           <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(255,255,255,0.08)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#9ea3a8',fontSize:13}}>
