@@ -655,8 +655,17 @@ export default function WorkspaceShell() {
   async function sendMessage() {
     if (!newMessage.trim() || !activeChannel) return;
     setSending(true);
-    await api.sendMessage(activeChannel.id, newMessage.trim());
-    setNewMessage(''); setSending(false);
+    const msgText = newMessage.trim();
+    setNewMessage('');
+    const res = await api.sendMessage(activeChannel.id, msgText);
+    if (res?.data) {
+      setMessages((prev: any[]) => [...prev, res.data]);
+    } else {
+      // Fallback: reload messages
+      const r = await api.messages(activeChannel.id);
+      setMessages(Array.isArray(r?.data) ? r.data.reverse() : []);
+    }
+    setSending(false);
   }
 
   async function createChannel() {
