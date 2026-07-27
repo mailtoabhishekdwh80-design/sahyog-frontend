@@ -94,23 +94,23 @@ export default function EnterprisePage() {
   const s = {
     card: { background:'#111827', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:24 } as React.CSSProperties,
     input: { width:'100%', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 12px', color:'#f2f3f5', fontSize:14, outline:'none', boxSizing:'border-box' } as React.CSSProperties,
-    label: { fontSize:12, color:'#80848e', display:'block', marginBottom:4 } as React.CSSProperties,
+    label: { fontSize:14, color:'#80848e', display:'block', marginBottom:4 } as React.CSSProperties,
   };
 
   return (
     <div style={{minHeight:'100vh',background:'#0d1117',color:'#f2f3f5',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
       {/* Header */}
       <div style={{background:'#161b22',borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'16px 32px',display:'flex',alignItems:'center',gap:16}}>
-        <a href="/workspace" style={{color:'#4ade80',textDecoration:'none',fontSize:13}}>← Workspace</a>
+        <a href="/workspace" style={{color:'#4ade80',textDecoration:'none',fontSize:15}}>← Workspace</a>
         <div style={{width:1,height:20,background:'rgba(255,255,255,0.1)'}}/>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <span style={{fontSize:20}}>🏢</span>
           <div>
             <h1 style={{fontSize:18,fontWeight:700,margin:0}}>Enterprise Features</h1>
-            <p style={{fontSize:12,color:'#80848e',margin:0}}>Retention · Information barriers · SCIM provisioning · Webinars</p>
+            <p style={{fontSize:14,color:'#80848e',margin:0}}>Retention · Information barriers · SCIM provisioning · Webinars</p>
           </div>
         </div>
-        <div style={{marginLeft:'auto',background:'linear-gradient(135deg,#248046,#1a5c33)',padding:'4px 12px',borderRadius:20,fontSize:11,fontWeight:700,color:'#fff'}}>
+        <div style={{marginLeft:'auto',background:'linear-gradient(135deg,#248046,#1a5c33)',padding:'4px 12px',borderRadius:20,fontSize:15,fontWeight:700,color:'#fff'}}>
           ENTERPRISE
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function EnterprisePage() {
             ['scim','👥 SCIM Provisioning'],['webinar','🎙️ Webinar Mode'],
           ].map(([t,l]) => (
             <button key={t} onClick={() => setTab(t as any)}
-              style={{padding:'8px 18px',borderRadius:8,border:'none',cursor:'pointer',fontSize:13,fontWeight:500,
+              style={{padding:'8px 18px',borderRadius:8,border:'none',cursor:'pointer',fontSize:15,fontWeight:500,
                 background:tab===t?'#248046':'transparent',color:tab===t?'#fff':'#9ca3af',transition:'all .15s'}}>
               {l}
             </button>
@@ -136,10 +136,10 @@ export default function EnterprisePage() {
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
               <div>
                 <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>Message retention policies</h2>
-                <p style={{fontSize:13,color:'#80848e',margin:0}}>Automatically archive or delete messages after a defined period. Legal holds override retention policies.</p>
+                <p style={{fontSize:15,color:'#80848e',margin:0}}>Automatically archive or delete messages after a defined period. Legal holds override retention policies.</p>
               </div>
               <button onClick={() => setShowNewPolicy(true)}
-                style={{background:'#248046',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                style={{background:'#248046',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>
                 + New policy
               </button>
             </div>
@@ -175,11 +175,11 @@ export default function EnterprisePage() {
                   </div>
                 </div>
                 <div style={{background:'rgba(59,130,246,0.08)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:14}}>
-                  <p style={{fontSize:12,color:'#93c5fd',margin:0}}>ℹ️ Legal holds always override retention policies. Messages under active holds are never deleted.</p>
+                  <p style={{fontSize:14,color:'#93c5fd',margin:0}}>ℹ️ Legal holds always override retention policies. Messages under active holds are never deleted.</p>
                 </div>
                 <div style={{display:'flex',gap:10}}>
-                  <button onClick={saveRetentionPolicy} style={{background:'#248046',border:'none',borderRadius:8,padding:'10px 20px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>Save policy</button>
-                  <button onClick={() => setShowNewPolicy(false)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 20px',color:'#9ca3af',fontSize:13,cursor:'pointer'}}>Cancel</button>
+                  <button onClick={saveRetentionPolicy} style={{background:'#248046',border:'none',borderRadius:8,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>Save policy</button>
+                  <button onClick={() => setShowNewPolicy(false)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 20px',color:'#9ca3af',fontSize:15,cursor:'pointer'}}>Cancel</button>
                 </div>
               </div>
             )}
@@ -190,9 +190,9 @@ export default function EnterprisePage() {
                   <div style={{flex:1}}>
                     <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                       <span style={{fontSize:14,fontWeight:600,color:'#f2f3f5'}}>{policy.name}</span>
-                      <span style={{fontSize:10,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'1px 6px',borderRadius:20}}>{policy.scope}</span>
+                      <span style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'1px 6px',borderRadius:20}}>{policy.scope}</span>
                     </div>
-                    <div style={{fontSize:12,color:'#80848e'}}>
+                    <div style={{fontSize:14,color:'#80848e'}}>
                       Scope: <span style={{color:'#d1d2d3'}}>{policy.scopeValue}</span> ·
                       Keep for: <span style={{color:'#d1d2d3'}}>{policy.retentionDays} days</span> ·
                       Then: <span style={{color: policy.action==='delete'?'#ed4245':'#f59e0b'}}>{policy.action}</span>
@@ -203,10 +203,10 @@ export default function EnterprisePage() {
                       style={{width:40,height:22,borderRadius:11,background:policy.enabled?'#248046':'#374151',cursor:'pointer',position:'relative',transition:'background .2s'}}>
                       <div style={{width:16,height:16,borderRadius:'50%',background:'#fff',position:'absolute',top:3,left:policy.enabled?21:3,transition:'left .2s'}}/>
                     </div>
-                    <span style={{fontSize:12,color: policy.enabled?'#4ade80':'#80848e'}}>{policy.enabled?'Active':'Disabled'}</span>
+                    <span style={{fontSize:14,color: policy.enabled?'#4ade80':'#80848e'}}>{policy.enabled?'Active':'Disabled'}</span>
                   </label>
                   <button onClick={() => { if(confirm('Delete policy "'+policy.name+'"?')) setPolicies(p=>p.filter((_,j)=>j!==i)); }}
-                    style={{fontSize:11,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:8,padding:'5px 12px',cursor:'pointer'}}>Delete</button>
+                    style={{fontSize:15,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:8,padding:'5px 12px',cursor:'pointer'}}>Delete</button>
                 </div>
               ))}
             </div>
@@ -220,8 +220,8 @@ export default function EnterprisePage() {
                   {label:'Legal hold check', value:'Before every deletion'},
                 ].map(item => (
                   <div key={item.label} style={{padding:12,background:'rgba(255,255,255,0.03)',borderRadius:10,border:'1px solid rgba(255,255,255,0.06)'}}>
-                    <div style={{fontSize:12,color:'#80848e'}}>{item.label}</div>
-                    <div style={{fontSize:13,fontWeight:600,color:'#f2f3f5',marginTop:4}}>{item.time||item.value||item.next}</div>
+                    <div style={{fontSize:14,color:'#80848e'}}>{item.label}</div>
+                    <div style={{fontSize:15,fontWeight:600,color:'#f2f3f5',marginTop:4}}>{item.time||item.value||item.next}</div>
                   </div>
                 ))}
               </div>
@@ -235,10 +235,10 @@ export default function EnterprisePage() {
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
               <div>
                 <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>Information barriers</h2>
-                <p style={{fontSize:13,color:'#80848e',margin:0}}>Prevent specific groups from communicating — essential for regulated industries, Chinese walls, and confidentiality.</p>
+                <p style={{fontSize:15,color:'#80848e',margin:0}}>Prevent specific groups from communicating — essential for regulated industries, Chinese walls, and confidentiality.</p>
               </div>
               <button onClick={() => setShowNewBarrier(true)}
-                style={{background:'#248046',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                style={{background:'#248046',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>
                 + New barrier
               </button>
             </div>
@@ -259,7 +259,7 @@ export default function EnterprisePage() {
                       <label key={action} style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'6px 12px'}}>
                         <input type="checkbox" checked={newBarrier.blocked.includes(action)}
                           onChange={e => setNewBarrier(b => ({...b, blocked: e.target.checked ? [...b.blocked, action] : b.blocked.filter(x=>x!==action)}))} className="accent-emerald-500" />
-                        <span style={{fontSize:12,color:'#d1d2d3'}}>{action.replace('_',' ')}</span>
+                        <span style={{fontSize:14,color:'#d1d2d3'}}>{action.replace('_',' ')}</span>
                       </label>
                     ))}
                   </div>
@@ -271,8 +271,8 @@ export default function EnterprisePage() {
                     setShowNewBarrier(false);
                     setNewBarrier({ name:'', groupA:'', groupB:'', reason:'', blocked:['message','dm'] });
                     alert('Information barrier created. '+newBarrier.groupA+' and '+newBarrier.groupB+' can no longer '+newBarrier.blocked.join(', ')+'.');
-                  }} style={{background:'#248046',border:'none',borderRadius:8,padding:'10px 20px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>Create barrier</button>
-                  <button onClick={() => setShowNewBarrier(false)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 20px',color:'#9ca3af',fontSize:13,cursor:'pointer'}}>Cancel</button>
+                  }} style={{background:'#248046',border:'none',borderRadius:8,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>Create barrier</button>
+                  <button onClick={() => setShowNewBarrier(false)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 20px',color:'#9ca3af',fontSize:15,cursor:'pointer'}}>Cancel</button>
                 </div>
               </div>
             )}
@@ -284,12 +284,12 @@ export default function EnterprisePage() {
                     <div>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{barrier.name}</span>
-                        <span style={{fontSize:10,color: barrier.enabled?'#ed4245':'#80848e',background: barrier.enabled?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>
+                        <span style={{fontSize:14,color: barrier.enabled?'#ed4245':'#80848e',background: barrier.enabled?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>
                           {barrier.enabled ? '🚧 ACTIVE' : '○ Disabled'}
                         </span>
                       </div>
-                      {barrier.reason && <div style={{fontSize:12,color:'#80848e',marginBottom:8}}>{barrier.reason}</div>}
-                      <div style={{display:'flex',alignItems:'center',gap:12,fontSize:13}}>
+                      {barrier.reason && <div style={{fontSize:14,color:'#80848e',marginBottom:8}}>{barrier.reason}</div>}
+                      <div style={{display:'flex',alignItems:'center',gap:12,fontSize:15}}>
                         <span style={{color:'#f59e0b',fontWeight:700,background:'rgba(245,158,11,0.1)',padding:'4px 12px',borderRadius:8}}>{barrier.groupA}</span>
                         <span style={{color:'#ed4245',fontSize:18}}>⟺</span>
                         <span style={{color:'#f59e0b',fontWeight:700,background:'rgba(245,158,11,0.1)',padding:'4px 12px',borderRadius:8}}>{barrier.groupB}</span>
@@ -304,7 +304,7 @@ export default function EnterprisePage() {
                   </div>
                   <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
                     {barrier.blocked.map(action => (
-                      <span key={action} style={{fontSize:11,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',padding:'2px 8px',borderRadius:20}}>
+                      <span key={action} style={{fontSize:15,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',padding:'2px 8px',borderRadius:20}}>
                         🚫 {action.replace('_',' ')}
                       </span>
                     ))}
@@ -322,13 +322,13 @@ export default function EnterprisePage() {
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
                 <div>
                   <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>SCIM 2.0 provisioning</h2>
-                  <p style={{fontSize:13,color:'#80848e',margin:0}}>Automatically sync users from your HR system or identity provider</p>
+                  <p style={{fontSize:15,color:'#80848e',margin:0}}>Automatically sync users from your HR system or identity provider</p>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <span style={{fontSize:12,color: scimEnabled?'#4ade80':'#80848e'}}>{scimEnabled ? '● SCIM Active' : '○ SCIM Disabled'}</span>
+                  <span style={{fontSize:14,color: scimEnabled?'#4ade80':'#80848e'}}>{scimEnabled ? '● SCIM Active' : '○ SCIM Disabled'}</span>
                   {!scimEnabled && (
                     <button onClick={generateScimToken}
-                      style={{background:'#248046',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                      style={{background:'#248046',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>
                       Enable SCIM
                     </button>
                   )}
@@ -338,23 +338,23 @@ export default function EnterprisePage() {
               {scimEnabled && (
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
                   <div style={{background:'rgba(74,222,128,0.08)',border:'1px solid rgba(74,222,128,0.2)',borderRadius:10,padding:16}}>
-                    <div style={{fontSize:13,fontWeight:600,color:'#4ade80',marginBottom:10}}>SCIM configuration details</div>
+                    <div style={{fontSize:15,fontWeight:600,color:'#4ade80',marginBottom:10}}>SCIM configuration details</div>
                     <div style={{marginBottom:10}}>
-                      <div style={{fontSize:12,color:'#80848e',marginBottom:4}}>SCIM Endpoint URL</div>
+                      <div style={{fontSize:14,color:'#80848e',marginBottom:4}}>SCIM Endpoint URL</div>
                       <div style={{display:'flex',gap:8}}>
-                        <input readOnly value={scimEndpoint} style={{...s.input,fontSize:12,fontFamily:'monospace',color:'#d1d2d3'}} />
+                        <input readOnly value={scimEndpoint} style={{...s.input,fontSize:14,fontFamily:'monospace',color:'#d1d2d3'}} />
                         <button onClick={() => navigator.clipboard.writeText(scimEndpoint).then(() => alert('Copied!'))}
-                          style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'0 14px',color:'#b5bac1',cursor:'pointer',fontSize:12,flexShrink:0}}>
+                          style={{background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'0 14px',color:'#b5bac1',cursor:'pointer',fontSize:14,flexShrink:0}}>
                           Copy
                         </button>
                       </div>
                     </div>
                     <div>
-                      <div style={{fontSize:12,color:'#80848e',marginBottom:4}}>Bearer Token (save this — shown once)</div>
+                      <div style={{fontSize:14,color:'#80848e',marginBottom:4}}>Bearer Token (save this — shown once)</div>
                       <div style={{display:'flex',gap:8}}>
-                        <input readOnly value={scimToken} style={{...s.input,fontSize:11,fontFamily:'monospace',color:'#4ade80'}} />
+                        <input readOnly value={scimToken} style={{...s.input,fontSize:15,fontFamily:'monospace',color:'#4ade80'}} />
                         <button onClick={() => navigator.clipboard.writeText(scimToken).then(() => alert('Token copied! Store it securely.'))}
-                          style={{background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'0 14px',color:'#4ade80',cursor:'pointer',fontSize:12,fontWeight:600,flexShrink:0}}>
+                          style={{background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'0 14px',color:'#4ade80',cursor:'pointer',fontSize:14,fontWeight:600,flexShrink:0}}>
                           Copy
                         </button>
                       </div>
@@ -372,9 +372,9 @@ export default function EnterprisePage() {
                     onClick={() => setSelectedProvider(provider.name)}
                     style={{padding:16,background: selectedProvider===provider.name?'rgba(36,128,70,0.1)':'rgba(255,255,255,0.03)',border:`1px solid ${selectedProvider===provider.name?'rgba(36,128,70,0.4)':'rgba(255,255,255,0.08)'}`,borderRadius:12,cursor:'pointer',transition:'all .15s',textAlign:'center'}}>
                     <div style={{fontSize:28,marginBottom:8}}>{provider.icon}</div>
-                    <div style={{fontSize:13,fontWeight:600,color:'#f2f3f5',marginBottom:4}}>{provider.name}</div>
-                    <div style={{fontSize:11,color:'#80848e',marginBottom:8}}>{provider.desc}</div>
-                    <span style={{fontSize:10,padding:'2px 8px',borderRadius:20,fontWeight:600,
+                    <div style={{fontSize:15,fontWeight:600,color:'#f2f3f5',marginBottom:4}}>{provider.name}</div>
+                    <div style={{fontSize:15,color:'#80848e',marginBottom:8}}>{provider.desc}</div>
+                    <span style={{fontSize:14,padding:'2px 8px',borderRadius:20,fontWeight:600,
                       color: provider.status==='popular'?'#4ade80':provider.status==='enterprise'?'#f59e0b':'#3b82f6',
                       background: provider.status==='popular'?'rgba(74,222,128,0.1)':provider.status==='enterprise'?'rgba(245,158,11,0.1)':'rgba(59,130,246,0.1)'}}>
                       {provider.status==='popular'?'Popular':provider.status==='enterprise'?'Enterprise':'Supported'}
@@ -385,7 +385,7 @@ export default function EnterprisePage() {
               {selectedProvider && (
                 <div style={{marginTop:16,padding:16,background:'rgba(36,128,70,0.08)',border:'1px solid rgba(36,128,70,0.2)',borderRadius:10}}>
                   <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5',marginBottom:8}}>Setup guide: {selectedProvider}</div>
-                  <div style={{fontSize:12,color:'#80848e',lineHeight:1.8}}>
+                  <div style={{fontSize:14,color:'#80848e',lineHeight:1.8}}>
                     1. In {selectedProvider}, navigate to Applications → Add Application → Enter custom SCIM app<br/>
                     2. Set SCIM connector base URL to: <span style={{color:'#4ade80',fontFamily:'monospace'}}>{scimEndpoint}</span><br/>
                     3. Set authentication to Bearer token and paste your SCIM token<br/>
@@ -394,7 +394,7 @@ export default function EnterprisePage() {
                     6. Test connection and save
                   </div>
                   <button onClick={() => alert('Setup guide for '+selectedProvider+' opened. Follow the 6 steps above to configure SCIM provisioning.')}
-                    style={{marginTop:12,background:'#248046',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer'}}>
+                    style={{marginTop:12,background:'#248046',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>
                     View full setup guide →
                   </button>
                 </div>
@@ -406,9 +406,9 @@ export default function EnterprisePage() {
               <div style={{display:'flex',flexDirection:'column',gap:6}}>
                 {scimLogs.map((log,i) => (
                   <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',background:'rgba(255,255,255,0.03)',borderRadius:8,border:'1px solid rgba(255,255,255,0.05)'}}>
-                    <span style={{fontSize:11,color:'#80848e',fontFamily:'monospace',flexShrink:0}}>{log.time}</span>
-                    <span style={{flex:1,fontSize:13,color:'#d1d2d3'}}>{log.action}: <span style={{color:'#f2f3f5',fontWeight:500}}>{log.user}</span></span>
-                    <span style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',padding:'2px 8px',borderRadius:20}}>✓ {log.status}</span>
+                    <span style={{fontSize:15,color:'#80848e',fontFamily:'monospace',flexShrink:0}}>{log.time}</span>
+                    <span style={{flex:1,fontSize:15,color:'#d1d2d3'}}>{log.action}: <span style={{color:'#f2f3f5',fontWeight:500}}>{log.user}</span></span>
+                    <span style={{fontSize:15,color:'#4ade80',background:'rgba(74,222,128,0.1)',padding:'2px 8px',borderRadius:20}}>✓ {log.status}</span>
                   </div>
                 ))}
               </div>
@@ -423,7 +423,7 @@ export default function EnterprisePage() {
               <div>
                 <div style={{...s.card,marginBottom:16}}>
                   <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:4}}>Create webinar</h2>
-                  <p style={{fontSize:13,color:'#80848e',marginBottom:20}}>Host large-scale events for up to 10,000 attendees with Q&A, polls, and moderated chat.</p>
+                  <p style={{fontSize:15,color:'#80848e',marginBottom:20}}>Host large-scale events for up to 10,000 attendees with Q&A, polls, and moderated chat.</p>
 
                   <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
                     <div style={{gridColumn:'span 2'}}><label style={s.label}>Webinar title *</label><input value={webinar.title} onChange={e=>setWebinar(w=>({...w,title:e.target.value}))} placeholder="e.g. Deemona Teams Product Launch 2026" style={s.input} /></div>
@@ -449,12 +449,12 @@ export default function EnterprisePage() {
                       ].map(f => (
                         <label key={f.key} style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 14px'}}>
                           <input type="checkbox" checked={(webinar as any)[f.key]} onChange={e=>setWebinar(w=>({...w,[f.key]:e.target.checked}))} className="accent-emerald-500" />
-                          <span style={{fontSize:13,color:'#d1d2d3'}}>{f.label}</span>
+                          <span style={{fontSize:15,color:'#d1d2d3'}}>{f.label}</span>
                         </label>
                       ))}
                       <div style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 14px'}}>
-                        <span style={{fontSize:13,color:'#80848e'}}>Chat:</span>
-                        <select value={webinar.chat} onChange={e=>setWebinar(w=>({...w,chat:e.target.value}))} style={{background:'none',border:'none',color:'#d1d2d3',fontSize:13,outline:'none',cursor:'pointer'}}>
+                        <span style={{fontSize:15,color:'#80848e'}}>Chat:</span>
+                        <select value={webinar.chat} onChange={e=>setWebinar(w=>({...w,chat:e.target.value}))} style={{background:'none',border:'none',color:'#d1d2d3',fontSize:15,outline:'none',cursor:'pointer'}}>
                           <option value="off">Off</option>
                           <option value="moderated">Moderated</option>
                           <option value="open">Open</option>
@@ -485,10 +485,10 @@ export default function EnterprisePage() {
                       {feature:'Breakout rooms', meeting:'✅', webinar:'✗'},
                     ].map(row => (
                       <div key={row.feature} style={{display:'flex',justifyContent:'space-between',padding:'8px 12px',background:'rgba(255,255,255,0.03)',borderRadius:8}}>
-                        <span style={{fontSize:12,color:'#80848e'}}>{row.feature}</span>
+                        <span style={{fontSize:14,color:'#80848e'}}>{row.feature}</span>
                         <div style={{display:'flex',gap:24}}>
-                          <span style={{fontSize:12,color:'#d1d2d3',textAlign:'right',minWidth:80}}>Meeting: {row.meeting}</span>
-                          <span style={{fontSize:12,color:'#4ade80',textAlign:'right',minWidth:80}}>Webinar: {row.webinar}</span>
+                          <span style={{fontSize:14,color:'#d1d2d3',textAlign:'right',minWidth:80}}>Meeting: {row.meeting}</span>
+                          <span style={{fontSize:14,color:'#4ade80',textAlign:'right',minWidth:80}}>Webinar: {row.webinar}</span>
                         </div>
                       </div>
                     ))}
@@ -504,15 +504,15 @@ export default function EnterprisePage() {
                     <div style={{display:'flex',alignItems:'center',gap:12}}>
                       <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
                       <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>{activeWebinar.title}</span>
-                      <span style={{fontSize:12,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 10px',borderRadius:20}}>
+                      <span style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'2px 10px',borderRadius:20}}>
                         👥 {attendeeCount.toLocaleString()} / {activeWebinar.capacity.toLocaleString()} attendees
                       </span>
                     </div>
                     <div style={{display:'flex',gap:8}}>
                       <button onClick={() => { setAttendeeCount(c => Math.min(c+Math.floor(Math.random()*20+5), activeWebinar.capacity)); }}
-                        style={{fontSize:11,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'5px 12px',cursor:'pointer'}}>Simulate joins</button>
+                        style={{fontSize:15,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'5px 12px',cursor:'pointer'}}>Simulate joins</button>
                       <button onClick={() => { if(confirm('End webinar for all '+attendeeCount+' attendees?')) { setActiveWebinar(null); setAttendeeCount(0); } }}
-                        style={{fontSize:11,color:'#fff',background:'#ed4245',border:'none',borderRadius:8,padding:'5px 12px',cursor:'pointer',fontWeight:600}}>End webinar</button>
+                        style={{fontSize:15,color:'#fff',background:'#ed4245',border:'none',borderRadius:8,padding:'5px 12px',cursor:'pointer',fontWeight:600}}>End webinar</button>
                     </div>
                   </div>
 
@@ -524,15 +524,15 @@ export default function EnterprisePage() {
                           <div style={{width:44,height:44,borderRadius:'50%',background:['#248046','#5865f2','#7c3aed'][i%3],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:8}}>
                             {p.trim().charAt(0).toUpperCase()||'H'}
                           </div>
-                          <span style={{fontSize:12,color:'#b5bac1'}}>{p.trim().split('@')[0]||'Host'}</span>
-                          <span style={{fontSize:10,color:'#4ade80',marginTop:2}}>🎙️ Panelist</span>
+                          <span style={{fontSize:14,color:'#b5bac1'}}>{p.trim().split('@')[0]||'Host'}</span>
+                          <span style={{fontSize:14,color:'#4ade80',marginTop:2}}>🎙️ Panelist</span>
                         </div>
                       ))}
                       {!(activeWebinar.panelists) && (
                         <div style={{background:'#1f2937',borderRadius:12,width:240,height:150,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(36,128,70,0.4)'}}>
                           <div style={{width:52,height:52,borderRadius:'50%',background:'#248046',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>H</div>
-                          <span style={{fontSize:13,color:'#f2f3f5',fontWeight:600}}>Host</span>
-                          <span style={{fontSize:11,color:'#4ade80',marginTop:2}}>🎙️ Speaking</span>
+                          <span style={{fontSize:15,color:'#f2f3f5',fontWeight:600}}>Host</span>
+                          <span style={{fontSize:15,color:'#4ade80',marginTop:2}}>🎙️ Speaking</span>
                         </div>
                       )}
                     </div>
@@ -561,19 +561,19 @@ export default function EnterprisePage() {
                 <div style={{width:300,background:'#111827',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)',display:'flex',flexDirection:'column'}}>
                   <div style={{padding:'12px 16px',borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
                     <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5'}}>Attendee messages</div>
-                    <div style={{fontSize:11,color:'#80848e'}}>Chat mode: {activeWebinar.chat}</div>
+                    <div style={{fontSize:15,color:'#80848e'}}>Chat mode: {activeWebinar.chat}</div>
                   </div>
                   <div style={{flex:1,overflowY:'auto',padding:10,display:'flex',flexDirection:'column',gap:6}}>
                     {webinarChat.map((msg:any,i:number) => (
                       <div key={i} style={{background: msg.type==='system'?'rgba(255,255,255,0.03)':msg.type==='poll'?'rgba(99,102,241,0.1)':'rgba(36,128,70,0.08)',borderRadius:8,padding:'7px 10px',border: msg.type==='poll'?'1px solid rgba(99,102,241,0.2)':'none'}}>
                         <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}>
-                          <span style={{fontSize:11,fontWeight:600,color: msg.type==='system'?'#80848e':msg.type==='poll'?'#818cf8':'#4ade80'}}>{msg.sender}</span>
-                          <span style={{fontSize:10,color:'#80848e'}}>{msg.time}</span>
+                          <span style={{fontSize:15,fontWeight:600,color: msg.type==='system'?'#80848e':msg.type==='poll'?'#818cf8':'#4ade80'}}>{msg.sender}</span>
+                          <span style={{fontSize:14,color:'#80848e'}}>{msg.time}</span>
                         </div>
-                        <p style={{fontSize:12,color:'#d1d2d3',margin:0}}>{msg.text}</p>
+                        <p style={{fontSize:14,color:'#d1d2d3',margin:0}}>{msg.text}</p>
                         {activeWebinar.chat==='moderated' && msg.type!=='system' && msg.type!=='poll' && (
                           <button onClick={() => alert('Message approved and shown to all attendees')}
-                            style={{fontSize:10,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'none',borderRadius:4,padding:'2px 8px',cursor:'pointer',marginTop:4}}>
+                            style={{fontSize:14,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'none',borderRadius:4,padding:'2px 8px',cursor:'pointer',marginTop:4}}>
                             ✓ Approve
                           </button>
                         )}
@@ -589,12 +589,12 @@ export default function EnterprisePage() {
                         }
                       }}
                       placeholder="Broadcast to all attendees..."
-                      style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'7px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+                      style={{flex:1,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'7px 10px',color:'#f2f3f5',fontSize:14,outline:'none'}} />
                     <button onClick={() => {
                       if(!webinarMsg.trim()) return;
                       setWebinarChat((c:any)=>[...c,{sender:'Host',text:webinarMsg,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),type:'host'}]);
                       setWebinarMsg('');
-                    }} style={{background:'#248046',border:'none',borderRadius:8,padding:'7px 12px',color:'#fff',cursor:'pointer',fontSize:12}}>→</button>
+                    }} style={{background:'#248046',border:'none',borderRadius:8,padding:'7px 12px',color:'#fff',cursor:'pointer',fontSize:14}}>→</button>
                   </div>
                 </div>
               </div>

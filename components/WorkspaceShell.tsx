@@ -973,7 +973,7 @@ export default function WorkspaceShell() {
               <button key={dm.id} onClick={() => openDM(dm)}
                 style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeDM?.id === dm.id ? 'rgba(99,120,180,0.14)' : 'transparent',color: activeDM?.id === dm.id ? '#fff' : '#A8B8CC',transition:'all .1s'}}>
                 <div style={{position:'relative',flexShrink:0}}>
-                  <div style={{width:22,height:22,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff'}}>
+                  <div style={{width:22,height:22,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff'}}>
                     {dm.other_name?.charAt(0) || '?'}
                   </div>
                   <span style={{position:'absolute',bottom:-1,right:-1,width:8,height:8,borderRadius:'50%',border:'2px solid #0E1117',background: onlineUsers.has(dm.other_id) ? '#4F6EF7' : '#616061'}}/>
@@ -996,7 +996,7 @@ export default function WorkspaceShell() {
                 <span style={{fontSize:15,color: activeChannel?.id === ch.id ? '#818CF8' : '#A8B8CC',fontWeight:400}}>#</span>
                 <span style={{fontSize:15,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ch.name}</span>
                 {(ch.unread_count ?? 0) > 0 && (
-                  <span style={{background:'#e01e5a',color:'#fff',fontSize:10,fontWeight:700,padding:'1px 5px',borderRadius:10,marginLeft:'auto'}}>{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
+                  <span style={{background:'#e01e5a',color:'#fff',fontSize:14,fontWeight:700,padding:'1px 5px',borderRadius:10,marginLeft:'auto'}}>{(ch.unread_count ?? 0) > 99 ? '99+' : ch.unread_count}</span>
                 )}
               </button>
             ))}
@@ -1170,7 +1170,7 @@ export default function WorkspaceShell() {
                   )}
                   {aiMessages.map((m, i) => (
                     <div key={i} style={{display:'flex',gap:8,justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start'}}>
-                      {m.role === 'assistant' && <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:'#fff',flexShrink:0}}>AI</div>}
+                      {m.role === 'assistant' && <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',flexShrink:0}}>AI</div>}
                       <div style={{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:15,lineHeight:1.5,background: m.role === 'user' ? '#4F6EF7' : 'rgba(99,120,180,0.12)',color: m.role === 'user' ? '#fff' : '#DCE3EE'}}>{m.content}</div>
                     </div>
                   ))}
@@ -1262,7 +1262,7 @@ export default function WorkspaceShell() {
                       {/* Translation */}
                       {translations[msg.id] && (
                         <div style={{fontSize:15,color:'#818cf8',lineHeight:1.5,marginTop:4,padding:'6px 10px',background:'rgba(99,102,241,0.08)',borderRadius:6,borderLeft:'2px solid #818cf8'}}>
-                          <span style={{fontSize:10,color:'#6366f1',fontWeight:600,display:'block',marginBottom:2}}>Hindi translation:</span>
+                          <span style={{fontSize:14,color:'#6366f1',fontWeight:600,display:'block',marginBottom:2}}>Hindi translation:</span>
                           {translations[msg.id]}
                         </div>
                       )}
@@ -3206,9 +3206,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                         <div style={{width:28,height:28,borderRadius:'50%',background:'#4F6EF7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#fff',flexShrink:0}}>Y</div>
                         <div style={{flex:1}}>
                           <div style={{fontSize:15,color:'#f2f3f5',fontWeight:500}}>You (Host)</div>
-                          <div style={{fontSize:10,color:'#818CF8'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
+                          <div style={{fontSize:14,color:'#818CF8'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
                         </div>
-                        <span style={{fontSize:10,color:'#9BAABB',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
+                        <span style={{fontSize:14,color:'#9BAABB',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
                       </div>
                       {/* Participants */}
                       {meetingParticipants.map((p,i) => (
@@ -3218,13 +3218,13 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           <div style={{width:28,height:28,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#fff',flexShrink:0}}>{p.name?.charAt(0)||'?'}</div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:15,color:'#f2f3f5',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
-                            <div style={{fontSize:10,color:'#9BAABB',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
+                            <div style={{fontSize:14,color:'#9BAABB',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
                           </div>
                           <button onClick={() => {
                             setMeetingParticipants(prev=>prev.filter((_,j)=>j!==i));
                             setParticipantCount(c=>Math.max(1,c-1));
                             setInMeetingChat((c:any)=>[...c,{sender:'System',text:p.name+' was removed from the meeting',time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}]);
-                          }} style={{fontSize:10,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>Remove</button>
+                          }} style={{fontSize:14,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>Remove</button>
                         </div>
                       ))}
                       {meetingParticipants.length===0 && <div style={{padding:14,fontSize:15,color:'#9BAABB',textAlign:'center'}}>No other participants yet.<br/>Click + Invite to add people.</div>}
@@ -3331,8 +3331,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     <div style={{width:44,height:44,borderRadius:'50%',background:(['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'] as string[])[i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>{p.name?.charAt(0)||'?'}</div>
                     <span style={{fontSize:15,color:'#C2CEDF',fontWeight:500}}>{p.name}</span>
                     <div style={{position:'absolute',bottom:6,left:6,display:'flex',gap:3}}>
-                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:participantMics[p.id]===false?'#ed4245':'#818CF8'}}>{participantMics[p.id]===false?'🔇':'🎙️'}</span>
-                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#9BAABB'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
+                      <span style={{fontSize:14,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:participantMics[p.id]===false?'#ed4245':'#818CF8'}}>{participantMics[p.id]===false?'🔇':'🎙️'}</span>
+                      <span style={{fontSize:14,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#9BAABB'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
                     </div>
                     <div style={{position:'absolute',top:6,right:6,fontSize:9,color:'#f59e0b',background:'rgba(0,0,0,0.6)',padding:'1px 5px',borderRadius:4,opacity: showHostControls===p.id?1:0,transition:'opacity .15s'}}>Host controls</div>
                     {showHostControls===p.id && (
@@ -3529,7 +3529,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                       onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background= ctrl.active ? (ctrl.color ? ctrl.color+'33' : 'rgba(79,110,247,0.2)') : 'rgba(99,120,180,0.12)'}>
                       {ctrl.icon}
                     </button>
-                    <span style={{fontSize:10,color:'#9BAABB',whiteSpace:'nowrap'}}>{ctrl.label}</span>
+                    <span style={{fontSize:14,color:'#9BAABB',whiteSpace:'nowrap'}}>{ctrl.label}</span>
                   </div>
                 ))}
               </div>
@@ -3562,7 +3562,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   </span>
                   {chatMode === 'private' && (
                     <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); }}
-                      style={{fontSize:10,color:'#9BAABB',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
+                      style={{fontSize:14,color:'#9BAABB',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
                       × Back to all
                     </button>
                   )}
@@ -3579,7 +3579,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                         style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#f2f3f5',cursor:'pointer',fontSize:15,borderRadius:4}}>
                         🌐 Message everyone
                       </button>
-                      <div style={{padding:'4px 12px',fontSize:10,color:'#9BAABB',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
+                      <div style={{padding:'4px 12px',fontSize:14,color:'#9BAABB',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
                       {meetingParticipants.length === 0
                         ? <div style={{padding:'6px 12px',fontSize:15,color:'#9BAABB'}}>No other participants yet</div>
                         : meetingParticipants.map((p,i) => (
@@ -3632,9 +3632,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           msg.private ? '#818cf8' :
                           '#818CF8'}}>
                           {msg.sender}
-                          {msg.private && <span style={{fontSize:10,color:'#6366f1',marginLeft:4}}>🔒 private</span>}
+                          {msg.private && <span style={{fontSize:14,color:'#6366f1',marginLeft:4}}>🔒 private</span>}
                         </span>
-                        <span style={{fontSize:10,color:'#9BAABB'}}>{msg.time}</span>
+                        <span style={{fontSize:14,color:'#9BAABB'}}>{msg.time}</span>
                       </div>
                       <p style={{fontSize:15,color:'#DCE3EE',margin:0,lineHeight:1.4}}>{msg.text}</p>
                     </div>

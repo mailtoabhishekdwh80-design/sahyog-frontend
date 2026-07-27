@@ -65,8 +65,8 @@ export default function AdminPage() {
     return (
       <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
         <div className={`text-3xl font-bold ${color}`}>{value}</div>
-        <div className="text-gray-300 text-sm font-medium mt-1">{label}</div>
-        {sub && <div className="text-gray-500 text-xs mt-0.5">{sub}</div>}
+        <div className="text-gray-300 text-base font-medium mt-1">{label}</div>
+        {sub && <div className="text-gray-500 text-base mt-0.5">{sub}</div>}
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <div className="text-center">
         <div className="text-red-400 text-lg mb-2">⚠️ {error}</div>
-        <a href="/workspace" className="text-emerald-400 hover:text-emerald-300 text-sm">← Back to workspace</a>
+        <a href="/workspace" className="text-emerald-400 hover:text-emerald-300 text-base">← Back to workspace</a>
       </div>
     </div>
   );
@@ -91,13 +91,13 @@ export default function AdminPage() {
       {/* Header */}
       <div className="border-b border-gray-800 bg-gray-900 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-sm">S</div>
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-base">S</div>
           <div>
             <div className="font-semibold text-white">Deemona Teams Admin</div>
-            <div className="text-xs text-gray-500">Organization dashboard</div>
+            <div className="text-base text-gray-500">Organization dashboard</div>
           </div>
         </div>
-        <a href="/workspace" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+        <a href="/workspace" className="text-base text-gray-400 hover:text-white transition-colors flex items-center gap-1">
           ← Back to workspace
         </a>
       </div>
@@ -109,7 +109,7 @@ export default function AdminPage() {
             <button
               key={t}
               onClick={() => { setTab(t); if (t === 'audit') loadAudit(); }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+              className={`px-4 py-2 rounded-lg text-base font-medium capitalize transition-colors ${
                 tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -123,8 +123,8 @@ export default function AdminPage() {
         {tab === 'overview' && (
           <div className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700/30 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-white">Seed demo data</p>
-              <p className="text-xs text-gray-400 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
+              <p className="text-base font-semibold text-white">Seed demo data</p>
+              <p className="text-base text-gray-400 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
             </div>
             <button onClick={async () => {
               if (!confirm('This will add demo channels, messages, and boards to your workspace. Continue?')) return;
@@ -139,7 +139,7 @@ export default function AdminPage() {
               } else {
                 alert(data.error || 'Failed to seed demo data');
               }
-            }} className="bg-emerald-700 hover:bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4">
+            }} className="bg-emerald-700 hover:bg-emerald-600 text-white text-base px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4">
               🌱 Seed demo data
             </button>
           </div>
@@ -160,7 +160,7 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* User breakdown */}
               <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <h3 className="text-sm font-semibold text-gray-300 mb-4">User breakdown</h3>
+                <h3 className="text-base font-semibold text-gray-300 mb-4">User breakdown</h3>
                 <div className="space-y-3">
                   {[
                     { label: 'Active members', value: stats.users?.active || 0,  color: 'bg-emerald-500' },
@@ -170,9 +170,9 @@ export default function AdminPage() {
                     <div key={row.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${row.color}`} />
-                        <span className="text-sm text-gray-300">{row.label}</span>
+                        <span className="text-base text-gray-300">{row.label}</span>
                       </div>
-                      <span className="text-sm font-semibold text-white">{row.value}</span>
+                      <span className="text-base font-semibold text-white">{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -180,7 +180,7 @@ export default function AdminPage() {
 
               {/* Channel breakdown */}
               <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <h3 className="text-sm font-semibold text-gray-300 mb-4">Channel breakdown</h3>
+                <h3 className="text-base font-semibold text-gray-300 mb-4">Channel breakdown</h3>
                 <div className="space-y-3">
                   {[
                     { label: 'Public channels',  value: stats.channels?.public || 0,  color: 'bg-emerald-500' },
@@ -190,9 +190,9 @@ export default function AdminPage() {
                     <div key={row.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${row.color}`} />
-                        <span className="text-sm text-gray-300">{row.label}</span>
+                        <span className="text-base text-gray-300">{row.label}</span>
                       </div>
-                      <span className="text-sm font-semibold text-white">{row.value}</span>
+                      <span className="text-base font-semibold text-white">{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -201,7 +201,7 @@ export default function AdminPage() {
 
             {/* Storage */}
             <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-300 mb-2">Storage used</h3>
+              <h3 className="text-base font-semibold text-gray-300 mb-2">Storage used</h3>
               <div className="text-2xl font-bold text-white">
                 {((stats.storage?.total_mb || 0) / 1024).toFixed(2)} GB
               </div>
@@ -211,7 +211,7 @@ export default function AdminPage() {
                   style={{ width: `${Math.min(100, ((stats.storage?.total_mb || 0) / 10240) * 100)}%` }}
                 />
               </div>
-              <div className="text-xs text-gray-500 mt-1">of 10 GB limit</div>
+              <div className="text-base text-gray-500 mt-1">of 10 GB limit</div>
             </div>
           </div>
         )}
@@ -235,12 +235,12 @@ export default function AdminPage() {
                     } catch {}
                     setPersistentLoading(false);
                   }}
-                  className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
+                  className="text-base bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
                   + Invite member
                 </button>
                 <button
                   onClick={loadData}
-                  className="text-xs text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                  className="text-base text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   ↻ Refresh
                 </button>
@@ -258,31 +258,31 @@ export default function AdminPage() {
                   </div>
                   <div className="mb-4 flex gap-2">
                     <button type="button" onClick={() => setInviteMode('specific')}
-                      className={`flex-1 text-xs py-2 rounded-lg border ${inviteMode==='specific' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='specific' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
                       Invite one person
                     </button>
                     <button type="button" onClick={() => setInviteMode('team')}
-                      className={`flex-1 text-xs py-2 rounded-lg border ${inviteMode==='team' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='team' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
                       Generate team link
                     </button>
                   </div>
 
                   {inviteMode === 'specific' ? (
                     <div className="mb-4">
-                      <label className="text-xs text-gray-500 block mb-1.5">Email address</label>
+                      <label className="text-base text-gray-500 block mb-1.5">Email address</label>
                       <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
                         placeholder="colleague@company.com" type="email"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500" />
+                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-base outline-none focus:border-emerald-500" />
                     </div>
                   ) : (
                     <div className="mb-4 bg-gray-800/60 border border-gray-700 rounded-lg p-3">
-                      <p className="text-xs text-gray-400">Anyone with this link can join your workspace — no specific email required. Useful for quickly onboarding several teammates at once. The link stays active for 30 days unless you revoke it.</p>
+                      <p className="text-base text-gray-400">Anyone with this link can join your workspace — no specific email required. Useful for quickly onboarding several teammates at once. The link stays active for 30 days unless you revoke it.</p>
                     </div>
                   )}
                   <div className="mb-4">
-                    <label className="text-xs text-gray-500 block mb-1.5">Role</label>
+                    <label className="text-base text-gray-500 block mb-1.5">Role</label>
                     <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none focus:border-emerald-500">
+                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-base outline-none focus:border-emerald-500">
                       <option value="member">Member</option>
                       <option value="admin">Admin</option>
                       <option value="guest">Guest</option>
@@ -316,22 +316,22 @@ export default function AdminPage() {
                     }
                     setInviting(false);
                   }} disabled={inviting}
-                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium mb-3">
+                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-base font-medium mb-3">
                     {inviting ? 'Creating invite...' : inviteMode === 'team' ? 'Generate link' : 'Send invite'}
                   </button>
 
                   {lastInviteLink && (
                     <div className="bg-emerald-900/20 border border-emerald-700 rounded-lg p-3 mb-3">
-                      <p className="text-xs text-emerald-300 mb-2 font-medium">
+                      <p className="text-base text-emerald-300 mb-2 font-medium">
                         {inviteMode === 'team' ? 'Team link created — share with anyone you want to invite:' : lastInviteSentEmail ? '✓ Invite email sent! Or share this link directly:' : 'Email not configured — share this link directly with your team member:'}
                       </p>
                       <div className="flex gap-2">
                         <input readOnly value={lastInviteLink}
-                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-emerald-200 text-xs outline-none" />
+                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-emerald-200 text-base outline-none" />
                         <button onClick={() => { navigator.clipboard.writeText(lastInviteLink); alert('Link copied!'); }}
-                          className="text-xs bg-emerald-800 hover:bg-emerald-700 text-white px-3 rounded-lg shrink-0">Copy</button>
+                          className="text-base bg-emerald-800 hover:bg-emerald-700 text-white px-3 rounded-lg shrink-0">Copy</button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-base text-gray-500 mt-2">
                         {inviteMode === 'team' ? 'This link expires in 30 days and can be used by multiple people.' : 'This link expires in 30 days and can only be used once.'}
                       </p>
                     </div>
@@ -339,18 +339,18 @@ export default function AdminPage() {
 
                   {/* Permanent workspace join link — same as Slack's invite link / Trello's "anyone with this link" */}
                   <div className="border-t border-gray-800 pt-4">
-                    <p className="text-xs text-gray-500 mb-1.5 font-medium">Or use your standing workspace link</p>
-                    <p className="text-xs text-gray-600 mb-2">Never expires, works for anyone, until you turn it off or regenerate it.</p>
+                    <p className="text-base text-gray-500 mb-1.5 font-medium">Or use your standing workspace link</p>
+                    <p className="text-base text-gray-600 mb-2">Never expires, works for anyone, until you turn it off or regenerate it.</p>
                     {persistentLoading ? (
-                      <p className="text-xs text-gray-600">Loading...</p>
+                      <p className="text-base text-gray-600">Loading...</p>
                     ) : persistentLink ? (
                       <>
                         <div className="flex gap-2 mb-2">
                           <input readOnly value={persistentLink.join_url}
-                            className={`flex-1 border rounded-lg px-3 py-2 text-xs outline-none ${persistentLink.enabled ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-gray-800/50 border-gray-800 text-gray-600'}`} />
+                            className={`flex-1 border rounded-lg px-3 py-2 text-base outline-none ${persistentLink.enabled ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-gray-800/50 border-gray-800 text-gray-600'}`} />
                           <button onClick={() => { navigator.clipboard.writeText(persistentLink.join_url); alert('Link copied!'); }}
                             disabled={!persistentLink.enabled}
-                            className="text-xs bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-white px-3 rounded-lg shrink-0">Copy</button>
+                            className="text-base bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-white px-3 rounded-lg shrink-0">Copy</button>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={async () => {
@@ -362,7 +362,7 @@ export default function AdminPage() {
                             });
                             const data = await res.json();
                             if (data?.data) setPersistentLink((p: any) => ({ ...p, enabled: data.data.enabled }));
-                          }} className={`flex-1 text-xs py-1.5 rounded-lg border ${persistentLink.enabled ? 'bg-red-900/20 border-red-800/40 text-red-400' : 'bg-emerald-900/20 border-emerald-800/40 text-emerald-400'}`}>
+                          }} className={`flex-1 text-base py-1.5 rounded-lg border ${persistentLink.enabled ? 'bg-red-900/20 border-red-800/40 text-red-400' : 'bg-emerald-900/20 border-emerald-800/40 text-emerald-400'}`}>
                             {persistentLink.enabled ? 'Turn off' : 'Turn on'}
                           </button>
                           <button onClick={async () => {
@@ -373,13 +373,13 @@ export default function AdminPage() {
                             });
                             const data = await res.json();
                             if (data?.data) setPersistentLink(data.data);
-                          }} className="flex-1 text-xs py-1.5 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:text-white">
+                          }} className="flex-1 text-base py-1.5 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:text-white">
                             Regenerate
                           </button>
                         </div>
                       </>
                     ) : (
-                      <p className="text-xs text-red-400">Could not load workspace link. Try reopening this dialog.</p>
+                      <p className="text-base text-red-400">Could not load workspace link. Try reopening this dialog.</p>
                     )}
                   </div>
                 </div>
@@ -389,11 +389,11 @@ export default function AdminPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-800">
-                    <th className="text-left text-xs text-gray-500 px-4 py-3 font-medium">Name</th>
-                    <th className="text-left text-xs text-gray-500 px-4 py-3 font-medium">Email</th>
-                    <th className="text-left text-xs text-gray-500 px-4 py-3 font-medium">Role</th>
-                    <th className="text-left text-xs text-gray-500 px-4 py-3 font-medium">Status</th>
-                    <th className="text-left text-xs text-gray-500 px-4 py-3 font-medium">Joined</th>
+                    <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Name</th>
+                    <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Email</th>
+                    <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Role</th>
+                    <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Status</th>
+                    <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Joined</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -401,15 +401,15 @@ export default function AdminPage() {
                     <tr key={m.id} className={`border-b border-gray-800/50 hover:bg-gray-800/30 ${i === members.length - 1 ? 'border-0' : ''}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold">
+                          <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-base font-bold">
                             {m.display_name?.charAt(0) || '?'}
                           </div>
-                          <span className="text-sm text-white font-medium">{m.display_name}</span>
+                          <span className="text-base text-white font-medium">{m.display_name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-400">{m.email}</td>
+                      <td className="px-4 py-3 text-base text-gray-400">{m.email}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        <span className={`text-base px-2 py-0.5 rounded-full font-medium ${
                           m.roles?.includes('owner') ? 'bg-emerald-900 text-emerald-300' :
                           m.roles?.includes('admin') ? 'bg-blue-900 text-blue-300' :
                           'bg-gray-800 text-gray-400'
@@ -418,13 +418,13 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        <span className={`text-base px-2 py-0.5 rounded-full ${
                           m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-800 text-gray-500'
                         }`}>
                           {m.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-500">
+                      <td className="px-4 py-3 text-base text-gray-500">
                         {new Date(m.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                     </tr>
@@ -449,12 +449,12 @@ export default function AdminPage() {
                 ].map(r => (
                   <div key={r.role} className="bg-gray-800 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <div className={`text-sm font-semibold ${r.color}`}>{r.role}</div>
-                      {r.role !== 'Owner' && <button onClick={() => alert('Custom permissions for ' + r.role + ' role coming in Enterprise plan.')} className="text-xs text-gray-500 hover:text-gray-300">Edit</button>}
+                      <div className={`text-base font-semibold ${r.color}`}>{r.role}</div>
+                      {r.role !== 'Owner' && <button onClick={() => alert('Custom permissions for ' + r.role + ' role coming in Enterprise plan.')} className="text-base text-gray-500 hover:text-gray-300">Edit</button>}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {r.perms.map(p => (
-                        <span key={p} className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded cursor-default" title={p}>{p}</span>
+                        <span key={p} className="text-base bg-gray-700 text-gray-300 px-2 py-1 rounded cursor-default" title={p}>{p}</span>
                       ))}
                     </div>
                   </div>
@@ -478,12 +478,12 @@ export default function AdminPage() {
                 <div key={s.label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-white">{s.label}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-900/50 text-purple-400':'bg-blue-900/50 text-blue-400'}`}>{s.badge}</span>
+                      <span className="text-base font-medium text-white">{s.label}</span>
+                      <span className={`text-base px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-900/50 text-purple-400':'bg-blue-900/50 text-blue-400'}`}>{s.badge}</span>
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5">{s.desc}</div>
+                    <div className="text-base text-gray-500 mt-0.5">{s.desc}</div>
                   </div>
-                  <button onClick={s.onClick} className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-colors">{s.action}</button>
+                  <button onClick={s.onClick} className="text-base bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-colors">{s.action}</button>
                 </div>
               ))}
             </div>
@@ -494,7 +494,7 @@ export default function AdminPage() {
           <div className="space-y-4">
             <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
               <h3 className="text-white font-semibold">GDPR / DPDP Compliance</h3>
-              <p className="text-gray-500 text-sm">India DPDP Act 2023 and GDPR compliance tools</p>
+              <p className="text-gray-500 text-base">India DPDP Act 2023 and GDPR compliance tools</p>
               {[
                 { label: 'Export workspace data', desc: 'Download all messages, files, and user data as JSON/CSV', icon: '📤', action: async () => {
                   if(!confirm('Export all workspace data? This may take a few minutes.')) return;
@@ -526,11 +526,11 @@ export default function AdminPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{item.icon}</span>
                     <div>
-                      <div className="text-sm font-medium text-white">{item.label}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{item.desc}</div>
+                      <div className="text-base font-medium text-white">{item.label}</div>
+                      <div className="text-base text-gray-500 mt-0.5">{item.desc}</div>
                     </div>
                   </div>
-                  <button onClick={item.action} className="text-xs bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-3 py-1.5 rounded-lg font-medium">Run</button>
+                  <button onClick={item.action} className="text-base bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-3 py-1.5 rounded-lg font-medium">Run</button>
                 </div>
               ))}
             </div>
@@ -546,8 +546,8 @@ export default function AdminPage() {
                   <div key={c.name} className="bg-gray-800 rounded-xl p-3 flex items-center gap-3">
                     <span className={c.ok ? 'text-emerald-400' : 'text-gray-500'}>{c.ok ? '✅' : '⏳'}</span>
                     <div>
-                      <div className="text-xs font-semibold text-white">{c.name}</div>
-                      <div className={`text-xs ${c.ok ? 'text-emerald-400' : 'text-gray-500'}`}>{c.status}</div>
+                      <div className="text-base font-semibold text-white">{c.name}</div>
+                      <div className={`text-base ${c.ok ? 'text-emerald-400' : 'text-gray-500'}`}>{c.status}</div>
                     </div>
                   </div>
                 ))}
@@ -566,21 +566,21 @@ export default function AdminPage() {
                 <div className="divide-y divide-gray-800">
                   {audit.map((log: any) => (
                     <div key={log.id} className="px-4 py-3 flex items-start gap-3 hover:bg-gray-800/30">
-                      <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-xs shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-base shrink-0">
                         {log.actor_name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-white font-medium">{log.actor_name || 'System'}</span>
-                          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{log.action}</span>
+                          <span className="text-base text-white font-medium">{log.actor_name || 'System'}</span>
+                          <span className="text-base text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{log.action}</span>
                         </div>
                         {log.metadata && Object.keys(log.metadata).length > 0 && (
-                          <div className="text-xs text-gray-500 mt-0.5 truncate">
+                          <div className="text-base text-gray-500 mt-0.5 truncate">
                             {JSON.stringify(log.metadata)}
                           </div>
                         )}
                       </div>
-                      <div className="text-xs text-gray-600 shrink-0">
+                      <div className="text-base text-gray-600 shrink-0">
                         {new Date(log.logged_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
