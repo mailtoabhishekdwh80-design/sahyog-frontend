@@ -113,7 +113,7 @@ export default function AdminPage() {
                 tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'
               }`}
             >
-              {t === 'overview' ? '📊 Overview' : t === 'members' ? '👥 Members' : '📋 Audit Log'}
+              {t === 'overview' ? '?? Overview' : t === 'members' ? '?? Members' : t === 'audit' ? '?? Audit Log' : t === 'roles' ? '?? Roles' : t === 'security' ? '?? Security' : '? Compliance'}
             </button>
           ))}
         </div>
