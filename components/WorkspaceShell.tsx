@@ -914,9 +914,9 @@ export default function WorkspaceShell() {
             <div style={{position:'relative'}}>
               <button onClick={() => setShowWsMenu(m => !m)}
                 title="Create new channel or invite people"
-                style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(255,255,255,0.16)' : 'rgba(99,120,180,0.12)',border:'none',cursor:'pointer',color:'#f2f3f5',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+                style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(99,120,180,0.22)' : 'rgba(99,120,180,0.12)',border:'none',cursor:'pointer',color:'#f2f3f5',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
               {showWsMenu && (
-                <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#2b2d31',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                   onClick={() => setShowWsMenu(false)}>
                   {[
                     { icon:'#️⃣', label:'New channel',    desc:'Create a conversation channel',    fn: () => setShowNewChannel(true) },
@@ -1134,7 +1134,7 @@ export default function WorkspaceShell() {
 
             {/* Message search bar */}
             {showMsgSearch && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#2b2d31'}}>
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929'}}>
                 <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search messages..." autoFocus
                   style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
               </div>
@@ -1177,7 +1177,7 @@ export default function WorkspaceShell() {
 
             {/* Schedule panel */}
             {showSchedule && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#2b2d31',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                 <span style={{fontSize:12,color:'#7A8499'}}>Schedule for:</span>
                 <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
                   style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
@@ -1608,8 +1608,8 @@ export default function WorkspaceShell() {
                 <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                   <input type="checkbox" checked={groupDMMembers.includes(m.id)}
                     onChange={e => { setGroupDMMembers(prev => e.target.checked ? [...prev, m.id] : prev.filter(id => id !== m.id)); }}
-                    className="/accent-emerald-500/g" />
-                  <div className="w-7 h-7 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
+                    className="/accent-indigo-500/g" />
+                  <div className="w-7 h-7 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
                   <div>
                     <div className="text-sm text-white font-medium">{m.display_name}</div>
                     <div className="text-xs text-gray-500">{m.designation || m.email}</div>
@@ -1620,7 +1620,7 @@ export default function WorkspaceShell() {
             <div className="flex gap-3">
               <button onClick={() => setShowGroupDM(false)} className="flex-1 text-sm text-gray-400 bg-gray-800 hover:bg-gray-700 py-2 rounded-xl">Cancel</button>
               <button onClick={createGroupDM} disabled={groupDMMembers.length < 2}
-                className="flex-1 text-sm /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-xl font-medium disabled:opacity-50">
+                className="flex-1 text-sm /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl font-medium disabled:opacity-50">
                 Start group chat ({groupDMMembers.length} selected)
               </button>
             </div>
@@ -1655,7 +1655,7 @@ export default function WorkspaceShell() {
                       <div className="text-xs text-gray-500">{app.desc}</div>
                     </div>
                   </div>
-                  <button onClick={app.fn} className="text-xs /bg-emerald-900\/30/g hover:bg-emerald-900/50 /text-emerald-400/g px-3 py-1.5 rounded-lg font-medium">{app.status}</button>
+                  <button onClick={app.fn} className="text-xs /bg-emerald-900\/30/g hover:bg-emerald-900/50 /text-indigo-400/g px-3 py-1.5 rounded-lg font-medium">{app.status}</button>
                 </div>
               ))}
             </div>
@@ -1675,7 +1675,7 @@ export default function WorkspaceShell() {
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {channelMembers.map((m: any) => (
                 <div key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800">
-                  <div className="w-8 h-8 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{m.display_name?.charAt(0)}</div>
+                  <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{m.display_name?.charAt(0)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-white font-medium">{m.display_name}</div>
                     <div className="text-xs text-gray-500">{m.designation || m.email}</div>
@@ -1702,7 +1702,7 @@ export default function WorkspaceShell() {
               ? <p className="text-gray-500 text-sm text-center py-6">No starred messages in this channel.<br/>Hover over a message and click ☆ to star it.</p>
               : messages.filter(m => starredMsgs.includes(m.id)).map(msg => (
                 <div key={msg.id} className="flex gap-3 p-3 bg-gray-800 rounded-xl mb-2">
-                  <div className="w-8 h-8 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{msg.sender_name?.charAt(0)}</div>
+                  <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{msg.sender_name?.charAt(0)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
@@ -1798,10 +1798,10 @@ export default function WorkspaceShell() {
               </button>
               <label className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-800 rounded-lg">
                 <span className="text-sm text-gray-300">🔊 Notification sounds</span>
-                <input type="checkbox" checked={notifSound} onChange={e => setNotifSound(e.target.checked)} className="/accent-emerald-500/g" />
+                <input type="checkbox" checked={notifSound} onChange={e => setNotifSound(e.target.checked)} className="/accent-indigo-500/g" />
               </label>
             </div>
-            <button onClick={() => setShowNotifPrefs(false)} className="w-full mt-4 /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-xl text-sm font-medium">Done</button>
+            <button onClick={() => setShowNotifPrefs(false)} className="w-full mt-4 /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl text-sm font-medium">Done</button>
           </div>
         </div>
       )}
@@ -1844,7 +1844,7 @@ export default function WorkspaceShell() {
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
-                  className="text-xs /text-emerald-400/g hover:/text-emerald-300/g">Mark all read</button>
+                  className="text-xs /text-indigo-400/g hover:/text-indigo-300/g">Mark all read</button>
                 <button onClick={() => setShowNotifs(false)} className="text-gray-500 hover:text-white">✕</button>
               </div>
             </div>
@@ -1896,13 +1896,13 @@ export default function WorkspaceShell() {
               <label className="text-xs text-gray-400 mb-1 block">Channel name</label>
               <input value={newChName} onChange={e => setNewChName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                 placeholder="e.g. marketing, dev-team"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">Description</label>
               <input value={newChDesc} onChange={e => setNewChDesc(e.target.value)}
                 placeholder="What's this channel about?"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => setNewChPrivate(!newChPrivate)}
@@ -1913,7 +1913,7 @@ export default function WorkspaceShell() {
             </div>
             <div className="flex gap-3">
               <button onClick={createChannel} disabled={!newChName.trim()}
-                className="flex-1 /bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
+                className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
                 Create channel
               </button>
               <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
@@ -1934,11 +1934,11 @@ export default function WorkspaceShell() {
             {/* Create poll */}
             <div className="bg-gray-800 rounded-xl p-4 space-y-3">
               <input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)}
-                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:/border-emerald-500/g" />
+                placeholder="Ask a question..." className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 text-sm border border-gray-600 focus:outline-none focus:/border-indigo-400/g" />
               {pollOptions.map((opt, i) => (
                 <div key={i} className="flex gap-2">
                   <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
-                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:/border-emerald-500/g" />
+                    placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:/border-indigo-400/g" />
                   {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
                 </div>
               ))}
@@ -1952,7 +1952,7 @@ export default function WorkspaceShell() {
                   setPollQuestion(''); setPollOptions(['', '']);
                   const res = await api.getPolls(activeMeetingId);
                   setPolls(res?.data || []);
-                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs /bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
+                }} disabled={!pollQuestion.trim()} className="ml-auto text-xs /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white px-4 py-1.5 rounded-lg">Launch poll</button>
               </div>
             </div>
             {/* Existing polls */}
@@ -2051,7 +2051,7 @@ export default function WorkspaceShell() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-800 rounded-xl p-4">
-                <div className="text-2xl font-bold /text-emerald-400/g">{analytics.totalMessages}</div>
+                <div className="text-2xl font-bold /text-indigo-400/g">{analytics.totalMessages}</div>
                 <div className="text-xs text-gray-500 mt-1">Total messages</div>
               </div>
               <div className="bg-gray-800 rounded-xl p-4">
@@ -2065,7 +2065,7 @@ export default function WorkspaceShell() {
                 <div className="space-y-2">
                   {analytics.topSenders.map((s: any, i: number) => (
                     <div key={i} className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold text-white">{s.display_name?.charAt(0)}</div>
+                      <div className="w-6 h-6 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{s.display_name?.charAt(0)}</div>
                       <span className="text-sm text-white flex-1">{s.display_name}</span>
                       <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{s.count} msgs</span>
                     </div>
@@ -2082,7 +2082,7 @@ export default function WorkspaceShell() {
                     const h = max > 0 ? (parseInt(d.count) / max) * 100 : 10;
                     return (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="/bg-emerald-600/g rounded-sm w-full" style={{ height: `${h}%` }} title={d.count + ' msgs'} />
+                        <div className="/bg-indigo-500/g rounded-sm w-full" style={{ height: `${h}%` }} title={d.count + ' msgs'} />
                         <span className="text-xs text-gray-600">{new Date(d.day).toLocaleDateString('en-IN', { weekday: 'short' })}</span>
                       </div>
                     );
@@ -2108,7 +2108,7 @@ export default function WorkspaceShell() {
                 <div key={m.id} className="bg-gray-800 rounded-xl p-3 flex items-start gap-3">
                   <div className="flex-1">
                     <p className="text-sm text-white">{m.content}</p>
-                    <p className="text-xs /text-emerald-400/g mt-1">Sends: {new Date(m.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                    <p className="text-xs /text-indigo-400/g mt-1">Sends: {new Date(m.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
                   </div>
                   <button onClick={async () => { if (activeChannel) { await api.cancelScheduled(activeChannel.id, m.id); loadScheduled(); } }}
                     className="text-xs text-red-500 hover:text-red-400">Cancel</button>
@@ -2129,9 +2129,9 @@ export default function WorkspaceShell() {
             </div>
             <div className="flex gap-2">
               <input value={newEmojiName} onChange={e => setNewEmojiName(e.target.value)}
-                placeholder=":emoji-name:" className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                placeholder=":emoji-name:" className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               <button onClick={addCustomEmoji} disabled={!newEmojiName.trim()}
-                className="/bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
+                className="/bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
             </div>
             <div className="max-h-48 overflow-y-auto">
               {customEmojis.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No custom emoji yet. Add one above!</p>}
@@ -2163,19 +2163,19 @@ export default function WorkspaceShell() {
               <label className="text-xs text-gray-400 mb-1 block">Contact email</label>
               <input value={connectEmail} onChange={e => setConnectEmail(e.target.value)}
                 placeholder="contact@partner.com" type="email"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div>
               <label className="text-xs text-gray-400 mb-1 block">Organization name</label>
               <input value={connectOrg} onChange={e => setConnectOrg(e.target.value)}
                 placeholder="Partner Company"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-500">
               They will receive an invite to join #{activeChannel?.name} as an external collaborator.
             </div>
             <button onClick={sendConnectInvite} disabled={!connectEmail.trim()}
-              className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
+              className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
               Send Connect invite
             </button>
           </div>
@@ -2198,7 +2198,7 @@ export default function WorkspaceShell() {
               <p className="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed">{aiSummary}</p>
             </div>
             <button onClick={() => { setShowAISummary(false); setShowAI(true); setAiInput('What are the action items from today?'); }}
-              className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g text-white text-sm py-2 rounded-xl">
+              className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g text-white text-sm py-2 rounded-xl">
               Ask AI a follow-up question
             </button>
           </div>
@@ -2221,19 +2221,19 @@ export default function WorkspaceShell() {
                 { emoji: '🚗', text: 'Commuting' },
               ].map(s => (
                 <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? '/border-emerald-500/g /bg-emerald-900\/30/g text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}>
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? '/border-indigo-400/g /bg-emerald-900\/30/g text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}>
                   {s.emoji} {s.text}
                 </button>
               ))}
             </div>
             <div className="flex gap-2">
               <input value={statusEmoji} onChange={e => setStatusEmoji(e.target.value)} placeholder="😊"
-                className="w-14 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g text-center" />
+                className="w-14 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g text-center" />
               <input value={statusText} onChange={e => setStatusText(e.target.value)} placeholder="What's your status?"
-                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div className="flex gap-2">
-              <button onClick={saveStatus} className="flex-1 /bg-emerald-700/g hover:/bg-emerald-600/g text-white font-medium py-2 rounded-xl text-sm">Save</button>
+              <button onClick={saveStatus} className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g text-white font-medium py-2 rounded-xl text-sm">Save</button>
               <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
                 className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
             </div>
@@ -2286,7 +2286,7 @@ export default function WorkspaceShell() {
             </div>
             <div className="px-4 pt-3 shrink-0">
               <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {allChannels.filter(c => c.type !== 'direct' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase()))).map((ch: any) => (
@@ -2297,7 +2297,7 @@ export default function WorkspaceShell() {
                     {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
                   </div>
                   <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
-                    className="text-xs /bg-emerald-700/g hover:/bg-emerald-600/g text-white px-3 py-1.5 rounded-lg">Join</button>
+                    className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-3 py-1.5 rounded-lg">Join</button>
                 </div>
               ))}
             </div>
@@ -2313,7 +2313,7 @@ export default function WorkspaceShell() {
             <h3 className="text-white font-semibold text-lg">New direct message</h3>
             <input autoFocus value={dmSearch} onChange={e => setDmSearch(e.target.value)}
               placeholder="Search people..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             <div className="max-h-64 overflow-y-auto space-y-1">
               {dmOrgMembers.filter(m => m.id !== user?.id && (!dmSearch || m.display_name?.toLowerCase().includes(dmSearch.toLowerCase()) || m.email?.toLowerCase().includes(dmSearch.toLowerCase()))).map((m: any) => (
                 <button key={m.id} onClick={() => startDM(m.id)}
@@ -2381,7 +2381,7 @@ export default function WorkspaceShell() {
                       <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">People</div>
                       {searchResults.people.map((p: any) => (
                         <div key={p.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
-                          <div className="w-7 h-7 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold">{p.display_name?.charAt(0)}</div>
+                          <div className="w-7 h-7 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold">{p.display_name?.charAt(0)}</div>
                           <div><p className="text-sm text-white">{p.display_name}</p><p className="text-xs text-gray-500">{p.email}</p></div>
                         </div>
                       ))}
@@ -2522,7 +2522,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
               {channels.slice(0, 2).map((ch: any) => (
                 <button key={ch.id} onClick={() => onChannel(ch)}
                   className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left transition-colors">
-                  <div className="/text-emerald-400/g font-medium text-sm truncate">#{ch.name}</div>
+                  <div className="/text-indigo-400/g font-medium text-sm truncate">#{ch.name}</div>
                   <div className="text-xs text-gray-500 mt-0.5">Channel</div>
                 </button>
               ))}
@@ -2843,35 +2843,35 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 bg-gray-900 rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-emerald-700/g text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
-          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-emerald-700/g text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
+          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-indigo-600/g text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
         </div>
-        <button onClick={() => setCreating(true)} className="/bg-emerald-700/g hover:/bg-emerald-600/g text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
+        <button onClick={() => setCreating(true)} className="/bg-indigo-600/g hover:/bg-indigo-500/g text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
       </div>
 
       {/* New meeting form */}
       {creating && (
-        <div className="bg-gray-900 border /border-emerald-700/g rounded-xl p-4 space-y-4">
+        <div className="bg-gray-900 border /border-indigo-600/g rounded-xl p-4 space-y-4">
           <h3 className="text-sm font-semibold text-white">New meeting</h3>
           <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Meeting title..."
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? '/bg-emerald-700/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? '/bg-emerald-700/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Date</label>
                 <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               </div>
             </div>
           )}
@@ -2879,32 +2879,32 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             <label className="text-xs text-gray-500 mb-2 block">Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? '/bg-emerald-700/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="/text-emerald-400/g">({invitedIds.length})</span>}</label>
+            <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="/text-indigo-400/g">({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:/border-emerald-500/g mb-2" />
+              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:/border-indigo-400/g mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
               {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
                   className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-indigo-600' : 'hover:bg-gray-700'}`}>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? '/bg-emerald-600/g text-white' : 'bg-gray-600 text-gray-200'}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? '/bg-indigo-500/g text-white' : 'bg-gray-600 text-gray-200'}`}>
                     {m.display_name?.charAt(0)}
                   </div>
                   <span className="text-xs text-white flex-1">{m.display_name}</span>
-                  {invitedIds.includes(m.id) && <span className="/text-emerald-400/g text-xs">✓</span>}
+                  {invitedIds.includes(m.id) && <span className="/text-indigo-400/g text-xs">✓</span>}
                 </div>
               ))}
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
-              className="flex-1 /bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
+              className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
               {saving ? 'Creating...' : startNow ? 'Start meeting' : 'Schedule'}
             </button>
             <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
@@ -2933,10 +2933,10 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
               return (
                 <div key={day} className={`min-h-16 border-b border-r border-gray-800 p-1 ${isToday ? 'bg-emerald-950/30' : ''}`}>
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? '/bg-emerald-600/g text-white' : 'text-gray-400'}`}>{day}</div>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? '/bg-indigo-500/g text-white' : 'text-gray-400'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
-                      className="block text-xs bg-emerald-900/60 /text-emerald-300/g rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
+                      className="block text-xs bg-emerald-900/60 /text-indigo-300/g rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
                       {new Date(m.starts_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} {m.title}
                     </a>
                   ))}
@@ -2968,7 +2968,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {/* Primary action */}
                     {(m.status === 'live' || m.status === 'scheduled') && (
                       <button onClick={() => joinMeetingWithCheck(m)}
-                        className="text-xs /bg-emerald-700/g hover:/bg-emerald-600/g text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                        className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
                         {m.status === 'live' ? '▶ Join live' : 'Join →'}
                       </button>
                     )}
@@ -2989,7 +2989,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                         ⋯
                       </button>
                       {openMenuId === m.id && (
-                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#2b2d31',border:'1px solid rgba(99,120,180,0.14)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#131929',border:'1px solid rgba(99,120,180,0.14)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                           {[
                             { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setOpenMenuId(null); } },
                             { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setOpenMenuId(null); } },
@@ -3054,8 +3054,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 )}
               </div>
             ))}
-            <button onClick={() => setAgendaItems(a => [...a,''])} className="/text-emerald-400/g text-sm mt-1 mb-4">+ Add item</button>
-            <button onClick={() => saveAgenda(showAgenda)} className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-lg text-sm font-medium">Save agenda</button>
+            <button onClick={() => setAgendaItems(a => [...a,''])} className="/text-indigo-400/g text-sm mt-1 mb-4">+ Add item</button>
+            <button onClick={() => saveAgenda(showAgenda)} className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-lg text-sm font-medium">Save agenda</button>
           </div>
         </div>
       )}
@@ -3082,7 +3082,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   <div key={r.id} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
                     <span className="text-base flex-shrink-0">🔗</span>
                     <a href={r.url} target="_blank" rel="noopener noreferrer"
-                      className="flex-1 min-w-0 text-sm /text-emerald-400/g hover:underline truncate">
+                      className="flex-1 min-w-0 text-sm /text-indigo-400/g hover:underline truncate">
                       {r.name}
                     </a>
                     <button onClick={() => removeResource(showResources, r.id)}
@@ -3101,7 +3101,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 onKeyDown={e => { if (e.key === 'Enter') addResourceLink(showResources); }}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none" />
               <button onClick={() => addResourceLink(showResources)}
-                className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-lg text-sm font-medium">
+                className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-lg text-sm font-medium">
                 + Add resource
               </button>
             </div>
@@ -3122,7 +3122,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               <p className="text-gray-500 text-sm text-center py-4">No participants found</p>
             ) : attendance.map((p: any) => (
               <div key={p.id} className="flex items-center gap-3 py-2 border-b border-gray-800">
-                <div className="w-8 h-8 rounded-full /bg-emerald-700/g flex items-center justify-center text-xs font-bold text-white">{p.display_name?.charAt(0)}</div>
+                <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{p.display_name?.charAt(0)}</div>
                 <div className="flex-1">
                   <div className="text-sm text-white font-medium">{p.display_name}</div>
                   <div className="text-xs text-gray-500">{p.email}</div>
@@ -3151,7 +3151,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 <input value={room.name} onChange={e => { const r=[...breakoutRooms]; r[i].name=e.target.value; setBreakoutRooms(r); }}
                   className="flex-1 bg-transparent text-white text-sm outline-none font-medium" />
                 <a href={`/meet?room=${encodeURIComponent(room.name)}`} target="_blank"
-                  className="text-xs /bg-emerald-700/g hover:/bg-emerald-600/g text-white px-3 py-1.5 rounded-lg">Open room</a>
+                  className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-3 py-1.5 rounded-lg">Open room</a>
                 {breakoutRooms.length > 1 && (
                   <button onClick={() => setBreakoutRooms(r => r.filter((_,j) => j!==i))} className="text-gray-600 hover:text-red-400">×</button>
                 )}
@@ -3161,7 +3161,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               <button onClick={() => setBreakoutRooms(r => [...r, {name:`Room ${r.length+1}`,members:[]}])}
                 className="flex-1 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 py-2 rounded-xl border border-gray-700">+ Add room</button>
               <button onClick={() => { alert('Breakout rooms opened! Share the room links with participants.'); setShowBreakout(false); }}
-                className="flex-1 text-sm /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-xl font-medium">Start breakouts</button>
+                className="flex-1 text-sm /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl font-medium">Start breakouts</button>
             </div>
           </div>
         </div>
@@ -3182,7 +3182,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 </button>
                 {/* Dropdown anchored to this button */}
                 {showParticipants && (
-                  <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,background:'#2b2d31',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:100,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                  <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:100,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                     onClick={e => e.stopPropagation()}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#161C2A'}}>
                       <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({1+meetingParticipants.length})</span>
@@ -3563,7 +3563,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {chatMode === 'everyone' ? '🌐 Everyone ▾' : '🔒 Private ▾'}
                   </button>
                   {showChatMenu && (
-                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#2b2d31',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#131929',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                       <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
                         style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#f2f3f5',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         🌐 Message everyone
@@ -3791,7 +3791,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             <div className="flex gap-2 mb-4 flex-wrap">
               {[10,25,50,100,200,500].map(n => (
                 <button key={n} onClick={() => setMeetCapacity(n)}
-                  className={`text-sm px-3 py-2 rounded-lg border ${meetCapacity===n?'/bg-emerald-700/g border-emerald-600 text-white':'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+                  className={`text-sm px-3 py-2 rounded-lg border ${meetCapacity===n?'/bg-indigo-600/g border-emerald-600 text-white':'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
                   {n}
                 </button>
               ))}
@@ -3802,7 +3802,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               await apiFetch('/meetings/' + showCapacity + '/capacity', { method:'PATCH', body: JSON.stringify({ capacity: meetCapacity }) });
               setShowCapacity(null);
               alert('Capacity set to ' + meetCapacity + ' participants');
-            }} className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-xl text-sm font-medium">Save capacity</button>
+            }} className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl text-sm font-medium">Save capacity</button>
           </div>
         </div>
       )}
@@ -3829,7 +3829,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           ? [...(prev[showCoHost!]||[]), m.id]
                           : (prev[showCoHost!]||[]).filter((id: string) => id !== m.id)
                       }));
-                    }} className="/accent-emerald-500/g" />
+                    }} className="/accent-indigo-500/g" />
                   <div className="w-7 h-7 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
                   <div className="text-sm text-white">{m.display_name}</div>
                 </label>
@@ -3840,7 +3840,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               await apiFetch('/meetings/' + showCoHost + '/cohosts', { method:'POST', body: JSON.stringify({ coHostIds: ids }) });
               setShowCoHost(null);
               alert('Co-hosts assigned: ' + ids.length + ' member' + (ids.length!==1?'s':''));
-            }} className="w-full /bg-emerald-700/g hover:/bg-emerald-600/g text-white py-2 rounded-xl text-sm font-medium">Assign co-hosts</button>
+            }} className="w-full /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl text-sm font-medium">Assign co-hosts</button>
           </div>
         </div>
       )}
@@ -3855,14 +3855,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             </div>
             <div className="flex gap-2">
               <input value={pollQ} onChange={e => setPollQ(e.target.value)} placeholder="Question..."
-                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-emerald-500/g" />
+                className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               <button onClick={async () => {
                 if (!pollQ.trim() || !pollMeetId) return;
                 await api.createPoll(pollMeetId, pollQ.trim(), ['Yes', 'No', 'Maybe']);
                 const res = await api.getPolls(pollMeetId);
                 setMeetPolls(res?.data || []);
                 setPollQ('');
-              }} disabled={!pollQ.trim()} className="/bg-emerald-700/g hover:/bg-emerald-600/g disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Launch</button>
+              }} disabled={!pollQ.trim()} className="/bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Launch</button>
             </div>
             {meetPolls.map((p: any) => {
               const opts = Array.isArray(p.options) ? p.options : JSON.parse(p.options || '[]');
@@ -3901,7 +3901,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
-                <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }} className="text-xs /bg-emerald-700/g text-white px-3 py-1.5 rounded-lg">Save PNG</button>
+                <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }} className="text-xs /bg-indigo-600/g text-white px-3 py-1.5 rounded-lg">Save PNG</button>
                 <button onClick={() => setShowWB(false)} className="text-gray-500 hover:text-white">x</button>
               </div>
             </div>
