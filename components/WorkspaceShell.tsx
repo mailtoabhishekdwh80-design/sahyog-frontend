@@ -2555,24 +2555,26 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
       </div>
 
       {/* India features */}
-      <div className="bg-gradient-to-br from-orange-900/30 to-green-900/30 border border-orange-800/50 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-white mb-3">India features</h3>
-        <div className="grid grid-cols-3 gap-3">
-          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
-            onClick={() => alert('GST Invoice feature coming soon! Will generate GST-compliant invoices from tasks.')}>
-            <div className="text-2xl mb-1">GST</div>
-            <div className="text-xs text-gray-400">GST Invoice</div>
-          </button>
-          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
-            onClick={() => alert('UPI Payment links coming soon! Will generate UPI QR codes for task payments.')}>
-            <div className="text-2xl mb-1">UPI</div>
-            <div className="text-xs text-gray-400">UPI Payment</div>
-          </button>
-          <button className="bg-gray-800/80 hover:bg-gray-700 rounded-xl p-3 text-center transition-colors"
-            onClick={() => alert('Hindi/vernacular support coming soon! Will translate workspace to your language.')}>
-            <div className="text-2xl mb-1">Hi</div>
-            <div className="text-xs text-gray-400">Hindi mode</div>
-          </button>
+      <div style={{background:'linear-gradient(135deg,rgba(79,110,247,0.08),rgba(99,60,180,0.06))',border:'1px solid rgba(79,110,247,0.15)',borderRadius:16,padding:'20px 24px'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16}}>
+          <span style={{fontSize:18}}>????</span>
+          <span style={{fontSize:13,fontWeight:700,color:'#A8B3C8',letterSpacing:1.5,textTransform:'uppercase'}}>India Features</span>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+          {[
+            {icon:'??',label:'GST Invoice',desc:'Generate compliant invoices',fn:()=>window.location.href='/india'},
+            {icon:'??',label:'UPI Payment',desc:'Create UPI QR codes',fn:()=>window.location.href='/india'},
+            {icon:'??',label:'Hindi Mode',desc:'9 Indian languages',fn:()=>window.location.href='/india'},
+          ].map(item=>(
+            <button key={item.label} onClick={item.fn}
+              style={{background:'rgba(255,255,255,0.03)',border:'1px solid rgba(99,120,180,0.12)',borderRadius:12,padding:'16px 12px',textAlign:'left',cursor:'pointer',transition:'all 0.15s'}}
+              onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background='rgba(79,110,247,0.1)';(e.currentTarget as HTMLElement).style.borderColor='rgba(79,110,247,0.3)'}}
+              onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)';(e.currentTarget as HTMLElement).style.borderColor='rgba(99,120,180,0.12)'}}>
+              <div style={{fontSize:22,marginBottom:8}}>{item.icon}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'#E8EAF0',marginBottom:3}}>{item.label}</div>
+              <div style={{fontSize:11,color:'#7A8499'}}>{item.desc}</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
