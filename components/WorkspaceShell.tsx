@@ -2445,7 +2445,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
       {/* Welcome header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
+          <h1 className="text-3xl font-bold text-white">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
           <p className="text-gray-500 text-sm mt-1">Here is what is happening in your workspace today</p>
         </div>
         <div className="text-right">
@@ -2456,10 +2456,10 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'My tasks', value: dashStats?.tasks?.total || myTasks.length, sub: dashStats?.tasks?.overdue > 0 ? `${dashStats.tasks.overdue} overdue` : 'all on track', color: 'from-emerald-600 to-teal-600' },
+          { label: 'My tasks', value: dashStats?.tasks?.total || myTasks.length, sub: dashStats?.tasks?.overdue > 0 ? `${dashStats.tasks.overdue} overdue` : 'all on track', color: 'from-indigo-900 to-indigo-800' },
           { label: 'Due today', value: dashStats?.tasks?.due_today || 0, sub: 'tasks due today', color: 'from-amber-500 to-orange-500' },
-          { label: 'Messages sent', value: dashStats?.messages?.sent || 0, sub: 'this week', color: 'from-blue-600 to-indigo-600' },
-          { label: 'Meetings', value: dashStats?.meetings?.attended || 0, sub: 'attended (30d)', color: 'from-purple-600 to-pink-600' },
+          { label: 'Messages sent', value: dashStats?.messages?.sent || 0, sub: 'this week', color: 'from-blue-900 to-blue-800' },
+          { label: 'Meetings', value: dashStats?.meetings?.attended || 0, sub: 'attended (30d)', color: 'from-slate-800 to-slate-700' },
         ].map(s => (
           <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-4`}>
             <div className="text-3xl font-bold text-white">{s.value}</div>
