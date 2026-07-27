@@ -105,7 +105,7 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-gray-900 rounded-xl p-1 border border-gray-800 w-fit">
-          {(['overview', 'members', 'audit'] as const).map(t => (
+          {(['overview', 'members', 'audit', 'roles', 'security', 'compliance'] as const).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); if (t === 'audit') loadAudit(); }}
