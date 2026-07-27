@@ -84,7 +84,7 @@ export default function LoginPage() {
           </div>
 
           
-            href={process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1','') + '/api/v1/auth/google' : 'https://sahyog-api-ajbr.onrender.com/api/v1/auth/google'}
+            href="https://sahyog-api-ajbr.onrender.com/api/v1/auth/google"
             className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium py-2.5 rounded-lg text-sm transition-colors border border-gray-200"
           >
             <svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
