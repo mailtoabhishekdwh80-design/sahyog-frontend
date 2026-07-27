@@ -2666,7 +2666,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
     const workspaceId = wsRes?.data?.[0]?.id;
     if (!workspaceId) { alert('No workspace found'); setSaving(false); return; }
     const startsAt = startNow ? new Date().toISOString() : new Date(`${meetDate}T${meetTime}`).toISOString();
-    const res = await api.createMeeting({ title: newTitle.trim(), description: meetDesc.trim() || undefined, startsAt, durationMins: meetDur, type: 'meeting', workspaceId, waitingRoom: false, participantIds: invitedIds });
+    const res = await api.createMeeting({ title: newTitle.trim(), description: meetDesc.trim() || undefined, startsAt, durationMins: meetDur, type: 'meeting', workspaceId, waitingRoom: false, recordingEnabled: false, recordingPolicy: 'host_only', participantIds: invitedIds });
     setSaving(false);
     if (res?.data?.id) {
       setNewTitle(''); setCreating(false); setInvitedIds([]); setMeetDesc('');
