@@ -81,7 +81,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-950 flex items-center justify-center">
       <div className="text-center">
         <div className="text-red-400 text-lg mb-2">⚠️ {error}</div>
-        <a href="/" className="text-emerald-400 hover:text-emerald-300 text-sm">← Back to workspace</a>
+        <a href="/workspace" className="text-emerald-400 hover:text-emerald-300 text-sm">← Back to workspace</a>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ export default function AdminPage() {
             <div className="text-xs text-gray-500">Organization dashboard</div>
           </div>
         </div>
-        <a href="/" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+        <a href="/workspace" className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
           ← Back to workspace
         </a>
       </div>

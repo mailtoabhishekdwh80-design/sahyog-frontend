@@ -182,7 +182,7 @@ export default function SettingsPage() {
             <div className="text-xs text-gray-500">{org?.name}</div>
           </div>
         </div>
-        <a href="/" className="text-sm text-gray-400 hover:text-white transition-colors">← Back to workspace</a>
+        <a href="/workspace" className="text-sm text-gray-400 hover:text-white transition-colors">← Back to workspace</a>
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8 flex gap-8">
