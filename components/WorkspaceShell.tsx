@@ -3616,7 +3616,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   {meetingTab === 'transcript' && <LiveTranscription meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
                 </div>
               )}
-              {meetingTab === 'chat' && <>
+              {meetingTab === 'chat' && <div style={{display:'flex',flexDirection:'column',flex:1,overflow:'hidden'}}>
 
               {/* Chat header with controls */}
               <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -3772,7 +3772,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 </button>
               </div>
             </div>
-            </>
+            </div>
           </div>
         </div>
       )}
