@@ -1715,7 +1715,7 @@ export default function WorkspaceShell() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
-                      <span className="text-xs text-gray-500">{new Date(msg.sent_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</span>
+                      <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</span>
                     </div>
                     <p className="text-sm text-gray-300 line-clamp-2">{msg.content}</p>
                   </div>
@@ -2454,11 +2454,11 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
       {/* Welcome header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
-          <p className="text-gray-500 text-sm mt-1">Here is what is happening in your workspace today</p>
+          <h1 className="text-3xl font-bold text-gray-900">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
+          <p className="text-gray-600 text-sm mt-1">Here is what is happening in your workspace today</p>
         </div>
         <div className="text-right">
-          <div className="text-xs text-gray-500">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+          <div className="text-xs text-gray-600">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
         </div>
       </div>
 
@@ -2471,7 +2471,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
           { label: 'Meetings', value: dashStats?.meetings?.attended || 0, sub: 'attended (30d)', color: 'from-slate-800 to-slate-700' },
         ].map(s => (
           <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-4`}>
-            <div className="text-3xl font-bold text-white">{s.value}</div>
+            <div className="text-3xl font-bold text-gray-900">{s.value}</div>
             <div className="text-xs text-white/70 mt-1">{s.label}</div>
             <div className="text-xs text-white/50 mt-0.5">{s.sub}</div>
           </div>
