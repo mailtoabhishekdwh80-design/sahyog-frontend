@@ -5,6 +5,7 @@ import { api, apiFetch, isLoggedIn } from '../lib/api';
 import GlobalSearch    from './GlobalSearch';
 import CanvasView      from './CanvasView';
 import WorkflowBuilder from './WorkflowBuilder';
+import { MeetingPolls, BreakoutRooms, LiveTranscription } from './MeetingFeatures';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -66,6 +67,8 @@ export default function WorkspaceShell() {
   const [showGlobalSearch,  setShowGlobalSearch]  = useState(false);
   const [showCanvas,        setShowCanvas]        = useState(false);
   const [showWorkflow,      setShowWorkflow]      = useState(false);
+  const [meetingTab, setMeetingTab] = useState('chat');
+  const [showMeetingPanel, setShowMeetingPanel] = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
@@ -2428,6 +2431,22 @@ export default function WorkspaceShell() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* -- Meeting Feature Panels (floating, outside sidebar) -- */}
+      {showInMeeting && activeMeeting && meetingTab !== 'chat' && (
+        <div style={{position:'fixed',right:340,top:60,bottom:0,width:300,background:'#0F172A',border:'1px solid #1E40AF',borderRadius:0,zIndex:300,display:'flex',flexDirection:'column',boxShadow:'-4px 0 20px rgba(0,0,0,0.4)'}}>
+          <div style={{padding:'10px 14px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+            <span style={{fontSize:13,fontWeight:700,color:'#F1F5F9'}}>
+              {meetingTab==='polls'?'?? Polls':meetingTab==='breakout'?'?? Breakout Rooms':'?? Transcription'}
+            </span>
+            <button onClick={() => setMeetingTab('chat')} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:18}}>�</button>
+          </div>
+          <div style={{flex:1,overflowY:'auto'}}>
+            {meetingTab === 'polls' && <MeetingPolls meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
+            {meetingTab === 'breakout' && <BreakoutRooms meetingId={activeMeeting.id} participants={meetingParticipants} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
+            {meetingTab === 'transcript' && <LiveTranscription meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
           </div>
         </div>
       )}
