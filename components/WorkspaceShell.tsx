@@ -2847,7 +2847,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
   }
 
   const { firstDay, daysInMonth } = getDaysInMonth();
-  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-200' };
+  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-300', cancelled: 'bg-gray-800 text-gray-400 line-through' };
 
   return (
     <div className="space-y-4 max-w-4xl">
@@ -2958,7 +2958,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'text-white' : 'text-gray-400'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
-                      className="block text-xs rounded px-1.5 py-0.5 mb-0.5 truncate font-medium" style={{background:"#1D4ED8",color:"#BFDBFE"}}>
+                      className="block text-xs rounded px-1.5 py-0.5 mb-0.5 truncate font-medium" style={{
+    background: m.status === 'live' ? '#7F1D1D' : m.status === 'cancelled' ? '#1F2937' : m.status === 'ended' ? '#374151' : '#1D4ED8',
+    color: m.status === 'live' ? '#FCA5A5' : m.status === 'cancelled' ? '#9CA3AF' : m.status === 'ended' ? '#D1D5DB' : '#BFDBFE',
+    textDecoration: m.status === 'cancelled' ? 'line-through' : 'none',
+    opacity: m.status === 'cancelled' ? 0.7 : 1
+  }}>
                       {new Date(m.starts_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} {m.title}
                     </a>
                   ))}
