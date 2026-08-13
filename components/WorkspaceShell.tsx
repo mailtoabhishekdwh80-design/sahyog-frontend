@@ -3622,15 +3622,15 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                   <button onClick={() => setShowChatMenu(s => !s)}
                     style={{fontSize:11,color:'#A8B3C8',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
                     {chatMode === 'everyone' ? '🌐 Everyone ▾' : '🔒 Private ▾'}
-                  <div style={{display:'flex',gap:4,marginLeft:8}}>
-                    {[['polls','??','Polls'],['breakout','??','Rooms'],['transcript','??','Notes']].map(([tab,icon,label]) => (
+                  </button>
+                  <div style={{display:'flex',gap:4}}>
+                    {[['polls','P','Polls'],['breakout','B','Rooms'],['transcript','T','Notes']].map(([tab,icon,label]) => (
                       <button key={tab} title={label} onClick={() => setMeetingTab(meetingTab===tab?'chat':tab)}
-                        style={{background:meetingTab===tab?'#1D4ED8':'rgba(99,120,180,0.09)',border:'none',borderRadius:6,padding:'3px 7px',color:meetingTab===tab?'#fff':'#94A3B8',fontSize:13,cursor:'pointer'}}>
+                        style={{background:meetingTab===tab?'#1D4ED8':'rgba(99,120,180,0.09)',border:'none',borderRadius:6,padding:'3px 8px',color:meetingTab===tab?'#fff':'#94A3B8',fontSize:11,cursor:'pointer',fontWeight:700}}>
                         {icon}
                       </button>
                     ))}
                   </div>
-                  </button>
                   {showChatMenu && (
                     <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#0F172A',border:'1px solid #1E40AF',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                       <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
