@@ -1547,7 +1547,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} />}
           </div>
         )}
 
@@ -2435,16 +2435,16 @@ export default function WorkspaceShell() {
         </div>
       )}
       {/* Meeting feature floating panels */}
-      {showInMeeting && activeMeeting && meetingTab !== 'chat' && (
+      {activeMeetingId && meetingTab !== 'chat' && (
         <div style={{position:'fixed',right:324,top:56,bottom:0,width:280,background:'#0F172A',border:'1px solid #1E40AF',zIndex:500,display:'flex',flexDirection:'column',boxShadow:'-8px 0 24px rgba(0,0,0,0.5)'}}>
           <div style={{padding:'12px 16px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
             <span style={{fontSize:13,fontWeight:700,color:'#F1F5F9'}}>{meetingTab==='polls'?'Polls':meetingTab==='breakout'?'Breakout Rooms':'Transcription'}</span>
             <button onClick={() => setMeetingTab('chat')} style={{background:'none',border:'none',color:'#94A3B8',cursor:'pointer',fontSize:20}}>x</button>
           </div>
           <div style={{flex:1,overflowY:'auto',display:'flex',flexDirection:'column'}}>
-            {meetingTab === 'polls' && <MeetingPolls meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
-            {meetingTab === 'breakout' && <BreakoutRooms meetingId={activeMeeting.id} participants={meetingParticipants} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
-            {meetingTab === 'transcript' && <LiveTranscription meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
+            {meetingTab === 'polls' && <MeetingPolls meetingId={activeMeetingId!} isHost={false} apiFetch={apiFetch} />}
+            {meetingTab === 'breakout' && <BreakoutRooms meetingId={activeMeetingId!} participants={[]} isHost={false} apiFetch={apiFetch} />}
+            {meetingTab === 'transcript' && <LiveTranscription meetingId={activeMeetingId!} isHost={false} apiFetch={apiFetch} />}
           </div>
         </div>
       )}
@@ -2639,7 +2639,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void }) {
+function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
@@ -2847,7 +2847,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
     const remainingMins = remaining % 60;
     setActiveMeeting(meeting);
     setParticipantCount(p => p + 1);
-    setShowInMeeting(true);
+    setShowInMeeting(true); onMeetingStart(meeting.id);
     setInMeetingChat([{ sender:'System', text:`Welcome to "${meeting.title}". Monthly usage remaining: ${remainingHrs}h ${remainingMins}m of 72h.`, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
   }
 
@@ -3338,7 +3338,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                       (window as any)._screenStream?.getTracks().forEach((t:any) => t.stop());
                       if ((window as any)._meetRecorder?.state==='recording') (window as any)._meetRecorder.stop();
                       setMicOn(false); setCameraOn(false); setScreenOn(false); setRecording(false);
-                      setShowInMeeting(false); setActiveMeeting(null); setMeetingParticipants([]);
+                      setShowInMeeting(false); setActiveMeeting(null); setMeetingParticipants([]); onMeetingEnd();
                       setMonthlyMins((p:number) => p + Math.floor(Math.random()*30+10));
                     }, 1500);
                   }
