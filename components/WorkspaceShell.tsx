@@ -2459,20 +2459,26 @@ export default function WorkspaceShell() {
           onApply={(bg) => {
             setVirtualBg(bg);
             setShowVirtualBg(false);
-            const v = document.getElementById('local-video') as HTMLVideoElement;
-            const container = document.getElementById('local-video-container') as HTMLDivElement;
-            if (bg.type === 'none') {
-              if (v) { v.style.filter=''; v.style.opacity='1'; }
-              if (container) container.style.background = '#16213E';
-            } else if (bg.type === 'blur') {
-              if (v) { v.style.filter='blur(12px) brightness(0.8)'; v.style.opacity='1'; }
-            } else if (bg.type === 'gradient') {
-              if (v) { v.style.filter=''; v.style.opacity='0.7'; }
-              if (container) container.style.background = bg.value;
-            } else if (bg.type === 'image') {
-              if (v) { v.style.filter=''; v.style.opacity='0.75'; }
-              if (container) { container.style.backgroundImage='url('+bg.value+')'; container.style.backgroundSize='cover'; container.style.backgroundPosition='center'; }
-            }
+            setTimeout(() => {
+              const v = document.getElementById('local-video') as HTMLVideoElement;
+              const container = document.getElementById('local-video-container') as HTMLDivElement;
+              if (!v || !container) { alert('Start camera first then apply background'); return; }
+              // Reset first
+              v.style.filter = ''; v.style.opacity = '1';
+              container.style.backgroundImage = '';
+              container.style.background = '#16213E';
+              if (bg.type === 'blur') {
+                v.style.filter = 'blur(10px)';
+              } else if (bg.type === 'gradient') {
+                container.style.background = bg.value;
+                v.style.opacity = '0.6';
+              } else if (bg.type === 'image') {
+                container.style.backgroundImage = 'url(' + bg.value + ')';
+                container.style.backgroundSize = 'cover';
+                container.style.backgroundPosition = 'center';
+                v.style.opacity = '0.6';
+              }
+            }, 200);
           }}
           currentBg={virtualBg.id}
         />
