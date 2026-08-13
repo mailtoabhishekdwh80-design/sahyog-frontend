@@ -2869,8 +2869,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
             className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'text-white font-semibold' : 'font-medium'`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'text-white font-semibold' : 'font-medium'`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'text-white font-semibold' : 'font-medium'}`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'text-white font-semibold' : 'font-medium'}`} style={!startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
@@ -2890,7 +2890,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             <label className="text-xs font-semibold mb-2 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white font-semibold' : 'font-medium'`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white' : ''}`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>
+                  {d < 60 ? `${d}m` : `${d/60}h`}
+                </button>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
