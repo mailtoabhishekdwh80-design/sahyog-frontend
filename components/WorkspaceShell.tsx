@@ -2484,7 +2484,6 @@ export default function WorkspaceShell() {
           onClose={() => setShowWorkflow(false)}
         />
       )}
-    </div>
       {showVirtualBgMeeting && (
         <VirtualBackground
           onClose={() => setShowVirtualBgMeeting(false)}
@@ -2492,6 +2491,7 @@ export default function WorkspaceShell() {
           currentBg="none"
         />
       )}
+    </div>
 
   );
 }
