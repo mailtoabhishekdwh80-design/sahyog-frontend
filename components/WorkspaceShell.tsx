@@ -2456,7 +2456,31 @@ export default function WorkspaceShell() {
       {showVirtualBg && (
         <VirtualBackground
           onClose={() => setShowVirtualBg(false)}
-          onApply={(bg) => { setVirtualBg(bg); setShowVirtualBg(false); }}
+          onApply={(bg) => {
+            setVirtualBg(bg);
+            setShowVirtualBg(false);
+            const v = document.getElementById('local-video') as HTMLVideoElement;
+            const container = v?.parentElement;
+            if (!container) return;
+            // Remove existing bg
+            const oldBg = document.getElementById('vbg-overlay');
+            if (oldBg) oldBg.remove();
+            if (bg.type === 'none') {
+              if (v) v.style.filter = '';
+            } else if (bg.type === 'blur') {
+              if (v) v.style.filter = 'blur(8px)';
+            } else {
+              if (v) v.style.filter = '';
+              // Add background image overlay behind video
+              const overlay = document.createElement('div');
+              overlay.id = 'vbg-overlay';
+              overlay.style.cssText = 'position:absolute;inset:0;border-radius:10px;background-size:cover;background-position:center;z-index:0;' +
+                (bg.type === 'image' ? 'background-image:url(' + bg.value + ')' : 'background:' + bg.value);
+              container.style.position = 'relative';
+              if (v) { v.style.position = 'relative'; v.style.zIndex = '1'; v.style.opacity = '0.85'; v.style.mixBlendMode = 'multiply'; }
+              container.insertBefore(overlay, v);
+            }
+          }}
           currentBg={virtualBg.id}
         />
       )}
