@@ -2892,6 +2892,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               {[30, 60, 90, 120].map(d => (
                 <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white' : ''}`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
+                </button>
               ))}
             </div>
           </div>
