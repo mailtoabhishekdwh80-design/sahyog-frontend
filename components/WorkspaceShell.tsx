@@ -205,7 +205,6 @@ export default function WorkspaceShell() {
   const [newChannelDesc, setNewChannelDesc] = useState('');
   const [scheduledMsgs,  setScheduledMsgs]  = useState<any[]>([]);
   const [showScheduled,  setShowScheduled]  = useState(false);
-  const [showAnalytics,  setShowAnalytics]  = useState(false);
   const [analytics,      setAnalytics]      = useState<any>(null);
   const [customEmojis,   setCustomEmojis]   = useState<any[]>([]);
   const [showEmojiMgr,   setShowEmojiMgr]   = useState(false);
