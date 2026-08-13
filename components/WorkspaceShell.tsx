@@ -1363,23 +1363,25 @@ export default function WorkspaceShell() {
 
                 {/* GIF Picker */}
                 {showGifPicker && (
-                  <div style={{padding:8,borderBottom:'1px solid rgba(99,120,180,0.09)',background:'rgba(0,0,0,0.2)'}}>
-                    <input value={gifSearch} onChange={e => setGifSearch(e.target.value)} placeholder="Search GIFs..."
-                      style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'6px 10px',color:'#FFFFFF',fontSize:13,outline:'none',marginBottom:8}} />
-                    <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:4,maxHeight:160,overflowY:'auto'}}>
-                      {[
-                        {url:'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif',label:'👍'},
-                        {url:'https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif',label:'🎉'},
-                        {url:'https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif',label:'❤️'},
-                        {url:'https://media.giphy.com/media/3og0IMJcSI8p6hYQXS/giphy.gif',label:'😂'},
-                        {url:'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',label:'👏'},
-                        {url:'https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif',label:'🔥'},
-                      ].map(gif => (
-                        <button key={gif.url} onClick={() => { setNewMessage(gif.url); setShowGifPicker(false); }} style={{padding:0,border:'none',borderRadius:6,overflow:'hidden',cursor:'pointer',background:'none'}}>
-                          <img src={gif.url} alt={gif.label} style={{width:'100%',height:60,objectFit:'cover',borderRadius:6}} />
+                  <div style={{padding:8,borderBottom:"1px solid rgba(99,120,180,0.09)",background:"rgba(0,0,0,0.2)"}}>
+                    <input value={gifSearch} onChange={async e => {
+                      const q = e.target.value;
+                      setGifSearch(q);
+                      const url = q.trim()
+                        ? "https://api.giphy.com/v1/gifs/search?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&q=" + encodeURIComponent(q) + "&limit=9&rating=g"
+                        : "https://api.giphy.com/v1/gifs/trending?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&limit=9&rating=g";
+                      try { const r = await fetch(url); const d = await r.json(); (window as any).__gifs = d.data?.map((g:any) => g.images?.fixed_height?.url).filter(Boolean) || []; setGifSearch(q + " "); setTimeout(()=>setGifSearch(q),10); } catch {}
+                    }} placeholder="Search GIFs (powered by Giphy)..." autoFocus
+                      style={{width:"100%",background:"rgba(99,120,180,0.09)",border:"1px solid rgba(99,120,180,0.14)",borderRadius:6,padding:"6px 10px",color:"#FFFFFF",fontSize:13,outline:"none",marginBottom:8}} />
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,maxHeight:200,overflowY:"auto"}}>
+                      {((window as any).__gifs || ["https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif","https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif","https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif","https://media.giphy.com/media/3og0IMJcSI8p6hYQXS/giphy.gif","https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif","https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif"]).map((url:string,i:number) => (
+                        <button key={i} onClick={() => { setNewMessage(url); setShowGifPicker(false); (window as any).__gifs=null; }} style={{padding:0,border:"none",borderRadius:6,overflow:"hidden",cursor:"pointer",background:"none"}}>
+                          <img src={url} alt="gif" style={{width:"100%",height:70,objectFit:"cover",borderRadius:6}} />
                         </button>
                       ))}
                     </div>
+                    <p style={{fontSize:11,color:"#94A3B8",marginTop:4,textAlign:"center"}}>Powered by GIPHY</p>
+                  </div>
                     <p style={{fontSize:11,color:'#CBD5E1',marginTop:4,textAlign:'center'}}>Powered by Giphy • Click to insert</p>
                   </div>
                 )}
