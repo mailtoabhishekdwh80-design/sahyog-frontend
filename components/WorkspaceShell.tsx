@@ -912,10 +912,10 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#F8F9FA',color:'#1E293B'}}>
+    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#EDF1F7',color:'#1E293B'}}>
 
       {/* ══ SIDEBAR ══ */}
-      <div style={{width:240,background: '#FFFFFF',borderRight:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column',flexShrink:0}}>
+      <div style={{width:240,background:'#FFFFFF',boxShadow:'2px 0 8px rgba(15,23,42,0.06)',borderRight:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column',flexShrink:0}}>
         {/* Workspace name + search */}
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -1083,7 +1083,7 @@ export default function WorkspaceShell() {
       </div>
 
       {/* ══ MAIN CONTENT ══ */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background: '#F8F9FA'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background: '#EDF1F7'}}>
 
         {/* ── WS RECONNECTING BANNER ── */}
       {wsReconnecting && (
@@ -1096,7 +1096,7 @@ export default function WorkspaceShell() {
         {activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
             {/* Channel header */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(100,116,139,0.15)',background:'#F8F9FA',flexShrink:0}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(100,116,139,0.15)',background:'#EDF1F7',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <span style={{fontSize:18,color:'#64748B',fontWeight:400}}>#</span>
                 <span style={{fontSize:15,fontWeight:700,color:'#0F1729'}}>{activeChannel.name}</span>
@@ -1460,7 +1460,7 @@ export default function WorkspaceShell() {
         {/* ── DM VIEW ── */}
         {activeDM && !activeChannel && !activeBoard && (
           <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
-            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(100,116,139,0.15)',background:'#F8F9FA',flexShrink:0,gap:12}}>
+            <div style={{display:'flex',alignItems:'center',padding:'0 16px',height:48,borderBottom:'1px solid rgba(100,116,139,0.15)',background:'#EDF1F7',flexShrink:0,gap:12}}>
               <div style={{position:'relative',flexShrink:0}}>
                 <div style={{width:32,height:32,borderRadius:'50%',background:'#7c3aed',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#0F1729'}}>
                   {activeDM.other_name?.charAt(0) || '?'}
@@ -1537,7 +1537,7 @@ export default function WorkspaceShell() {
 
       {/* ── THREAD PANEL ── */}
       {threadMsg && (
-        <div style={{width:360,borderLeft:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column',background:'#F8F9FA',flexShrink:0}}>
+        <div style={{width:360,borderLeft:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column',background:'#EDF1F7',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(100,116,139,0.15)'}}>
             <span style={{fontSize:15,fontWeight:700,color:'#0F1729'}}>Thread</span>
             <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#64748B',cursor:'pointer',fontSize:18}}>✕</button>
@@ -1586,7 +1586,7 @@ export default function WorkspaceShell() {
 
       {/* ── HUDDLE PANEL ── */}
       {showHuddle && (
-        <div style={{position:'fixed',bottom:80,right:20,background:'#F8F9FA',border:'1px solid rgba(79,110,247,0.3)',borderRadius:16,padding:16,zIndex:200,width:240,boxShadow:'0 4px 20px rgba(0,0,0,0.12)'}}>
+        <div style={{position:'fixed',bottom:80,right:20,background:'#EDF1F7',border:'1px solid rgba(79,110,247,0.3)',borderRadius:16,padding:16,zIndex:200,width:240,boxShadow:'0 4px 20px rgba(0,0,0,0.12)'}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
             <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(74,222,128,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>🎙️</div>
             <div>
@@ -3182,7 +3182,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showInMeeting && activeMeeting && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:300,display:'flex',flexDirection:'column'}}>
           {/* Meeting header bar */}
-          <div style={{background:'#F8F9FA',borderBottom:'1px solid rgba(100,116,139,0.15)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+          <div style={{background:'#EDF1F7',borderBottom:'1px solid rgba(100,116,139,0.15)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
             <div style={{display:'flex',alignItems:'center',gap:12}}>
               <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
               <span style={{fontSize:16,fontWeight:700,color:'#0F1729'}}>{activeMeeting.title}</span>
@@ -3336,7 +3336,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     </div>
                     <div style={{position:'absolute',top:6,right:6,fontSize:9,color:'#f59e0b',background:'rgba(0,0,0,0.6)',padding:'1px 5px',borderRadius:4,opacity: showHostControls===p.id?1:0,transition:'opacity .15s'}}>Host controls</div>
                     {showHostControls===p.id && (
-                      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#F8F9FA',border:'2px solid #f59e0b',borderRadius:12,padding:12,zIndex:50,minWidth:190,boxShadow:'0 8px 24px rgba(0,0,0,0.12)'}}
+                      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#EDF1F7',border:'2px solid #f59e0b',borderRadius:12,padding:12,zIndex:50,minWidth:190,boxShadow:'0 8px 24px rgba(0,0,0,0.12)'}}
                         onClick={e=>e.stopPropagation()}>
                         <div style={{fontSize:15,fontWeight:700,color:'#f59e0b',marginBottom:10,textAlign:'center',borderBottom:'1px solid rgba(245,158,11,0.2)',paddingBottom:8}}>{p.name}</div>
                         {[
@@ -3550,7 +3550,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             </div>
 
             {/* Chat sidebar */}
-            <div style={{width:320,background:'#F8F9FA',borderLeft:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column'}}>
+            <div style={{width:320,background:'#EDF1F7',borderLeft:'1px solid rgba(100,116,139,0.15)',display:'flex',flexDirection:'column'}}>
 
               {/* Chat header with controls */}
               <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(100,116,139,0.15)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>

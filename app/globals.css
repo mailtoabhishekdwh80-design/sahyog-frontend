@@ -1,46 +1,33 @@
 @import "tailwindcss";
-:root {
-  --background: #F8F9FA;
-  --foreground: #0F172A;
-  --sidebar-bg: #FFFFFF;
-  --card-bg: #FFFFFF;
-  --border: #E2E8F0;
-  --accent: #4F6EF7;
-  --accent-light: #EEF2FF;
-  --text-primary: #0F172A;
-  --text-secondary: #64748B;
-  --text-muted: #94A3B8;
-}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #EDF1F7;
+  color: #1E293B;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-/* Force light theme - override any dark mode system preference */
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #F8F9FA;
-    --foreground: #0F172A;
+  body {
+    background: #EDF1F7;
+    color: #1E293B;
   }
 }
-/* Smooth scrollbars for light theme */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #F1F5F9; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
-/* Input styling */
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #E2E8F0; }
+::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #64748B; }
+
 input, textarea, select {
-  color: #0F172A !important;
-  background: #FFFFFF !important;
+  color: #1E293B !important;
+  background: #F8FAFC !important;
 }
 input::placeholder, textarea::placeholder {
   color: #94A3B8 !important;
 }
-/* Selection colour */
-::selection {
-  background: #EEF2FF;
-  color: #4F6EF7;
-}
+::selection { background: #EEF2FF; color: #4F6EF7; }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
