@@ -2485,6 +2485,13 @@ export default function WorkspaceShell() {
         />
       )}
     </div>
+      {showVirtualBgMeeting && (
+        <VirtualBackground
+          onClose={() => setShowVirtualBgMeeting(false)}
+          onApply={() => setShowVirtualBgMeeting(false)}
+          currentBg="none"
+        />
+      )}
 
   );
 }
