@@ -169,6 +169,7 @@ export default function WorkspaceShell() {
   const [mentionQuery,   setMentionQuery]   = useState('');
   const [showMentions,   setShowMentions]   = useState(false);
   const [showGifPicker,  setShowGifPicker]  = useState(false);
+  const [gifResults,     setGifResults]     = useState<string[]>([]);
   const [gifSearch,      setGifSearch]      = useState('');
   const [mutedChannels,  setMutedChannels]  = useState<string[]>(() => { try { return JSON.parse((typeof window!=='undefined'&&localStorage.getItem('muted_channels'))||'[]'); } catch{return[];} });
   const [showChannelMembers, setShowChannelMembers] = useState(false);
@@ -1383,12 +1384,12 @@ export default function WorkspaceShell() {
                       const url = q.trim()
                         ? "https://api.giphy.com/v1/gifs/search?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&q=" + encodeURIComponent(q) + "&limit=9&rating=g"
                         : "https://api.giphy.com/v1/gifs/trending?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&limit=9&rating=g";
-                      try { const r = await fetch(url); const d = await r.json(); (window as any).__gifs = d.data?.map((g:any) => g.images?.fixed_height?.url).filter(Boolean) || []; setGifSearch(q + " "); setTimeout(()=>setGifSearch(q),10); } catch {}
+                      try { const r = await fetch(url); const d = await r.json(); setGifResults(d.data?.map((g:any) => g.images?.fixed_height?.url).filter(Boolean) || []; setGifSearch(q + " "); setTimeout(()=>setGifSearch(q),10); } catch {}
                     }} placeholder="Search GIFs (powered by Giphy)..." autoFocus
                       style={{width:"100%",background:"rgba(99,120,180,0.09)",border:"1px solid rgba(99,120,180,0.14)",borderRadius:6,padding:"6px 10px",color:"#FFFFFF",fontSize:13,outline:"none",marginBottom:8}} />
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,maxHeight:200,overflowY:"auto"}}>
-                      {((window as any).__gifs || ["https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif","https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif","https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif","https://media.giphy.com/media/3og0IMJcSI8p6hYQXS/giphy.gif","https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif","https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif"]).map((url:string,i:number) => (
-                        <button key={i} onClick={() => { setNewMessage(url); setShowGifPicker(false); (window as any).__gifs=null; }} style={{padding:0,border:"none",borderRadius:6,overflow:"hidden",cursor:"pointer",background:"none"}}>
+                      {(gifResults.length > 0 ? gifResults : ["https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif","https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif","https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif"]).map((url:string,i:number) => (
+                        <button key={i} onClick={() => { setNewMessage(url); setShowGifPicker(false); setGifResults([]); }} style={{padding:0,border:"none",borderRadius:6,overflow:"hidden",cursor:"pointer",background:"none"}}>
                           <img src={url} alt="gif" style={{width:"100%",height:70,objectFit:"cover",borderRadius:6}} />
                         </button>
                       ))}
