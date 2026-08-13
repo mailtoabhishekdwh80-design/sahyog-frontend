@@ -3524,11 +3524,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                         if (v) { v.srcObject = null; }
                       } else {
                         try {
-                          const s = await navigator.mediaDevices.getUserMedia({video:true});
+                          const s = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
                           (window as any)._camStream = s;
                           setCameraOn(true);
-                          const v = document.getElementById('local-video') as HTMLVideoElement;
-                          if (v) { v.srcObject = s; v.play(); }
+                          // Small delay to let React render the video element first
+                          setTimeout(() => {
+                            const v = document.getElementById('local-video') as HTMLVideoElement;
+                            if (v) { v.srcObject = s; v.play().catch(()=>{}); }
+                          }, 100);
                           setInMeetingChat((c:any) => [...c, { sender:'System', text:'📷 Your camera is now ON', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                         } catch { alert('Could not access camera. Please allow camera permission in browser settings.'); }
                       }
