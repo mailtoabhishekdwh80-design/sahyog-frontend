@@ -2426,7 +2426,6 @@ export default function WorkspaceShell() {
           </div>
         </div>
       )}
-    </div>
       {showGlobalSearch && (
         <GlobalSearch
           onClose={() => setShowGlobalSearch(false)}
@@ -2445,6 +2444,7 @@ export default function WorkspaceShell() {
           onClose={() => setShowWorkflow(false)}
         />
       )}
+    </div>
   );
 }
 
