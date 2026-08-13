@@ -2903,7 +2903,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             <div className="max-h-36 overflow-y-auto space-y-1 rounded-xl p-2" style={{background:"#1E293B"}}>
               {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'rounded-lg' style={{background:'#1D4ED8',border:'1px solid #3B82F6'}} : 'hover:bg-gray-700'}`}>
+                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'rounded-lg' : 'hover:bg-gray-700' : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? '/bg-indigo-500/g text-white' : 'bg-gray-600 text-gray-200'}`}>
                     {m.display_name?.charAt(0)}
                   </div>
