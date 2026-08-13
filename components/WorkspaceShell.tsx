@@ -2612,7 +2612,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
                 }`} />
                 <span className="text-sm text-white flex-1 truncate">{t.title}</span>
                 {t.due_date && (
-                  <span className={`text-xs shrink-0 ${new Date(t.due_date) < new Date() ? 'text-red-400' : 'text-gray-300'}`}>
+                  <span suppressHydrationWarning className={`text-xs shrink-0 ${new Date(t.due_date).getTime() < Date.now() ? 'text-red-400' : 'text-gray-300'}`}>
                     {new Date(t.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                   </span>
                 )}
