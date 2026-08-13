@@ -1384,7 +1384,7 @@ export default function WorkspaceShell() {
                       const url = q.trim()
                         ? "https://api.giphy.com/v1/gifs/search?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&q=" + encodeURIComponent(q) + "&limit=9&rating=g"
                         : "https://api.giphy.com/v1/gifs/trending?api_key=mx6IMBQvFlz4bhTsuBeGnBZjIcHeOpCp&limit=9&rating=g";
-                      try { const r = await fetch(url); const d = await r.json(); setGifResults(d.data?.map((g:any) => g.images?.fixed_height?.url).filter(Boolean) || []; setGifSearch(q + " "); setTimeout(()=>setGifSearch(q),10); } catch {}
+                      try { const r = await fetch(url); const d = await r.json(); setGifResults(d.data?.map((g:any) => g.images?.fixed_height?.url).filter(Boolean) || []); } catch {}
                     }} placeholder="Search GIFs (powered by Giphy)..." autoFocus
                       style={{width:"100%",background:"rgba(99,120,180,0.09)",border:"1px solid rgba(99,120,180,0.14)",borderRadius:6,padding:"6px 10px",color:"#FFFFFF",fontSize:13,outline:"none",marginBottom:8}} />
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4,maxHeight:200,overflowY:"auto"}}>
