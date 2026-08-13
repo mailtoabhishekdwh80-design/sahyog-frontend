@@ -72,6 +72,7 @@ export default function WorkspaceShell() {
   const [meetingTab, setMeetingTab] = useState('chat');
   const [showVirtualBg,   setShowVirtualBg]   = useState(false);
   const [showAnalytics,   setShowAnalytics]   = useState(false);
+  const [showMeetingAnalytics, setShowMeetingAnalytics] = useState(false);
   const [virtualBg,       setVirtualBg]       = useState({type:'none',value:'',id:'none'});
   const [showMeetingPanel, setShowMeetingPanel] = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
@@ -1551,7 +1552,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} onShowAnalytics={() => setShowMeetingAnalytics(true)} />}
           </div>
         )}
 
@@ -2459,9 +2460,9 @@ export default function WorkspaceShell() {
           currentBg={virtualBg.id}
         />
       )}
-      {showAnalytics && (
+      {showMeetingAnalytics && (
         <MeetingAnalytics
-          onClose={() => setShowAnalytics(false)}
+          onClose={() => setShowMeetingAnalytics(false)}
           apiFetch={apiFetch}
         />
       )}
@@ -2656,7 +2657,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void }) {
+function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
@@ -2920,7 +2921,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 bg-gray-800 rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
+          <button onClick={() => onShowAnalytics()}
+              style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Analytics</button>
+            <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
           <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>Calendar</button>
         </div>
         <button onClick={() => setCreating(true)} className="/bg-indigo-600/g hover:/bg-indigo-500/g text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
