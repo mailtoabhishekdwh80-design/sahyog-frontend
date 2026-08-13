@@ -145,15 +145,9 @@ export default function WorkspaceShell() {
   const [scheduleTime,   setScheduleTime]   = useState('');
   // ── Messaging features ──
   const [showFormatBar,  setShowFormatBar]  = useState(false);
-  const [theme,          setTheme]          = useState<'dark'|'light'>(() => {
-    if (typeof window !== 'undefined') return (localStorage.getItem('dt_theme') as any) || 'dark';
-    return 'dark';
-  });
+  const [theme, setTheme] = useState<'dark'|'light'>('dark');
   const [showShortcuts,  setShowShortcuts]  = useState(false);
-  const [tourStep,       setTourStep]       = useState<number|null>(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('dt_tour_done')) return 0;
-    return null;
-  });
+  const [tourStep, setTourStep] = useState<number|null>(null);
   const [notifPrefs,     setNotifPrefs]     = useState<Record<string,string>>({});
   const [showNotifPrefs, setShowNotifPrefs] = useState(false);
   const [editingMsgId,   setEditingMsgId]   = useState<string|null>(null);
