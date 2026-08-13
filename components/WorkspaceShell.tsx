@@ -2943,11 +2943,22 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               const dayMeetings = getMeetingsOnDay(day);
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
               return (
-                <div key={day} className={`min-h-16 border-b border-r border-gray-800 p-1 ${isToday ? 'bg-emerald-950/30' : ''}`}>
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? '/bg-indigo-500/g text-white' : 'text-gray-200'}`}>{day}</div>
+                <div key={day}
+                  onClick={() => {
+                    const d = new Date(calMonth.getFullYear(), calMonth.getMonth(), day);
+                    const dateStr = d.toISOString().split('T')[0];
+                    const timeStr = '09:00';
+                    setMeetDate(dateStr);
+                    setMeetTime(timeStr);
+                    setStartNow(false);
+                    setCreating(true);
+                  }}
+                  className={`min-h-16 p-1 cursor-pointer transition-colors ${isToday ? 'bg-blue-950/40' : 'hover:bg-slate-800/60'}`}
+                  style={{borderBottom:'1px solid #1E3A5F',borderRight:'1px solid #1E3A5F'}}>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'text-white' : 'text-gray-400'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
-                      className="block text-xs bg-emerald-900/60 /text-indigo-300/g rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
+                      className="block text-xs rounded px-1.5 py-0.5 mb-0.5 truncate font-medium" style={{background:"#1D4ED8",color:"#BFDBFE"}}>
                       {new Date(m.starts_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} {m.title}
                     </a>
                   ))}
