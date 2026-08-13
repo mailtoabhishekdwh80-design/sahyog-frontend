@@ -1382,8 +1382,6 @@ export default function WorkspaceShell() {
                     </div>
                     <p style={{fontSize:11,color:"#94A3B8",marginTop:4,textAlign:"center"}}>Powered by GIPHY</p>
                   </div>
-                    <p style={{fontSize:11,color:'#CBD5E1',marginTop:4,textAlign:'center'}}>Powered by Giphy • Click to insert</p>
-                  </div>
                 )}
 
                 {/* Channel autocomplete */}
