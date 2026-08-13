@@ -3607,6 +3607,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                       }
                     }
                   },
+                { icon:'BG', label:'Virtual BG', active:showVirtualBgMeeting, color:showVirtualBgMeeting?'#818CF8':undefined, action:()=>setShowVirtualBgMeeting(true) },
                 ] as {icon:string,label:string,active:boolean,color?:string,action:()=>void}[]).map(ctrl => (
                   <div key={ctrl.label} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <button onClick={ctrl.action} title={ctrl.label}
