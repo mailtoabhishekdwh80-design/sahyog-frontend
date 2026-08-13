@@ -912,7 +912,7 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background: theme === 'light' ? '#F5F6FA' : '#0E1117',color: theme === 'light' ? '#0E1117' : '#C8D0E0'}}>
+    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#000000',color: theme === 'light' ? '#0E1117' : '#C8D0E0'}}>
 
       {/* ══ SIDEBAR ══ */}
       <div style={{width:240,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',flexShrink:0}}>
@@ -925,7 +925,7 @@ export default function WorkspaceShell() {
                 title="Create new channel or invite people"
                 style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(99,120,180,0.22)' : 'rgba(99,120,180,0.12)',border:'none',cursor:'pointer',color:'#FFFFFF',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
               {showWsMenu && (
-                <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                   onClick={() => setShowWsMenu(false)}>
                   {[
                     { icon:'#️⃣', label:'New channel',    desc:'Create a conversation channel',    fn: () => setShowNewChannel(true) },
@@ -940,7 +940,7 @@ export default function WorkspaceShell() {
                       <span style={{fontSize:18,flexShrink:0}}>{item.icon}</span>
                       <div>
                         <div style={{fontSize:13,fontWeight:600,color:'#FFFFFF'}}>{item.label}</div>
-                        <div style={{fontSize:11,color:'#7A8499'}}>{item.desc}</div>
+                        <div style={{fontSize:11,color:'#CBD5E1'}}>{item.desc}</div>
                       </div>
                     </button>
                   ))}
@@ -949,7 +949,7 @@ export default function WorkspaceShell() {
             </div>
           </div>
           {/* Search bar */}
-          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(99,120,180,0.12)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#8892A4',fontSize:13}}>
+          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(99,120,180,0.12)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#E2E8F0',fontSize:13}}>
             🔍 <span>Search</span>
             <span style={{marginLeft:'auto',fontSize:11,opacity:.5}}>Ctrl+K</span>
           </button>
@@ -961,12 +961,12 @@ export default function WorkspaceShell() {
           {/* Direct Messages */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#8892A4',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
               <div style={{display:'flex',gap:2}}>
               <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#8892A4',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}} title="New DM">+</button>
+                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}} title="New DM">+</button>
               <button onClick={() => { setShowGroupDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#8892A4',cursor:'pointer',fontSize:12,lineHeight:1,padding:2,borderRadius:4,fontWeight:600}} title="New group DM">👥</button>
+                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,lineHeight:1,padding:2,borderRadius:4,fontWeight:600}} title="New group DM">👥</button>
             </div>
             </div>
             {dmList.map((dm: any) => (
@@ -986,9 +986,9 @@ export default function WorkspaceShell() {
           {/* Channels */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#8892A4',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
               <button onClick={() => setShowNewChannel(true)}
-                style={{background:'none',border:'none',color:'#8892A4',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
             {channels.filter(c => c.type !== 'direct').slice(0, 15).map(ch => (
               <button key={ch.id} onClick={() => openChannel(ch)}
@@ -1005,20 +1005,20 @@ export default function WorkspaceShell() {
           {/* Boards */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#8892A4',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
               <button onClick={async () => {
                 const name = prompt('Board name?');
                 if (!name) return;
                 const wsRes = await api.workspaces();
                 const wsId = wsRes?.data?.[0]?.id;
                 if (wsId) { await api.createBoard(name, wsId); const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
-              }} style={{background:'none',border:'none',color:'#8892A4',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+              }} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
             {boards.map(b => (
               <div key={b.id} style={{display:'flex',alignItems:'center',gap:2}}>
                 <button onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
                   style={{flex:1,display:'flex',alignItems:'center',gap:7,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeBoard?.id === b.id ? 'rgba(99,120,180,0.14)' : 'transparent',color: activeBoard?.id === b.id ? '#fff' : '#8892A4',transition:'all .1s'}}>
-                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(99,120,180,0.14)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#8892A4'}}>B</span>
+                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(99,120,180,0.14)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#E2E8F0'}}>B</span>
                   <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.name}</span>
                 </button>
               </div>
@@ -1041,7 +1041,7 @@ export default function WorkspaceShell() {
               { icon:'📱', label:'WhatsApp setup', action: () => window.location.href='/settings' },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
-                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#8892A4',transition:'all .1s',fontSize:14}}>
+                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#E2E8F0',transition:'all .1s',fontSize:14}}>
                 <span>{item.icon}</span><span>{item.label}</span>
               </button>
             ))}
@@ -1060,7 +1060,7 @@ export default function WorkspaceShell() {
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
-                <div style={{fontSize:11,color:'#8892A4',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
+                <div style={{fontSize:11,color:'#E2E8F0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
               </div>
             </button>
             <button onClick={() => {
@@ -1069,11 +1069,11 @@ export default function WorkspaceShell() {
                 localStorage.setItem('dt_theme', t);
                 document.documentElement.setAttribute('data-theme', t);
               }} title="Toggle theme"
-              style={{background:'none',border:'none',cursor:'pointer',color:'#8892A4',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
+              style={{background:'none',border:'none',cursor:'pointer',color:'#E2E8F0',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
             <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts (?)"
-              style={{background:'none',border:'none',cursor:'pointer',color:'#8892A4',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
+              style={{background:'none',border:'none',cursor:'pointer',color:'#E2E8F0',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
           </div>
           <button onClick={() => api.logout()}
             style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'rgba(237,66,69,0.08)',border:'1px solid rgba(237,66,69,0.25)',borderRadius:8,cursor:'pointer',color:'#f87171',fontSize:13,fontWeight:600,padding:'8px 0'}}>
@@ -1083,7 +1083,7 @@ export default function WorkspaceShell() {
       </div>
 
       {/* ══ MAIN CONTENT ══ */}
-      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background: theme==='light'?'#ffffff':'#313338'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#000000'}}>
 
         {/* ── WS RECONNECTING BANNER ── */}
       {wsReconnecting && (
@@ -1098,7 +1098,7 @@ export default function WorkspaceShell() {
             {/* Channel header */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#313338',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{fontSize:18,color:'#7A8499',fontWeight:400}}>#</span>
+                <span style={{fontSize:18,color:'#CBD5E1',fontWeight:400}}>#</span>
                 <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{activeChannel.name}</span>
                 {channelDescEdit ? (
                   <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:8}}>
@@ -1107,43 +1107,43 @@ export default function WorkspaceShell() {
                       style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:6,padding:'3px 8px',color:'#FFFFFF',fontSize:13,width:220}}
                       onKeyDown={e => { if(e.key==='Enter') saveChannelDesc(); if(e.key==='Escape') setChannelDescEdit(false); }} />
                     <button onClick={saveChannelDesc} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'3px 8px',color:'#fff',fontSize:12,cursor:'pointer'}}>Save</button>
-                    <button onClick={() => setChannelDescEdit(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
+                    <button onClick={() => setChannelDescEdit(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
                 ) : (
                   <span onClick={() => { setChannelDescEdit(true); setNewChannelDesc(activeChannel.description || ''); }}
-                    style={{fontSize:13,color:'#7A8499',marginLeft:4,cursor:'pointer'}} title="Click to edit description">
+                    style={{fontSize:13,color:'#CBD5E1',marginLeft:4,cursor:'pointer'}} title="Click to edit description">
                     {activeChannel.description || <span style={{opacity:.5}}>Add description</span>}
                   </span>
                 )}
               </div>
               <div style={{display:'flex',alignItems:'center',gap:4}}>
-                <button onClick={loadPins} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
+                <button onClick={loadPins} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
-                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
-                <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
+                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
+                <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
                 <button onClick={() => huddleActive ? endHuddle() : startHuddle()}
                   style={{background: huddleActive ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: huddleActive ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="Start huddle (audio call)">
                   {huddleActive ? '🎙️ Huddle' : '🎙️'}
                 </button>
-                <button onClick={() => setShowIntegrations(true)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="App integrations">⚡</button>
-                <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
+                <button onClick={() => setShowIntegrations(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="App integrations">⚡</button>
+                <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
                 <button onClick={() => toggleMute(activeChannel?.id||'')} style={{background: mutedChannels.includes(activeChannel?.id||'') ? 'rgba(237,66,69,0.15)' : 'none',border:'none',color: mutedChannels.includes(activeChannel?.id||'') ? '#ed4245' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Mute/unmute channel">{mutedChannels.includes(activeChannel?.id||'') ? '🔕' : '🔔'}</button>
-                <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
+                <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
                 <button onClick={() => setShowStarred(s => !s)} style={{background: showStarred ? 'rgba(251,191,36,0.15)' : 'none',border:'none',color: showStarred ? '#fbbf24' : '#7A8499',cursor:'pointer',fontSize:14,padding:'4px 8px',borderRadius:6}} title="Starred messages">⭐</button>
-                <button onClick={() => leaveChannel(activeChannel?.id||'')} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Leave channel">Leave</button>
-                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
-                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
-                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
-                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
+                <button onClick={() => leaveChannel(activeChannel?.id||'')} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Leave channel">Leave</button>
+                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
+                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
+                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
+                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
                 <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
-                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
-                <span style={{fontSize:12,color:'#7A8499',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
+                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
+                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
               </div>
             </div>
 
             {/* Message search bar */}
             {showMsgSearch && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929'}}>
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#1A1A2E'}}>
                 <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search messages..." autoFocus
                   style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#FFFFFF',fontSize:13,outline:'none'}} />
               </div>
@@ -1156,9 +1156,9 @@ export default function WorkspaceShell() {
                   <div style={{display:'flex',alignItems:'center',gap:8}}>
                     <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>AI</div>
                     <span style={{fontSize:13,fontWeight:700,color:'#fff'}}>Deemona AI</span>
-                    <span style={{fontSize:12,color:'#7A8499'}}>Ask anything about this channel</span>
+                    <span style={{fontSize:12,color:'#CBD5E1'}}>Ask anything about this channel</span>
                   </div>
-                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:16}}>✕</button>
+                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:16}}>✕</button>
                 </div>
                 <div style={{flex:1,overflowY:'auto',padding:'12px 16px',display:'flex',flexDirection:'column',gap:8}}>
                   {aiMessages.length === 0 && (
@@ -1174,7 +1174,7 @@ export default function WorkspaceShell() {
                       <div style={{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:13,lineHeight:1.5,background: m.role === 'user' ? '#4F6EF7' : 'rgba(99,120,180,0.12)',color: m.role === 'user' ? '#fff' : '#C8D0E0'}}>{m.content}</div>
                     </div>
                   ))}
-                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(99,120,180,0.12)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#7A8499',fontStyle:'italic'}}>Thinking...</div></div>}
+                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(99,120,180,0.12)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#CBD5E1',fontStyle:'italic'}}>Thinking...</div></div>}
                 </div>
                 <div style={{padding:'8px 16px',borderTop:'1px solid rgba(99,120,180,0.12)',display:'flex',gap:8}}>
                   <input value={aiInput} onChange={e => setAiInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
@@ -1186,14 +1186,14 @@ export default function WorkspaceShell() {
 
             {/* Schedule panel */}
             {showSchedule && (
-              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                <span style={{fontSize:12,color:'#7A8499'}}>Schedule for:</span>
+              <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#1A1A2E',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                <span style={{fontSize:12,color:'#CBD5E1'}}>Schedule for:</span>
                 <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
                   style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
                   style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'5px 12px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',opacity: scheduleDate && scheduleTime && newMessage.trim() ? 1 : 0.5}}>Schedule</button>
-                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
+                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
               </div>
             )}
 
@@ -1220,7 +1220,7 @@ export default function WorkspaceShell() {
                   <div style={{fontSize:48}}>💬</div>
                   <div style={{textAlign:'center'}}>
                     <div style={{fontSize:16,fontWeight:700,color:'#FFFFFF',marginBottom:6}}>No messages yet</div>
-                    <div style={{fontSize:14,color:'#7A8499'}}>Be the first to send a message in #{activeChannel?.name}</div>
+                    <div style={{fontSize:14,color:'#CBD5E1'}}>Be the first to send a message in #{activeChannel?.name}</div>
                   </div>
                 </div>
               )}
@@ -1237,7 +1237,7 @@ export default function WorkspaceShell() {
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#7A8499'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                         {msg.is_edited && <span style={{fontSize:11,color:'#616061'}}>(edited)</span>}
                         {msg.is_pinned && <span style={{fontSize:11,color:'#f59e0b'}}>pinned</span>}
                       </div>
@@ -1249,7 +1249,7 @@ export default function WorkspaceShell() {
                           <div style={{display:'flex',gap:6,marginTop:4}}>
                             <button onClick={() => saveEditMessage(editingMsgId!)} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer',fontWeight:600}}>Save</button>
                             <button onClick={() => setEditingMsgId(null)} style={{background:'none',border:'1px solid rgba(99,120,180,0.14)',borderRadius:5,padding:'4px 10px',color:'#A8B3C8',fontSize:12,cursor:'pointer'}}>Cancel</button>
-                            <span style={{fontSize:11,color:'#7A8499',alignSelf:'center'}}>Enter to save · Esc to cancel</span>
+                            <span style={{fontSize:11,color:'#CBD5E1',alignSelf:'center'}}>Enter to save · Esc to cancel</span>
                           </div>
                         </div>
                       ) : rendered.isFile ? (
@@ -1273,7 +1273,7 @@ export default function WorkspaceShell() {
                           {Object.entries(msg.reactions).map(([emoji, count]) => (
                             <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
                               style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#C8D0E0',display:'flex',alignItems:'center',gap:4}}>
-                              {emoji} <span style={{fontSize:12,color:'#7A8499'}}>{count as number}</span>
+                              {emoji} <span style={{fontSize:12,color:'#CBD5E1'}}>{count as number}</span>
                             </button>
                           ))}
                         </div>
@@ -1323,18 +1323,18 @@ export default function WorkspaceShell() {
                       </button>
                     ))}
                     <div style={{width:1,height:16,background:'rgba(99,120,180,0.14)',margin:'0 4px'}}/>
-                    <button onClick={() => setShowJumpDate(s => !s)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Jump to date</button>
-                    <button onClick={() => setChannelDescEdit(s => !s)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Edit desc</button>
+                    <button onClick={() => setShowJumpDate(s => !s)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Jump to date</button>
+                    <button onClick={() => setChannelDescEdit(s => !s)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Edit desc</button>
                   </div>
                 )}
                 {/* Jump to date */}
                 {showJumpDate && (
                   <div style={{display:'flex',alignItems:'center',gap:8,padding:'6px 10px',borderBottom:'1px solid rgba(99,120,180,0.09)'}}>
-                    <span style={{fontSize:12,color:'#7A8499'}}>Jump to:</span>
+                    <span style={{fontSize:12,color:'#CBD5E1'}}>Jump to:</span>
                     <input type="date" value={jumpDate} onChange={e => setJumpDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
                       style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',color:'#FFFFFF',fontSize:12}} />
                     <button onClick={jumpToDate} disabled={!jumpDate} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer'}}>Go</button>
-                    <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
+                    <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
                 )}
                 {/* Mention autocomplete */}
@@ -1346,7 +1346,7 @@ export default function WorkspaceShell() {
                         <div style={{width:24,height:24,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>{m.display_name?.charAt(0)}</div>
                         <div>
                           <span style={{color:'#FFFFFF',fontWeight:600}}>{m.display_name}</span>
-                          <span style={{color:'#7A8499',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
+                          <span style={{color:'#CBD5E1',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
                         </div>
                       </button>
                     ))}
@@ -1372,7 +1372,7 @@ export default function WorkspaceShell() {
                         </button>
                       ))}
                     </div>
-                    <p style={{fontSize:11,color:'#7A8499',marginTop:4,textAlign:'center'}}>Powered by Giphy • Click to insert</p>
+                    <p style={{fontSize:11,color:'#CBD5E1',marginTop:4,textAlign:'center'}}>Powered by Giphy • Click to insert</p>
                   </div>
                 )}
 
@@ -1382,10 +1382,10 @@ export default function WorkspaceShell() {
                     {channels.filter(c => c.type !== 'direct' && c.name.toLowerCase().includes(channelQuery.toLowerCase())).slice(0,6).map((ch: any) => (
                       <button key={ch.id} onClick={() => insertChannelRef(ch.name)}
                         style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
-                        <span style={{color:'#7A8499',fontSize:15}}>#</span>
+                        <span style={{color:'#CBD5E1',fontSize:15}}>#</span>
                         <div>
                           <span style={{color:'#FFFFFF',fontWeight:600}}>{ch.name}</span>
-                          {ch.description && <span style={{color:'#7A8499',marginLeft:6,fontSize:12}}>{ch.description}</span>}
+                          {ch.description && <span style={{color:'#CBD5E1',marginLeft:6,fontSize:12}}>{ch.description}</span>}
                         </div>
                       </button>
                     ))}
@@ -1402,7 +1402,7 @@ export default function WorkspaceShell() {
                       </button>
                     ))}
                     {Object.entries(EMOJI_MAP).filter(([k]) => k.includes(emojiQuery)).length === 0 && (
-                      <span style={{fontSize:12,color:'#7A8499',padding:'6px 10px'}}>No emoji found for :{emojiQuery}</span>
+                      <span style={{fontSize:12,color:'#CBD5E1',padding:'6px 10px'}}>No emoji found for :{emojiQuery}</span>
                     )}
                   </div>
                 )}
@@ -1414,7 +1414,7 @@ export default function WorkspaceShell() {
                       <button key={cmd} onClick={() => handleSlashCommand(cmd)}
                         style={{display:'block',width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         <span style={{fontWeight:700,color:'#818CF8'}}>{cmd}</span>
-                        <span style={{color:'#7A8499',marginLeft:8,fontSize:12}}>
+                        <span style={{color:'#CBD5E1',marginLeft:8,fontSize:12}}>
                           {cmd==='/todo'?'Create a todo item':cmd==='/poll'?'Create a poll':cmd==='/me'?'Action message':cmd==='/shrug'?'¯\_(ツ)_/¯':cmd==='/tableflip'?'(╯°□°）╯':'Clear message'}
                         </span>
                       </button>
@@ -1425,7 +1425,7 @@ export default function WorkspaceShell() {
                   <input ref={fileInputRef} type="file" style={{display:'none'}} onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
                   <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
                     title="Attach file"
-                    style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
+                    style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
                   <button onClick={recording ? stopRecordingVoice : startRecordingVoice}
                     title="Voice message"
                     style={{background:'none',border:'none',color: recording ? '#ed4245' : '#7A8499',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>{recording ? '⏹' : '🎤'}</button>
@@ -1450,8 +1450,8 @@ export default function WorkspaceShell() {
                 </div>
               </div>
               <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
-                <span style={{fontSize:11,color:'#7A8499'}}>Enter to send · Shift+Enter for new line · / for commands</span>
-                {newMessage && <span style={{fontSize:11,color:'#7A8499'}}>Draft saved</span>}
+                <span style={{fontSize:11,color:'#CBD5E1'}}>Enter to send · Shift+Enter for new line · / for commands</span>
+                {newMessage && <span style={{fontSize:11,color:'#CBD5E1'}}>Draft saved</span>}
               </div>
             </div>
           </div>
@@ -1492,7 +1492,7 @@ export default function WorkspaceShell() {
                     <div style={{flex:1}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#7A8499'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                       </div>
                       <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
                       {/* Read receipts - show on last message sent by me */}
@@ -1540,7 +1540,7 @@ export default function WorkspaceShell() {
         <div style={{width:360,borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column',background:'#313338',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)'}}>
             <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>Thread</span>
-            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:18}}>✕</button>
+            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18}}>✕</button>
           </div>
           <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
             <div style={{display:'flex',gap:12,marginBottom:16,paddingBottom:16,borderBottom:'1px solid rgba(99,120,180,0.12)'}}>
@@ -1550,7 +1550,7 @@ export default function WorkspaceShell() {
               <div>
                 <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
                   <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{threadMsg.sender_name}</span>
-                  <span style={{fontSize:12,color:'#7A8499'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                  <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                 </div>
                 <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
               </div>
@@ -1563,7 +1563,7 @@ export default function WorkspaceShell() {
                 <div>
                   <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:2}}>
                     <span style={{fontSize:13,fontWeight:700,color:'#FFFFFF'}}>{r.sender_name}</span>
-                    <span style={{fontSize:11,color:'#7A8499'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                    <span style={{fontSize:11,color:'#CBD5E1'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                   </div>
                   <div style={{fontSize:14,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(r.content).html || r.content}} />
                 </div>
@@ -1586,7 +1586,7 @@ export default function WorkspaceShell() {
 
       {/* ── HUDDLE PANEL ── */}
       {showHuddle && (
-        <div style={{position:'fixed',bottom:80,right:20,background:'#0E1117',border:'1px solid rgba(79,110,247,0.3)',borderRadius:16,padding:16,zIndex:200,width:240,boxShadow:'0 8px 32px rgba(0,0,0,0.4)'}}>
+        <div style={{position:'fixed',bottom:80,right:20,background:'#000000',border:'1px solid rgba(79,110,247,0.3)',borderRadius:16,padding:16,zIndex:200,width:240,boxShadow:'0 8px 32px rgba(0,0,0,0.4)'}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
             <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(74,222,128,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>🎙️</div>
             <div>
@@ -1596,9 +1596,9 @@ export default function WorkspaceShell() {
           </div>
           <div style={{display:'flex',gap:8}}>
             <button onClick={endHuddle} style={{flex:1,background:'rgba(237,66,69,0.15)',border:'1px solid rgba(237,66,69,0.3)',borderRadius:8,padding:'8px',color:'#ed4245',fontSize:12,fontWeight:600,cursor:'pointer'}}>End huddle</button>
-            <button onClick={() => setShowHuddle(false)} style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'8px',color:'#8892A4',fontSize:12,cursor:'pointer'}}>Minimise</button>
+            <button onClick={() => setShowHuddle(false)} style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'8px',color:'#E2E8F0',fontSize:12,cursor:'pointer'}}>Minimise</button>
           </div>
-          <p style={{fontSize:11,color:'#7A8499',marginTop:8,textAlign:'center'}}>Others in #{activeChannel?.name} can join</p>
+          <p style={{fontSize:11,color:'#CBD5E1',marginTop:8,textAlign:'center'}}>Others in #{activeChannel?.name} can join</p>
         </div>
       )}
 
@@ -1606,12 +1606,12 @@ export default function WorkspaceShell() {
       {showGroupDM && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowGroupDM(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">New group message</span>
-              <button onClick={() => setShowGroupDM(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowGroupDM(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">Select 2+ members to start a group conversation</p>
+            <p className="text-xs text-gray-300 mb-3">Select 2+ members to start a group conversation</p>
             <div className="space-y-1 max-h-60 overflow-y-auto mb-4">
               {(dmOrgMembers as any[]).filter((m: any) => m.id !== user?.id).map((m: any) => (
                 <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
@@ -1621,13 +1621,13 @@ export default function WorkspaceShell() {
                   <div className="w-7 h-7 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{m.display_name?.charAt(0)}</div>
                   <div>
                     <div className="text-sm text-white font-medium">{m.display_name}</div>
-                    <div className="text-xs text-gray-500">{m.designation || m.email}</div>
+                    <div className="text-xs text-gray-300">{m.designation || m.email}</div>
                   </div>
                 </label>
               ))}
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setShowGroupDM(false)} className="flex-1 text-sm text-gray-400 bg-gray-800 hover:bg-gray-700 py-2 rounded-xl">Cancel</button>
+              <button onClick={() => setShowGroupDM(false)} className="flex-1 text-sm text-gray-200 bg-gray-800 hover:bg-gray-700 py-2 rounded-xl">Cancel</button>
               <button onClick={createGroupDM} disabled={groupDMMembers.length < 2}
                 className="flex-1 text-sm /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl font-medium disabled:opacity-50">
                 Start group chat ({groupDMMembers.length} selected)
@@ -1641,12 +1641,12 @@ export default function WorkspaceShell() {
       {showIntegrations && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowIntegrations(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">⚡ App integrations</span>
-              <button onClick={() => setShowIntegrations(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowIntegrations(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
-            <p className="text-xs text-gray-500 mb-4">Connect your tools to Deemona Teams</p>
+            <p className="text-xs text-gray-300 mb-4">Connect your tools to Deemona Teams</p>
             <div className="space-y-3">
               {[
                 { name:'GitHub', icon:'🐙', desc:'Get PR and issue notifications in channels', status:'Configure', fn: () => { const token = prompt('GitHub Personal Access Token:'); const repo = prompt('Repository (owner/repo):'); if(token && repo) alert('GitHub integration configured for '+repo+'! PR notifications will appear in this channel.'); } },
@@ -1661,7 +1661,7 @@ export default function WorkspaceShell() {
                     <span className="text-xl">{app.icon}</span>
                     <div>
                       <div className="text-sm font-medium text-white">{app.name}</div>
-                      <div className="text-xs text-gray-500">{app.desc}</div>
+                      <div className="text-xs text-gray-300">{app.desc}</div>
                     </div>
                   </div>
                   <button onClick={app.fn} className="text-xs /bg-emerald-900\/30/g hover:bg-emerald-900/50 /text-indigo-400/g px-3 py-1.5 rounded-lg font-medium">{app.status}</button>
@@ -1676,10 +1676,10 @@ export default function WorkspaceShell() {
       {showChannelMembers && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowChannelMembers(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">#{activeChannel?.name} members ({channelMembers.length})</span>
-              <button onClick={() => setShowChannelMembers(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowChannelMembers(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {channelMembers.map((m: any) => (
@@ -1687,12 +1687,12 @@ export default function WorkspaceShell() {
                   <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{m.display_name?.charAt(0)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-white font-medium">{m.display_name}</div>
-                    <div className="text-xs text-gray-500">{m.designation || m.email}</div>
+                    <div className="text-xs text-gray-300">{m.designation || m.email}</div>
                   </div>
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${onlineUsers.has(m.id) ? 'bg-emerald-400' : 'bg-gray-600'}`}/>
                 </div>
               ))}
-              {channelMembers.length === 0 && <p className="text-gray-500 text-sm text-center py-4">No members found</p>}
+              {channelMembers.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No members found</p>}
             </div>
           </div>
         </div>
@@ -1702,24 +1702,24 @@ export default function WorkspaceShell() {
       {showStarred && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowStarred(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">⭐ Starred messages</span>
-              <button onClick={() => setShowStarred(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowStarred(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             {messages.filter(m => starredMsgs.includes(m.id)).length === 0
-              ? <p className="text-gray-500 text-sm text-center py-6">No starred messages in this channel.<br/>Hover over a message and click ☆ to star it.</p>
+              ? <p className="text-gray-300 text-sm text-center py-6">No starred messages in this channel.<br/>Hover over a message and click ☆ to star it.</p>
               : messages.filter(m => starredMsgs.includes(m.id)).map(msg => (
                 <div key={msg.id} className="flex gap-3 p-3 bg-gray-800 rounded-xl mb-2">
                   <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white flex-shrink-0">{msg.sender_name?.charAt(0)}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-sm font-semibold text-white">{msg.sender_name}</span>
-                      <span className="text-xs text-gray-600">{new Date(msg.sent_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</span>
+                      <span className="text-xs text-gray-200">{new Date(msg.sent_at).toLocaleString('en-IN',{dateStyle:'short',timeStyle:'short'})}</span>
                     </div>
                     <p className="text-sm text-gray-300 line-clamp-2">{msg.content}</p>
                   </div>
-                  <button onClick={() => toggleStarMessage(msg.id)} className="text-yellow-400 hover:text-gray-400 flex-shrink-0">★</button>
+                  <button onClick={() => toggleStarMessage(msg.id)} className="text-yellow-400 hover:text-gray-200 flex-shrink-0">★</button>
                 </div>
               ))
             }
@@ -1731,16 +1731,16 @@ export default function WorkspaceShell() {
       {showFwd && fwdMsg && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowFwd(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">Forward message</span>
-              <button onClick={() => setShowFwd(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowFwd(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="bg-gray-800 rounded-xl p-3 mb-4">
-              <p className="text-xs text-gray-500 mb-1">From {fwdMsg.sender_name}:</p>
+              <p className="text-xs text-gray-300 mb-1">From {fwdMsg.sender_name}:</p>
               <p className="text-sm text-gray-300 line-clamp-3">{fwdMsg.content}</p>
             </div>
-            <p className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wider">Forward to channel:</p>
+            <p className="text-xs text-gray-300 mb-2 font-semibold uppercase tracking-wider">Forward to channel:</p>
             <div className="space-y-1 max-h-48 overflow-y-auto">
               {channels.filter(c => c.type !== 'direct').map(ch => (
                 <button key={ch.id} onClick={async () => {
@@ -1748,7 +1748,7 @@ export default function WorkspaceShell() {
                   setShowFwd(false);
                   alert('Message forwarded to #' + ch.name);
                 }} className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800 text-sm text-gray-300">
-                  <span className="text-gray-500">#</span> {ch.name}
+                  <span className="text-gray-300">#</span> {ch.name}
                 </button>
               ))}
             </div>
@@ -1760,12 +1760,12 @@ export default function WorkspaceShell() {
       {showNotifPrefs && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowNotifPrefs(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-white font-semibold">Notification preferences</span>
-              <button onClick={() => setShowNotifPrefs(false)} className="text-gray-500 hover:text-white text-xl leading-none">x</button>
+              <button onClick={() => setShowNotifPrefs(false)} className="text-gray-300 hover:text-white text-xl leading-none">x</button>
             </div>
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 font-semibold">Channel: #{activeChannel?.name || 'none'}</p>
+            <p className="text-xs text-gray-300 uppercase tracking-wider mb-3 font-semibold">Channel: #{activeChannel?.name || 'none'}</p>
             {[
               { key:'all', label:'All messages', desc:'Notify for every message' },
               { key:'mentions', label:'Mentions only', desc:'Only when @mentioned' },
@@ -1777,12 +1777,12 @@ export default function WorkspaceShell() {
                   onChange={() => { const p={...notifPrefs,[activeChannel?.id||'']:opt.key}; setNotifPrefs(p); localStorage.setItem('notif_prefs',JSON.stringify(p)); }} />
                 <div>
                   <div className="text-sm text-white font-medium">{opt.label}</div>
-                  <div className="text-xs text-gray-500">{opt.desc}</div>
+                  <div className="text-xs text-gray-300">{opt.desc}</div>
                 </div>
               </label>
             ))}
             <div className="border-t border-gray-800 pt-4 mt-2 space-y-2">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Email</p>
+              <p className="text-xs text-gray-300 uppercase tracking-wider mb-2 font-semibold">Email</p>
               {[['email_mentions','Email on @mention'],['email_dms','Email on DM'],['email_digest','Daily digest 8AM IST']].map(([k,l]) => (
                 <label key={k} className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-800 rounded-lg">
                   <span className="text-sm text-gray-300">{l}</span>
@@ -1791,16 +1791,16 @@ export default function WorkspaceShell() {
               ))}
             </div>
             <div className="border-t border-gray-800 pt-4 mt-2 space-y-2">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Do Not Disturb</p>
+              <p className="text-xs text-gray-300 uppercase tracking-wider mb-2 font-semibold">Do Not Disturb</p>
               <div className="flex gap-2 flex-wrap">
                 {[[1,'1 hour'],[4,'4 hours'],[8,'Until tomorrow'],[0,'Turn off']].map(([h,label]) => (
                   <button key={label} onClick={() => h === 0 ? (setDndEnabled(false), localStorage.removeItem('dnd_until')) : enableDND(h as number)}
-                    className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${dndEnabled && h !== 0 ? 'bg-red-900/30 border-red-800 text-red-400' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+                    className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${dndEnabled && h !== 0 ? 'bg-red-900/30 border-red-800 text-red-400' : 'bg-gray-800 border-gray-700 text-gray-200 hover:text-white'}`}>
                     {label}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 mt-3 font-semibold">Browser notifications</p>
+              <p className="text-xs text-gray-300 uppercase tracking-wider mb-2 mt-3 font-semibold">Browser notifications</p>
               <button onClick={requestPushPermission}
                 className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg w-full text-left mb-2">
                 🔔 Enable desktop notifications
@@ -1819,10 +1819,10 @@ export default function WorkspaceShell() {
       {showShortcuts && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowShortcuts(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
               <span className="text-white font-semibold text-lg">Keyboard shortcuts</span>
-              <button onClick={() => setShowShortcuts(false)} className="text-gray-500 hover:text-white text-xl leading-none">x</button>
+              <button onClick={() => setShowShortcuts(false)} className="text-gray-300 hover:text-white text-xl leading-none">x</button>
             </div>
             <div className="p-6 grid grid-cols-2 gap-x-8 gap-y-3">
               {[
@@ -1832,13 +1832,13 @@ export default function WorkspaceShell() {
                 ['Ctrl+/','Toggle shortcuts'],['Up arrow','Edit last message'],
               ].map(([key,desc]) => (
                 <div key={key} className="flex items-center justify-between gap-4">
-                  <span className="text-gray-400 text-sm">{desc}</span>
+                  <span className="text-gray-200 text-sm">{desc}</span>
                   <kbd className="bg-gray-800 border border-gray-600 text-gray-300 text-xs px-2 py-1 rounded font-mono whitespace-nowrap">{key}</kbd>
                 </div>
               ))}
             </div>
             <div className="px-6 pb-5 text-center">
-              <button onClick={() => setShowShortcuts(false)} className="text-xs text-gray-500 hover:text-gray-300">Close</button>
+              <button onClick={() => setShowShortcuts(false)} className="text-xs text-gray-300 hover:text-gray-300">Close</button>
             </div>
           </div>
         </div>
@@ -1848,21 +1848,21 @@ export default function WorkspaceShell() {
       {showNotifs && (
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
                   className="text-xs /text-indigo-400/g hover:/text-indigo-300/g">Mark all read</button>
-                <button onClick={() => setShowNotifs(false)} className="text-gray-500 hover:text-white">✕</button>
+                <button onClick={() => setShowNotifs(false)} className="text-gray-300 hover:text-white">✕</button>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto divide-y divide-gray-800">
-              {notifications.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No notifications</p>}
+              {notifications.length === 0 && <p className="text-gray-300 text-sm text-center py-8">No notifications</p>}
               {notifications.map((n: any) => (
                 <div key={n.id} className={`px-4 py-3 ${!n.is_read ? 'bg-emerald-950/20' : ''}`}>
                   <p className="text-sm text-white">{n.title || n.body}</p>
-                  <p className="text-xs text-gray-500 mt-1">{new Date(n.sent_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                  <p className="text-xs text-gray-300 mt-1">{new Date(n.sent_at).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
                 </div>
               ))}
             </div>
@@ -1874,18 +1874,18 @@ export default function WorkspaceShell() {
       {showPins && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529"}}>
               <span className="text-white font-semibold">📌 Pinned messages</span>
-              <button onClick={() => setShowPins(false)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowPins(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {pins.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No pinned messages</p>}
+              {pins.length === 0 && <p className="text-gray-300 text-sm text-center py-8">No pinned messages</p>}
               {pins.map((p: any) => (
                 <div key={p.id} className="bg-gray-800 rounded-lg p-3">
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-xs font-semibold text-white">{p.sender_name}</span>
-                    <span className="text-xs text-gray-500">pinned by {p.pinned_by_name}</span>
+                    <span className="text-xs text-gray-300">pinned by {p.pinned_by_name}</span>
                   </div>
                   <p className="text-sm text-gray-300">{p.content}</p>
                 </div>
@@ -1899,16 +1899,16 @@ export default function WorkspaceShell() {
       {showNewChannel && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowNewChannel(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6 space-y-4">
             <h3 className="text-white font-semibold text-lg">Create channel</h3>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Channel name</label>
+              <label className="text-xs text-gray-200 mb-1 block">Channel name</label>
               <input value={newChName} onChange={e => setNewChName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                 placeholder="e.g. marketing, dev-team"
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Description</label>
+              <label className="text-xs text-gray-200 mb-1 block">Description</label>
               <input value={newChDesc} onChange={e => setNewChDesc(e.target.value)}
                 placeholder="What's this channel about?"
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
@@ -1925,7 +1925,7 @@ export default function WorkspaceShell() {
                 className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
                 Create channel
               </button>
-              <button onClick={() => setShowNewChannel(false)} className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
+              <button onClick={() => setShowNewChannel(false)} className="text-gray-300 hover:text-gray-300 px-4 py-2 text-sm">Cancel</button>
             </div>
           </div>
         </div>
@@ -1935,10 +1935,10 @@ export default function WorkspaceShell() {
       {showPollCreate && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowPollCreate(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold">Meeting Polls</span>
-              <button onClick={() => setShowPollCreate(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowPollCreate(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             {/* Create poll */}
             <div className="bg-gray-800 rounded-xl p-4 space-y-3">
@@ -1948,11 +1948,11 @@ export default function WorkspaceShell() {
                 <div key={i} className="flex gap-2">
                   <input value={opt} onChange={e => { const o = [...pollOptions]; o[i] = e.target.value; setPollOptions(o); }}
                     placeholder={`Option ${i+1}`} className="flex-1 bg-gray-700 text-white rounded-lg px-3 py-1.5 text-sm border border-gray-600 focus:outline-none focus:/border-indigo-400/g" />
-                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400 text-xs">x</button>}
+                  {i > 1 && <button onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))} className="text-gray-300 hover:text-red-400 text-xs">x</button>}
                 </div>
               ))}
               <div className="flex gap-2">
-                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-400 hover:text-white">+ Add option</button>
+                <button onClick={() => setPollOptions([...pollOptions, ''])} className="text-xs text-gray-200 hover:text-white">+ Add option</button>
                 <button onClick={async () => {
                   if (!pollQuestion.trim() || !activeMeetingId) return;
                   const validOpts = pollOptions.filter(o => o.trim());
@@ -1983,7 +1983,7 @@ export default function WorkspaceShell() {
                         }} className="w-full text-left">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-sm text-white flex-1">{opt}</span>
-                            <span className="text-xs text-gray-400">{votes} votes ({pct}%)</span>
+                            <span className="text-xs text-gray-200">{votes} votes ({pct}%)</span>
                           </div>
                           <div className="bg-gray-700 rounded-full h-1.5">
                             <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
@@ -1992,7 +1992,7 @@ export default function WorkspaceShell() {
                       );
                     })}
                   </div>
-                  <p className="text-xs text-gray-600">{voteCount} total votes</p>
+                  <p className="text-xs text-gray-300">{voteCount} total votes</p>
                 </div>
               );
             })}
@@ -2004,10 +2004,10 @@ export default function WorkspaceShell() {
       {showWhiteboard && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">Whiteboard</span>
-              <button onClick={() => setShowWhiteboard(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowWhiteboard(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
               <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
@@ -2036,14 +2036,14 @@ export default function WorkspaceShell() {
                   const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
                   const ctx = canvas.getContext('2d');
                   if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Clear</button>
+                }} className="bg-white border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-800">Clear</button>
                 <button onClick={() => {
                   const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
                   const link = document.createElement('a');
                   link.download = 'whiteboard.png';
                   link.href = canvas.toDataURL();
                   link.click();
-                }} className="bg-white border border-gray-200 text-gray-600 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-50">Save PNG</button>
+                }} className="bg-white border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-800">Save PNG</button>
               </div>
             </div>
           </div>
@@ -2053,30 +2053,30 @@ export default function WorkspaceShell() {
       {/* Analytics modal */}
       {showAnalytics && analytics && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowAnalytics(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold">#{activeChannel?.name} Analytics</span>
-              <button onClick={() => setShowAnalytics(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowAnalytics(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-800 rounded-xl p-4">
                 <div className="text-2xl font-bold /text-indigo-400/g">{analytics.totalMessages}</div>
-                <div className="text-xs text-gray-500 mt-1">Total messages</div>
+                <div className="text-xs text-gray-300 mt-1">Total messages</div>
               </div>
               <div className="bg-gray-800 rounded-xl p-4">
                 <div className="text-2xl font-bold text-blue-400">{analytics.activeUsers}</div>
-                <div className="text-xs text-gray-500 mt-1">Active members (30d)</div>
+                <div className="text-xs text-gray-300 mt-1">Active members (30d)</div>
               </div>
             </div>
             {analytics.topSenders?.length > 0 && (
               <div>
-                <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Top contributors</div>
+                <div className="text-xs text-gray-300 mb-2 font-medium uppercase tracking-wider">Top contributors</div>
                 <div className="space-y-2">
                   {analytics.topSenders.map((s: any, i: number) => (
                     <div key={i} className="flex items-center gap-3">
                       <div className="w-6 h-6 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{s.display_name?.charAt(0)}</div>
                       <span className="text-sm text-white flex-1">{s.display_name}</span>
-                      <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">{s.count} msgs</span>
+                      <span className="text-xs text-gray-200 bg-gray-800 px-2 py-0.5 rounded-full">{s.count} msgs</span>
                     </div>
                   ))}
                 </div>
@@ -2084,7 +2084,7 @@ export default function WorkspaceShell() {
             )}
             {analytics.msgByDay?.length > 0 && (
               <div>
-                <div className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wider">Messages last 7 days</div>
+                <div className="text-xs text-gray-300 mb-2 font-medium uppercase tracking-wider">Messages last 7 days</div>
                 <div className="flex items-end gap-1 h-16">
                   {analytics.msgByDay.map((d: any, i: number) => {
                     const max = Math.max(...analytics.msgByDay.map((x: any) => parseInt(x.count)));
@@ -2092,7 +2092,7 @@ export default function WorkspaceShell() {
                     return (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
                         <div className="/bg-indigo-500/g rounded-sm w-full" style={{ height: `${h}%` }} title={d.count + ' msgs'} />
-                        <span className="text-xs text-gray-600">{new Date(d.day).toLocaleDateString('en-IN', { weekday: 'short' })}</span>
+                        <span className="text-xs text-gray-200">{new Date(d.day).toLocaleDateString('en-IN', { weekday: 'short' })}</span>
                       </div>
                     );
                   })}
@@ -2106,13 +2106,13 @@ export default function WorkspaceShell() {
       {/* Scheduled messages modal */}
       {showScheduled && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowScheduled(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529"}}>
               <span className="text-white font-semibold">Scheduled messages</span>
-              <button onClick={() => setShowScheduled(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowScheduled(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {scheduledMsgs.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No scheduled messages</p>}
+              {scheduledMsgs.length === 0 && <p className="text-gray-300 text-sm text-center py-8">No scheduled messages</p>}
               {scheduledMsgs.map((m: any) => (
                 <div key={m.id} className="bg-gray-800 rounded-xl p-3 flex items-start gap-3">
                   <div className="flex-1">
@@ -2131,10 +2131,10 @@ export default function WorkspaceShell() {
       {/* Custom emoji modal */}
       {showEmojiMgr && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowEmojiMgr(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold">Custom emoji</span>
-              <button onClick={() => setShowEmojiMgr(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowEmojiMgr(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="flex gap-2">
               <input value={newEmojiName} onChange={e => setNewEmojiName(e.target.value)}
@@ -2143,12 +2143,12 @@ export default function WorkspaceShell() {
                 className="/bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
             </div>
             <div className="max-h-48 overflow-y-auto">
-              {customEmojis.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No custom emoji yet. Add one above!</p>}
+              {customEmojis.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No custom emoji yet. Add one above!</p>}
               <div className="grid grid-cols-4 gap-3">
                 {customEmojis.map((e: any) => (
                   <div key={e.id} className="flex flex-col items-center gap-1 bg-gray-800 rounded-lg p-2">
                     <img src={e.url} alt={e.name} className="w-8 h-8 object-contain" />
-                    <span className="text-xs text-gray-400 truncate w-full text-center">:{e.name}:</span>
+                    <span className="text-xs text-gray-200 truncate w-full text-center">:{e.name}:</span>
                   </div>
                 ))}
               </div>
@@ -2160,27 +2160,27 @@ export default function WorkspaceShell() {
       {/* Deemona Connect modal */}
       {showConnect && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowConnect(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-white font-semibold">Deemona Connect</span>
-                <p className="text-xs text-gray-500 mt-0.5">Invite external teams to collaborate</p>
+                <p className="text-xs text-gray-300 mt-0.5">Invite external teams to collaborate</p>
               </div>
-              <button onClick={() => setShowConnect(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowConnect(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Contact email</label>
+              <label className="text-xs text-gray-200 mb-1 block">Contact email</label>
               <input value={connectEmail} onChange={e => setConnectEmail(e.target.value)}
                 placeholder="contact@partner.com" type="email"
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 mb-1 block">Organization name</label>
+              <label className="text-xs text-gray-200 mb-1 block">Organization name</label>
               <input value={connectOrg} onChange={e => setConnectOrg(e.target.value)}
                 placeholder="Partner Company"
                 className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
             </div>
-            <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-500">
+            <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300">
               They will receive an invite to join #{activeChannel?.name} as an external collaborator.
             </div>
             <button onClick={sendConnectInvite} disabled={!connectEmail.trim()}
@@ -2194,14 +2194,14 @@ export default function WorkspaceShell() {
       {/* AI Summary modal */}
       {showAISummary && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowAISummary(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white">A</div>
               <div>
                 <span className="text-white font-semibold">Channel Summary</span>
-                <p className="text-xs text-gray-500">#{activeChannel?.name} — last 24 hours</p>
+                <p className="text-xs text-gray-300">#{activeChannel?.name} — last 24 hours</p>
               </div>
-              <button onClick={() => setShowAISummary(false)} className="ml-auto text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowAISummary(false)} className="ml-auto text-gray-300 hover:text-white">x</button>
             </div>
             <div className="bg-gray-800 rounded-xl p-4">
               <p className="text-sm text-gray-200 whitespace-pre-wrap leading-relaxed">{aiSummary}</p>
@@ -2218,7 +2218,7 @@ export default function WorkspaceShell() {
       {showStatus && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowStatus(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5 space-y-4">
             <h3 className="text-white font-semibold text-lg">Set your status</h3>
             <div className="flex gap-2 flex-wrap">
               {[
@@ -2230,7 +2230,7 @@ export default function WorkspaceShell() {
                 { emoji: '🚗', text: 'Commuting' },
               ].map(s => (
                 <button key={s.text} onClick={() => { setStatusEmoji(s.emoji); setStatusText(s.text); }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? '/border-indigo-400/g /bg-emerald-900\/30/g text-white' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}>
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${statusText === s.text ? '/border-indigo-400/g /bg-emerald-900\/30/g text-white' : 'border-gray-700 text-gray-200 hover:border-gray-500'}`}>
                   {s.emoji} {s.text}
                 </button>
               ))}
@@ -2244,7 +2244,7 @@ export default function WorkspaceShell() {
             <div className="flex gap-2">
               <button onClick={saveStatus} className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g text-white font-medium py-2 rounded-xl text-sm">Save</button>
               <button onClick={async () => { setStatusEmoji(''); setStatusText(''); await api.setStatus('', ''); setShowStatus(false); }}
-                className="text-gray-500 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
+                className="text-gray-300 hover:text-gray-300 px-4 py-2 text-sm">Clear</button>
             </div>
             <div className="border-t border-gray-800 pt-3">
               <button onClick={() => api.logout()}
@@ -2260,19 +2260,19 @@ export default function WorkspaceShell() {
       {showBookmarks && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
-              <button onClick={() => setShowBookmarks(false)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowBookmarks(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {bookmarks.length === 0 && <p className="text-gray-600 text-sm text-center py-8">No saved messages yet.<br />Hover a message → ⋯ → Save message</p>}
+              {bookmarks.length === 0 && <p className="text-gray-300 text-sm text-center py-8">No saved messages yet.<br />Hover a message → ⋯ → Save message</p>}
               {bookmarks.map((b: any) => (
                 <div key={b.id} className="bg-gray-800 rounded-xl p-3">
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-xs font-semibold text-white">{b.sender_name}</span>
-                    <span className="text-xs text-gray-500">#{b.channel_name}</span>
-                    <span className="text-xs text-gray-600 ml-auto">{new Date(b.sent_at).toLocaleDateString('en-IN')}</span>
+                    <span className="text-xs text-gray-300">#{b.channel_name}</span>
+                    <span className="text-xs text-gray-300 ml-auto">{new Date(b.sent_at).toLocaleDateString('en-IN')}</span>
                   </div>
                   <p className="text-sm text-gray-300">{b.content}</p>
                   <button onClick={async () => { await api.removeBookmark(b.message_id); loadBookmarks(); }}
@@ -2288,10 +2288,10 @@ export default function WorkspaceShell() {
       {showChannelBrowser && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">🔭 Browse channels</span>
-              <button onClick={() => setShowChannelBrowser(false)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowChannelBrowser(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
             <div className="px-4 pt-3 shrink-0">
               <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
@@ -2300,10 +2300,10 @@ export default function WorkspaceShell() {
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {allChannels.filter(c => c.type !== 'direct' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase()))).map((ch: any) => (
                 <div key={ch.id} className="flex items-center gap-3 p-3 bg-gray-800 rounded-xl">
-                  <span className="text-gray-400 text-lg">#</span>
+                  <span className="text-gray-200 text-lg">#</span>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-white">{ch.name}</div>
-                    {ch.description && <div className="text-xs text-gray-500 mt-0.5">{ch.description}</div>}
+                    {ch.description && <div className="text-xs text-gray-300 mt-0.5">{ch.description}</div>}
                   </div>
                   <button onClick={() => { openChannel(ch); setShowChannelBrowser(false); }}
                     className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-3 py-1.5 rounded-lg">Join</button>
@@ -2318,7 +2318,7 @@ export default function WorkspaceShell() {
       {showNewDM && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) { setShowNewDM(false); setDmSearch(''); } }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5 space-y-4">
             <h3 className="text-white font-semibold text-lg">New direct message</h3>
             <input autoFocus value={dmSearch} onChange={e => setDmSearch(e.target.value)}
               placeholder="Search people..."
@@ -2330,13 +2330,13 @@ export default function WorkspaceShell() {
                   <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold shrink-0">{m.display_name?.charAt(0) || '?'}</div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm text-white font-medium truncate">{m.display_name}</div>
-                    <div className="text-xs text-gray-500 truncate">{m.email}</div>
+                    <div className="text-xs text-gray-300 truncate">{m.email}</div>
                   </div>
                   {onlineUsers.has(m.id) && <span className="w-2 h-2 bg-emerald-400 rounded-full shrink-0" />}
                 </button>
               ))}
               {dmOrgMembers.filter(m => m.id !== user?.id).length === 0 && (
-                <p className="text-gray-600 text-sm text-center py-4">No members found</p>
+                <p className="text-gray-300 text-sm text-center py-4">No members found</p>
               )}
             </div>
           </div>
@@ -2347,27 +2347,27 @@ export default function WorkspaceShell() {
       {showSearch && (
         <div className="fixed inset-0 bg-black/70 flex items-start justify-center z-50 pt-20 px-4"
           onClick={e => { if (e.target === e.currentTarget) { setShowSearch(false); setSearchQuery(''); setSearchResults(null); } }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl">
             <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-800">
-              <span className="text-gray-500">🔍</span>
+              <span className="text-gray-300">🔍</span>
               <input autoFocus value={searchQuery} onChange={e => runSearch(e.target.value)}
                 placeholder="Search messages, tasks, people..."
                 className="flex-1 bg-transparent text-white text-sm focus:outline-none" />
               <button onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults(null); }}
-                className="text-gray-500 hover:text-white text-xs px-2 py-1 border border-gray-700 rounded">Esc</button>
+                className="text-gray-300 hover:text-white text-xs px-2 py-1 border border-gray-700 rounded">Esc</button>
             </div>
             <div className="max-h-96 overflow-y-auto p-3">
-              {searching && <div className="text-gray-500 text-sm text-center py-4 animate-pulse">Searching...</div>}
+              {searching && <div className="text-gray-300 text-sm text-center py-4 animate-pulse">Searching...</div>}
               {!searching && searchResults && (
                 <div className="space-y-4">
                   {searchResults.messages?.length > 0 && (
                     <div>
-                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Messages</div>
+                      <div className="text-xs text-gray-300 font-semibold uppercase tracking-wider mb-2 px-1">Messages</div>
                       {searchResults.messages.map((m: any) => (
                         <div key={m.id} className="px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                           <div className="flex items-baseline gap-2 mb-0.5">
                             <span className="text-xs font-semibold text-white">{m.sender_name}</span>
-                            <span className="text-xs text-gray-600">#{m.channel_name}</span>
+                            <span className="text-xs text-gray-300">#{m.channel_name}</span>
                           </div>
                           <p className="text-sm text-gray-300 truncate">{m.content}</p>
                         </div>
@@ -2376,38 +2376,38 @@ export default function WorkspaceShell() {
                   )}
                   {searchResults.tasks?.length > 0 && (
                     <div>
-                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">Tasks</div>
+                      <div className="text-xs text-gray-300 font-semibold uppercase tracking-wider mb-2 px-1">Tasks</div>
                       {searchResults.tasks.map((t: any) => (
                         <div key={t.id} className="px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                           <p className="text-sm text-white">{t.title}</p>
-                          <div className="text-xs text-gray-500 mt-0.5">{t.board_name}</div>
+                          <div className="text-xs text-gray-300 mt-0.5">{t.board_name}</div>
                         </div>
                       ))}
                     </div>
                   )}
                   {searchResults.people?.length > 0 && (
                     <div>
-                      <div className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2 px-1">People</div>
+                      <div className="text-xs text-gray-300 font-semibold uppercase tracking-wider mb-2 px-1">People</div>
                       {searchResults.people.map((p: any) => (
                         <div key={p.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 cursor-pointer">
                           <div className="w-7 h-7 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold">{p.display_name?.charAt(0)}</div>
-                          <div><p className="text-sm text-white">{p.display_name}</p><p className="text-xs text-gray-500">{p.email}</p></div>
+                          <div><p className="text-sm text-white">{p.display_name}</p><p className="text-xs text-gray-300">{p.email}</p></div>
                         </div>
                       ))}
                     </div>
                   )}
                   {!searchResults.messages?.length && !searchResults.tasks?.length && !searchResults.people?.length && (
-                    <p className="text-gray-600 text-sm text-center py-4">No results for "{searchQuery}"</p>
+                    <p className="text-gray-300 text-sm text-center py-4">No results for "{searchQuery}"</p>
                   )}
                 </div>
               )}
               {!searching && !searchResults && searchQuery && (
-                <p className="text-gray-600 text-sm text-center py-4">Type to search...</p>
+                <p className="text-gray-300 text-sm text-center py-4">Type to search...</p>
               )}
               {!searchQuery && (
                 <div className="text-center py-6 space-y-2">
-                  <p className="text-gray-500 text-sm">Search across messages, tasks and people</p>
-                  <div className="flex justify-center gap-2 text-xs text-gray-600">
+                  <p className="text-gray-300 text-sm">Search across messages, tasks and people</p>
+                  <div className="flex justify-center gap-2 text-xs text-gray-300">
                     <span className="bg-gray-800 px-2 py-1 rounded">messages</span>
                     <span className="bg-gray-800 px-2 py-1 rounded">tasks</span>
                     <span className="bg-gray-800 px-2 py-1 rounded">people</span>
@@ -2454,11 +2454,11 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
       {/* Welcome header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
-          <p className="text-gray-600 text-sm mt-1">Here is what is happening in your workspace today</p>
+          <h1 className="text-3xl font-bold text-white">{greeting()}, {user?.display_name?.split(' ')[0] || 'there'}</h1>
+          <p className="text-gray-200 text-sm mt-1">Here is what is happening in your workspace today</p>
         </div>
         <div className="text-right">
-          <div className="text-xs text-gray-600">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+          <div className="text-xs text-gray-200">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
         </div>
       </div>
 
@@ -2471,7 +2471,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
           { label: 'Meetings', value: dashStats?.meetings?.attended || 0, sub: 'attended (30d)', color: 'from-slate-800 to-slate-700' },
         ].map(s => (
           <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-xl p-4`}>
-            <div className="text-3xl font-bold text-gray-900">{s.value}</div>
+            <div className="text-3xl font-bold text-white">{s.value}</div>
             <div className="text-xs text-white/70 mt-1">{s.label}</div>
             <div className="text-xs text-white/50 mt-0.5">{s.sub}</div>
           </div>
@@ -2498,12 +2498,12 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* My tasks */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+        <div className="bg-gray-800 rounded-xl border border-gray-800 p-4">
           <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
             My tasks
-            {myTasks.length > 0 && <span className="text-xs bg-gray-800 text-gray-400 px-2 py-0.5 rounded-full">{myTasks.length}</span>}
+            {myTasks.length > 0 && <span className="text-xs bg-gray-800 text-gray-200 px-2 py-0.5 rounded-full">{myTasks.length}</span>}
           </h3>
-          {myTasks.length === 0 && <p className="text-gray-600 text-sm text-center py-4">No tasks assigned to you</p>}
+          {myTasks.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No tasks assigned to you</p>}
           <div className="space-y-2">
             {myTasks.map((t: any) => (
               <div key={t.id} className="flex items-center gap-3 bg-gray-800 rounded-lg px-3 py-2">
@@ -2514,7 +2514,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
                 }`} />
                 <span className="text-sm text-white flex-1 truncate">{t.title}</span>
                 {t.due_date && (
-                  <span className={`text-xs shrink-0 ${new Date(t.due_date) < new Date() ? 'text-red-400' : 'text-gray-500'}`}>
+                  <span className={`text-xs shrink-0 ${new Date(t.due_date) < new Date() ? 'text-red-400' : 'text-gray-300'}`}>
                     {new Date(t.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                   </span>
                 )}
@@ -2525,27 +2525,27 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 
         {/* Quick actions + Recent activity */}
         <div className="space-y-4">
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+          <div className="bg-gray-800 rounded-xl border border-gray-800 p-4">
             <h3 className="text-sm font-semibold text-white mb-3">Quick jump</h3>
             <div className="grid grid-cols-2 gap-2">
               {channels.slice(0, 2).map((ch: any) => (
                 <button key={ch.id} onClick={() => onChannel(ch)}
                   className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left transition-colors">
                   <div className="/text-indigo-400/g font-medium text-sm truncate">#{ch.name}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Channel</div>
+                  <div className="text-xs text-gray-300 mt-0.5">Channel</div>
                 </button>
               ))}
               {boards.slice(0, 2).map((b: any) => (
                 <button key={b.id} onClick={() => onBoard(b)}
                   className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left transition-colors">
                   <div className="text-blue-400 font-medium text-sm truncate">{b.name}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Board</div>
+                  <div className="text-xs text-gray-300 mt-0.5">Board</div>
                 </button>
               ))}
             </div>
           </div>
           {activity.length > 0 && (
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div className="bg-gray-800 rounded-xl border border-gray-800 p-4">
               <h3 className="text-sm font-semibold text-white mb-3">Recent activity</h3>
               <div className="space-y-2">
                 {activity.map((a: any, i: number) => (
@@ -2553,7 +2553,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
                     <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${a.type === 'message' ? 'bg-emerald-400' : 'bg-blue-400'}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-gray-300 truncate">{a.title}</p>
-                      <p className="text-xs text-gray-600">{a.context} · {new Date(a.ts).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</p>
+                      <p className="text-xs text-gray-300">{a.context} · {new Date(a.ts).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}</p>
                     </div>
                   </div>
                 ))}
@@ -2581,7 +2581,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
               onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)';(e.currentTarget as HTMLElement).style.borderColor='rgba(99,120,180,0.12)'}}>
               <div style={{fontSize:12,fontWeight:900,color:'#4F6EF7',background:'rgba(79,110,247,0.12)',border:'1px solid rgba(79,110,247,0.25)',borderRadius:8,padding:'4px 8px',display:'inline-block',marginBottom:8,letterSpacing:0.5}}>{item.icon}</div>
               <div style={{fontSize:13,fontWeight:700,color:'#E8EAF0',marginBottom:3}}>{item.label}</div>
-              <div style={{fontSize:11,color:'#7A8499'}}>{item.desc}</div>
+              <div style={{fontSize:11,color:'#CBD5E1'}}>{item.desc}</div>
             </button>
           ))}
         </div>
@@ -2847,57 +2847,57 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
   }
 
   const { firstDay, daysInMonth } = getDaysInMonth();
-  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-400' };
+  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-200' };
 
   return (
     <div className="space-y-4 max-w-4xl">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-2 bg-gray-900 rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
-          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-indigo-600/g text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
+        <div className="flex gap-2 bg-gray-800 rounded-xl p-1 border border-gray-800">
+          <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>Calendar</button>
         </div>
         <button onClick={() => setCreating(true)} className="/bg-indigo-600/g hover:/bg-indigo-500/g text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
       </div>
 
       {/* New meeting form */}
       {creating && (
-        <div className="bg-gray-900 border /border-indigo-600/g rounded-xl p-4 space-y-4">
+        <div className="bg-gray-800 border /border-indigo-600/g rounded-xl p-4 space-y-4">
           <h3 className="text-sm font-semibold text-white">New meeting</h3>
           <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Meeting title..."
             className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
             className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                <label className="text-xs text-gray-300 mb-1 block">Date</label>
                 <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
                   className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1 block">Time</label>
+                <label className="text-xs text-gray-300 mb-1 block">Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
                   className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
               </div>
             </div>
           )}
           <div>
-            <label className="text-xs text-gray-500 mb-2 block">Duration</label>
+            <label className="text-xs text-gray-300 mb-2 block">Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-500 mb-2 block">Invite members {invitedIds.length > 0 && <span className="/text-indigo-400/g">({invitedIds.length})</span>}</label>
+            <label className="text-xs text-gray-300 mb-2 block">Invite members {invitedIds.length > 0 && <span className="/text-indigo-400/g">({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:/border-indigo-400/g mb-2" />
             <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
@@ -2918,22 +2918,22 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
               {saving ? 'Creating...' : startNow ? 'Start meeting' : 'Schedule'}
             </button>
-            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs text-gray-500 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
+            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs text-gray-300 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
           </div>
         </div>
       )}
 
       {/* Calendar view */}
       {view === 'calendar' && (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div className="bg-gray-800 rounded-xl border border-gray-800 overflow-hidden">
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
             <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-500 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
           </div>
           <div className="grid grid-cols-7 border-b border-gray-800">
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-              <div key={d} className="text-xs text-gray-500 text-center py-2 font-medium">{d}</div>
+              <div key={d} className="text-xs text-gray-300 text-center py-2 font-medium">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7">
@@ -2944,7 +2944,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth() && new Date().getFullYear() === calMonth.getFullYear();
               return (
                 <div key={day} className={`min-h-16 border-b border-r border-gray-800 p-1 ${isToday ? 'bg-emerald-950/30' : ''}`}>
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? '/bg-indigo-500/g text-white' : 'text-gray-400'}`}>{day}</div>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? '/bg-indigo-500/g text-white' : 'text-gray-200'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
                       className="block text-xs bg-emerald-900/60 /text-indigo-300/g rounded px-1 py-0.5 mb-0.5 truncate hover:bg-emerald-900">
@@ -2961,14 +2961,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* List view */}
       {view === 'list' && (
         <div className="space-y-3">
-          {meetings.length === 0 && !creating && <div className="text-gray-600 text-sm text-center py-8">No meetings scheduled</div>}
+          {meetings.length === 0 && !creating && <div className="text-gray-300 text-sm text-center py-8">No meetings scheduled</div>}
           {meetings.map(m => (
-            <div key={m.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
+            <div key={m.id} className="bg-gray-800 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-white truncate">{m.title}</div>
-                  {m.description && <div className="text-xs text-gray-500 mt-0.5 truncate">{m.description}</div>}
-                  <div className="text-xs text-gray-500 mt-2 flex items-center gap-3">
+                  {m.description && <div className="text-xs text-gray-300 mt-0.5 truncate">{m.description}</div>}
+                  <div className="text-xs text-gray-300 mt-2 flex items-center gap-3">
                     <span>{new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                     <span>{m.duration_mins || 60}m</span>
                   </div>
@@ -2986,7 +2986,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {/* RSVP for scheduled */}
                     {m.status === 'scheduled' && (
                       <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
-                        <span className="text-xs text-gray-500">RSVP:</span>
+                        <span className="text-xs text-gray-300">RSVP:</span>
                         {[['✓','going'],['?','maybe'],['✗','no']].map(([icon,status]) => (
                           <button key={status} onClick={async () => { await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) }); alert('RSVP: ' + status); }}
                             className="text-xs px-1.5 py-0.5 rounded hover:bg-gray-700 text-gray-300 font-bold">{icon}</button>
@@ -3000,7 +3000,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                         ⋯
                       </button>
                       {openMenuId === m.id && (
-                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#131929',border:'1px solid rgba(99,120,180,0.14)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.14)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                           {[
                             { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setOpenMenuId(null); } },
                             { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setOpenMenuId(null); } },
@@ -3048,20 +3048,20 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showAgenda && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowAgenda(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Meeting agenda</h3>
-              <button onClick={() => setShowAgenda(null)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowAgenda(null)} className="text-gray-300 hover:text-white">✕</button>
             </div>
-            <p className="text-gray-500 text-xs mb-3">Add agenda items — will be shared with all participants</p>
+            <p className="text-gray-300 text-xs mb-3">Add agenda items — will be shared with all participants</p>
             {agendaItems.map((item, i) => (
               <div key={i} className="flex gap-2 mb-2">
-                <span className="text-gray-500 text-sm mt-2">{i+1}.</span>
+                <span className="text-gray-300 text-sm mt-2">{i+1}.</span>
                 <input value={item} onChange={e => { const a=[...agendaItems]; a[i]=e.target.value; setAgendaItems(a); }}
                   placeholder={`Agenda item ${i+1}`}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white outline-none" />
                 {agendaItems.length > 1 && (
-                  <button onClick={() => setAgendaItems(a => a.filter((_,j) => j!==i))} className="text-gray-600 hover:text-red-400 text-lg">×</button>
+                  <button onClick={() => setAgendaItems(a => a.filter((_,j) => j!==i))} className="text-gray-300 hover:text-red-400 text-lg">×</button>
                 )}
               </div>
             ))}
@@ -3075,19 +3075,19 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showResources && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowResources(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">📎 Meeting resources</h3>
-              <button onClick={() => setShowResources(null)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowResources(null)} className="text-gray-300 hover:text-white">✕</button>
             </div>
-            <p className="text-gray-500 text-xs mb-3">Share links to documents, slides, or files — visible to everyone invited, whether or not they joined the call.</p>
+            <p className="text-gray-300 text-xs mb-3">Share links to documents, slides, or files — visible to everyone invited, whether or not they joined the call.</p>
 
             {loadingResources ? (
-              <p className="text-gray-500 text-sm py-4 text-center">Loading...</p>
+              <p className="text-gray-300 text-sm py-4 text-center">Loading...</p>
             ) : (
               <div className="space-y-2 mb-4 max-h-56 overflow-y-auto">
                 {meetingResources.length === 0 && (
-                  <p className="text-gray-600 text-xs text-center py-3">No resources added yet</p>
+                  <p className="text-gray-300 text-xs text-center py-3">No resources added yet</p>
                 )}
                 {meetingResources.map((r: any) => (
                   <div key={r.id} className="flex items-center gap-2 bg-gray-800 rounded-lg px-3 py-2">
@@ -3097,7 +3097,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                       {r.name}
                     </a>
                     <button onClick={() => removeResource(showResources, r.id)}
-                      className="text-gray-600 hover:text-red-400 text-lg flex-shrink-0">×</button>
+                      className="text-gray-300 hover:text-red-400 text-lg flex-shrink-0">×</button>
                   </div>
                 ))}
               </div>
@@ -3124,21 +3124,21 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showAttend && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowAttend(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Meeting attendance</h3>
-              <button onClick={() => setShowAttend(null)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowAttend(null)} className="text-gray-300 hover:text-white">✕</button>
             </div>
             {attendance.length === 0 ? (
-              <p className="text-gray-500 text-sm text-center py-4">No participants found</p>
+              <p className="text-gray-300 text-sm text-center py-4">No participants found</p>
             ) : attendance.map((p: any) => (
               <div key={p.id} className="flex items-center gap-3 py-2 border-b border-gray-800">
                 <div className="w-8 h-8 rounded-full /bg-indigo-600/g flex items-center justify-center text-xs font-bold text-white">{p.display_name?.charAt(0)}</div>
                 <div className="flex-1">
                   <div className="text-sm text-white font-medium">{p.display_name}</div>
-                  <div className="text-xs text-gray-500">{p.email}</div>
+                  <div className="text-xs text-gray-300">{p.email}</div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.joined_at ? 'bg-emerald-900/50 text-indigo-400' : 'bg-gray-800 text-gray-500'}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.joined_at ? 'bg-emerald-900/50 text-indigo-400' : 'bg-gray-800 text-gray-300'}`}>
                   {p.joined_at ? 'Attended' : 'Invited'}
                 </span>
               </div>
@@ -3151,12 +3151,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showBreakout && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowBreakout(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Breakout rooms</h3>
-              <button onClick={() => setShowBreakout(false)} className="text-gray-500 hover:text-white">✕</button>
+              <button onClick={() => setShowBreakout(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
-            <p className="text-gray-500 text-xs mb-4">Create smaller rooms for group discussions</p>
+            <p className="text-gray-300 text-xs mb-4">Create smaller rooms for group discussions</p>
             {breakoutRooms.map((room, i) => (
               <div key={i} className="flex items-center gap-3 mb-3 p-3 bg-gray-800 rounded-xl">
                 <input value={room.name} onChange={e => { const r=[...breakoutRooms]; r[i].name=e.target.value; setBreakoutRooms(r); }}
@@ -3164,13 +3164,13 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 <a href={`/meet?room=${encodeURIComponent(room.name)}`} target="_blank"
                   className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-3 py-1.5 rounded-lg">Open room</a>
                 {breakoutRooms.length > 1 && (
-                  <button onClick={() => setBreakoutRooms(r => r.filter((_,j) => j!==i))} className="text-gray-600 hover:text-red-400">×</button>
+                  <button onClick={() => setBreakoutRooms(r => r.filter((_,j) => j!==i))} className="text-gray-300 hover:text-red-400">×</button>
                 )}
               </div>
             ))}
             <div className="flex gap-3 mt-4">
               <button onClick={() => setBreakoutRooms(r => [...r, {name:`Room ${r.length+1}`,members:[]}])}
-                className="flex-1 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 py-2 rounded-xl border border-gray-700">+ Add room</button>
+                className="flex-1 text-sm text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 py-2 rounded-xl border border-gray-700">+ Add room</button>
               <button onClick={() => { alert('Breakout rooms opened! Share the room links with participants.'); setShowBreakout(false); }}
                 className="flex-1 text-sm /bg-indigo-600/g hover:/bg-indigo-500/g text-white py-2 rounded-xl font-medium">Start breakouts</button>
             </div>
@@ -3182,7 +3182,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showInMeeting && activeMeeting && (
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:300,display:'flex',flexDirection:'column'}}>
           {/* Meeting header bar */}
-          <div style={{background:'#0E1117',borderBottom:'1px solid rgba(99,120,180,0.12)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+          <div style={{background:'#000000',borderBottom:'1px solid rgba(99,120,180,0.12)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
             <div style={{display:'flex',alignItems:'center',gap:12}}>
               <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
               <span style={{fontSize:16,fontWeight:700,color:'#FFFFFF'}}>{activeMeeting.title}</span>
@@ -3193,7 +3193,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 </button>
                 {/* Dropdown anchored to this button */}
                 {showParticipants && (
-                  <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:100,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
+                  <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:100,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                     onClick={e => e.stopPropagation()}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#161C2A'}}>
                       <span style={{fontSize:13,fontWeight:600,color:'#FFFFFF'}}>Participants ({1+meetingParticipants.length})</span>
@@ -3208,7 +3208,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           <div style={{fontSize:13,color:'#FFFFFF',fontWeight:500}}>You (Host)</div>
                           <div style={{fontSize:10,color:'#818CF8'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
                         </div>
-                        <span style={{fontSize:10,color:'#7A8499',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
+                        <span style={{fontSize:10,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
                       </div>
                       {/* Participants */}
                       {meetingParticipants.map((p,i) => (
@@ -3218,7 +3218,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           <div style={{width:28,height:28,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{p.name?.charAt(0)||'?'}</div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:13,color:'#FFFFFF',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
-                            <div style={{fontSize:10,color:'#7A8499',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
+                            <div style={{fontSize:10,color:'#CBD5E1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
                           </div>
                           <button onClick={() => {
                             setMeetingParticipants(prev=>prev.filter((_,j)=>j!==i));
@@ -3227,7 +3227,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           }} style={{fontSize:10,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>Remove</button>
                         </div>
                       ))}
-                      {meetingParticipants.length===0 && <div style={{padding:14,fontSize:12,color:'#7A8499',textAlign:'center'}}>No other participants yet.<br/>Click + Invite to add people.</div>}
+                      {meetingParticipants.length===0 && <div style={{padding:14,fontSize:12,color:'#CBD5E1',textAlign:'center'}}>No other participants yet.<br/>Click + Invite to add people.</div>}
                     </div>
                   </div>
                 )}
@@ -3307,11 +3307,11 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
 
           <div style={{display:'flex',flex:1,overflow:'hidden'}}>
             {/* Video area */}
-            <div style={{flex:1,background:'#131929',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,position:'relative'}}
+            <div style={{flex:1,background:'#1A1A2E',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24,position:'relative'}}
               onClick={e => { if(e.target===e.currentTarget) { setShowParticipants(false); setShowChatMenu(false); setShowHostControls(null); } }}>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
                 {/* Host video tile */}
-                <div style={{background:'#1A2235',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(79,110,247,0.3)',position:'relative'}}>
+                <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(79,110,247,0.3)',position:'relative'}}>
                   {cameraOn
                     ? <video id="local-video" autoPlay muted playsInline style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10,position:'absolute',top:0,left:0}} />
                     : <div style={{width:56,height:56,borderRadius:'50%',background:'#4F6EF7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>Y</div>
@@ -3319,7 +3319,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   {!cameraOn && <span style={{fontSize:13,color:'#FFFFFF'}}>You</span>}
                   {micOn && <span style={{position:'absolute',bottom:8,right:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.6)',padding:'2px 6px',borderRadius:4}}>🎙️ Live</span>}
                   <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
-                  <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#7A8499',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
+                  <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#CBD5E1',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
                 {/* Other participant tiles */}
                 {/* Participant tiles - click to open host controls */}
@@ -3327,16 +3327,16 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 {meetingParticipants.filter((p:any) => p.id !== currentUser?.id).slice(0,5).map((p:any,i:number) => (
                   <div key={i}
                     onClick={e => { e.stopPropagation(); setShowHostControls(showHostControls===p.id?null:p.id); }}
-                    style={{background:'#1A2235',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'relative',cursor:'pointer',border: showHostControls===p.id ? '2px solid #f59e0b' : '1px solid rgba(99,120,180,0.14)',transition:'border .15s',userSelect:'none'}}>
+                    style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'relative',cursor:'pointer',border: showHostControls===p.id ? '2px solid #f59e0b' : '1px solid rgba(99,120,180,0.14)',transition:'border .15s',userSelect:'none'}}>
                     <div style={{width:44,height:44,borderRadius:'50%',background:(['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'] as string[])[i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,color:'#fff',marginBottom:6}}>{p.name?.charAt(0)||'?'}</div>
                     <span style={{fontSize:12,color:'#A8B3C8',fontWeight:500}}>{p.name}</span>
                     <div style={{position:'absolute',bottom:6,left:6,display:'flex',gap:3}}>
                       <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:participantMics[p.id]===false?'#ed4245':'#818CF8'}}>{participantMics[p.id]===false?'🔇':'🎙️'}</span>
-                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#7A8499'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
+                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#CBD5E1'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
                     </div>
                     <div style={{position:'absolute',top:6,right:6,fontSize:9,color:'#f59e0b',background:'rgba(0,0,0,0.6)',padding:'1px 5px',borderRadius:4,opacity: showHostControls===p.id?1:0,transition:'opacity .15s'}}>Host controls</div>
                     {showHostControls===p.id && (
-                      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#0E1117',border:'2px solid #f59e0b',borderRadius:12,padding:12,zIndex:50,minWidth:190,boxShadow:'0 12px 40px rgba(0,0,0,0.8)'}}
+                      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',background:'#000000',border:'2px solid #f59e0b',borderRadius:12,padding:12,zIndex:50,minWidth:190,boxShadow:'0 12px 40px rgba(0,0,0,0.8)'}}
                         onClick={e=>e.stopPropagation()}>
                         <div style={{fontSize:12,fontWeight:700,color:'#f59e0b',marginBottom:10,textAlign:'center',borderBottom:'1px solid rgba(245,158,11,0.2)',paddingBottom:8}}>{p.name}</div>
                         {[
@@ -3374,20 +3374,20 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           </button>
                         ))}
                         <button onClick={()=>setShowHostControls(null)}
-                          style={{display:'block',width:'100%',textAlign:'center',padding:'5px',background:'rgba(99,120,180,0.09)',border:'none',color:'#7A8499',cursor:'pointer',fontSize:11,borderRadius:6,marginTop:6}}>Close ✕</button>
+                          style={{display:'block',width:'100%',textAlign:'center',padding:'5px',background:'rgba(99,120,180,0.09)',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:11,borderRadius:6,marginTop:6}}>Close ✕</button>
                       </div>
                     )}
                   </div>
                 ))}
                 {meetingParticipants.length===0 && (
-                  <div style={{background:'#1A2235',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(99,120,180,0.14)'}}>
+                  <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(99,120,180,0.14)'}}>
                     <span style={{fontSize:28,marginBottom:6}}>👥</span>
-                    <span style={{fontSize:12,color:'#7A8499'}}>Add people to see them here</span>
+                    <span style={{fontSize:12,color:'#CBD5E1'}}>Add people to see them here</span>
                   </div>
                 )}
                 {meetingParticipants.length>5 && (
-                  <div style={{background:'#1A2235',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <span style={{fontSize:20,fontWeight:700,color:'#7A8499'}}>+{meetingParticipants.length-5} more</span>
+                  <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <span style={{fontSize:20,fontWeight:700,color:'#CBD5E1'}}>+{meetingParticipants.length-5} more</span>
                   </div>
                 )}
               </div>
@@ -3529,7 +3529,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                       onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background= ctrl.active ? (ctrl.color ? ctrl.color+'33' : 'rgba(79,110,247,0.2)') : 'rgba(99,120,180,0.12)'}>
                       {ctrl.icon}
                     </button>
-                    <span style={{fontSize:10,color:'#7A8499',whiteSpace:'nowrap'}}>{ctrl.label}</span>
+                    <span style={{fontSize:10,color:'#CBD5E1',whiteSpace:'nowrap'}}>{ctrl.label}</span>
                   </div>
                 ))}
               </div>
@@ -3550,7 +3550,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             </div>
 
             {/* Chat sidebar */}
-            <div style={{width:320,background:'#0E1117',borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column'}}>
+            <div style={{width:320,background:'#000000',borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column'}}>
 
               {/* Chat header with controls */}
               <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -3562,7 +3562,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   </span>
                   {chatMode === 'private' && (
                     <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); }}
-                      style={{fontSize:10,color:'#7A8499',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
+                      style={{fontSize:10,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
                       × Back to all
                     </button>
                   )}
@@ -3574,14 +3574,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {chatMode === 'everyone' ? '🌐 Everyone ▾' : '🔒 Private ▾'}
                   </button>
                   {showChatMenu && (
-                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#131929',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                       <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
                         style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#FFFFFF',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         🌐 Message everyone
                       </button>
-                      <div style={{padding:'4px 12px',fontSize:10,color:'#7A8499',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
+                      <div style={{padding:'4px 12px',fontSize:10,color:'#CBD5E1',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
                       {meetingParticipants.length === 0
-                        ? <div style={{padding:'6px 12px',fontSize:12,color:'#7A8499'}}>No other participants yet</div>
+                        ? <div style={{padding:'6px 12px',fontSize:12,color:'#CBD5E1'}}>No other participants yet</div>
                         : meetingParticipants.map((p,i) => (
                           <button key={i} onClick={() => { setChatMode('private'); setPrivateTarget(p); setShowChatMenu(false); }}
                             style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 12px',background: privateTarget?.id===p.id?'rgba(99,102,241,0.15)':'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
@@ -3597,7 +3597,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     if (confirm('Clear all meeting chat messages? This cannot be undone.')) {
                       setInMeetingChat([{ sender:'System', text:'Chat cleared by host', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                     }
-                  }} title="Clear chat" style={{fontSize:11,color:'#7A8499',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
+                  }} title="Clear chat" style={{fontSize:11,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
                     🗑️
                   </button>
                 </div>
@@ -3634,14 +3634,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           {msg.sender}
                           {msg.private && <span style={{fontSize:10,color:'#6366f1',marginLeft:4}}>🔒 private</span>}
                         </span>
-                        <span style={{fontSize:10,color:'#7A8499'}}>{msg.time}</span>
+                        <span style={{fontSize:10,color:'#CBD5E1'}}>{msg.time}</span>
                       </div>
                       <p style={{fontSize:13,color:'#C8D0E0',margin:0,lineHeight:1.4}}>{msg.text}</p>
                     </div>
                   ))
                 }
                 {inMeetingChat.filter((msg:any) => chatMode==='private' && privateTarget ? msg.private && (msg.to===privateTarget.id||msg.from===privateTarget.id) : !msg.private).length === 0 && chatMode === 'private' && (
-                  <div style={{textAlign:'center',color:'#7A8499',fontSize:12,padding:16}}>
+                  <div style={{textAlign:'center',color:'#CBD5E1',fontSize:12,padding:16}}>
                     🔒 Start a private conversation with {privateTarget?.name}
                   </div>
                 )}
@@ -3649,7 +3649,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
 
               {/* Emoji + file row */}
               <div style={{padding:'6px 12px',borderTop:'1px solid rgba(99,120,180,0.09)',display:'flex',gap:4,alignItems:'center'}}>
-                <span style={{fontSize:11,color:'#7A8499',marginRight:2}}>
+                <span style={{fontSize:11,color:'#CBD5E1',marginRight:2}}>
                   {chatMode==='private' && privateTarget ? '🔒' : '🌐'}
                 </span>
                 {['👍','😊','❤️','🎉','🔥','👏'].map(e => (
@@ -3670,7 +3670,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     };
                     setInMeetingChat((c:any) => [...c, msg]);
                   }} />
-                  <span style={{fontSize:16,color:'#7A8499'}}>📎</span>
+                  <span style={{fontSize:16,color:'#CBD5E1'}}>📎</span>
                 </label>
               </div>
 
@@ -3716,11 +3716,11 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
           <div style={{background:'#161C2A',borderRadius:16,border:'1px solid rgba(99,120,180,0.14)',width:'100%',maxWidth:460,padding:24,boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
               <span style={{fontSize:16,fontWeight:700,color:'#FFFFFF'}}>Add people to meeting</span>
-              <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
+              <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
             </div>
 
             {/* Capacity warning */}
-            <div style={{background:'rgba(99,120,180,0.07)',borderRadius:8,padding:'8px 12px',marginBottom:14,fontSize:12,color:'#7A8499'}}>
+            <div style={{background:'rgba(99,120,180,0.07)',borderRadius:8,padding:'8px 12px',marginBottom:14,fontSize:12,color:'#CBD5E1'}}>
               {participantCount}/{MAX_PARTICIPANTS} participants · {MAX_PARTICIPANTS - participantCount} slots remaining
               {participantCount >= MAX_PARTICIPANTS * 0.9 && <span style={{color:'#f59e0b',marginLeft:8}}>⚠️ Near capacity</span>}
             </div>
@@ -3743,7 +3743,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:14,color:'#FFFFFF',fontWeight:500}}>{m.display_name}</div>
-                      <div style={{fontSize:12,color:'#7A8499',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
+                      <div style={{fontSize:12,color:'#CBD5E1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
                     </div>
                     <button onClick={() => {
                       if (participantCount >= MAX_PARTICIPANTS) {
@@ -3762,16 +3762,16 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 ))
               }
               {(meetOrgMembers as any[]).filter((m:any) => m.id !== currentUser?.id).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
-                <p style={{fontSize:13,color:'#7A8499',textAlign:'center',padding:16}}>All workspace members have been added</p>
+                <p style={{fontSize:13,color:'#CBD5E1',textAlign:'center',padding:16}}>All workspace members have been added</p>
               )}
             </div>
 
             {/* Share link */}
             <div style={{borderTop:'1px solid rgba(99,120,180,0.12)',paddingTop:14}}>
-              <p style={{fontSize:12,color:'#7A8499',marginBottom:8}}>Or share the meeting link:</p>
+              <p style={{fontSize:12,color:'#CBD5E1',marginBottom:8}}>Or share the meeting link:</p>
               <div style={{display:'flex',gap:8}}>
                 <input readOnly value={typeof window !== 'undefined' ? window.location.origin + '/meet?id=' + activeMeeting?.id : ''}
-                  style={{flex:1,background:'rgba(99,120,180,0.07)',border:'1px solid rgba(99,120,180,0.12)',borderRadius:6,padding:'7px 10px',color:'#7A8499',fontSize:12,outline:'none'}} />
+                  style={{flex:1,background:'rgba(99,120,180,0.07)',border:'1px solid rgba(99,120,180,0.12)',borderRadius:6,padding:'7px 10px',color:'#CBD5E1',fontSize:12,outline:'none'}} />
                 <button onClick={() => {
                   navigator.clipboard.writeText(window.location.origin + '/meet?id=' + activeMeeting?.id);
                   alert('Meeting link copied!');
@@ -3793,16 +3793,16 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showCapacity && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowCapacity(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Meeting capacity limit</h3>
-              <button onClick={() => setShowCapacity(null)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowCapacity(null)} className="text-gray-300 hover:text-white">x</button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">Set maximum number of participants</p>
+            <p className="text-xs text-gray-300 mb-3">Set maximum number of participants</p>
             <div className="flex gap-2 mb-4 flex-wrap">
               {[10,25,50,100,200,500].map(n => (
                 <button key={n} onClick={() => setMeetCapacity(n)}
-                  className={`text-sm px-3 py-2 rounded-lg border ${meetCapacity===n?'/bg-indigo-600/g border-emerald-600 text-white':'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}>
+                  className={`text-sm px-3 py-2 rounded-lg border ${meetCapacity===n?'/bg-indigo-600/g border-emerald-600 text-white':'bg-gray-800 border-gray-700 text-gray-200 hover:text-white'}`}>
                   {n}
                 </button>
               ))}
@@ -3822,12 +3822,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showCoHost && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowCoHost(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold">Co-host permissions</h3>
-              <button onClick={() => setShowCoHost(null)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowCoHost(null)} className="text-gray-300 hover:text-white">x</button>
             </div>
-            <p className="text-xs text-gray-500 mb-3">Select members to assign as co-hosts</p>
+            <p className="text-xs text-gray-300 mb-3">Select members to assign as co-hosts</p>
             <div className="space-y-1 max-h-56 overflow-y-auto mb-4">
               {(meetOrgMembers as any[]).map((m: any) => (
                 <label key={m.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 cursor-pointer">
@@ -3859,10 +3859,10 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* Poll modal */}
       {showPoll && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowPoll(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <span className="text-white font-semibold">Meeting Poll</span>
-              <button onClick={() => setShowPoll(false)} className="text-gray-500 hover:text-white">x</button>
+              <button onClick={() => setShowPoll(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
             <div className="flex gap-2">
               <input value={pollQ} onChange={e => setPollQ(e.target.value)} placeholder="Question..."
@@ -3891,12 +3891,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                         const res = await api.getPolls(pollMeetId!);
                         setMeetPolls(res?.data || []);
                       }} className="w-full text-left">
-                        <div className="flex justify-between text-xs mb-1"><span className="text-white">{opt}</span><span className="text-gray-400">{v} ({pct}%)</span></div>
+                        <div className="flex justify-between text-xs mb-1"><span className="text-white">{opt}</span><span className="text-gray-200">{v} ({pct}%)</span></div>
                         <div className="bg-gray-700 rounded-full h-1.5"><div className="bg-emerald-500 h-1.5 rounded-full" style={{width: pct+'%'}} /></div>
                       </button>
                     );
                   })}
-                  <p className="text-xs text-gray-600">{total} votes</p>
+                  <p className="text-xs text-gray-300">{total} votes</p>
                 </div>
               );
             })}
@@ -3907,13 +3907,13 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* Whiteboard */}
       {showWB && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
+          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const a = document.createElement('a'); a.download='whiteboard.png'; a.href=c.toDataURL(); a.click(); }} className="text-xs /bg-indigo-600/g text-white px-3 py-1.5 rounded-lg">Save PNG</button>
-                <button onClick={() => setShowWB(false)} className="text-gray-500 hover:text-white">x</button>
+                <button onClick={() => setShowWB(false)} className="text-gray-300 hover:text-white">x</button>
               </div>
             </div>
             <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
