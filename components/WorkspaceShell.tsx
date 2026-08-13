@@ -2429,7 +2429,7 @@ export default function WorkspaceShell() {
       {showGlobalSearch && (
         <GlobalSearch
           onClose={() => setShowGlobalSearch(false)}
-          onNavigate={(channelId, channelName) => openChannel({ id: channelId, name: channelName })}
+          onNavigate={(channelId, channelName) => openChannel({ id: channelId, name: channelName, type: 'public' } as any)}
           apiFetch={apiFetch}
         />
       )}
