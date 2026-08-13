@@ -109,7 +109,7 @@ export default function SignupPage() {
     setLoading(false);
   }
 
-  const inputClass = "w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 placeholder-gray-500";
+  const inputClass = "w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-base border border-gray-700 focus:outline-none focus:border-emerald-500 placeholder-gray-500";
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-8">
@@ -120,24 +120,24 @@ export default function SignupPage() {
             <span className="text-white font-bold text-xl">S</span>
           </div>
           <h1 className="text-white text-2xl font-bold">{inviteChecked && isJoining ? 'Join your team' : 'Create your workspace'}</h1>
-          <p className="text-gray-400 text-sm mt-1">{inviteChecked && isJoining ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
+          <p className="text-gray-400 text-base mt-1">{inviteChecked && isJoining ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
         </div>
 
         <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">
           {error && (
-            <div className="bg-red-900/40 border border-red-700 text-red-300 text-sm rounded-lg px-3 py-2">
+            <div className="bg-red-900/40 border border-red-700 text-red-300 text-base rounded-lg px-3 py-2">
               {error}
             </div>
           )}
 
           {/* Invite banner */}
           {inviteChecked && inviteToken && (
-            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-sm rounded-lg px-3 py-2.5">
+            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-base rounded-lg px-3 py-2.5">
               🎉 You're joining an existing workspace via invite. Just fill in your details below.
             </div>
           )}
           {inviteChecked && joinToken && (
-            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-sm rounded-lg px-3 py-2.5">
+            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-base rounded-lg px-3 py-2.5">
               🎉 You're joining a workspace via its shared invite link. Just fill in your details below.
             </div>
           )}
@@ -146,7 +146,7 @@ export default function SignupPage() {
           {inviteChecked && !isJoining && (
             <>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Organization name</label>
+                <label className="block text-base text-gray-400 mb-1.5 font-medium">Organization name</label>
                 <input
                   type="text"
                   value={form.orgName}
@@ -158,18 +158,18 @@ export default function SignupPage() {
 
               {/* Slug */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
+                <label className="block text-base text-gray-400 mb-1.5 font-medium">
                   Workspace URL
                   <span className="text-gray-600 font-normal ml-1">(auto-generated)</span>
                 </label>
                 <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 focus-within:border-emerald-500 overflow-hidden">
-                  <span className="text-gray-500 text-xs px-3 py-2.5 border-r border-gray-700 bg-gray-850 shrink-0">sahyog.in/</span>
+                  <span className="text-gray-500 text-base px-3 py-2.5 border-r border-gray-700 bg-gray-850 shrink-0">sahyog.in/</span>
                   <input
                     type="text"
                     value={form.orgSlug}
                     onChange={e => update('orgSlug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     placeholder="deemona"
-                    className="flex-1 bg-transparent text-white text-sm px-3 py-2.5 focus:outline-none placeholder-gray-500"
+                    className="flex-1 bg-transparent text-white text-base px-3 py-2.5 focus:outline-none placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -178,12 +178,12 @@ export default function SignupPage() {
 
           {/* Divider */}
           <div className="border-t border-gray-800 pt-2">
-            <p className="text-xs text-gray-500 mb-3">Your account</p>
+            <p className="text-base text-gray-500 mb-3">Your account</p>
           </div>
 
           {/* Display name */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">Full name</label>
+            <label className="block text-base text-gray-400 mb-1.5 font-medium">Full name</label>
             <input
               type="text"
               value={form.displayName}
@@ -195,7 +195,7 @@ export default function SignupPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">Work email</label>
+            <label className="block text-base text-gray-400 mb-1.5 font-medium">Work email</label>
             <input
               type="email"
               value={form.email}
@@ -207,7 +207,7 @@ export default function SignupPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">Password</label>
+            <label className="block text-base text-gray-400 mb-1.5 font-medium">Password</label>
             <input
               type="password"
               value={form.password}
@@ -233,7 +233,7 @@ export default function SignupPage() {
 
           {/* Confirm password */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1.5 font-medium">Confirm password</label>
+            <label className="block text-base text-gray-400 mb-1.5 font-medium">Confirm password</label>
             <input
               type="password"
               value={form.confirm}
@@ -243,16 +243,16 @@ export default function SignupPage() {
               className={`${inputClass} ${form.confirm && form.confirm !== form.password ? 'border-red-700' : ''}`}
             />
             {form.confirm && form.confirm !== form.password && (
-              <p className="text-xs text-red-400 mt-1">Passwords do not match</p>
+              <p className="text-base text-red-400 mt-1">Passwords do not match</p>
             )}
           </div>
 
           {/* Legal consent checkboxes */}
           <div style={{background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:10,padding:16,marginBottom:8}}>
-            <p style={{fontSize:13,color:'#374151',fontWeight:600,margin:'0 0 12px'}}>Required agreements — please read before signing up</p>
+            <p style={{fontSize:15,color:'#374151',fontWeight:600,margin:'0 0 12px'}}>Required agreements — please read before signing up</p>
             <label style={{display:'flex',alignItems:'flex-start',gap:8,marginBottom:10,cursor:'pointer'}}>
               <input type="checkbox" id="chk-terms" style={{marginTop:3,accentColor:'#248046',flexShrink:0}} />
-              <span style={{fontSize:12,color:'#374151',lineHeight:1.5}}>
+              <span style={{fontSize:14,color:'#374151',lineHeight:1.5}}>
                 I have read and agree to the{' '}
                 <a href="/legal/terms" target="_blank" style={{color:'#248046',fontWeight:600}}>Terms &amp; Conditions</a>,
                 including the <strong>disclaimer that the platform owner is not liable for any financial loss</strong> and
@@ -261,7 +261,7 @@ export default function SignupPage() {
             </label>
             <label style={{display:'flex',alignItems:'flex-start',gap:8,marginBottom:10,cursor:'pointer'}}>
               <input type="checkbox" id="chk-privacy" style={{marginTop:3,accentColor:'#248046',flexShrink:0}} />
-              <span style={{fontSize:12,color:'#374151',lineHeight:1.5}}>
+              <span style={{fontSize:14,color:'#374151',lineHeight:1.5}}>
                 I have read and agree to the{' '}
                 <a href="/legal/privacy" target="_blank" style={{color:'#248046',fontWeight:600}}>Privacy Policy</a>{' '}
                 and consent to my personal data being processed under the DPDP Act 2023.
@@ -269,7 +269,7 @@ export default function SignupPage() {
             </label>
             <label style={{display:'flex',alignItems:'flex-start',gap:8,cursor:'pointer'}}>
               <input type="checkbox" id="chk-aup" style={{marginTop:3,accentColor:'#248046',flexShrink:0}} />
-              <span style={{fontSize:12,color:'#374151',lineHeight:1.5}}>
+              <span style={{fontSize:14,color:'#374151',lineHeight:1.5}}>
                 I agree to the{' '}
                 <a href="/legal/acceptable-use" target="_blank" style={{color:'#248046',fontWeight:600}}>Acceptable Use Policy</a>{' '}
                 and{' '}
@@ -290,17 +290,17 @@ export default function SignupPage() {
               handleSignup();
             }}
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors mt-2"
+            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-base transition-colors mt-2"
           >
             {loading ? 'Creating workspace...' : 'Create workspace'}
           </button>
 
-          <p style={{textAlign:'center',fontSize:11,color:'#9ca3af',marginTop:8}}>
+          <p style={{textAlign:'center',fontSize:15,color:'#9ca3af',marginTop:8}}>
             <a href="/legal" target="_blank" style={{color:'#9ca3af'}}>View all legal documents</a>
           </p>
         </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
+        <p className="text-center text-base text-gray-500 mt-6">
           Already have an account?{' '}
           <a href="/login" className="text-emerald-400 hover:text-emerald-300">Sign in</a>
         </p>
