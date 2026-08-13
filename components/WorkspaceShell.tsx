@@ -2,6 +2,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { DndContext, DragEndEvent, DragOverEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
 import { api, apiFetch, isLoggedIn } from '../lib/api';
+import GlobalSearch    from './GlobalSearch';
+import CanvasView      from './CanvasView';
+import WorkflowBuilder from './WorkflowBuilder';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -55,6 +58,9 @@ export default function WorkspaceShell() {
   // Search
   const [showSearch,     setShowSearch]     = useState(false);
   const [showWsMenu,     setShowWsMenu]     = useState(false);
+  const [showGlobalSearch,  setShowGlobalSearch]  = useState(false);
+  const [showCanvas,        setShowCanvas]        = useState(false);
+  const [showWorkflow,      setShowWorkflow]      = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
@@ -1031,6 +1037,8 @@ export default function WorkspaceShell() {
               { icon:'📹', label:'Meetings', action: () => { setActiveView('meetings'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
               { icon:'🏠', label:'Home', action: () => { setActiveView('home'); setActiveChannel(null); setActiveBoard(null); setActiveDM(null); } },
               { icon:'⚙️', label:'Settings', action: () => window.location.href='/settings' },
+              { icon:'📝', label:'Canvas',    action: () => setShowCanvas(true) },
+              { icon:'⚡', label:'Workflows', action: () => setShowWorkflow(true) },
               { icon:'🔖', label:'Saved messages', action: loadBookmarks },
               { icon:'🔭', label:'Browse channels', action: loadChannelBrowser },
               { icon:'🛡️', label:'Admin', action: () => window.location.href='/admin' },
@@ -1137,7 +1145,7 @@ export default function WorkspaceShell() {
                 <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
                 <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
                 <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
-                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
+                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowGlobalSearch(true)}>Ctrl+K</span>
               </div>
             </div>
 
@@ -2419,6 +2427,24 @@ export default function WorkspaceShell() {
         </div>
       )}
     </div>
+      {showGlobalSearch && (
+        <GlobalSearch
+          onClose={() => setShowGlobalSearch(false)}
+          onNavigate={(channelId, channelName) => openChannel({ id: channelId, name: channelName })}
+          apiFetch={apiFetch}
+        />
+      )}
+      {showCanvas && (
+        <CanvasView
+          onClose={() => setShowCanvas(false)}
+          user={user}
+        />
+      )}
+      {showWorkflow && (
+        <WorkflowBuilder
+          onClose={() => setShowWorkflow(false)}
+        />
+      )}
   );
 }
 
