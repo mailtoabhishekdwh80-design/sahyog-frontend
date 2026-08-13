@@ -31,6 +31,11 @@ function renderMessage(content: string) {
     if (type === 'image') return { isFile: true, isImage: true, name, url };
     return { isFile: true, isImage: false, name, url };
   }
+  // Detect GIF/image URLs sent directly
+  if (/^https?:\/\/.+\.(gif|jpg|jpeg|png|webp)(\?.*)?$/i.test(content.trim()) ||
+      content.includes('giphy.com') || content.includes('tenor.com')) {
+    return { isFile: true, isImage: true, name: 'GIF', url: content.trim() };
+  }
   return { isFile: false, html: formatContent(parseMentions(content)) };
 }
 
