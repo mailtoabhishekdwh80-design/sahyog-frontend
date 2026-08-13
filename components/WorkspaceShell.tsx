@@ -3993,8 +3993,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   const move = (ev: MouseEvent) => { if(drawing) { ctx.lineTo(ev.clientX-rect.left, ev.clientY-rect.top); ctx.stroke(); } };
                   const up = () => { drawing = false; canvas.removeEventListener('mousemove', move); canvas.removeEventListener('mouseup', up); };
                   canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up);
-                }} />
-              </div>}
+              </div>
             </div>
           </div>
         </div>
