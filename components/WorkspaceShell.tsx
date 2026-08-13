@@ -2664,7 +2664,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void }) {
+function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {}, showVirtualBg = false, setShowVirtualBg = (_v: boolean) => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void, showVirtualBg?: boolean, setShowVirtualBg?: (v: boolean) => void }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
