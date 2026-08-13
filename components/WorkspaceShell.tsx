@@ -2460,25 +2460,18 @@ export default function WorkspaceShell() {
             setVirtualBg(bg);
             setShowVirtualBg(false);
             const v = document.getElementById('local-video') as HTMLVideoElement;
-            const container = v?.parentElement;
-            if (!container) return;
-            // Remove existing bg
-            const oldBg = document.getElementById('vbg-overlay');
-            if (oldBg) oldBg.remove();
+            const container = document.getElementById('local-video-container') as HTMLDivElement;
             if (bg.type === 'none') {
-              if (v) v.style.filter = '';
+              if (v) { v.style.filter=''; v.style.opacity='1'; }
+              if (container) container.style.background = '#16213E';
             } else if (bg.type === 'blur') {
-              if (v) v.style.filter = 'blur(8px)';
-            } else {
-              if (v) v.style.filter = '';
-              // Add background image overlay behind video
-              const overlay = document.createElement('div');
-              overlay.id = 'vbg-overlay';
-              overlay.style.cssText = 'position:absolute;inset:0;border-radius:10px;background-size:cover;background-position:center;z-index:0;' +
-                (bg.type === 'image' ? 'background-image:url(' + bg.value + ')' : 'background:' + bg.value);
-              container.style.position = 'relative';
-              if (v) { v.style.position = 'relative'; v.style.zIndex = '1'; v.style.opacity = '0.85'; v.style.mixBlendMode = 'multiply'; }
-              container.insertBefore(overlay, v);
+              if (v) { v.style.filter='blur(12px) brightness(0.8)'; v.style.opacity='1'; }
+            } else if (bg.type === 'gradient') {
+              if (v) { v.style.filter=''; v.style.opacity='0.7'; }
+              if (container) container.style.background = bg.value;
+            } else if (bg.type === 'image') {
+              if (v) { v.style.filter=''; v.style.opacity='0.75'; }
+              if (container) { container.style.backgroundImage='url('+bg.value+')'; container.style.backgroundSize='cover'; container.style.backgroundPosition='center'; }
             }
           }}
           currentBg={virtualBg.id}
@@ -3427,7 +3420,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
               onClick={e => { if(e.target===e.currentTarget) { setShowParticipants(false); setShowChatMenu(false); setShowHostControls(null); } }}>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))',gap:12,width:'100%',maxWidth:900}}>
                 {/* Host video tile */}
-                <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(79,110,247,0.3)',position:'relative'}}>
+                <div id="local-video-container" style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'2px solid rgba(79,110,247,0.3)',position:'relative'}}>
                   {cameraOn
                     ? <video id="local-video" autoPlay muted playsInline style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10,position:'absolute',top:0,left:0}} />
                     : <div style={{width:56,height:56,borderRadius:'50%',background:'#4F6EF7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>Y</div>
