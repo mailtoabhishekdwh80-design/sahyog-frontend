@@ -1849,7 +1849,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
