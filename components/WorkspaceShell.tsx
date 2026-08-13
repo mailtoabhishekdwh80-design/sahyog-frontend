@@ -1552,7 +1552,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} onShowAnalytics={() => setShowMeetingAnalytics(true)} />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} onShowAnalytics={() => setShowMeetingAnalytics(true)} showVirtualBg={showVirtualBg} setShowVirtualBg={setShowVirtualBg} />}
           </div>
         )}
 
