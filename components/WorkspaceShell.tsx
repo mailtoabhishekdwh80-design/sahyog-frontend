@@ -2484,10 +2484,10 @@ export default function WorkspaceShell() {
           onClose={() => setShowWorkflow(false)}
         />
       )}
-      {showVirtualBgMeeting && (
+      {showVirtualBg && (
         <VirtualBackground
-          onClose={() => setShowVirtualBgMeeting(false)}
-          onApply={() => setShowVirtualBgMeeting(false)}
+          onClose={() => setShowVirtualBg(false)}
+          onApply={() => setShowVirtualBg(false)}
           currentBg="none"
         />
       )}
@@ -2702,7 +2702,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
   const [openMenuId,   setOpenMenuId]   = useState<string|null>(null);
   const [monthlyMins,  setMonthlyMins]  = useState(0); // minutes used this month
   const [showInMeeting,setShowInMeeting]= useState(false);
-  const [showVirtualBgMeeting, setShowVirtualBgMeeting] = useState(false);
+  const [showVirtualBg, setShowVirtualBg] = useState(false);
   const [inMeetingChat,setInMeetingChat]= useState<any[]>([]);
   const [inMeetingMsg, setInMeetingMsg] = useState('');
   const [inMeetingEmoji,setInMeetingEmoji]=useState<string|null>(null);
@@ -3614,7 +3614,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                       }
                     }
                   },
-                { icon:'BG', label:'Virtual BG', active:showVirtualBgMeeting, color:showVirtualBgMeeting?'#818CF8':undefined, action:()=>setShowVirtualBgMeeting(true) },
+                { icon:'BG', label:'Virtual BG', active:showVirtualBg, color:showVirtualBg?'#818CF8':undefined, action:()=>setShowVirtualBg(true) },
                 ] as {icon:string,label:string,active:boolean,color?:string,action:()=>void}[]).map(ctrl => (
                   <div key={ctrl.label} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <button onClick={ctrl.action} title={ctrl.label}
