@@ -3772,7 +3772,6 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 </button>
               </div>
             </div>
-            </div>
           </div>
         </div>
       )}
