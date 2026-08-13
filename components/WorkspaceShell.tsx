@@ -2556,7 +2556,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
           <p className="text-gray-200 text-sm mt-1">Here is what is happening in your workspace today</p>
         </div>
         <div className="text-right">
-          <div className="text-xs text-gray-200">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+          <div className="text-xs text-gray-200" suppressHydrationWarning>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
         </div>
       </div>
 
