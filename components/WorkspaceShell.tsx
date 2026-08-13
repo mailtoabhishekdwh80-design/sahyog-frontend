@@ -2702,7 +2702,6 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
   const [openMenuId,   setOpenMenuId]   = useState<string|null>(null);
   const [monthlyMins,  setMonthlyMins]  = useState(0); // minutes used this month
   const [showInMeeting,setShowInMeeting]= useState(false);
-  const [showVirtualBg, setShowVirtualBg] = useState(false);
   const [inMeetingChat,setInMeetingChat]= useState<any[]>([]);
   const [inMeetingMsg, setInMeetingMsg] = useState('');
   const [inMeetingEmoji,setInMeetingEmoji]=useState<string|null>(null);
