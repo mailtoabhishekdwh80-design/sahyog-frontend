@@ -1849,7 +1849,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
@@ -2005,7 +2005,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <button onClick={() => setShowWhiteboard(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
@@ -2261,7 +2261,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
               <button onClick={() => setShowBookmarks(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
@@ -2289,7 +2289,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">🔭 Browse channels</span>
               <button onClick={() => setShowChannelBrowser(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
@@ -2926,12 +2926,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* Calendar view */}
       {view === 'calendar' && (
         <div className="rounded-2xl overflow-hidden" style={{background:"#0F172A",border:"1px solid #1E40AF"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="px-3 py-1.5 rounded-lg transition-colors font-bold" style={{color:"#60A5FA",background:"#1E3A5F"}}>&#8592;</button>
             <span className="font-bold text-base" style={{color:"#F1F5F9"}}>{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="px-3 py-1.5 rounded-lg transition-colors font-bold" style={{color:"#60A5FA",background:"#1E3A5F"}}>&#8594;</button>
           </div>
-          <div className="grid grid-cols-7 border-b border-gray-800">
+          <div className="grid grid-cols-7" style={{borderBottom:"1px solid #1E3A5F"}}>
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
               <div key={d} className="text-xs text-center py-2 font-bold" style={{color:"#60A5FA"}}>{d}</div>
             ))}
@@ -2961,14 +2961,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {/* List view */}
       {view === 'list' && (
         <div className="space-y-3">
-          {meetings.length === 0 && !creating && <div className="text-gray-300 text-sm text-center py-8">No meetings scheduled</div>}
+          {meetings.length === 0 && !creating && <div className="text-sm text-center py-12 font-medium" style={{color:"#475569"}}>No meetings scheduled</div>}
           {meetings.map(m => (
-            <div key={m.id} className="bg-gray-800 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
+            <div key={m.id} className="rounded-xl p-4 transition-all cursor-default" style={{background:"#0F172A",border:"1px solid #1E3A5F",boxShadow:"0 2px 8px rgba(0,0,0,0.3)"}} onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor="#3B82F6"}} onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor="#1E3A5F"}}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-white truncate">{m.title}</div>
-                  {m.description && <div className="text-xs text-gray-300 mt-0.5 truncate">{m.description}</div>}
-                  <div className="text-xs text-gray-300 mt-2 flex items-center gap-3">
+                  <div className="font-bold text-base truncate" style={{color:"#F1F5F9"}}>{m.title}</div>
+                  {m.description && <div className="text-xs mt-0.5 truncate" style={{color:"#94A3B8"}}>{m.description}</div>}
+                  <div className="text-xs mt-2 flex items-center gap-3" style={{color:"#60A5FA"}}>
                     <span>{new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                     <span>{m.duration_mins || 60}m</span>
                   </div>
@@ -2979,28 +2979,28 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {/* Primary action */}
                     {(m.status === 'live' || m.status === 'scheduled') && (
                       <button onClick={() => joinMeetingWithCheck(m)}
-                        className="text-xs /bg-indigo-600/g hover:/bg-indigo-500/g text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                        className="text-xs text-white px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all" style={{background:"linear-gradient(135deg,#1D4ED8,#2563EB)",boxShadow:"0 2px 8px rgba(29,78,216,0.4)"}}>
                         {m.status === 'live' ? '▶ Join live' : 'Join →'}
                       </button>
                     )}
                     {/* RSVP for scheduled */}
                     {m.status === 'scheduled' && (
-                      <div className="flex items-center gap-1 bg-gray-800 rounded-lg px-2 py-1">
-                        <span className="text-xs text-gray-300">RSVP:</span>
+                      <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{background:"#1E293B",border:"1px solid #334155"}}>
+                        <span className="text-xs font-medium" style={{color:"#94A3B8"}}>RSVP:</span>
                         {[['✓','going'],['?','maybe'],['✗','no']].map(([icon,status]) => (
                           <button key={status} onClick={async () => { await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) }); alert('RSVP: ' + status); }}
-                            className="text-xs px-1.5 py-0.5 rounded hover:bg-gray-700 text-gray-300 font-bold">{icon}</button>
+                            className="text-xs px-1.5 py-0.5 rounded font-bold transition-colors" style={{color:"#60A5FA"}}>{icon}</button>
                         ))}
                       </div>
                     )}
                     {/* Hamburger menu */}
                     <div className="relative" style={{position:'relative'}}>
                       <button onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
-                        className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-2 rounded-lg font-bold">
+                        className="text-xs px-3 py-2 rounded-lg font-bold transition-colors" style={{background:"#1E293B",color:"#94A3B8",border:"1px solid #334155"}}>
                         ⋯
                       </button>
                       {openMenuId === m.id && (
-                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.14)',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                        <div style={{position:'absolute',right:0,top:'100%',marginTop:4,background:'#0F172A',border:'1px solid #1E40AF',borderRadius:10,padding:4,zIndex:50,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                           {[
                             { label:'🔔 Send reminder', fn: () => { sendReminder(m.id); setOpenMenuId(null); } },
                             { label:'📅 Add to Google Cal', fn: () => { syncToGoogleCalendar(m); setOpenMenuId(null); } },
@@ -3574,7 +3574,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     {chatMode === 'everyone' ? '🌐 Everyone ▾' : '🔒 Private ▾'}
                   </button>
                   {showChatMenu && (
-                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#1A1A2E',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
+                    <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#0F172A',border:'1px solid #1E40AF',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                       <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
                         style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#FFFFFF',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         🌐 Message everyone
@@ -3908,7 +3908,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showWB && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
