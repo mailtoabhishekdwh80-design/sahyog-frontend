@@ -40,7 +40,7 @@ export default function WorkspaceShell() {
   const [boards,         setBoards]         = useState<Board[]>([]);
   const [activeChannel,  setActiveChannel]  = useState<Channel | null>(null);
   const [activeBoard,    setActiveBoard]    = useState<Board | null>(null);
-  const [activeView,     setActiveView]     = useState<'home'|'meetings'|'admin'>('home');
+  const [activeView,     setActiveView]     = useState<'home'|'meetings'|'admin'|'canvas'|'clips'|'workflows'>('home');
   const [messages,       setMessages]       = useState<Message[]>([]);
   const [newMessage,     setNewMessage]     = useState('');
   const [sending,        setSending]        = useState(false);
