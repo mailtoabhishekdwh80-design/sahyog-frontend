@@ -6,6 +6,8 @@ import GlobalSearch    from './GlobalSearch';
 import CanvasView      from './CanvasView';
 import WorkflowBuilder from './WorkflowBuilder';
 import { MeetingPolls, BreakoutRooms, LiveTranscription } from './MeetingFeatures';
+import VirtualBackground from './VirtualBackground';
+import MeetingAnalytics  from './MeetingAnalytics';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -68,6 +70,9 @@ export default function WorkspaceShell() {
   const [showCanvas,        setShowCanvas]        = useState(false);
   const [showWorkflow,      setShowWorkflow]      = useState(false);
   const [meetingTab, setMeetingTab] = useState('chat');
+  const [showVirtualBg,   setShowVirtualBg]   = useState(false);
+  const [showAnalytics,   setShowAnalytics]   = useState(false);
+  const [virtualBg,       setVirtualBg]       = useState({type:'none',value:'',id:'none'});
   const [showMeetingPanel, setShowMeetingPanel] = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
@@ -2448,6 +2453,19 @@ export default function WorkspaceShell() {
           </div>
         </div>
       )}
+      {showVirtualBg && (
+        <VirtualBackground
+          onClose={() => setShowVirtualBg(false)}
+          onApply={(bg) => { setVirtualBg(bg); setShowVirtualBg(false); }}
+          currentBg={virtualBg.id}
+        />
+      )}
+      {showAnalytics && (
+        <MeetingAnalytics
+          onClose={() => setShowAnalytics(false)}
+          apiFetch={apiFetch}
+        />
+      )}
       {showGlobalSearch && (
         <GlobalSearch
           onClose={() => setShowGlobalSearch(false)}
@@ -3586,6 +3604,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                       }
                     }
                   },
+                { icon:'BG', label:'Virtual BG', active:showVirtualBg, action:()=>setShowVirtualBg(true) },
                 ] as {icon:string,label:string,active:boolean,color?:string,action:()=>void}[]).map(ctrl => (
                   <div key={ctrl.label} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <button onClick={ctrl.action} title={ctrl.label}
