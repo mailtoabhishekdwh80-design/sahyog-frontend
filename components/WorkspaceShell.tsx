@@ -2920,13 +2920,13 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
     <div className="space-y-4 max-w-4xl">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-2 bg-gray-800 rounded-xl p-1 border border-gray-800">
+        <div className="flex gap-2 rounded-xl p-1" style={{background:"#1E293B",border:"1px solid #334155"}}>
           <button onClick={() => onShowAnalytics()}
               style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Analytics</button>
-            <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
-          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? '/bg-indigo-600/g text-white' : 'text-gray-200 hover:text-white'}`}>Calendar</button>
+            <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
         </div>
-        <button onClick={() => setCreating(true)} className="/bg-indigo-600/g hover:/bg-indigo-500/g text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors">New meeting</button>
+        <button onClick={() => setCreating(true)} className="text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors" style={{background:"#1D4ED8"}}>New meeting</button>
       </div>
 
       {/* New meeting form */}
