@@ -55,6 +55,26 @@ export default function WorkspaceShell() {
   // Search
   const [showSearch,     setShowSearch]     = useState(false);
   const [showWsMenu,     setShowWsMenu]     = useState(false);
+  // ── Slack feature parity state ──────────────────────────────
+  const [showGlobalSearch,  setShowGlobalSearch]  = useState(false);
+  const [globalQuery,       setGlobalQuery]       = useState('');
+  const [globalResults,     setGlobalResults]     = useState<any[]>([]);
+  const [globalSearching,   setGlobalSearching]   = useState(false);
+  const [showCanvas,        setShowCanvas]        = useState(false);
+  const [canvasTitle,       setCanvasTitle]       = useState('Untitled Canvas');
+  const [canvasContent,     setCanvasContent]     = useState('');
+  const [canvases,          setCanvases]          = useState<any[]>([]);
+  const [showClips,         setShowClips]         = useState(false);
+  const [isRecordingClip,   setIsRecordingClip]   = useState(false);
+  const [clips,             setClips]             = useState<any[]>([]);
+  const [showWorkflow,      setShowWorkflow]      = useState(false);
+  const [workflows,         setWorkflows]         = useState<any[]>([
+    { id:'1', name:'Welcome new members', trigger:'member_join', action:'send_message', channel:'general', message:'Welcome to the team! 🎉', enabled:true },
+    { id:'2', name:'Daily standup reminder', trigger:'schedule_daily', action:'send_message', channel:'general', message:'Time for standup! What did you do yesterday?', enabled:false },
+    { id:'3', name:'Task overdue alert', trigger:'task_overdue', action:'send_message', channel:'general', message:'You have overdue tasks! Please update your board.', enabled:true },
+  ]);
+  const [showSharedChannels, setShowSharedChannels] = useState(false);
+
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
@@ -668,6 +688,57 @@ export default function WorkspaceShell() {
     setSending(false);
   }
 
+
+  // ── Global message search ─────────────────────────────────────
+  async function runGlobalSearch(q: string) {
+    if (!q.trim()) { setGlobalResults([]); return; }
+    setGlobalSearching(true);
+    try {
+      const res = await apiFetch('/channels/search?q=' + encodeURIComponent(q) + '&limit=20');
+      setGlobalResults(Array.isArray(res?.data) ? res.data : []);
+    } catch { setGlobalResults([]); }
+    setGlobalSearching(false);
+  }
+
+  // ── Canvas (collaborative docs) ───────────────────────────────
+  async function saveCanvas() {
+    if (!canvasTitle.trim()) return;
+    const newCanvas = { id: Date.now().toString(), title: canvasTitle, content: canvasContent, updatedAt: new Date().toISOString(), author: user?.display_name };
+    setCanvases(prev => [newCanvas, ...prev.filter(c => c.id !== newCanvas.id)]);
+    localStorage.setItem('sahyog_canvases', JSON.stringify([newCanvas, ...canvases.filter(c => c.id !== newCanvas.id)]));
+    alert('Canvas saved!');
+  }
+
+  // ── Clips (async video) ───────────────────────────────────────
+  async function startClipRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const clip = { id: Date.now().toString(), url, title: 'Clip ' + new Date().toLocaleTimeString('en-IN'), duration: '0:30', createdAt: new Date().toISOString() };
+        setClips(prev => [clip, ...prev]);
+        setIsRecordingClip(false);
+        stream.getTracks().forEach(t => t.stop());
+        // Auto-share to active channel
+        if (activeChannel) {
+          api.sendMessage(activeChannel.id, '[Clip] ' + clip.title + ' — ' + clip.url);
+        }
+      };
+      recorder.start();
+      (window as any)._clipRecorder = recorder;
+      setIsRecordingClip(true);
+    } catch { alert('Could not start screen recording. Please allow screen capture permission.'); }
+  }
+
+  function stopClipRecording() {
+    (window as any)._clipRecorder?.stop();
+    setIsRecordingClip(false);
+  }
+
   async function createChannel() {
     if (!newChName.trim() || !activeWs) return;
     const res = await api.createChannel(activeWs.id, newChName.trim(), newChDesc.trim(), newChPrivate);
@@ -1137,7 +1208,7 @@ export default function WorkspaceShell() {
                 <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
                 <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
                 <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
-                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowSearch(true)}>Ctrl+K</span>
+                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowGlobalSearch(true)}>Ctrl+K</span>
               </div>
             </div>
 
@@ -1530,6 +1601,74 @@ export default function WorkspaceShell() {
         {/* ── HOME / MEETINGS VIEW ── */}
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
+            {activeView === 'canvas' && (
+              <div style={{padding:24,display:'flex',flexDirection:'column',gap:16,height:'100%'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <h2 style={{fontSize:22,fontWeight:800,color:'#F1F5F9'}}>📝 Canvas</h2>
+                  <button onClick={() => { setCanvasTitle('Untitled Canvas'); setCanvasContent(''); setShowCanvas(true); }}
+                    style={{background:'#1D4ED8',border:'none',borderRadius:10,padding:'8px 20px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>+ New Canvas</button>
+                </div>
+                {canvases.length === 0 ? (
+                  <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,color:'#475569'}}>
+                    <div style={{fontSize:48}}>📝</div>
+                    <div style={{fontSize:16,fontWeight:600,color:'#94A3B8'}}>No canvases yet</div>
+                    <div style={{fontSize:13}}>Create a canvas to collaborate on documents, notes, and ideas</div>
+                    <button onClick={() => setShowCanvas(true)} style={{background:'#1D4ED8',border:'none',borderRadius:10,padding:'10px 24px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',marginTop:8}}>Create your first canvas</button>
+                  </div>
+                ) : (
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:16}}>
+                    {canvases.map(cv => (
+                      <div key={cv.id} onClick={() => { setCanvasTitle(cv.title); setCanvasContent(cv.content); setShowCanvas(true); }}
+                        style={{background:'#0F172A',border:'1px solid #1E3A5F',borderRadius:12,padding:20,cursor:'pointer',transition:'border-color 0.2s'}}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor='#3B82F6'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor='#1E3A5F'}>
+                        <div style={{fontSize:32,marginBottom:10}}>📄</div>
+                        <div style={{fontSize:15,fontWeight:700,color:'#F1F5F9',marginBottom:4}}>{cv.title}</div>
+                        <div style={{fontSize:12,color:'#475569'}}>Updated {new Date(cv.updatedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {activeView === 'clips' && (
+              <div style={{padding:24,display:'flex',flexDirection:'column',gap:16,height:'100%'}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <h2 style={{fontSize:22,fontWeight:800,color:'#F1F5F9'}}>🎬 Clips</h2>
+                  <button onClick={isRecordingClip ? stopClipRecording : startClipRecording}
+                    style={{background:isRecordingClip?'#7F1D1D':'#1D4ED8',border:'none',borderRadius:10,padding:'8px 20px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>
+                    {isRecordingClip ? '⏹ Stop Recording' : '⏺ Record Clip'}
+                  </button>
+                </div>
+                {clips.length === 0 ? (
+                  <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,color:'#475569'}}>
+                    <div style={{fontSize:48}}>🎬</div>
+                    <div style={{fontSize:16,fontWeight:600,color:'#94A3B8'}}>No clips yet</div>
+                    <div style={{fontSize:13}}>Record your screen and share async video messages with your team</div>
+                  </div>
+                ) : (
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:16}}>
+                    {clips.map(clip => (
+                      <div key={clip.id} style={{background:'#0F172A',border:'1px solid #1E3A5F',borderRadius:12,overflow:'hidden'}}>
+                        <video src={clip.url} controls style={{width:'100%',height:160,objectFit:'cover',background:'#000'}} />
+                        <div style={{padding:12}}>
+                          <div style={{fontSize:14,fontWeight:600,color:'#F1F5F9'}}>{clip.title}</div>
+                          <div style={{fontSize:11,color:'#475569',marginTop:4}}>{new Date(clip.createdAt).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'})}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {activeView === 'workflows' && (
+              <div style={{padding:24}}>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
+                  <h2 style={{fontSize:22,fontWeight:800,color:'#F1F5F9'}}>⚡ Workflows</h2>
+                  <button onClick={() => setShowWorkflow(true)} style={{background:'#1D4ED8',border:'none',borderRadius:10,padding:'8px 20px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>Manage workflows</button>
+                </div>
+              </div>
+            )}
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
             {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} />}
           </div>
@@ -3951,6 +4090,208 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
           </div>
         </div>
       )}
+
+      {/* ── Global Search Modal ── */}
+      {showGlobalSearch && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:80,zIndex:1000}}
+          onClick={e => { if(e.target===e.currentTarget) setShowGlobalSearch(false); }}>
+          <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:640,boxShadow:'0 25px 60px rgba(0,0,0,0.6)',overflow:'hidden'}}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',gap:12}}>
+              <span style={{fontSize:18,color:'#60A5FA'}}>🔍</span>
+              <input autoFocus value={globalQuery}
+                onChange={e => { setGlobalQuery(e.target.value); runGlobalSearch(e.target.value); }}
+                placeholder="Search messages across all channels..."
+                style={{flex:1,background:'none',border:'none',outline:'none',color:'#F1F5F9',fontSize:15,fontWeight:500}}
+              />
+              <kbd style={{fontSize:11,color:'#475569',background:'#1E293B',border:'1px solid #334155',borderRadius:4,padding:'2px 6px'}}>ESC</kbd>
+            </div>
+            <div style={{maxHeight:400,overflowY:'auto'}}>
+              {globalSearching && <div style={{padding:24,textAlign:'center',color:'#60A5FA',fontSize:13}}>Searching...</div>}
+              {!globalSearching && globalQuery && globalResults.length === 0 && (
+                <div style={{padding:24,textAlign:'center',color:'#475569',fontSize:13}}>No results for "{globalQuery}"</div>
+              )}
+              {!globalQuery && (
+                <div style={{padding:20}}>
+                  <div style={{fontSize:11,color:'#475569',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:12}}>Recent searches</div>
+                  {['team standup','project deadline','budget approval'].map(s => (
+                    <button key={s} onClick={() => { setGlobalQuery(s); runGlobalSearch(s); }}
+                      style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'8px 12px',background:'none',border:'none',color:'#94A3B8',cursor:'pointer',borderRadius:8,fontSize:13,textAlign:'left'}}>
+                      <span style={{color:'#475569'}}>🕐</span> {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {globalResults.map((r: any) => (
+                <button key={r.id} onClick={() => { openChannel({id:r.channel_id,name:r.channel_name}); setShowGlobalSearch(false); }}
+                  style={{display:'flex',alignItems:'flex-start',gap:12,width:'100%',padding:'12px 20px',background:'none',border:'none',cursor:'pointer',borderBottom:'1px solid #0F2040',textAlign:'left'}}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background='rgba(30,58,95,0.4)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='none'}>
+                  <div style={{width:32,height:32,borderRadius:8,background:'#1E3A5F',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,flexShrink:0}}>#</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:2}}>
+                      <span style={{fontSize:12,color:'#60A5FA',fontWeight:600}}>#{r.channel_name}</span>
+                      <span style={{fontSize:11,color:'#475569'}}>{r.sender_name}</span>
+                      <span style={{fontSize:11,color:'#334155',marginLeft:'auto'}}>{new Date(r.sent_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>
+                    </div>
+                    <div style={{fontSize:13,color:'#94A3B8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.content}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Canvas Modal ── */}
+      {showCanvas && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:24}}
+          onClick={e => { if(e.target===e.currentTarget) setShowCanvas(false); }}>
+          <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:800,height:'80vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(0,0,0,0.6)'}}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',gap:12}}>
+              <span style={{fontSize:20}}>📝</span>
+              <input value={canvasTitle} onChange={e => setCanvasTitle(e.target.value)}
+                style={{flex:1,background:'none',border:'none',outline:'none',color:'#F1F5F9',fontSize:18,fontWeight:700}}
+                placeholder="Canvas title..." />
+              <button onClick={saveCanvas} style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'6px 16px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>Save</button>
+              <button onClick={() => setShowCanvas(false)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:20}}>×</button>
+            </div>
+            {canvases.length > 0 && (
+              <div style={{padding:'8px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',gap:8,overflowX:'auto'}}>
+                {canvases.map(cv => (
+                  <button key={cv.id} onClick={() => { setCanvasTitle(cv.title); setCanvasContent(cv.content); }}
+                    style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 12px',color:'#94A3B8',fontSize:12,cursor:'pointer',whiteSpace:'nowrap'}}>
+                    {cv.title}
+                  </button>
+                ))}
+                <button onClick={() => { setCanvasTitle('Untitled Canvas'); setCanvasContent(''); }}
+                  style={{background:'#1D4ED8',border:'none',borderRadius:6,padding:'4px 12px',color:'#fff',fontSize:12,cursor:'pointer',whiteSpace:'nowrap'}}>
+                  + New
+                </button>
+              </div>
+            )}
+            <div style={{flex:1,padding:'8px 4px',display:'flex',flexDirection:'column'}}>
+              <div style={{padding:'4px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',gap:4,flexWrap:'wrap'}}>
+                {[['B','**','**'],['I','_','_'],['S','~~','~~'],['H1','# ',''],['H2','## ',''],['List','- ',''],['Quote','> ','']].map(([label,before,after]) => (
+                  <button key={label} onClick={() => {
+                    const ta = document.getElementById('canvas-editor') as HTMLTextAreaElement;
+                    if (!ta) return;
+                    const start = ta.selectionStart, end = ta.selectionEnd;
+                    const sel = canvasContent.slice(start, end);
+                    const newContent = canvasContent.slice(0, start) + before + sel + after + canvasContent.slice(end);
+                    setCanvasContent(newContent);
+                  }} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:4,padding:'3px 8px',color:'#94A3B8',fontSize:12,cursor:'pointer',fontWeight:label==='B'?700:400,fontStyle:label==='I'?'italic':'normal'}}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <textarea id="canvas-editor" value={canvasContent} onChange={e => setCanvasContent(e.target.value)}
+                placeholder="Start writing... Use **bold**, _italic_, # headings, - bullets, > quotes"
+                style={{flex:1,background:'none',border:'none',outline:'none',color:'#E2E8F0',fontSize:15,lineHeight:1.8,padding:'20px',resize:'none',fontFamily:'inherit'}} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Clips Modal ── */}
+      {showClips && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:24}}
+          onClick={e => { if(e.target===e.currentTarget) setShowClips(false); }}>
+          <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:560,boxShadow:'0 25px 60px rgba(0,0,0,0.6)',overflow:'hidden'}}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:20}}>🎬</span>
+                <span style={{color:'#F1F5F9',fontWeight:700,fontSize:16}}>Clips</span>
+              </div>
+              <button onClick={() => setShowClips(false)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:20}}>×</button>
+            </div>
+            <div style={{padding:20}}>
+              <button onClick={isRecordingClip ? stopClipRecording : startClipRecording}
+                style={{width:'100%',padding:'14px',background:isRecordingClip?'#7F1D1D':'linear-gradient(135deg,#1D4ED8,#2563EB)',border:'none',borderRadius:12,color:'#fff',fontSize:15,fontWeight:700,cursor:'pointer',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                {isRecordingClip ? '⏹ Stop Recording' : '⏺ Record a Clip'}
+              </button>
+              {isRecordingClip && (
+                <div style={{textAlign:'center',color:'#FCA5A5',fontSize:13,marginBottom:16,display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+                  <span style={{width:8,height:8,borderRadius:'50%',background:'#EF4444',display:'inline-block',animation:'pulse 1s infinite'}}/>
+                  Recording in progress...
+                </div>
+              )}
+              <p style={{fontSize:12,color:'#475569',textAlign:'center',marginBottom:16}}>Record your screen and share instantly to the active channel</p>
+              {clips.length > 0 && (
+                <div style={{borderTop:'1px solid #1E3A5F',paddingTop:16}}>
+                  <div style={{fontSize:11,color:'#475569',fontWeight:700,letterSpacing:'0.08em',textTransform:'uppercase',marginBottom:10}}>Your clips</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:8,maxHeight:200,overflowY:'auto'}}>
+                    {clips.map(clip => (
+                      <div key={clip.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#1E293B',borderRadius:8}}>
+                        <span style={{fontSize:20}}>🎥</span>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13,color:'#F1F5F9',fontWeight:600,truncate:true}}>{clip.title}</div>
+                          <div style={{fontSize:11,color:'#475569'}}>{new Date(clip.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+                        </div>
+                        <a href={clip.url} download style={{background:'#1D4ED8',borderRadius:6,padding:'4px 10px',color:'#fff',fontSize:11,fontWeight:600,textDecoration:'none'}}>Download</a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Workflow Builder Modal ── */}
+      {showWorkflow && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000,padding:24}}
+          onClick={e => { if(e.target===e.currentTarget) setShowWorkflow(false); }}>
+          <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:640,maxHeight:'80vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(0,0,0,0.6)'}}>
+            <div style={{padding:'16px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <span style={{fontSize:20}}>⚡</span>
+                <div>
+                  <div style={{color:'#F1F5F9',fontWeight:700,fontSize:16}}>Workflow Builder</div>
+                  <div style={{fontSize:12,color:'#475569'}}>Automate repetitive tasks</div>
+                </div>
+              </div>
+              <button onClick={() => setShowWorkflow(false)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:20}}>×</button>
+            </div>
+            <div style={{flex:1,overflowY:'auto',padding:20}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+                <div style={{fontSize:12,color:'#475569',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.08em'}}>Your workflows</div>
+                <button onClick={() => {
+                  const name = prompt('Workflow name:');
+                  if (name) setWorkflows(prev => [...prev, {id:Date.now().toString(),name,trigger:'member_join',action:'send_message',channel:'general',message:'Hello!',enabled:false}]);
+                }} style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'6px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer'}}>+ New workflow</button>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {workflows.map(wf => (
+                  <div key={wf.id} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:12,padding:16}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <div style={{width:36,height:36,borderRadius:8,background:wf.enabled?'#1D4ED8':'#374151',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>⚡</div>
+                        <div>
+                          <div style={{fontSize:14,color:'#F1F5F9',fontWeight:600}}>{wf.name}</div>
+                          <div style={{fontSize:11,color:'#475569'}}>When: {wf.trigger.replace(/_/g,' ')} → {wf.action.replace(/_/g,' ')}</div>
+                        </div>
+                      </div>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <button onClick={() => setWorkflows(prev => prev.map(w => w.id===wf.id ? {...w,enabled:!w.enabled} : w))}
+                          style={{width:40,height:22,borderRadius:11,background:wf.enabled?'#1D4ED8':'#374151',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s'}}>
+                          <div style={{width:18,height:18,borderRadius:'50%',background:'#fff',position:'absolute',top:2,transition:'left 0.2s',left:wf.enabled?20:2}}/>
+                        </button>
+                        <button onClick={() => setWorkflows(prev => prev.filter(w => w.id!==wf.id))}
+                          style={{background:'none',border:'none',color:'#EF4444',cursor:'pointer',fontSize:14}}>🗑</button>
+                      </div>
+                    </div>
+                    <div style={{fontSize:12,color:'#64748B',padding:'8px 10px',background:'#0F172A',borderRadius:8,border:'1px solid #1E3A5F'}}>
+                      💬 "{wf.message}" → #{wf.channel}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
