@@ -5,7 +5,6 @@ import { api, apiFetch, isLoggedIn } from '../lib/api';
 import GlobalSearch    from './GlobalSearch';
 import CanvasView      from './CanvasView';
 import WorkflowBuilder from './WorkflowBuilder';
-import { MeetingPolls, BreakoutRooms, LiveTranscription } from './MeetingFeatures';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -67,7 +66,6 @@ export default function WorkspaceShell() {
   const [showGlobalSearch,  setShowGlobalSearch]  = useState(false);
   const [showCanvas,        setShowCanvas]        = useState(false);
   const [showWorkflow,      setShowWorkflow]      = useState(false);
-  const [meetingTab, setMeetingTab] = useState('chat');
   const [searchQuery,    setSearchQuery]    = useState('');
   const [searchResults,  setSearchResults]  = useState<any>(null);
   const [searching,      setSearching]      = useState(false);
@@ -3600,23 +3598,6 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
 
             {/* Chat sidebar */}
             <div style={{width:320,background:'#000000',borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column'}}>
-              <div style={{display:'flex',borderBottom:'1px solid #1E3A5F',flexShrink:0,background:'#0A0A0A'}}>
-                {[['chat','??','Chat'],['polls','??','Polls'],['breakout','??','Rooms'],['transcript','??','Notes']].map(([tab,icon,label]) => (
-                  <button key={tab} onClick={() => setMeetingTab(tab)}
-                    style={{flex:1,padding:'7px 2px',background:'none',border:'none',borderBottom:meetingTab===tab?'2px solid #1D4ED8':'2px solid transparent',color:meetingTab===tab?'#60A5FA':'#64748B',fontSize:9,cursor:'pointer',fontWeight:meetingTab===tab?700:400,display:'flex',flexDirection:'column',alignItems:'center',gap:1,transition:'color 0.15s'}}>
-                    <span style={{fontSize:13}}>{icon}</span>
-                    <span style={{letterSpacing:'0.03em'}}>{label}</span>
-                  </button>
-                ))}
-              </div>
-              {meetingTab !== 'chat' && activeMeeting && (
-                <div style={{flex:1,overflowY:'auto',display:'flex',flexDirection:'column'}}>
-                  {meetingTab === 'polls' && <MeetingPolls meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
-                  {meetingTab === 'breakout' && <BreakoutRooms meetingId={activeMeeting.id} participants={meetingParticipants} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
-                  {meetingTab === 'transcript' && <LiveTranscription meetingId={activeMeeting.id} isHost={activeMeeting.host_id===user?.id} apiFetch={apiFetch} />}
-                </div>
-              )}
-              {meetingTab === 'chat' && <div style={{display:'flex',flexDirection:'column',flex:1,overflow:'hidden'}}>
 
               {/* Chat header with controls */}
               <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
@@ -3770,8 +3751,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 }} style={{background: chatMode==='private'?'#6366f1':'#4F6EF7',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>
                   →
                 </button>
-          </div>
+              </div>
             </div>
+          </div>
         </div>
       )}
 
