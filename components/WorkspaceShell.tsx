@@ -3770,8 +3770,6 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                 }} style={{background: chatMode==='private'?'#6366f1':'#4F6EF7',border:'none',borderRadius:8,padding:'8px 12px',color:'#fff',cursor:'pointer',fontSize:13}}>
                   →
                 </button>
-              </div>
-            </div>
           </div>
         </div>
       )}
