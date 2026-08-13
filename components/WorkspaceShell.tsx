@@ -1849,7 +1849,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-start justify-end z-50 p-4 pt-16"
           onClick={e => { if (e.target === e.currentTarget) setShowNotifs(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-80 shadow-2xl max-h-[70vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
               <span className="text-white font-semibold">Notifications</span>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.markAllRead(); setUnreadCount(0); setNotifications(p => p.map(n => ({ ...n, is_read: true }))); }}
@@ -1875,7 +1875,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowPins(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B"}}>
               <span className="text-white font-semibold">📌 Pinned messages</span>
               <button onClick={() => setShowPins(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
@@ -1905,13 +1905,13 @@ export default function WorkspaceShell() {
               <label className="text-xs text-gray-200 mb-1 block">Channel name</label>
               <input value={newChName} onChange={e => setNewChName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                 placeholder="e.g. marketing, dev-team"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             </div>
             <div>
               <label className="text-xs text-gray-200 mb-1 block">Description</label>
               <input value={newChDesc} onChange={e => setNewChDesc(e.target.value)}
                 placeholder="What's this channel about?"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             </div>
             <div className="flex items-center gap-3">
               <button onClick={() => setNewChPrivate(!newChPrivate)}
@@ -2005,7 +2005,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <button onClick={() => setShowWhiteboard(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
@@ -2107,7 +2107,7 @@ export default function WorkspaceShell() {
       {showScheduled && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if (e.target === e.currentTarget) setShowScheduled(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B"}}>
               <span className="text-white font-semibold">Scheduled messages</span>
               <button onClick={() => setShowScheduled(false)} className="text-gray-300 hover:text-white">x</button>
             </div>
@@ -2172,13 +2172,13 @@ export default function WorkspaceShell() {
               <label className="text-xs text-gray-200 mb-1 block">Contact email</label>
               <input value={connectEmail} onChange={e => setConnectEmail(e.target.value)}
                 placeholder="contact@partner.com" type="email"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             </div>
             <div>
               <label className="text-xs text-gray-200 mb-1 block">Organization name</label>
               <input value={connectOrg} onChange={e => setConnectOrg(e.target.value)}
                 placeholder="Partner Company"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             </div>
             <div className="bg-gray-800 rounded-xl p-3 text-xs text-gray-300">
               They will receive an invite to join #{activeChannel?.name} as an external collaborator.
@@ -2261,7 +2261,7 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBookmarks(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
               <span className="text-white font-semibold">🔖 Saved messages ({bookmarks.length})</span>
               <button onClick={() => setShowBookmarks(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
@@ -2289,13 +2289,13 @@ export default function WorkspaceShell() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowChannelBrowser(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl max-h-[80vh] flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
               <span className="text-white font-semibold">🔭 Browse channels</span>
               <button onClick={() => setShowChannelBrowser(false)} className="text-gray-300 hover:text-white">✕</button>
             </div>
             <div className="px-4 pt-3 shrink-0">
               <input value={channelSearch} onChange={e => setChannelSearch(e.target.value)} placeholder="Search channels..."
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {allChannels.filter(c => c.type !== 'direct' && (!channelSearch || c.name?.toLowerCase().includes(channelSearch.toLowerCase()))).map((ch: any) => (
@@ -2862,48 +2862,48 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
 
       {/* New meeting form */}
       {creating && (
-        <div className="bg-gray-800 border /border-indigo-600/g rounded-xl p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-white">New meeting</h3>
+        <div className="rounded-2xl p-5 space-y-4" style={{background:"#0F172A",border:"1px solid #1E40AF",boxShadow:"0 20px 60px rgba(0,0,0,0.5)"}}>
+          <h3 className="text-base font-bold text-white tracking-tight">New meeting</h3>
           <input autoFocus value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Meeting title..."
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+            className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
-            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+            className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'text-white font-semibold' : 'font-medium'`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'text-white font-semibold' : 'font-medium'`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-300 mb-1 block">Date</label>
+                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Date</label>
                 <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                  className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
               </div>
               <div>
-                <label className="text-xs text-gray-300 mb-1 block">Time</label>
+                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:/border-indigo-400/g" />
+                  className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
               </div>
             </div>
           )}
           <div>
-            <label className="text-xs text-gray-300 mb-2 block">Duration</label>
+            <label className="text-xs font-semibold mb-2 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? '/bg-indigo-600/g text-white' : 'bg-gray-800 text-gray-200 hover:bg-gray-700'}`}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white font-semibold' : 'font-medium'`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'`}}`}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-300 mb-2 block">Invite members {invitedIds.length > 0 && <span className="/text-indigo-400/g">({invitedIds.length})</span>}</label>
+            <label className="text-xs font-semibold mb-2 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Invite members {invitedIds.length > 0 && <span style={{color:"#60A5FA",fontWeight:700}}>({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
-              className="w-full bg-gray-800 text-white rounded-lg px-3 py-1.5 text-xs border border-gray-700 focus:outline-none focus:/border-indigo-400/g mb-2" />
-            <div className="max-h-36 overflow-y-auto space-y-1 bg-gray-800 rounded-lg p-2">
+              className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none mb-2" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
+            <div className="max-h-36 overflow-y-auto space-y-1 rounded-xl p-2" style={{background:"#1E293B"}}>
               {meetOrgMembers.filter(m => !memberSearch || m.display_name?.toLowerCase().includes(memberSearch.toLowerCase())).map((m: any) => (
                 <div key={m.id} onClick={() => toggleInvite(m.id)}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'bg-emerald-900/50 border border-indigo-600' : 'hover:bg-gray-700'}`}>
+                  className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer ${invitedIds.includes(m.id) ? 'rounded-lg' style={{background:'#1D4ED8',border:'1px solid #3B82F6'}} : 'hover:bg-gray-700'}`}>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${invitedIds.includes(m.id) ? '/bg-indigo-500/g text-white' : 'bg-gray-600 text-gray-200'}`}>
                     {m.display_name?.charAt(0)}
                   </div>
@@ -2915,29 +2915,29 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
           </div>
           <div className="flex gap-2">
             <button onClick={createMeeting} disabled={saving || !newTitle.trim()}
-              className="flex-1 /bg-indigo-600/g hover:/bg-indigo-500/g disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm">
+              className="flex-1 disabled:opacity-40 text-white font-semibold py-2.5 rounded-xl text-sm tracking-wide transition-all" style={{background:"linear-gradient(135deg,#1D4ED8,#2563EB)",boxShadow:"0 4px 15px rgba(29,78,216,0.4)"}}>
               {saving ? 'Creating...' : startNow ? 'Start meeting' : 'Schedule'}
             </button>
-            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs text-gray-300 hover:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-800">Cancel</button>
+            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs px-4 py-2 rounded-lg transition-colors" style={{color:"#94A3B8",background:"#1E293B"}}>Cancel</button>
           </div>
         </div>
       )}
 
       {/* Calendar view */}
       {view === 'calendar' && (
-        <div className="bg-gray-800 rounded-xl border border-gray-800 overflow-hidden">
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8592;</button>
-            <span className="text-white font-semibold">{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800">&#8594;</button>
+        <div className="rounded-2xl overflow-hidden" style={{background:"#0F172A",border:"1px solid #1E40AF"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))} className="px-3 py-1.5 rounded-lg transition-colors font-bold" style={{color:"#60A5FA",background:"#1E3A5F"}}>&#8592;</button>
+            <span className="font-bold text-base" style={{color:"#F1F5F9"}}>{calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</span>
+            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))} className="px-3 py-1.5 rounded-lg transition-colors font-bold" style={{color:"#60A5FA",background:"#1E3A5F"}}>&#8594;</button>
           </div>
           <div className="grid grid-cols-7 border-b border-gray-800">
             {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-              <div key={d} className="text-xs text-gray-300 text-center py-2 font-medium">{d}</div>
+              <div key={d} className="text-xs text-center py-2 font-bold" style={{color:"#60A5FA"}}>{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7">
-            {Array.from({ length: firstDay }).map((_, i) => <div key={`e${i}`} className="min-h-16 border-b border-r border-gray-800" />)}
+            {Array.from({ length: firstDay }).map((_, i) => <div key={`e${i}`} className="min-h-16 border-b border-r" style={{borderColor:"#1E3A5F"}} />)}
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const dayMeetings = getMeetingsOnDay(day);
@@ -3908,7 +3908,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
       {showWB && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={e => { if(e.target === e.currentTarget) setShowWB(false); }}>
           <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#222529",flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",borderBottom:"1px solid rgba(99,120,180,0.12)",background:"#1E293B",flexShrink:0}}>
               <span className="text-white font-semibold">Whiteboard</span>
               <div className="flex gap-2">
                 <button onClick={() => { const c = document.getElementById('wb2') as HTMLCanvasElement; const ctx = c?.getContext('2d'); if(ctx) ctx.clearRect(0,0,c.width,c.height); }} className="text-xs bg-gray-800 text-gray-300 px-3 py-1.5 rounded-lg">Clear</button>
