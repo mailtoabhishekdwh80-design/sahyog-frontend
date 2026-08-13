@@ -915,7 +915,7 @@ export default function WorkspaceShell() {
     <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background: theme === 'light' ? '#F5F6FA' : '#0E1117',color: theme === 'light' ? '#0E1117' : '#C8D0E0'}}>
 
       {/* ══ SIDEBAR ══ */}
-      <div style={{width:240,background: theme==='light'?'#f0f0f0':'#0E1117',borderRight:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column',flexShrink:0}}>
+      <div style={{width:240,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',flexShrink:0}}>
         {/* Workspace name + search */}
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -923,7 +923,7 @@ export default function WorkspaceShell() {
             <div style={{position:'relative'}}>
               <button onClick={() => setShowWsMenu(m => !m)}
                 title="Create new channel or invite people"
-                style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(99,120,180,0.22)' : 'rgba(99,120,180,0.12)',border:'none',cursor:'pointer',color:'#f2f3f5',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
+                style={{width:24,height:24,borderRadius:6,background: showWsMenu ? 'rgba(99,120,180,0.22)' : 'rgba(99,120,180,0.12)',border:'none',cursor:'pointer',color:'#FFFFFF',fontSize:16,display:'flex',alignItems:'center',justifyContent:'center'}}>+</button>
               {showWsMenu && (
                 <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:200,width:220,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                   onClick={() => setShowWsMenu(false)}>
@@ -939,7 +939,7 @@ export default function WorkspaceShell() {
                       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background='none'}>
                       <span style={{fontSize:18,flexShrink:0}}>{item.icon}</span>
                       <div>
-                        <div style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>{item.label}</div>
+                        <div style={{fontSize:13,fontWeight:600,color:'#FFFFFF'}}>{item.label}</div>
                         <div style={{fontSize:11,color:'#7A8499'}}>{item.desc}</div>
                       </div>
                     </button>
@@ -1099,12 +1099,12 @@ export default function WorkspaceShell() {
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#313338',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <span style={{fontSize:18,color:'#7A8499',fontWeight:400}}>#</span>
-                <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeChannel.name}</span>
+                <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{activeChannel.name}</span>
                 {channelDescEdit ? (
                   <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:8}}>
                     <input value={newChannelDesc} onChange={e => setNewChannelDesc(e.target.value)}
                       placeholder="Channel description..." autoFocus
-                      style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:6,padding:'3px 8px',color:'#f2f3f5',fontSize:13,width:220}}
+                      style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:6,padding:'3px 8px',color:'#FFFFFF',fontSize:13,width:220}}
                       onKeyDown={e => { if(e.key==='Enter') saveChannelDesc(); if(e.key==='Escape') setChannelDescEdit(false); }} />
                     <button onClick={saveChannelDesc} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'3px 8px',color:'#fff',fontSize:12,cursor:'pointer'}}>Save</button>
                     <button onClick={() => setChannelDescEdit(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
@@ -1145,7 +1145,7 @@ export default function WorkspaceShell() {
             {showMsgSearch && (
               <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929'}}>
                 <input value={msgSearch} onChange={e => setMsgSearch(e.target.value)} placeholder="Search messages..." autoFocus
-                  style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                  style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#FFFFFF',fontSize:13,outline:'none'}} />
               </div>
             )}
 
@@ -1178,7 +1178,7 @@ export default function WorkspaceShell() {
                 </div>
                 <div style={{padding:'8px 16px',borderTop:'1px solid rgba(99,120,180,0.12)',display:'flex',gap:8}}>
                   <input value={aiInput} onChange={e => setAiInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
-                    placeholder="Ask Deemona AI..." style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                    placeholder="Ask Deemona AI..." style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'7px 12px',color:'#FFFFFF',fontSize:13,outline:'none'}} />
                   <button onClick={sendAIMessage} disabled={!aiInput.trim() || aiLoading} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'7px 14px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',opacity: aiInput.trim() ? 1 : 0.5}}>Send</button>
                 </div>
               </div>
@@ -1189,9 +1189,9 @@ export default function WorkspaceShell() {
               <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#131929',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                 <span style={{fontSize:12,color:'#7A8499'}}>Schedule for:</span>
                 <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
-                  style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+                  style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
-                  style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none'}} />
+                  style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'5px 12px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',opacity: scheduleDate && scheduleTime && newMessage.trim() ? 1 : 0.5}}>Schedule</button>
                 <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
               </div>
@@ -1219,7 +1219,7 @@ export default function WorkspaceShell() {
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',flex:1,gap:16,padding:40,opacity:.6}}>
                   <div style={{fontSize:48}}>💬</div>
                   <div style={{textAlign:'center'}}>
-                    <div style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:6}}>No messages yet</div>
+                    <div style={{fontSize:16,fontWeight:700,color:'#FFFFFF',marginBottom:6}}>No messages yet</div>
                     <div style={{fontSize:14,color:'#7A8499'}}>Be the first to send a message in #{activeChannel?.name}</div>
                   </div>
                 </div>
@@ -1236,7 +1236,7 @@ export default function WorkspaceShell() {
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
+                        <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
                         <span style={{fontSize:12,color:'#7A8499'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                         {msg.is_edited && <span style={{fontSize:11,color:'#616061'}}>(edited)</span>}
                         {msg.is_pinned && <span style={{fontSize:11,color:'#f59e0b'}}>pinned</span>}
@@ -1245,7 +1245,7 @@ export default function WorkspaceShell() {
                         <div style={{marginTop:4}}>
                           <textarea value={editingContent} onChange={e => setEditingContent(e.target.value)} rows={2} autoFocus
                             onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();saveEditMessage(editingMsgId!);} if(e.key==='Escape'){setEditingMsgId(null);} }}
-                            style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px 10px',color:'#f2f3f5',fontSize:14,resize:'none',fontFamily:'inherit'}} />
+                            style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.2)',borderRadius:6,padding:'8px 10px',color:'#FFFFFF',fontSize:14,resize:'none',fontFamily:'inherit'}} />
                           <div style={{display:'flex',gap:6,marginTop:4}}>
                             <button onClick={() => saveEditMessage(editingMsgId!)} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer',fontWeight:600}}>Save</button>
                             <button onClick={() => setEditingMsgId(null)} style={{background:'none',border:'1px solid rgba(99,120,180,0.14)',borderRadius:5,padding:'4px 10px',color:'#A8B3C8',fontSize:12,cursor:'pointer'}}>Cancel</button>
@@ -1332,7 +1332,7 @@ export default function WorkspaceShell() {
                   <div style={{display:'flex',alignItems:'center',gap:8,padding:'6px 10px',borderBottom:'1px solid rgba(99,120,180,0.09)'}}>
                     <span style={{fontSize:12,color:'#7A8499'}}>Jump to:</span>
                     <input type="date" value={jumpDate} onChange={e => setJumpDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
-                      style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',color:'#f2f3f5',fontSize:12}} />
+                      style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',color:'#FFFFFF',fontSize:12}} />
                     <button onClick={jumpToDate} disabled={!jumpDate} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer'}}>Go</button>
                     <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
@@ -1345,7 +1345,7 @@ export default function WorkspaceShell() {
                         style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         <div style={{width:24,height:24,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>{m.display_name?.charAt(0)}</div>
                         <div>
-                          <span style={{color:'#f2f3f5',fontWeight:600}}>{m.display_name}</span>
+                          <span style={{color:'#FFFFFF',fontWeight:600}}>{m.display_name}</span>
                           <span style={{color:'#7A8499',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
                         </div>
                       </button>
@@ -1357,7 +1357,7 @@ export default function WorkspaceShell() {
                 {showGifPicker && (
                   <div style={{padding:8,borderBottom:'1px solid rgba(99,120,180,0.09)',background:'rgba(0,0,0,0.2)'}}>
                     <input value={gifSearch} onChange={e => setGifSearch(e.target.value)} placeholder="Search GIFs..."
-                      style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'6px 10px',color:'#f2f3f5',fontSize:13,outline:'none',marginBottom:8}} />
+                      style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'6px 10px',color:'#FFFFFF',fontSize:13,outline:'none',marginBottom:8}} />
                     <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:4,maxHeight:160,overflowY:'auto'}}>
                       {[
                         {url:'https://media.giphy.com/media/3o7TKSjRrfIPjeiVyo/giphy.gif',label:'👍'},
@@ -1384,7 +1384,7 @@ export default function WorkspaceShell() {
                         style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         <span style={{color:'#7A8499',fontSize:15}}>#</span>
                         <div>
-                          <span style={{color:'#f2f3f5',fontWeight:600}}>{ch.name}</span>
+                          <span style={{color:'#FFFFFF',fontWeight:600}}>{ch.name}</span>
                           {ch.description && <span style={{color:'#7A8499',marginLeft:6,fontSize:12}}>{ch.description}</span>}
                         </div>
                       </button>
@@ -1442,7 +1442,7 @@ export default function WorkspaceShell() {
                     }}
                     onFocus={() => { if (activeChannel) { const d = loadDraft(activeChannel.id); if (d && !newMessage) setNewMessage(d); } }}
                     placeholder={`Message #${activeChannel.name}  (/ for commands)`} rows={1}
-                    style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
+                    style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#FFFFFF',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
                   <button onClick={() => setShowSchedule(s => !s)} title="Schedule"
                     style={{background:'none',border:'none',color: showSchedule ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>🕒</button>
                   <button onClick={sendMessage} disabled={!newMessage.trim() || sending}
@@ -1468,14 +1468,14 @@ export default function WorkspaceShell() {
                 <span style={{position:'absolute',bottom:0,right:0,width:10,height:10,borderRadius:'50%',border:'2px solid #313338',background: onlineUsers.has(activeDM.other_id) ? '#4F6EF7' : '#7A8499'}}/>
               </div>
               <div>
-                <div style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{activeDM.other_name || activeDM.name}</div>
+                <div style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{activeDM.other_name || activeDM.name}</div>
                 <div style={{fontSize:11,color: onlineUsers.has(activeDM.other_id) ? '#4F6EF7' : '#7A8499'}}>
                   {onlineUsers.has(activeDM.other_id) ? '🟢 Active now' : '⚫ Last seen recently'}
                 </div>
               </div>
               <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:8}}>
                 <input value={dmSearch} onChange={e => searchDMs(e.target.value)}
-                  placeholder="Search messages..." style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#f2f3f5',fontSize:12,outline:'none',width:180}} />
+                  placeholder="Search messages..." style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none',width:180}} />
               </div>
             </div>
             <div style={{flex:1,overflowY:'auto',padding:'16px',display:'flex',flexDirection:'column',gap:0}}>
@@ -1491,7 +1491,7 @@ export default function WorkspaceShell() {
                     </div>
                     <div style={{flex:1}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{msg.sender_name}</span>
+                        <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
                         <span style={{fontSize:12,color:'#7A8499'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                       </div>
                       <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
@@ -1512,7 +1512,7 @@ export default function WorkspaceShell() {
                 <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)}
                   onKeyDown={e => { if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); sendMessage();} }}
                   placeholder={`Message ${activeDM.other_name || ''}`} rows={1}
-                  style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
+                  style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#FFFFFF',fontSize:15,resize:'none',maxHeight:128,lineHeight:1.5,fontFamily:'inherit'}} />
                 <button onClick={sendMessage} disabled={!newMessage.trim()}
                   style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'6px 12px',color:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,opacity: newMessage.trim() ? 1 : 0.4}}>↑</button>
               </div>
@@ -1539,7 +1539,7 @@ export default function WorkspaceShell() {
       {threadMsg && (
         <div style={{width:360,borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column',background:'#313338',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)'}}>
-            <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>Thread</span>
+            <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>Thread</span>
             <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:18}}>✕</button>
           </div>
           <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
@@ -1549,7 +1549,7 @@ export default function WorkspaceShell() {
               </div>
               <div>
                 <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
-                  <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{threadMsg.sender_name}</span>
+                  <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{threadMsg.sender_name}</span>
                   <span style={{fontSize:12,color:'#7A8499'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                 </div>
                 <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
@@ -1562,7 +1562,7 @@ export default function WorkspaceShell() {
                 </div>
                 <div>
                   <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:2}}>
-                    <span style={{fontSize:13,fontWeight:700,color:'#f2f3f5'}}>{r.sender_name}</span>
+                    <span style={{fontSize:13,fontWeight:700,color:'#FFFFFF'}}>{r.sender_name}</span>
                     <span style={{fontSize:11,color:'#7A8499'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                   </div>
                   <div style={{fontSize:14,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(r.content).html || r.content}} />
@@ -1574,7 +1574,7 @@ export default function WorkspaceShell() {
             <div style={{background:'#383a40',borderRadius:8,border:'1px solid rgba(99,120,180,0.12)',display:'flex',gap:8,padding:'10px 14px'}}>
               <textarea value={threadReply} onChange={e => setThreadReply(e.target.value)}
                 onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendThreadReply();} }}
-                placeholder="Reply in thread" rows={1} style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#f2f3f5',fontSize:14,resize:'none',fontFamily:'inherit'}} />
+                placeholder="Reply in thread" rows={1} style={{flex:1,background:'transparent',border:'none',outline:'none',color:'#FFFFFF',fontSize:14,resize:'none',fontFamily:'inherit'}} />
               <button onClick={sendThreadReply} disabled={!threadReply.trim()} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'5px 10px',color:'#fff',cursor:'pointer',fontSize:14,opacity: threadReply.trim() ? 1 : 0.4}}>↑</button>
             </div>
           </div>
@@ -1590,7 +1590,7 @@ export default function WorkspaceShell() {
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
             <div style={{width:36,height:36,borderRadius:'50%',background:'rgba(74,222,128,0.15)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>🎙️</div>
             <div>
-              <div style={{fontSize:13,fontWeight:700,color:'#f2f3f5'}}>Huddle • #{activeChannel?.name}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'#FFFFFF'}}>Huddle • #{activeChannel?.name}</div>
               <div style={{fontSize:11,color:'#818CF8'}}>● Live audio</div>
             </div>
           </div>
@@ -3185,7 +3185,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
           <div style={{background:'#0E1117',borderBottom:'1px solid rgba(99,120,180,0.12)',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
             <div style={{display:'flex',alignItems:'center',gap:12}}>
               <div style={{width:10,height:10,borderRadius:'50%',background:'#ed4245',animation:'pulse 1s infinite'}}/>
-              <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>{activeMeeting.title}</span>
+              <span style={{fontSize:16,fontWeight:700,color:'#FFFFFF'}}>{activeMeeting.title}</span>
               <div style={{position:'relative'}}>
                 <button onClick={e => { e.stopPropagation(); setShowParticipants(s => !s); setShowChatMenu(false); }}
                   style={{fontSize:12,color:'#A8B3C8',background: showParticipants?'rgba(99,120,180,0.16)':'rgba(99,120,180,0.09)',padding:'4px 10px',borderRadius:20,border:'1px solid rgba(255,255,255,0.15)',cursor:'pointer',display:'flex',alignItems:'center',gap:6}}>
@@ -3196,7 +3196,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   <div style={{position:'absolute',top:'calc(100% + 6px)',left:0,background:'#131929',border:'1px solid rgba(99,120,180,0.16)',borderRadius:10,zIndex:100,width:260,boxShadow:'0 8px 24px rgba(0,0,0,0.6)',overflow:'hidden'}}
                     onClick={e => e.stopPropagation()}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#161C2A'}}>
-                      <span style={{fontSize:13,fontWeight:600,color:'#f2f3f5'}}>Participants ({1+meetingParticipants.length})</span>
+                      <span style={{fontSize:13,fontWeight:600,color:'#FFFFFF'}}>Participants ({1+meetingParticipants.length})</span>
                       <button onClick={() => { setShowAddPeople(true); setShowParticipants(false); }}
                         style={{fontSize:11,color:'#818CF8',background:'rgba(79,110,247,0.12)',border:'1px solid rgba(79,110,247,0.3)',borderRadius:6,padding:'3px 10px',cursor:'pointer',fontWeight:600}}>+ Invite</button>
                     </div>
@@ -3205,7 +3205,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                       <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 14px',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
                         <div style={{width:28,height:28,borderRadius:'50%',background:'#4F6EF7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>Y</div>
                         <div style={{flex:1}}>
-                          <div style={{fontSize:13,color:'#f2f3f5',fontWeight:500}}>You (Host)</div>
+                          <div style={{fontSize:13,color:'#FFFFFF',fontWeight:500}}>You (Host)</div>
                           <div style={{fontSize:10,color:'#818CF8'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
                         </div>
                         <span style={{fontSize:10,color:'#7A8499',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
@@ -3217,7 +3217,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                           onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='transparent'}>
                           <div style={{width:28,height:28,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{p.name?.charAt(0)||'?'}</div>
                           <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:13,color:'#f2f3f5',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
+                            <div style={{fontSize:13,color:'#FFFFFF',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
                             <div style={{fontSize:10,color:'#7A8499',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
                           </div>
                           <button onClick={() => {
@@ -3316,7 +3316,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     ? <video id="local-video" autoPlay muted playsInline style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10,position:'absolute',top:0,left:0}} />
                     : <div style={{width:56,height:56,borderRadius:'50%',background:'#4F6EF7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:700,color:'#fff',marginBottom:8}}>Y</div>
                   }
-                  {!cameraOn && <span style={{fontSize:13,color:'#f2f3f5'}}>You</span>}
+                  {!cameraOn && <span style={{fontSize:13,color:'#FFFFFF'}}>You</span>}
                   {micOn && <span style={{position:'absolute',bottom:8,right:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.6)',padding:'2px 6px',borderRadius:4}}>🎙️ Live</span>}
                   <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
                   <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#7A8499',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
@@ -3555,7 +3555,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
               {/* Chat header with controls */}
               <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(99,120,180,0.12)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
-                  <span style={{fontWeight:600,color:'#f2f3f5',fontSize:14}}>
+                  <span style={{fontWeight:600,color:'#FFFFFF',fontSize:14}}>
                     {chatMode === 'private' && privateTarget
                       ? '🔒 Private: ' + privateTarget.name
                       : '💬 Meeting chat'}
@@ -3576,7 +3576,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                   {showChatMenu && (
                     <div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#131929',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:4,zIndex:10,minWidth:180,boxShadow:'0 8px 24px rgba(0,0,0,0.4)'}}>
                       <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); setShowChatMenu(false); }}
-                        style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#f2f3f5',cursor:'pointer',fontSize:13,borderRadius:4}}>
+                        style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#FFFFFF',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         🌐 Message everyone
                       </button>
                       <div style={{padding:'4px 12px',fontSize:10,color:'#7A8499',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
@@ -3690,7 +3690,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                     }
                   }}
                   placeholder={chatMode==='private' && privateTarget ? `Private message to ${privateTarget.name}...` : 'Message everyone...'}
-                  style={{flex:1,background:'rgba(99,120,180,0.09)',border:`1px solid ${chatMode==='private'?'rgba(99,102,241,0.3)':'rgba(99,120,180,0.14)'}`,borderRadius:8,padding:'8px 10px',color:'#f2f3f5',fontSize:13,outline:'none'}} />
+                  style={{flex:1,background:'rgba(99,120,180,0.09)',border:`1px solid ${chatMode==='private'?'rgba(99,102,241,0.3)':'rgba(99,120,180,0.14)'}`,borderRadius:8,padding:'8px 10px',color:'#FFFFFF',fontSize:13,outline:'none'}} />
                 <button onClick={() => {
                   if (!inMeetingMsg.trim()) return;
                   const msg:any = {
@@ -3715,7 +3715,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.7)',zIndex:400,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
           <div style={{background:'#161C2A',borderRadius:16,border:'1px solid rgba(99,120,180,0.14)',width:'100%',maxWidth:460,padding:24,boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
-              <span style={{fontSize:16,fontWeight:700,color:'#f2f3f5'}}>Add people to meeting</span>
+              <span style={{fontSize:16,fontWeight:700,color:'#FFFFFF'}}>Add people to meeting</span>
               <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#7A8499',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
             </div>
 
@@ -3728,7 +3728,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
             {/* Search */}
             <input value={addPeopleSearch} onChange={e => setAddPeopleSearch(e.target.value)}
               placeholder="Search by name or email..."
-              style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'10px 12px',color:'#f2f3f5',fontSize:14,outline:'none',marginBottom:12,boxSizing:'border-box'}} />
+              style={{width:'100%',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'10px 12px',color:'#FFFFFF',fontSize:14,outline:'none',marginBottom:12,boxSizing:'border-box'}} />
 
             {/* Member list */}
             <div style={{maxHeight:240,overflowY:'auto',marginBottom:14}}>
@@ -3742,7 +3742,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser }: { orgMem
                       {m.display_name?.charAt(0) || '?'}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:14,color:'#f2f3f5',fontWeight:500}}>{m.display_name}</div>
+                      <div style={{fontSize:14,color:'#FFFFFF',fontWeight:500}}>{m.display_name}</div>
                       <div style={{fontSize:12,color:'#7A8499',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
                     </div>
                     <button onClick={() => {
