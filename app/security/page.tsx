@@ -110,7 +110,7 @@ export default function SecurityCenter() {
   const s = { card: { background:'#111827', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:24 } as React.CSSProperties };
 
   return (
-    <div style={{minHeight:'100vh',background:'#0d1117',color:'#f2f3f5',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div style={{minHeight:'100vh',background:'#0d1117',color:'#0F172A',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
       {/* Header */}
       <div style={{background:'#161b22',borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'16px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:16}}>
@@ -119,7 +119,7 @@ export default function SecurityCenter() {
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <span style={{fontSize:20}}>🛡️</span>
             <div>
-              <h1 style={{fontSize:18,fontWeight:700,margin:0,color:'#f2f3f5'}}>Security Center</h1>
+              <h1 style={{fontSize:18,fontWeight:700,margin:0,color:'#0F172A'}}>Security Center</h1>
               <p style={{fontSize:14,color:'#80848e',margin:0}}>Deemona Teams — Enterprise Security</p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function SecurityCenter() {
         {overview && (
           <div style={{display:'flex',alignItems:'center',gap:8,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:'8px 16px'}}>
             <div style={{width:8,height:8,borderRadius:'50%',background:THREAT_COLORS[overview.threat_level]}}/>
-            <span style={{fontSize:15,color:'#f2f3f5',fontWeight:600,textTransform:'capitalize'}}>{overview.threat_level} risk</span>
+            <span style={{fontSize:15,color:'#0F172A',fontWeight:600,textTransform:'capitalize'}}>{overview.threat_level} risk</span>
           </div>
         )}
       </div>
@@ -169,7 +169,7 @@ export default function SecurityCenter() {
 
             {/* Security checklist */}
             <div style={s.card}>
-              <h2 style={{fontSize:16,fontWeight:700,marginBottom:20,color:'#f2f3f5'}}>Security posture</h2>
+              <h2 style={{fontSize:16,fontWeight:700,marginBottom:20,color:'#0F172A'}}>Security posture</h2>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 {[
                   {label:'End-to-end encryption', status:true, detail:'Private chats, group DMs, meetings'},
@@ -202,7 +202,7 @@ export default function SecurityCenter() {
         {!loading && tab==='sessions' && (
           <div style={s.card}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
-              <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:0}}>Active sessions ({sessions.length})</h2>
+              <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',margin:0}}>Active sessions ({sessions.length})</h2>
               <button onClick={loadAll} style={{fontSize:14,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'6px 14px',cursor:'pointer'}}>Refresh</button>
             </div>
             {sessions.length === 0 ? (
@@ -218,7 +218,7 @@ export default function SecurityCenter() {
                       {s.display_name?.charAt(0)||'?'}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5'}}>{s.display_name}</div>
+                      <div style={{fontSize:14,fontWeight:600,color:'#0F172A'}}>{s.display_name}</div>
                       <div style={{fontSize:14,color:'#80848e'}}>{s.email} · {s.ip_address || 'Unknown IP'}</div>
                       <div style={{fontSize:15,color:'#6b7280',marginTop:2}}>{s.user_agent?.substring(0,60)}...</div>
                     </div>
@@ -241,7 +241,7 @@ export default function SecurityCenter() {
         {!loading && tab==='threats' && (
           <div>
             <div style={{...s.card,marginBottom:16}}>
-              <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Threat intelligence (last 7 days)</h2>
+              <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:16}}>Threat intelligence (last 7 days)</h2>
               {threats.length === 0 ? (
                 <div style={{textAlign:'center',color:'#4ade80',padding:32}}>
                   <div style={{fontSize:40,marginBottom:12}}>✅</div>
@@ -253,7 +253,7 @@ export default function SecurityCenter() {
                   <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:12,background:'rgba(237,66,69,0.05)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:10,marginBottom:8}}>
                     <span style={{fontSize:20}}>⚠️</span>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:15,fontWeight:600,color:'#f2f3f5'}}>{t.action?.replace(/_/g,' ').toUpperCase()}</div>
+                      <div style={{fontSize:15,fontWeight:600,color:'#0F172A'}}>{t.action?.replace(/_/g,' ').toUpperCase()}</div>
                       <div style={{fontSize:14,color:'#80848e'}}>IP: {t.ip || 'Unknown'} · Count: {t.count} · Last: {new Date(t.last_seen).toLocaleString('en-IN')}</div>
                     </div>
                     <span style={{fontSize:15,color:'#ed4245',background:'rgba(237,66,69,0.1)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>{t.count}x</span>
@@ -263,7 +263,7 @@ export default function SecurityCenter() {
             </div>
 
             <div style={s.card}>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Automated threat responses</h3>
+              <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Automated threat responses</h3>
               <div style={{display:'flex',flexDirection:'column',gap:10}}>
                 {[
                   {event:'5+ failed logins', action:'Auto-lock account for 30 minutes', active:true},
@@ -274,7 +274,7 @@ export default function SecurityCenter() {
                 ].map(r => (
                   <div key={r.event} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:12,background:'rgba(255,255,255,0.03)',borderRadius:10}}>
                     <div>
-                      <div style={{fontSize:15,color:'#f2f3f5',fontWeight:500}}>If: <span style={{color:'#f59e0b'}}>{r.event}</span></div>
+                      <div style={{fontSize:15,color:'#0F172A',fontWeight:500}}>If: <span style={{color:'#f59e0b'}}>{r.event}</span></div>
                       <div style={{fontSize:14,color:'#80848e'}}>Then: {r.action}</div>
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -292,11 +292,11 @@ export default function SecurityCenter() {
         {/* Conditional Access */}
         {!loading && tab==='access' && (
           <div style={s.card}>
-            <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:20}}>Conditional access policies</h2>
+            <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Conditional access policies</h2>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:24}}>
               {/* MFA */}
               <div style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-                <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5',marginBottom:12}}>🔐 Authentication</div>
+                <div style={{fontSize:14,fontWeight:600,color:'#0F172A',marginBottom:12}}>🔐 Authentication</div>
                 <label style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10,cursor:'pointer'}}>
                   <span style={{fontSize:15,color:'#d1d2d3'}}>Require MFA for all users</span>
                   <input type="checkbox" checked={caRules.requireMFA} onChange={e => setCaRules(r => ({...r,requireMFA:e.target.checked}))} className="accent-emerald-500" />
@@ -313,41 +313,41 @@ export default function SecurityCenter() {
 
               {/* Session */}
               <div style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-                <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5',marginBottom:12}}>⏱️ Session controls</div>
+                <div style={{fontSize:14,fontWeight:600,color:'#0F172A',marginBottom:12}}>⏱️ Session controls</div>
                 <div style={{marginBottom:12}}>
                   <label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Session timeout (hours)</label>
                   <input type="number" value={caRules.sessionTimeout} min={1} max={72}
                     onChange={e => setCaRules(r => ({...r,sessionTimeout:parseInt(e.target.value)}))}
-                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#f2f3f5',fontSize:15,outline:'none'}} />
+                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#0F172A',fontSize:15,outline:'none'}} />
                 </div>
                 <div style={{marginBottom:12}}>
                   <label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Max failed logins before lockout</label>
                   <input type="number" value={caRules.maxFailedLogins} min={3} max={20}
                     onChange={e => setCaRules(r => ({...r,maxFailedLogins:parseInt(e.target.value)}))}
-                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#f2f3f5',fontSize:15,outline:'none'}} />
+                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#0F172A',fontSize:15,outline:'none'}} />
                 </div>
                 <div>
                   <label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Lockout duration (minutes)</label>
                   <input type="number" value={caRules.lockoutDuration} min={5} max={1440}
                     onChange={e => setCaRules(r => ({...r,lockoutDuration:parseInt(e.target.value)}))}
-                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#f2f3f5',fontSize:15,outline:'none'}} />
+                    style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'6px 10px',color:'#0F172A',fontSize:15,outline:'none'}} />
                 </div>
               </div>
 
               {/* Geography */}
               <div style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-                <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5',marginBottom:12}}>🌍 Geographic restrictions</div>
+                <div style={{fontSize:14,fontWeight:600,color:'#0F172A',marginBottom:12}}>🌍 Geographic restrictions</div>
                 <label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:6}}>Allowed countries (ISO codes, comma-separated)</label>
                 <input value={caRules.allowedCountries.join(', ')}
                   onChange={e => setCaRules(r => ({...r,allowedCountries:e.target.value.split(',').map(s=>s.trim().toUpperCase()).filter(Boolean)}))}
                   placeholder="IN, US, GB, SG, AE"
-                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'8px 10px',color:'#f2f3f5',fontSize:15,outline:'none',boxSizing:'border-box'}} />
+                  style={{width:'100%',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:6,padding:'8px 10px',color:'#0F172A',fontSize:15,outline:'none',boxSizing:'border-box'}} />
                 <p style={{fontSize:15,color:'#6b7280',marginTop:6}}>Leave empty to allow all countries. IN=India, US=USA, GB=UK, SG=Singapore, AE=UAE</p>
               </div>
 
               {/* Device */}
               <div style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
-                <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5',marginBottom:12}}>📱 Device trust</div>
+                <div style={{fontSize:14,fontWeight:600,color:'#0F172A',marginBottom:12}}>📱 Device trust</div>
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',marginBottom:12}}>
                   <input type="checkbox" checked={caRules.requireDeviceTrust} onChange={e => setCaRules(r => ({...r,requireDeviceTrust:e.target.checked}))} className="accent-emerald-500" style={{marginTop:2}} />
                   <div>
@@ -374,7 +374,7 @@ export default function SecurityCenter() {
             <div style={{...s.card,marginBottom:16}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
                 <div>
-                  <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>End-to-end encryption</h2>
+                  <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',margin:'0 0 4px'}}>End-to-end encryption</h2>
                   <p style={{fontSize:15,color:'#80848e',margin:0}}>Messages encrypted using AES-256-GCM. Keys stored only on user devices.</p>
                 </div>
                 <label style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer'}}>
@@ -402,7 +402,7 @@ export default function SecurityCenter() {
                           className="accent-emerald-500" />
                         <span style={{fontSize:20}}>{item.icon}</span>
                         <div>
-                          <div style={{fontSize:15,fontWeight:600,color:'#f2f3f5'}}>{item.label}</div>
+                          <div style={{fontSize:15,fontWeight:600,color:'#0F172A'}}>{item.label}</div>
                           <div style={{fontSize:15,color:'#80848e'}}>{item.desc}</div>
                         </div>
                       </label>
@@ -413,7 +413,7 @@ export default function SecurityCenter() {
             </div>
 
             <div style={s.card}>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Encryption technical details</h3>
+              <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Encryption technical details</h3>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 {[
                   {label:'Message encryption', value:'AES-256-GCM'},
@@ -441,7 +441,7 @@ export default function SecurityCenter() {
             <div style={{...s.card,marginBottom:16}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
                 <div>
-                  <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>Hardware security keys & Passkeys</h2>
+                  <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',margin:'0 0 4px'}}>Hardware security keys & Passkeys</h2>
                   <p style={{fontSize:15,color:'#80848e',margin:0}}>FIDO2 / WebAuthn — phishing-resistant authentication</p>
                 </div>
                 <button onClick={registerPasskey}
@@ -453,7 +453,7 @@ export default function SecurityCenter() {
               {passkeys.length === 0 ? (
                 <div style={{textAlign:'center',padding:40,border:'2px dashed rgba(255,255,255,0.1)',borderRadius:12}}>
                   <div style={{fontSize:48,marginBottom:12}}>🗝️</div>
-                  <h3 style={{color:'#f2f3f5',marginBottom:8}}>No security keys registered</h3>
+                  <h3 style={{color:'#0F172A',marginBottom:8}}>No security keys registered</h3>
                   <p style={{color:'#80848e',fontSize:15,marginBottom:20,maxWidth:400,margin:'0 auto 20px'}}>
                     Add a hardware security key (YubiKey, Google Titan, etc.) or use your device's built-in passkey (Face ID, Touch ID, Windows Hello) for phishing-resistant login.
                   </p>
@@ -466,7 +466,7 @@ export default function SecurityCenter() {
                 <div key={i} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(255,255,255,0.03)',borderRadius:12,border:'1px solid rgba(255,255,255,0.08)',marginBottom:8}}>
                   <span style={{fontSize:28}}>🗝️</span>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5'}}>{pk.device_name}</div>
+                    <div style={{fontSize:14,fontWeight:600,color:'#0F172A'}}>{pk.device_name}</div>
                     <div style={{fontSize:14,color:'#80848e'}}>Registered: {new Date(pk.created_at).toLocaleDateString('en-IN')}
                       {pk.last_used_at && ` · Last used: ${new Date(pk.last_used_at).toLocaleDateString('en-IN')}`}
                     </div>
@@ -485,7 +485,7 @@ export default function SecurityCenter() {
             </div>
 
             <div style={s.card}>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Supported authenticators</h3>
+              <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Supported authenticators</h3>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
                 {[
                   {name:'YubiKey 5', icon:'🔑', type:'Hardware FIDO2', support:'Full'},
@@ -500,7 +500,7 @@ export default function SecurityCenter() {
                 ].map(a => (
                   <div key={a.name} style={{padding:14,background:'rgba(255,255,255,0.03)',borderRadius:10,border:'1px solid rgba(255,255,255,0.06)'}}>
                     <div style={{fontSize:20,marginBottom:6}}>{a.icon}</div>
-                    <div style={{fontSize:15,fontWeight:600,color:'#f2f3f5'}}>{a.name}</div>
+                    <div style={{fontSize:15,fontWeight:600,color:'#0F172A'}}>{a.name}</div>
                     <div style={{fontSize:15,color:'#80848e',marginTop:2}}>{a.type}</div>
                     <span style={{fontSize:14,color: a.support==='Full'?'#4ade80':'#f59e0b',background: a.support==='Full'?'rgba(74,222,128,0.1)':'rgba(245,158,11,0.1)',padding:'1px 6px',borderRadius:20,marginTop:4,display:'inline-block'}}>{a.support}</span>
                   </div>

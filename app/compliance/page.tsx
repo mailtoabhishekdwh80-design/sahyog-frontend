@@ -118,11 +118,11 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
   const s = {
     card: { background:'#111827', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:24 } as React.CSSProperties,
-    input: { width:'100%', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 12px', color:'#f2f3f5', fontSize:14, outline:'none', boxSizing:'border-box' } as React.CSSProperties,
+    input: { width:'100%', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 12px', color:'#0F172A', fontSize:14, outline:'none', boxSizing:'border-box' } as React.CSSProperties,
   };
 
   return (
-    <div style={{minHeight:'100vh',background:'#0d1117',color:'#f2f3f5',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div style={{minHeight:'100vh',background:'#0d1117',color:'#0F172A',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
       {/* Header */}
       <div style={{background:'#161b22',borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'16px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:16}}>
@@ -138,7 +138,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         </div>
         <div style={{display:'flex',gap:8}}>
           <button onClick={() => generateReport('soc2')} disabled={reportGenerating}
-            style={{fontSize:14,color:'#f2f3f5',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600}}>
+            style={{fontSize:14,color:'#0F172A',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600}}>
             {reportGenerating ? '⏳ Generating...' : '📄 Export report'}
           </button>
         </div>
@@ -173,7 +173,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                 <div key={m.label} style={{...s.card,textAlign:'center'}}>
                   <div style={{fontSize:28,marginBottom:8}}>{m.icon}</div>
                   <div style={{fontSize:28,fontWeight:700,color:m.color}}>{m.value}</div>
-                  <div style={{fontSize:15,color:'#f2f3f5',fontWeight:600,marginTop:4}}>{m.label}</div>
+                  <div style={{fontSize:15,color:'#0F172A',fontWeight:600,marginTop:4}}>{m.label}</div>
                   <div style={{fontSize:15,color:'#80848e',marginTop:2}}>{m.sub}</div>
                 </div>
               ))}
@@ -181,7 +181,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
             {/* Compliance frameworks */}
             <div style={{...s.card,marginBottom:16}}>
-              <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:20}}>Compliance frameworks</h2>
+              <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Compliance frameworks</h2>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
                 {[
                   {name:'DPDP Act 2023', region:'🇮🇳 India', score:94, status:'Compliant', color:'#4ade80', items:['Privacy policy', 'Consent at signup', 'Data erasure', 'DPDP nominee', 'Grievance officer']},
@@ -194,7 +194,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   <div key={fw.name} style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:`1px solid rgba(255,255,255,0.08)`}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
                       <div>
-                        <div style={{fontSize:14,fontWeight:700,color:'#f2f3f5'}}>{fw.name}</div>
+                        <div style={{fontSize:14,fontWeight:700,color:'#0F172A'}}>{fw.name}</div>
                         <div style={{fontSize:15,color:'#80848e'}}>{fw.region}</div>
                       </div>
                       <div style={{textAlign:'right'}}>
@@ -215,7 +215,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
             {/* Quick actions */}
             <div style={s.card}>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Compliance quick actions</h3>
+              <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Compliance quick actions</h3>
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
                 {[
                   {icon:'📄', label:'SOC2 report', action:() => generateReport('soc2')},
@@ -271,7 +271,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   <span style={{fontSize:15,color:'#80848e',fontFamily:'monospace',flexShrink:0,width:48,fontWeight:700}}>{control.id}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
-                      <span style={{fontSize:15,fontWeight:600,color:'#f2f3f5'}}>{control.name}</span>
+                      <span style={{fontSize:15,fontWeight:600,color:'#0F172A'}}>{control.name}</span>
                       <span style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'1px 6px',borderRadius:20}}>{control.category}</span>
                       {control.auto && <span style={{fontSize:14,color:'#3b82f6',background:'rgba(59,130,246,0.1)',padding:'1px 6px',borderRadius:20}}>Auto-collected</span>}
                     </div>
@@ -293,7 +293,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
           <div>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
               <div>
-                <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',margin:'0 0 4px'}}>Legal hold & eDiscovery</h2>
+                <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',margin:'0 0 4px'}}>Legal hold & eDiscovery</h2>
                 <p style={{fontSize:15,color:'#80848e',margin:0}}>Preserve messages, files, and communications for legal proceedings</p>
               </div>
               <button onClick={() => setShowNewHold(true)}
@@ -304,7 +304,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
             {showNewHold && (
               <div style={{...s.card,marginBottom:16,border:'1px solid rgba(74,222,128,0.3)'}}>
-                <h3 style={{fontSize:14,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Create new legal hold</h3>
+                <h3 style={{fontSize:14,fontWeight:700,color:'#0F172A',marginBottom:16}}>Create new legal hold</h3>
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
                   <div>
                     <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Hold name *</label>
@@ -339,7 +339,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:12}}>
                     <div>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{hold.name}</span>
+                        <span style={{fontSize:15,fontWeight:700,color:'#0F172A'}}>{hold.name}</span>
                         <span style={{fontSize:14,color: hold.status==='active'?'#ed4245':'#80848e',background: hold.status==='active'?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>
                           {hold.status==='active' ? '🔴 ACTIVE HOLD' : '✅ Released'}
                         </span>
@@ -387,7 +387,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         {tab==='residency' && (
           <div>
             <div style={{...s.card,marginBottom:16}}>
-              <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:8}}>Data residency controls</h2>
+              <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:8}}>Data residency controls</h2>
               <p style={{fontSize:15,color:'#80848e',marginBottom:20}}>Control where your organisation's data is stored and processed. Active regions are live. Planned regions require Enterprise plan.</p>
               <div style={{display:'flex',flexDirection:'column',gap:12}}>
                 {DATA_RESIDENCY_REGIONS.map(region => (
@@ -397,7 +397,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                     <span style={{fontSize:32,flexShrink:0}}>{region.flag}</span>
                     <div style={{flex:1}}>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-                        <span style={{fontSize:15,fontWeight:700,color:'#f2f3f5'}}>{region.name}</span>
+                        <span style={{fontSize:15,fontWeight:700,color:'#0F172A'}}>{region.name}</span>
                         <span style={{fontSize:14,fontWeight:600,padding:'2px 8px',borderRadius:20,
                           background: region.status==='active'?'rgba(74,222,128,0.1)':'rgba(255,255,255,0.06)',
                           color: region.status==='active'?'#4ade80':'#80848e'}}>
@@ -426,7 +426,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             </div>
 
             <div style={s.card}>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#f2f3f5',marginBottom:16}}>Data flow diagram</h3>
+              <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Data flow diagram</h3>
               <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:24,background:'rgba(255,255,255,0.02)',borderRadius:12,flexWrap:'wrap'}}>
                 {['User browser','→','Cloudflare CDN (Global)','→','Render Singapore','→','PostgreSQL Singapore','→','Cloudflare R2 (Files)'].map((item,i) => (
                   <span key={i} style={{fontSize:15,color: item==='→'?'#80848e':'#f2f3f5',background: item==='→'?'none':'rgba(255,255,255,0.06)',padding: item==='→'?'0':'6px 12px',borderRadius: item==='→'?0:8,fontWeight: item==='→'?400:500}}>
@@ -454,7 +454,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         {/* Reports */}
         {tab==='reports' && (
           <div style={s.card}>
-            <h2 style={{fontSize:16,fontWeight:700,color:'#f2f3f5',marginBottom:20}}>Compliance reports</h2>
+            <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Compliance reports</h2>
             <div style={{display:'flex',flexDirection:'column',gap:12}}>
               {[
                 {name:'SOC2 Type II Readiness Report', desc:'Full assessment of all 22 Trust Service Criteria controls with evidence', icon:'🏆', type:'soc2'},
@@ -469,7 +469,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                 <div key={report.name} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(255,255,255,0.03)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
                   <span style={{fontSize:28,flexShrink:0}}>{report.icon}</span>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:14,fontWeight:600,color:'#f2f3f5'}}>{report.name}</div>
+                    <div style={{fontSize:14,fontWeight:600,color:'#0F172A'}}>{report.name}</div>
                     <div style={{fontSize:14,color:'#80848e',marginTop:2}}>{report.desc}</div>
                   </div>
                   <button onClick={() => generateReport(report.type)} disabled={reportGenerating}

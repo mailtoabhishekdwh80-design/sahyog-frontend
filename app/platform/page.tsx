@@ -76,7 +76,7 @@ export default function PlatformAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-gray-500 text-base">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-500 text-base">
         Loading platform overview...
       </div>
     );
@@ -84,7 +84,7 @@ export default function PlatformAdminPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="bg-red-900/20 border border-red-800 rounded-2xl p-6 max-w-md text-center">
           <div className="text-3xl mb-3">🔒</div>
           <p className="text-red-300 text-base">{error}</p>
@@ -95,13 +95,13 @@ export default function PlatformAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <div className="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">Platform Overview</h1>
+          <h1 className="text-xl font-bold text-gray-900">Platform Overview</h1>
           <p className="text-base text-gray-500 mt-0.5">All organisations on this deployment — visible only to the platform operator</p>
         </div>
-        <a href="/admin" className="text-base text-gray-400 hover:text-white">← Back to my workspace admin</a>
+        <a href="/admin" className="text-base text-gray-600 hover:text-gray-900">← Back to my workspace admin</a>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
@@ -114,8 +114,8 @@ export default function PlatformAdminPage() {
               { label: 'Messages sent', value: overview.total_messages },
               { label: 'Meetings held', value: overview.total_meetings },
             ].map(s => (
-              <div key={s.label} className="bg-gray-900 rounded-xl border border-gray-800 p-4">
-                <div className="text-2xl font-bold text-white">{s.value?.toLocaleString?.() ?? s.value}</div>
+              <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
+                <div className="text-2xl font-bold text-gray-900">{s.value?.toLocaleString?.() ?? s.value}</div>
                 <div className="text-base text-gray-500 mt-1">{s.label}</div>
               </div>
             ))}
@@ -124,8 +124,8 @@ export default function PlatformAdminPage() {
 
         {/* Organisations table */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white">Organisations ({orgs.length})</h2>
-          <button onClick={loadAll} className="text-base text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800">↻ Refresh</button>
+          <h2 className="text-lg font-semibold text-gray-900">Organisations ({orgs.length})</h2>
+          <button onClick={loadAll} className="text-base text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100">↻ Refresh</button>
         </div>
 
         <div className="space-y-3">
@@ -133,19 +133,19 @@ export default function PlatformAdminPage() {
             <p className="text-gray-600 text-base text-center py-8">No organisations found yet.</p>
           )}
           {orgs.map(org => (
-            <div key={org.id} className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <div key={org.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <button onClick={() => toggleOrgMembers(org.id)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-800/50 text-left">
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100/50 text-left">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-base font-bold text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-base font-bold text-gray-900 shrink-0">
                     {org.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-base font-semibold text-white truncate">{org.name}</div>
+                    <div className="text-base font-semibold text-gray-900 truncate">{org.name}</div>
                     <div className="text-base text-gray-500">/{org.slug} · {org.plan} · {org.data_region}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 text-base text-gray-400 shrink-0">
+                <div className="flex items-center gap-4 text-base text-gray-600 shrink-0">
                   <span>{org.member_count} member{org.member_count !== 1 ? 's' : ''}</span>
                   <span>{org.channel_count} channel{org.channel_count !== 1 ? 's' : ''}</span>
                   <span>{org.board_count} board{org.board_count !== 1 ? 's' : ''}</span>
@@ -155,28 +155,28 @@ export default function PlatformAdminPage() {
               </button>
 
               {expandedOrgId === org.id && (
-                <div className="border-t border-gray-800 px-4 py-3 bg-gray-950/50">
+                <div className="border-t border-gray-200 px-4 py-3 bg-gray-50/50">
                   {org.owner_email && (
-                    <p className="text-base text-gray-500 mb-3">Owner: <span className="text-gray-300">{org.owner_email}</span></p>
+                    <p className="text-base text-gray-500 mb-3">Owner: <span className="text-gray-700">{org.owner_email}</span></p>
                   )}
                   {loadingMembers === org.id ? (
                     <p className="text-base text-gray-600">Loading members...</p>
                   ) : (
                     <div className="space-y-1.5">
                       {(orgMembers[org.id] || []).map(m => (
-                        <div key={m.id} className="flex items-center justify-between text-base py-1.5 border-b border-gray-900 last:border-0">
+                        <div key={m.id} className="flex items-center justify-between text-base py-1.5 border-b border-gray-100 last:border-0">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-900 shrink-0">
                               {m.display_name?.charAt(0) || '?'}
                             </div>
-                            <span className="text-gray-200 truncate">{m.display_name}</span>
+                            <span className="text-gray-800 truncate">{m.display_name}</span>
                             <span className="text-gray-600 truncate">{m.email}</span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
                             {(m.roles || []).map(r => (
-                              <span key={r} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400">{r}</span>
+                              <span key={r} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{r}</span>
                             ))}
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-800 text-gray-500'}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-100 text-gray-500'}`}>
                               {m.status}
                             </span>
                           </div>

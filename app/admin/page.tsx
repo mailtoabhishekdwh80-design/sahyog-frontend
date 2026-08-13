@@ -63,22 +63,22 @@ export default function AdminPage() {
 
   function StatCard({ label, value, sub, color }: { label: string; value: number | string; sub?: string; color: string }) {
     return (
-      <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
+      <div className="bg-white rounded-xl p-5 border border-gray-200">
         <div className={`text-3xl font-bold ${color}`}>{value}</div>
-        <div className="text-gray-300 text-base font-medium mt-1">{label}</div>
+        <div className="text-gray-700 text-base font-medium mt-1">{label}</div>
         {sub && <div className="text-gray-500 text-base mt-0.5">{sub}</div>}
       </div>
     );
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-emerald-400 animate-pulse">Loading admin dashboard...</div>
     </div>
   );
 
   if (error) return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="text-red-400 text-lg mb-2">⚠️ {error}</div>
         <a href="/workspace" className="text-emerald-400 hover:text-emerald-300 text-base">← Back to workspace</a>
@@ -87,30 +87,30 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
-      <div className="border-b border-gray-800 bg-gray-900 px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-gray-200 bg-white px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-base">S</div>
           <div>
-            <div className="font-semibold text-white">Deemona Teams Admin</div>
+            <div className="font-semibold text-gray-900">Deemona Teams Admin</div>
             <div className="text-base text-gray-500">Organization dashboard</div>
           </div>
         </div>
-        <a href="/workspace" className="text-base text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+        <a href="/workspace" className="text-base text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1">
           ← Back to workspace
         </a>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Tabs */}
-        <div className="flex gap-1 mb-8 bg-gray-900 rounded-xl p-1 border border-gray-800 w-fit">
+        <div className="flex gap-1 mb-8 bg-white rounded-xl p-1 border border-gray-200 w-fit">
           {(['overview', 'members', 'audit', 'roles', 'security', 'compliance'] as const).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); if (t === 'audit') loadAudit(); }}
               className={`px-4 py-2 rounded-lg text-base font-medium capitalize transition-colors ${
-                tab === t ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white'
+                tab === t ? 'bg-emerald-700 text-gray-900' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               {t === 'overview' ? 'Overview' : t === 'members' ? 'Members' : t === 'audit' ? 'Audit Log' : t === 'roles' ? 'Roles' : t === 'security' ? 'Security' : 'Compliance'}
@@ -123,8 +123,8 @@ export default function AdminPage() {
         {tab === 'overview' && (
           <div className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700/30 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div>
-              <p className="text-base font-semibold text-white">Seed demo data</p>
-              <p className="text-base text-gray-400 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
+              <p className="text-base font-semibold text-gray-900">Seed demo data</p>
+              <p className="text-base text-gray-600 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
             </div>
             <button onClick={async () => {
               if (!confirm('This will add demo channels, messages, and boards to your workspace. Continue?')) return;
@@ -139,7 +139,7 @@ export default function AdminPage() {
               } else {
                 alert(data.error || 'Failed to seed demo data');
               }
-            }} className="bg-emerald-700 hover:bg-emerald-600 text-white text-base px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4">
+            }} className="bg-emerald-700 hover:bg-emerald-600 text-gray-900 text-base px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4">
               🌱 Seed demo data
             </button>
           </div>
@@ -148,7 +148,7 @@ export default function AdminPage() {
         {tab === 'overview' && stats && (
           <div className="space-y-8">
             <div>
-              <h2 className="text-lg font-semibold text-white mb-4">Organization stats</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Organization stats</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard label="Total users"     value={stats.users?.total || 0}     sub={`${stats.users?.active || 0} active`}    color="text-emerald-400" />
                 <StatCard label="Workspaces"      value={stats.workspaces?.total || 0} sub="across org"                              color="text-blue-400" />
@@ -159,8 +159,8 @@ export default function AdminPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* User breakdown */}
-              <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <h3 className="text-base font-semibold text-gray-300 mb-4">User breakdown</h3>
+              <div className="bg-white rounded-xl p-5 border border-gray-200">
+                <h3 className="text-base font-semibold text-gray-700 mb-4">User breakdown</h3>
                 <div className="space-y-3">
                   {[
                     { label: 'Active members', value: stats.users?.active || 0,  color: 'bg-emerald-500' },
@@ -170,17 +170,17 @@ export default function AdminPage() {
                     <div key={row.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${row.color}`} />
-                        <span className="text-base text-gray-300">{row.label}</span>
+                        <span className="text-base text-gray-700">{row.label}</span>
                       </div>
-                      <span className="text-base font-semibold text-white">{row.value}</span>
+                      <span className="text-base font-semibold text-gray-900">{row.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Channel breakdown */}
-              <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <h3 className="text-base font-semibold text-gray-300 mb-4">Channel breakdown</h3>
+              <div className="bg-white rounded-xl p-5 border border-gray-200">
+                <h3 className="text-base font-semibold text-gray-700 mb-4">Channel breakdown</h3>
                 <div className="space-y-3">
                   {[
                     { label: 'Public channels',  value: stats.channels?.public || 0,  color: 'bg-emerald-500' },
@@ -190,9 +190,9 @@ export default function AdminPage() {
                     <div key={row.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${row.color}`} />
-                        <span className="text-base text-gray-300">{row.label}</span>
+                        <span className="text-base text-gray-700">{row.label}</span>
                       </div>
-                      <span className="text-base font-semibold text-white">{row.value}</span>
+                      <span className="text-base font-semibold text-gray-900">{row.value}</span>
                     </div>
                   ))}
                 </div>
@@ -200,12 +200,12 @@ export default function AdminPage() {
             </div>
 
             {/* Storage */}
-            <div className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-              <h3 className="text-base font-semibold text-gray-300 mb-2">Storage used</h3>
-              <div className="text-2xl font-bold text-white">
+            <div className="bg-white rounded-xl p-5 border border-gray-200">
+              <h3 className="text-base font-semibold text-gray-700 mb-2">Storage used</h3>
+              <div className="text-2xl font-bold text-gray-900">
                 {((stats.storage?.total_mb || 0) / 1024).toFixed(2)} GB
               </div>
-              <div className="mt-3 bg-gray-800 rounded-full h-2">
+              <div className="mt-3 bg-gray-100 rounded-full h-2">
                 <div
                   className="bg-emerald-500 h-2 rounded-full transition-all"
                   style={{ width: `${Math.min(100, ((stats.storage?.total_mb || 0) / 10240) * 100)}%` }}
@@ -220,7 +220,7 @@ export default function AdminPage() {
         {tab === 'members' && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">Members ({members.length})</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Members ({members.length})</h2>
               <div className="flex gap-2">
                 <button onClick={async () => {
                     setLastInviteLink(''); setInviteMode('specific'); setShowInviteModal(true);
@@ -235,12 +235,12 @@ export default function AdminPage() {
                     } catch {}
                     setPersistentLoading(false);
                   }}
-                  className="text-base bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-lg font-medium">
+                  className="text-base bg-emerald-700 hover:bg-emerald-600 text-gray-900 px-4 py-1.5 rounded-lg font-medium">
                   + Invite member
                 </button>
                 <button
                   onClick={loadData}
-                  className="text-base text-gray-500 hover:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
+                  className="text-base text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   ↻ Refresh
                 </button>
@@ -251,18 +251,18 @@ export default function AdminPage() {
             {showInviteModal && (
               <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
                 onClick={e => { if(e.target===e.currentTarget) setShowInviteModal(false); }}>
-                <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-5">
+                <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-white font-semibold">Invite team member</span>
-                    <button onClick={() => setShowInviteModal(false)} className="text-gray-500 hover:text-white text-xl leading-none">×</button>
+                    <span className="text-gray-900 font-semibold">Invite team member</span>
+                    <button onClick={() => setShowInviteModal(false)} className="text-gray-500 hover:text-gray-900 text-xl leading-none">×</button>
                   </div>
                   <div className="mb-4 flex gap-2">
                     <button type="button" onClick={() => setInviteMode('specific')}
-                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='specific' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='specific' ? 'bg-emerald-700 border-emerald-600 text-gray-900' : 'bg-gray-100 border-gray-200 text-gray-600'}`}>
                       Invite one person
                     </button>
                     <button type="button" onClick={() => setInviteMode('team')}
-                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='team' ? 'bg-emerald-700 border-emerald-600 text-white' : 'bg-gray-800 border-gray-700 text-gray-400'}`}>
+                      className={`flex-1 text-base py-2 rounded-lg border ${inviteMode==='team' ? 'bg-emerald-700 border-emerald-600 text-gray-900' : 'bg-gray-100 border-gray-200 text-gray-600'}`}>
                       Generate team link
                     </button>
                   </div>
@@ -272,17 +272,17 @@ export default function AdminPage() {
                       <label className="text-base text-gray-500 block mb-1.5">Email address</label>
                       <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
                         placeholder="colleague@company.com" type="email"
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-base outline-none focus:border-emerald-500" />
+                        className="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-base outline-none focus:border-emerald-500" />
                     </div>
                   ) : (
-                    <div className="mb-4 bg-gray-800/60 border border-gray-700 rounded-lg p-3">
-                      <p className="text-base text-gray-400">Anyone with this link can join your workspace — no specific email required. Useful for quickly onboarding several teammates at once. The link stays active for 30 days unless you revoke it.</p>
+                    <div className="mb-4 bg-gray-100/60 border border-gray-200 rounded-lg p-3">
+                      <p className="text-base text-gray-600">Anyone with this link can join your workspace — no specific email required. Useful for quickly onboarding several teammates at once. The link stays active for 30 days unless you revoke it.</p>
                     </div>
                   )}
                   <div className="mb-4">
                     <label className="text-base text-gray-500 block mb-1.5">Role</label>
                     <select value={inviteRole} onChange={e => setInviteRole(e.target.value)}
-                      className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-base outline-none focus:border-emerald-500">
+                      className="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-base outline-none focus:border-emerald-500">
                       <option value="member">Member</option>
                       <option value="admin">Admin</option>
                       <option value="guest">Guest</option>
@@ -316,7 +316,7 @@ export default function AdminPage() {
                     }
                     setInviting(false);
                   }} disabled={inviting}
-                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white py-2.5 rounded-lg text-base font-medium mb-3">
+                    className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-gray-900 py-2.5 rounded-lg text-base font-medium mb-3">
                     {inviting ? 'Creating invite...' : inviteMode === 'team' ? 'Generate link' : 'Send invite'}
                   </button>
 
@@ -327,9 +327,9 @@ export default function AdminPage() {
                       </p>
                       <div className="flex gap-2">
                         <input readOnly value={lastInviteLink}
-                          className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-emerald-200 text-base outline-none" />
+                          className="flex-1 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-emerald-200 text-base outline-none" />
                         <button onClick={() => { navigator.clipboard.writeText(lastInviteLink); alert('Link copied!'); }}
-                          className="text-base bg-emerald-800 hover:bg-emerald-700 text-white px-3 rounded-lg shrink-0">Copy</button>
+                          className="text-base bg-emerald-800 hover:bg-emerald-700 text-gray-900 px-3 rounded-lg shrink-0">Copy</button>
                       </div>
                       <p className="text-base text-gray-500 mt-2">
                         {inviteMode === 'team' ? 'This link expires in 30 days and can be used by multiple people.' : 'This link expires in 30 days and can only be used once.'}
@@ -338,7 +338,7 @@ export default function AdminPage() {
                   )}
 
                   {/* Permanent workspace join link — same as Slack's invite link / Trello's "anyone with this link" */}
-                  <div className="border-t border-gray-800 pt-4">
+                  <div className="border-t border-gray-200 pt-4">
                     <p className="text-base text-gray-500 mb-1.5 font-medium">Or use your standing workspace link</p>
                     <p className="text-base text-gray-600 mb-2">Never expires, works for anyone, until you turn it off or regenerate it.</p>
                     {persistentLoading ? (
@@ -347,10 +347,10 @@ export default function AdminPage() {
                       <>
                         <div className="flex gap-2 mb-2">
                           <input readOnly value={persistentLink.join_url}
-                            className={`flex-1 border rounded-lg px-3 py-2 text-base outline-none ${persistentLink.enabled ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-gray-800/50 border-gray-800 text-gray-600'}`} />
+                            className={`flex-1 border rounded-lg px-3 py-2 text-base outline-none ${persistentLink.enabled ? 'bg-gray-100 border-gray-200 text-gray-700' : 'bg-gray-100/50 border-gray-200 text-gray-600'}`} />
                           <button onClick={() => { navigator.clipboard.writeText(persistentLink.join_url); alert('Link copied!'); }}
                             disabled={!persistentLink.enabled}
-                            className="text-base bg-gray-700 hover:bg-gray-600 disabled:opacity-40 text-white px-3 rounded-lg shrink-0">Copy</button>
+                            className="text-base bg-gray-200 hover:bg-gray-200 disabled:opacity-40 text-gray-900 px-3 rounded-lg shrink-0">Copy</button>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={async () => {
@@ -373,7 +373,7 @@ export default function AdminPage() {
                             });
                             const data = await res.json();
                             if (data?.data) setPersistentLink(data.data);
-                          }} className="flex-1 text-base py-1.5 rounded-lg border bg-gray-800 border-gray-700 text-gray-400 hover:text-white">
+                          }} className="flex-1 text-base py-1.5 rounded-lg border bg-gray-100 border-gray-200 text-gray-600 hover:text-gray-900">
                             Regenerate
                           </button>
                         </div>
@@ -385,10 +385,10 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-800">
+                  <tr className="border-b border-gray-200">
                     <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Name</th>
                     <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Email</th>
                     <th className="text-left text-base text-gray-500 px-4 py-3 font-medium">Role</th>
@@ -398,28 +398,28 @@ export default function AdminPage() {
                 </thead>
                 <tbody>
                   {members.map((m, i) => (
-                    <tr key={m.id} className={`border-b border-gray-800/50 hover:bg-gray-800/30 ${i === members.length - 1 ? 'border-0' : ''}`}>
+                    <tr key={m.id} className={`border-b border-gray-200/50 hover:bg-gray-100/30 ${i === members.length - 1 ? 'border-0' : ''}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-base font-bold">
                             {m.display_name?.charAt(0) || '?'}
                           </div>
-                          <span className="text-base text-white font-medium">{m.display_name}</span>
+                          <span className="text-base text-gray-900 font-medium">{m.display_name}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-base text-gray-400">{m.email}</td>
+                      <td className="px-4 py-3 text-base text-gray-600">{m.email}</td>
                       <td className="px-4 py-3">
                         <span className={`text-base px-2 py-0.5 rounded-full font-medium ${
                           m.roles?.includes('owner') ? 'bg-emerald-900 text-emerald-300' :
                           m.roles?.includes('admin') ? 'bg-blue-900 text-blue-300' :
-                          'bg-gray-800 text-gray-400'
+                          'bg-gray-100 text-gray-600'
                         }`}>
                           {m.roles?.[0] || 'member'}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-base px-2 py-0.5 rounded-full ${
-                          m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-800 text-gray-500'
+                          m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-100 text-gray-500'
                         }`}>
                           {m.status}
                         </span>
@@ -438,23 +438,23 @@ export default function AdminPage() {
         {/* Audit log tab */}
         {tab === 'roles' && (
           <div className="space-y-4">
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
-              <h3 className="text-white font-semibold mb-4">Role-based permissions</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <h3 className="text-gray-900 font-semibold mb-4">Role-based permissions</h3>
               <div className="space-y-3">
                 {[
                   { role: 'Owner', color: 'text-yellow-400', perms: ['All permissions', 'Billing', 'Delete workspace', 'Manage SSO'] },
                   { role: 'Admin', color: 'text-blue-400', perms: ['Manage members', 'Create channels', 'Manage boards', 'View audit log'] },
                   { role: 'Member', color: 'text-emerald-400', perms: ['Send messages', 'Create boards', 'Join channels', 'Upload files'] },
-                  { role: 'Guest', color: 'text-gray-400', perms: ['View assigned channels', 'Send messages', 'View files'] },
+                  { role: 'Guest', color: 'text-gray-600', perms: ['View assigned channels', 'Send messages', 'View files'] },
                 ].map(r => (
-                  <div key={r.role} className="bg-gray-800 rounded-xl p-4">
+                  <div key={r.role} className="bg-gray-100 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <div className={`text-base font-semibold ${r.color}`}>{r.role}</div>
-                      {r.role !== 'Owner' && <button onClick={() => alert('Custom permissions for ' + r.role + ' role coming in Enterprise plan.')} className="text-base text-gray-500 hover:text-gray-300">Edit</button>}
+                      {r.role !== 'Owner' && <button onClick={() => alert('Custom permissions for ' + r.role + ' role coming in Enterprise plan.')} className="text-base text-gray-500 hover:text-gray-700">Edit</button>}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {r.perms.map(p => (
-                        <span key={p} className="text-base bg-gray-700 text-gray-300 px-2 py-1 rounded cursor-default" title={p}>{p}</span>
+                        <span key={p} className="text-base bg-gray-200 text-gray-700 px-2 py-1 rounded cursor-default" title={p}>{p}</span>
                       ))}
                     </div>
                   </div>
@@ -466,8 +466,8 @@ export default function AdminPage() {
 
         {tab === 'security' && (
           <div className="space-y-4">
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
-              <h3 className="text-white font-semibold">Security settings</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+              <h3 className="text-gray-900 font-semibold">Security settings</h3>
               {[
                 { label: 'SSO / SAML 2.0', desc: 'Enterprise single sign-on via SAML', badge: 'Enterprise', action: 'Configure SSO', onClick: () => alert('SSO/SAML requires Enterprise plan. Contact sales@deemona.com to upgrade.') },
                 { label: 'IP allowlist', desc: 'Restrict access to specific IP ranges', badge: 'Enterprise', action: 'Add IP range', onClick: () => { const ip = prompt('Enter IP range to allow (e.g. 192.168.1.0/24):'); if(ip) alert('IP range ' + ip + ' added to allowlist. Changes take effect immediately.'); } },
@@ -475,15 +475,15 @@ export default function AdminPage() {
                 { label: 'Session management', desc: 'View and revoke active sessions', badge: 'Admin', action: 'View sessions', onClick: () => { window.open('/admin?tab=sessions', '_blank'); alert('Session management: Currently ' + Math.floor(Math.random()*5+1) + ' active sessions. Contact support to revoke specific sessions.'); } },
                 { label: 'Password policy', desc: 'Minimum length, complexity requirements', badge: 'Admin', action: 'Configure', onClick: () => { const len = prompt('Minimum password length (current: 8):', '8'); if(len) alert('Password policy updated: minimum ' + len + ' characters required.'); } },
               ].map(s => (
-                <div key={s.label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+                <div key={s.label} className="flex items-center justify-between py-3 border-b border-gray-200 last:border-0">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-medium text-white">{s.label}</span>
+                      <span className="text-base font-medium text-gray-900">{s.label}</span>
                       <span className={`text-base px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-900/50 text-purple-400':'bg-blue-900/50 text-blue-400'}`}>{s.badge}</span>
                     </div>
                     <div className="text-base text-gray-500 mt-0.5">{s.desc}</div>
                   </div>
-                  <button onClick={s.onClick} className="text-base bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg transition-colors">{s.action}</button>
+                  <button onClick={s.onClick} className="text-base bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition-colors">{s.action}</button>
                 </div>
               ))}
             </div>
@@ -492,8 +492,8 @@ export default function AdminPage() {
 
         {tab === 'compliance' && (
           <div className="space-y-4">
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5 space-y-4">
-              <h3 className="text-white font-semibold">GDPR / DPDP Compliance</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+              <h3 className="text-gray-900 font-semibold">GDPR / DPDP Compliance</h3>
               <p className="text-gray-500 text-base">India DPDP Act 2023 and GDPR compliance tools</p>
               {[
                 { label: 'Export workspace data', desc: 'Download all messages, files, and user data as JSON/CSV', icon: '📤', action: async () => {
@@ -522,11 +522,11 @@ export default function AdminPage() {
                   alert('DPDP Act 2023 Nominee Report:\n\nData Fiduciary: Deemona Technologies\nNominee: Admin\nLast reviewed: ' + new Date().toLocaleDateString('en-IN') + '\n\nCompliance status: Active');
                 } },
               ].map(item => (
-                <div key={item.label} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+                <div key={item.label} className="flex items-center justify-between py-3 border-b border-gray-200 last:border-0">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{item.icon}</span>
                     <div>
-                      <div className="text-base font-medium text-white">{item.label}</div>
+                      <div className="text-base font-medium text-gray-900">{item.label}</div>
                       <div className="text-base text-gray-500 mt-0.5">{item.desc}</div>
                     </div>
                   </div>
@@ -534,8 +534,8 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
-            <div className="bg-gray-900 rounded-2xl border border-gray-800 p-5">
-              <h3 className="text-white font-semibold mb-3">Compliance status</h3>
+            <div className="bg-white rounded-2xl border border-gray-200 p-5">
+              <h3 className="text-gray-900 font-semibold mb-3">Compliance status</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { name: 'DPDP Act 2023', status: 'Compliant', ok: true },
@@ -543,10 +543,10 @@ export default function AdminPage() {
                   { name: 'ISO 27001', status: 'In progress', ok: false },
                   { name: 'SOC 2 Type II', status: 'Enterprise only', ok: false },
                 ].map(c => (
-                  <div key={c.name} className="bg-gray-800 rounded-xl p-3 flex items-center gap-3">
+                  <div key={c.name} className="bg-gray-100 rounded-xl p-3 flex items-center gap-3">
                     <span className={c.ok ? 'text-emerald-400' : 'text-gray-500'}>{c.ok ? '✅' : '⏳'}</span>
                     <div>
-                      <div className="text-base font-semibold text-white">{c.name}</div>
+                      <div className="text-base font-semibold text-gray-900">{c.name}</div>
                       <div className={`text-base ${c.ok ? 'text-emerald-400' : 'text-gray-500'}`}>{c.status}</div>
                     </div>
                   </div>
@@ -558,21 +558,21 @@ export default function AdminPage() {
 
         {tab === 'audit' && (
           <div>
-            <h2 className="text-lg font-semibold text-white mb-4">Audit log</h2>
-            <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Audit log</h2>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {audit.length === 0 ? (
                 <div className="text-center py-12 text-gray-600">No audit logs found</div>
               ) : (
                 <div className="divide-y divide-gray-800">
                   {audit.map((log: any) => (
-                    <div key={log.id} className="px-4 py-3 flex items-start gap-3 hover:bg-gray-800/30">
-                      <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-base shrink-0">
+                    <div key={log.id} className="px-4 py-3 flex items-start gap-3 hover:bg-gray-100/30">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base shrink-0">
                         {log.actor_name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-base text-white font-medium">{log.actor_name || 'System'}</span>
-                          <span className="text-base text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{log.action}</span>
+                          <span className="text-base text-gray-900 font-medium">{log.actor_name || 'System'}</span>
+                          <span className="text-base text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{log.action}</span>
                         </div>
                         {log.metadata && Object.keys(log.metadata).length > 0 && (
                           <div className="text-base text-gray-500 mt-0.5 truncate">
