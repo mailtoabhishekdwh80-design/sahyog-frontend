@@ -1,4 +1,7 @@
 'use client';
+import GanttView from './GanttView';
+import TableView from './TableView';
+import BoardTemplates from './BoardTemplates';
 import { useEffect, useState, useRef } from 'react';
 import {
   DndContext, DragEndEvent, DragOverEvent, DragOverlay,
@@ -192,6 +195,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
   // Templates
   const [showTemplates,  setShowTemplates]  = useState(false);
+  const [viewMode, setViewMode] = useState<'kanban'|'gantt'|'table'>('kanban');
   const [showAISuggest,  setShowAISuggest]  = useState(false);
   // ── Kanban feature state ──
   const [quickEditTask,  setQuickEditTask]  = useState<any>(null);
@@ -596,6 +600,15 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             className="text-xs text-white bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 px-3 py-1.5 rounded-lg font-medium">
             AI Tasks
           </button>
+          <div style={{display:'flex',background:'#1E293B',borderRadius:8,border:'1px solid #334155',overflow:'hidden',marginLeft:'auto'}}>
+            {(['kanban','gantt','table'] as const).map(v => (
+              <button key={v} onClick={() => setViewMode(v)}
+                style={{padding:'4px 12px',background:viewMode===v?'#1D4ED8':'none',border:'none',color:viewMode===v?'#fff':'#94A3B8',fontSize:11,cursor:'pointer',fontWeight:viewMode===v?700:400,textTransform:'capitalize'}}>
+                {v === 'kanban' ? '⊞ Board' : v === 'gantt' ? '📅 Timeline' : '☰ Table'}
+              </button>
+            ))}
+          </div>
+          
           <button onClick={loadTemplates}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
@@ -1363,12 +1376,23 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Templates modal */}
       {showTemplates && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowTemplates(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-white font-semibold text-lg">📐 Board templates</h3>
-              <button onClick={() => setShowTemplates(false)} className="text-gray-500 hover:text-white">✕</button>
+        <BoardTemplates
+          onClose={() => setShowTemplates(false)}
+          onSelect={async (template) => {
+            // Create lists and tasks from template
+            for (const list of template.lists) {
+              const listRes = await api.createList(boardId, list.name, lists.length);
+              if (listRes?.data?.id) {
+                for (const taskTitle of list.tasks) {
+                  await api.createTask(boardId, taskTitle, listRes.data.id).catch(()=>{});
+                }
+              }
+            }
+            await loadBoard();
+            setShowTemplates(false);
+          }}
+        />
+      )} className="text-gray-500 hover:text-white">✕</button>
             </div>
             <p className="text-gray-500 text-sm">Pick a template to add lists to this board instantly</p>
             <div className="grid grid-cols-2 gap-3">
