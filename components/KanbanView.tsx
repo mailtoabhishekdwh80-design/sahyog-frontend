@@ -697,7 +697,9 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
       )}
 
       {/* Board */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden" style={{ background: boardBg }}>
+      {viewMode === 'gantt' && <div style={{flex:1,overflow:'hidden',minHeight:0,background:boardBg}}><GanttView tasks={tasks} lists={lists} /></div>}
+      {viewMode === 'table' && <div style={{flex:1,overflow:'hidden',minHeight:0,background:boardBg}}><TableView tasks={tasks} lists={lists} onTaskClick={(t:any) => setSelectedTask(t)} /></div>}
+      {viewMode === 'kanban' && <div className="flex-1 overflow-x-auto overflow-y-hidden" style={{ background: boardBg }}>
         <DndContext sensors={sensors} collisionDetection={closestCenter}
           onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={onDragCancel}>
           <div className="flex gap-3 p-4 h-full">
@@ -773,7 +775,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             )}
           </DragOverlay>
         </DndContext>
-      </div>
+      </div>}
 
       {/* Task detail modal */}
       {selectedTask && (
