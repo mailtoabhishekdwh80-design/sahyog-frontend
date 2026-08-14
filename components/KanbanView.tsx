@@ -1392,7 +1392,6 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             setShowTemplates(false);
           }}
         />
-        />
       )}
     </div>
   );
