@@ -142,6 +142,9 @@ export default function WorkspaceShell() {
   const [pollQuestion,    setPollQuestion]    = useState('');
   const [pollOptions,     setPollOptions]     = useState(['', '']);
   const [showWhiteboard,  setShowWhiteboard]  = useState(false);
+  const [showSummary,       setShowSummary]       = useState(false);
+  const [showCreateWebinar, setShowCreateWebinar] = useState(false);
+  const [showWebinarReg,    setShowWebinarReg]    = useState<any>(null);
   const [activeMeetingId, setActiveMeetingId] = useState<string|null>(null);
   const [showSchedule,   setShowSchedule]   = useState(false);
   const [scheduleDate,   setScheduleDate]   = useState('');
