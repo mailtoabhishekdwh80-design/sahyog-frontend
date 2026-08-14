@@ -1092,7 +1092,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     </div>
                   ))}
                 </div>
-              )
+              )}
               {taskTab === 'custom' && (
                 <div className="p-5 space-y-4">
                   <div className="flex items-center justify-between">
