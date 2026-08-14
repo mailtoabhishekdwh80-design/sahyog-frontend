@@ -1392,40 +1392,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             setShowTemplates(false);
           }}
         />
-      )} className="text-gray-500 hover:text-white">✕</button>
-            </div>
-            <p className="text-gray-500 text-sm">Pick a template to add lists to this board instantly</p>
-            <div className="grid grid-cols-2 gap-3">
-              {templates.map((t: any) => (
-                <button key={t.id} onClick={() => applyTemplate(t.id)}
-                  className="rounded-xl text-left border border-gray-700 hover:border-white transition-all hover:scale-105 overflow-hidden group">
-                  {/* Colorful header */}
-                  <div className={`bg-gradient-to-br ${t.color || 'from-gray-600 to-gray-700'} p-4 flex items-center gap-3`}>
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-white font-bold text-lg">
-                      {t.icon || t.name?.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-white">{t.name}</div>
-                      <div className="text-xs text-white/70">{t.description}</div>
-                    </div>
-                  </div>
-                  {/* Lists preview */}
-                  <div className="bg-gray-800 p-3">
-                    <div className="flex flex-wrap gap-1">
-                      {t.lists.map((l: string, i: number) => (
-                        <span key={l} className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-                          {l}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-2">{t.lists.length} lists</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+        />
       )}
     </div>
   );
