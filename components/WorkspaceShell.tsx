@@ -2020,7 +2020,6 @@ export default function WorkspaceShell() {
       )}
 
       {/* Whiteboard modal */}
-}
 
       {/* Analytics modal */}
       {showAnalytics && analytics && (
