@@ -8,6 +8,9 @@ import WorkflowBuilder from './WorkflowBuilder';
 import { MeetingPolls, BreakoutRooms, LiveTranscription } from './MeetingFeatures';
 import VirtualBackground from './VirtualBackground';
 import MeetingAnalytics  from './MeetingAnalytics';
+import MeetingWhiteboard from './MeetingWhiteboard';
+import MeetingSummary   from './MeetingSummary';
+import { WebinarRegistration, CreateWebinarModal } from './WebinarRegistration';
 import KanbanView from './KanbanView';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -1547,7 +1550,7 @@ export default function WorkspaceShell() {
         {!activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,overflowY:'auto',minHeight:0}}>
             {activeView === 'home' && <HomeView user={user} channels={channels} boards={boards} workspaces={workspaces} onChannel={openChannel} onBoard={(b: any) => { setActiveBoard(b); setActiveChannel(null); }} />}
-            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} onShowAnalytics={() => setShowMeetingAnalytics(true)} showVirtualBg={showVirtualBg} setShowVirtualBg={setShowVirtualBg} />}
+            {activeView === 'meetings' && <MeetingsView orgMembers={orgMembers} currentUser={user} meetingTab={meetingTab} setMeetingTab={setMeetingTab} onMeetingStart={setActiveMeetingId} onMeetingEnd={() => setActiveMeetingId(null)} onShowAnalytics={() => setShowMeetingAnalytics(true)} showVirtualBg={showVirtualBg} setShowVirtualBg={setShowVirtualBg} onShowWhiteboard={() => setShowWhiteboard(true)} onShowSummary={() => setShowSummary(true)} onCreateWebinar={() => setShowCreateWebinar(true)} onShowWebinarReg={(w:any) => setShowWebinarReg(w)} />}
           </div>
         )}
 
@@ -2478,6 +2481,39 @@ export default function WorkspaceShell() {
           currentBg={virtualBg.id}
         />
       )}
+      {showWhiteboard && (
+        <MeetingWhiteboard
+          onClose={() => setShowWhiteboard(false)}
+          meetingId={activeMeetingId || undefined}
+        />
+      )}
+      {showSummary && activeMeetingId && (
+        <MeetingSummary
+          onClose={() => setShowSummary(false)}
+          meetingId={activeMeetingId}
+          meetingTitle="Meeting Summary"
+          apiFetch={apiFetch}
+        />
+      )}
+      {showCreateWebinar && (
+        <CreateWebinarModal
+          onClose={() => setShowCreateWebinar(false)}
+          onCreate={async (data) => {
+            await apiFetch('/meetings', { method: 'POST', body: JSON.stringify(data) });
+            setShowCreateWebinar(false);
+          }}
+        />
+      )}
+      {showWebinarReg && (
+        <WebinarRegistration
+          onClose={() => setShowWebinarReg(null)}
+          webinar={showWebinarReg}
+          onRegister={async (data) => {
+            console.log('Webinar registration:', data);
+            setShowWebinarReg(null);
+          }}
+        />
+      )}
       {showMeetingAnalytics && (
         <MeetingAnalytics
           onClose={() => setShowMeetingAnalytics(false)}
@@ -2682,7 +2718,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
   );
 }
 
-function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {}, showVirtualBg = false, setShowVirtualBg = (_v: boolean) => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void, showVirtualBg?: boolean, setShowVirtualBg?: (v: boolean) => void }) {
+function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {}, showVirtualBg = false, setShowVirtualBg = (_v: boolean) => {}, onShowWhiteboard = () => {}, onShowSummary = () => {}, onCreateWebinar = () => {}, onShowWebinarReg = (_w: any) => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void, showVirtualBg?: boolean, setShowVirtualBg?: (v: boolean) => void, onShowWhiteboard?: () => void, onShowSummary?: () => void, onCreateWebinar?: () => void, onShowWebinarReg?: (w: any) => void }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
@@ -2946,7 +2982,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 rounded-xl p-1" style={{background:"#1E293B",border:"1px solid #334155"}}>
-          <button onClick={() => onShowAnalytics()}
+          <button onClick={() => onCreateWebinar()}
+              style={{background:'#7C3AED',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Webinar</button>
+            <button onClick={() => onShowAnalytics()}
               style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Analytics</button>
             <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
           <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
@@ -3635,6 +3673,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     }
                   },
                 { icon:'BG', label:'Virtual BG', active:showVirtualBg, color:showVirtualBg?'#818CF8':undefined, action:()=>setShowVirtualBg(true) },
+                { icon:'🎨', label:'Whiteboard', active:false, action:()=>onShowWhiteboard() },
+                { icon:'🤖', label:'AI Summary', active:false, action:()=>onShowSummary() },
                 ] as {icon:string,label:string,active:boolean,color?:string,action:()=>void}[]).map(ctrl => (
                   <div key={ctrl.label} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                     <button onClick={ctrl.action} title={ctrl.label}
