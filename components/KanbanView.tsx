@@ -1159,7 +1159,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     }} className="w-full bg-blue-700 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-medium mt-2">Save Custom Fields</button>
                   )}
                 </div>
-              )}}
+              )}
             </div>
 
             {taskTab === 'details' && (
