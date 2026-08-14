@@ -144,7 +144,7 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
             <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 16 }}>Board Templates</div>
-            <div style={{ fontSize: 12, color: '#475569' }}>Start with a pre-built board for your team</div>
+            <div style={{ fontSize: 12, color: '#94A3B8' }}>Start with a pre-built board for your team</div>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', fontSize: 22 }}>×</button>
         </div>
@@ -154,7 +154,7 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
           <div style={{ width: 160, borderRight: '1px solid #1E3A5F', padding: '12px 8px', flexShrink: 0 }}>
             {categories.map(cat => (
               <button key={cat} onClick={() => setActiveCategory(cat)}
-                style={{ width: '100%', textAlign: 'left', padding: '7px 12px', background: activeCategory === cat ? '#1E3A5F' : 'none', border: 'none', borderRadius: 8, color: activeCategory === cat ? '#60A5FA' : '#94A3B8', fontSize: 13, cursor: 'pointer', fontWeight: activeCategory === cat ? 700 : 400, marginBottom: 2 }}>
+                style={{ width: '100%', textAlign: 'left', padding: '7px 12px', background: activeCategory === cat ? '#1D4ED8' : 'none', border: 'none', borderRadius: 8, color: activeCategory === cat ? '#FFFFFF' : '#94A3B8', fontSize: 13, cursor: 'pointer', fontWeight: activeCategory === cat ? 700 : 400, marginBottom: 2 }}>
                 {cat}
               </button>
             ))}
@@ -172,7 +172,7 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
                   <span style={{ fontSize: 32 }}>{preview.icon}</span>
                   <div>
                     <div style={{ fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>{preview.name}</div>
-                    <div style={{ fontSize: 13, color: '#64748B' }}>{preview.description}</div>
+                    <div style={{ fontSize: 13, color: '#94A3B8' }}>{preview.description}</div>
                   </div>
                   <button onClick={() => { onSelect(preview); onClose(); }}
                     style={{ marginLeft: 'auto', background: '#1D4ED8', border: 'none', borderRadius: 10, padding: '8px 20px', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
@@ -182,9 +182,9 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
                 <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
                   {preview.lists.map(list => (
                     <div key={list.name} style={{ minWidth: 180, background: '#1E293B', borderRadius: 10, padding: 12, border: '1px solid #334155' }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#94A3B8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#60A5FA', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</div>
                       {list.tasks.map(task => (
-                        <div key={task} style={{ background: '#0F172A', borderRadius: 6, padding: '6px 8px', marginBottom: 6, fontSize: 12, color: '#E2E8F0', border: '1px solid #1E3A5F' }}>
+                        <div key={task} style={{ background: '#0A0F1E', borderRadius: 6, padding: '6px 8px', marginBottom: 6, fontSize: 12, color: '#CBD5E1', border: '1px solid #1E3A5F' }}>
                           {task}
                         </div>
                       ))}
@@ -197,15 +197,15 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
                 {filtered.map(template => (
                   <div key={template.id}
-                    style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 12, padding: 16, cursor: 'pointer', transition: 'border-color 0.15s' }}
+                    style={{ background: '#131929', border: '1px solid #1E3A5F', borderRadius: 12, padding: 16, cursor: 'pointer', transition: 'all 0.15s' }}
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = '#1D4ED8'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = '#334155'}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>{template.icon}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#F1F5F9', marginBottom: 4 }}>{template.name}</div>
-                    <div style={{ fontSize: 12, color: '#64748B', marginBottom: 12, lineHeight: 1.4 }}>{template.description}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', marginBottom: 4, fontSize:15 }}>{template.name}</div>
+                    <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12, lineHeight: 1.4 }}>{template.description}</div>
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
                       {template.lists.slice(0, 3).map(l => (
-                        <span key={l.name} style={{ fontSize: 10, padding: '2px 6px', background: '#0F172A', color: '#475569', borderRadius: 4, border: '1px solid #1E3A5F' }}>{l.name}</span>
+                        <span key={l.name} style={{ fontSize: 10, padding: '2px 6px', background: '#1E3A5F', color: '#93C5FD', borderRadius: 4, border: '1px solid #2D5A9E' }}>{l.name}</span>
                       ))}
                       {template.lists.length > 3 && <span style={{ fontSize: 10, color: '#334155' }}>+{template.lists.length - 3} more</span>}
                     </div>
