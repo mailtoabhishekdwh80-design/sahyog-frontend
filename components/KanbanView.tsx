@@ -251,7 +251,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [calMonth,      setCalMonth]      = useState(new Date());
   const [activity,      setActivity]      = useState<any[]>([]);
   const [orgMembers,    setOrgMembers]    = useState<any[]>([]);
-  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'|'attachments'|'activity'|'subtasks'|'time'|'deps'>('details');
+  const [taskTab,       setTaskTab]       = useState<'details'|'comments'|'checklist'|'attachments'|'activity'|'subtasks'|'time'|'deps'|'custom'>('details');
   const attachFileRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
