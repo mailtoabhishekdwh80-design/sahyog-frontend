@@ -92,17 +92,17 @@ Keep it concise and professional. Format in clean markdown.`
       if (line.startsWith('- ') || line.startsWith('• ')) {
         return <div key={i} style={{display:'flex',gap:8,padding:'3px 0'}}>
           <span style={{color:'#1D4ED8',flexShrink:0}}>•</span>
-          <span style={{color:'#CBD5E1',fontSize:13,lineHeight:1.5}}>{line.slice(2).replace(/\*\*/g,'').replace(/\*/g,'')}</span>
+          <span style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5}}>{line.slice(2).replace(/\*\*/g,'').replace(/\*/g,'')}</span>
         </div>;
       }
       if (line.match(/^\d+\. /)) {
         return <div key={i} style={{display:'flex',gap:8,padding:'3px 0'}}>
           <span style={{color:'#1D4ED8',flexShrink:0,minWidth:16}}>{line.match(/^\d+/)?.[0]}.</span>
-          <span style={{color:'#CBD5E1',fontSize:13,lineHeight:1.5}}>{line.replace(/^\d+\. /,'').replace(/\*\*/g,'').replace(/\*/g,'')}</span>
+          <span style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5}}>{line.replace(/^\d+\. /,'').replace(/\*\*/g,'').replace(/\*/g,'')}</span>
         </div>;
       }
       if (!line.trim()) return <div key={i} style={{height:4}} />;
-      return <div key={i} style={{color:'#94A3B8',fontSize:13,lineHeight:1.5,padding:'2px 0'}}>{line.replace(/\*\*/g,'').replace(/\*/g,'')}</div>;
+      return <div key={i} style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5,padding:'2px 0'}}>{line.replace(/\*\*/g,'').replace(/\*/g,'')}</div>;
     });
   }
 
@@ -117,10 +117,10 @@ Keep it concise and professional. Format in clean markdown.`
             <span style={{fontSize:20}}>🤖</span>
             <div>
               <div style={{color:'#F1F5F9',fontWeight:700,fontSize:15}}>AI Meeting Summary</div>
-              <div style={{fontSize:11,color:'#475569'}}>{meetingTitle || 'Meeting'} · Powered by Claude</div>
+              <div style={{fontSize:11,color:'#E2E8F0'}}>{meetingTitle || 'Meeting'} · Powered by Claude</div>
             </div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:22}}>×</button>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:22}}>×</button>
         </div>
 
         <div style={{flex:1,overflowY:'auto',padding:20,display:'flex',flexDirection:'column',gap:16}}>
@@ -131,7 +131,7 @@ Keep it concise and professional. Format in clean markdown.`
               </div>
 
               <div>
-                <label style={{fontSize:12,color:'#94A3B8',fontWeight:600,display:'block',marginBottom:8}}>Or paste transcript manually:</label>
+                <label style={{fontSize:12,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:8}}>Or paste transcript manually:</label>
                 <textarea value={transcript} onChange={e => setTranscript(e.target.value)} rows={6}
                   placeholder="Paste meeting transcript here if not auto-captured..."
                   style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'10px 12px',color:'#F1F5F9',fontSize:13,outline:'none',resize:'vertical'}} />
@@ -144,7 +144,7 @@ Keep it concise and professional. Format in clean markdown.`
               )}
 
               <button onClick={generateSummary} disabled={loading}
-                style={{background:loading?'#334155':'linear-gradient(135deg,#1D4ED8,#7C3AED)',border:'none',borderRadius:10,padding:'12px 24px',color:'#fff',fontSize:14,fontWeight:700,cursor:loading?'not-allowed':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+                style={{background:loading?'#64748B':'linear-gradient(135deg,#1D4ED8,#7C3AED)',border:'none',borderRadius:10,padding:'12px 24px',color:'#fff',fontSize:14,fontWeight:700,cursor:loading?'not-allowed':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
                 {loading ? (
                   <>
                     <div style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
@@ -166,15 +166,15 @@ Keep it concise and professional. Format in clean markdown.`
 
               <div style={{display:'flex',gap:8}}>
                 <button onClick={copyToClipboard}
-                  style={{flex:1,background:copied?'#059669':'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:copied?'#6EE7B7':'#94A3B8',fontSize:13,cursor:'pointer',fontWeight:copied?600:400}}>
+                  style={{flex:1,background:copied?'#059669':'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:copied?'#6EE7B7':'#E2E8F0',fontSize:13,cursor:'pointer',fontWeight:copied?600:400}}>
                   {copied ? '✓ Copied!' : '📋 Copy to Clipboard'}
                 </button>
                 <button onClick={downloadSummary}
-                  style={{flex:1,background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:'#94A3B8',fontSize:13,cursor:'pointer'}}>
+                  style={{flex:1,background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
                   ⬇ Download .txt
                 </button>
                 <button onClick={() => setSummary('')}
-                  style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 14px',color:'#94A3B8',fontSize:13,cursor:'pointer'}}>
+                  style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 14px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
                   Regenerate
                 </button>
               </div>

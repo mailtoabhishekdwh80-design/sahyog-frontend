@@ -66,17 +66,17 @@ export function MeetingPolls({ meetingId, isHost, apiFetch }: { meetingId: strin
           ))}
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={() => setOptions([...options,''])}
-              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#94A3B8',fontSize:11,cursor:'pointer'}}>+ Option</button>
+              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#E2E8F0',fontSize:11,cursor:'pointer'}}>+ Option</button>
             <button onClick={createPoll}
               style={{background:'#1D4ED8',border:'none',borderRadius:6,padding:'4px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer'}}>Launch</button>
             <button onClick={() => setCreating(false)}
-              style={{background:'none',border:'none',color:'#94A3B8',fontSize:12,cursor:'pointer'}}>Cancel</button>
+              style={{background:'none',border:'none',color:'#E2E8F0',fontSize:12,cursor:'pointer'}}>Cancel</button>
           </div>
         </div>
       )}
 
       {polls.length === 0 && !creating && (
-        <div style={{textAlign:'center',color:'#475569',fontSize:13,padding:'20px 0'}}>No polls yet</div>
+        <div style={{textAlign:'center',color:'#E2E8F0',fontSize:13,padding:'20px 0'}}>No polls yet</div>
       )}
 
       {polls.map(poll => {
@@ -92,18 +92,18 @@ export function MeetingPolls({ meetingId, isHost, apiFetch }: { meetingId: strin
                 <div key={opt} style={{marginBottom:6}}>
                   <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}>
                     <button onClick={() => vote(poll.id, opt)}
-                      style={{background:'none',border:'none',color:'#94A3B8',cursor:'pointer',fontSize:12,textAlign:'left',padding:0}}>
+                      style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,textAlign:'left',padding:0}}>
                       {opt}
                     </button>
-                    <span style={{fontSize:11,color:'#475569'}}>{pct}% ({voteCount})</span>
+                    <span style={{fontSize:11,color:'#E2E8F0'}}>{pct}% ({voteCount})</span>
                   </div>
-                  <div style={{height:4,background:'#334155',borderRadius:2,overflow:'hidden'}}>
+                  <div style={{height:4,background:'#64748B',borderRadius:2,overflow:'hidden'}}>
                     <div style={{height:'100%',background:'#1D4ED8',width:pct+'%',transition:'width 0.3s'}} />
                   </div>
                 </div>
               );
             })}
-            <div style={{fontSize:11,color:'#475569',marginTop:8}}>{totalVotes} vote{totalVotes!==1?'s':''}</div>
+            <div style={{fontSize:11,color:'#E2E8F0',marginTop:8}}>{totalVotes} vote{totalVotes!==1?'s':''}</div>
           </div>
         );
       })}
@@ -169,10 +169,10 @@ export function BreakoutRooms({ meetingId, participants, isHost, apiFetch }: { m
       {creating && (
         <div style={{background:'#1E293B',borderRadius:10,padding:14,border:'1px solid #334155'}}>
           <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:12}}>
-            <span style={{fontSize:13,color:'#94A3B8'}}>Number of rooms:</span>
+            <span style={{fontSize:13,color:'#E2E8F0'}}>Number of rooms:</span>
             {[2,3,4,5].map(n => (
               <button key={n} onClick={() => { setNumRooms(n); autoAssign(); }}
-                style={{width:32,height:32,borderRadius:8,background:numRooms===n?'#1D4ED8':'#334155',border:'none',color:'#fff',fontSize:13,cursor:'pointer',fontWeight:numRooms===n?700:400}}>
+                style={{width:32,height:32,borderRadius:8,background:numRooms===n?'#1D4ED8':'#64748B',border:'none',color:'#fff',fontSize:13,cursor:'pointer',fontWeight:numRooms===n?700:400}}>
                 {n}
               </button>
             ))}
@@ -190,14 +190,14 @@ export function BreakoutRooms({ meetingId, participants, isHost, apiFetch }: { m
             ))}
           </div>
           <div style={{display:'flex',gap:8}}>
-            <button onClick={autoAssign} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'5px 12px',color:'#94A3B8',fontSize:12,cursor:'pointer'}}>🔀 Shuffle</button>
+            <button onClick={autoAssign} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'5px 12px',color:'#E2E8F0',fontSize:12,cursor:'pointer'}}>🔀 Shuffle</button>
             <button onClick={launchRooms} style={{background:'#1D4ED8',border:'none',borderRadius:6,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer'}}>🚀 Launch</button>
           </div>
         </div>
       )}
 
       {rooms.length === 0 && !creating && (
-        <div style={{textAlign:'center',color:'#475569',fontSize:13,padding:'20px 0'}}>No breakout rooms active</div>
+        <div style={{textAlign:'center',color:'#E2E8F0',fontSize:13,padding:'20px 0'}}>No breakout rooms active</div>
       )}
 
       {rooms.map((room, i) => (
@@ -210,7 +210,7 @@ export function BreakoutRooms({ meetingId, participants, isHost, apiFetch }: { m
             {(room.participants || []).map((pid: string) => {
               const p = participants.find(p => p.id === pid);
               return (
-                <span key={pid} style={{fontSize:11,background:'#0F172A',color:'#94A3B8',borderRadius:4,padding:'2px 6px'}}>
+                <span key={pid} style={{fontSize:11,background:'#0F172A',color:'#E2E8F0',borderRadius:4,padding:'2px 6px'}}>
                   {p?.name || p?.display_name || 'Participant'}
                 </span>
               );
@@ -291,11 +291,11 @@ export function LiveTranscription({ meetingId, isHost, apiFetch }: { meetingId: 
           </button>
           {transcript && <>
             <button onClick={saveTranscript}
-              style={{background:saved?'#065F46':'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'4px 10px',color:saved?'#6EE7B7':'#94A3B8',fontSize:11,cursor:'pointer'}}>
+              style={{background:saved?'#065F46':'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'4px 10px',color:saved?'#6EE7B7':'#E2E8F0',fontSize:11,cursor:'pointer'}}>
               {saved ? '✓ Saved' : '💾 Save'}
             </button>
             <button onClick={downloadTranscript}
-              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'4px 10px',color:'#94A3B8',fontSize:11,cursor:'pointer'}}>
+              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'4px 10px',color:'#E2E8F0',fontSize:11,cursor:'pointer'}}>
               ⬇ Export
             </button>
           </>}
@@ -310,9 +310,9 @@ export function LiveTranscription({ meetingId, isHost, apiFetch }: { meetingId: 
 
       <div style={{flex:1,background:'#1E293B',borderRadius:10,padding:12,border:'1px solid #334155',overflowY:'auto',minHeight:120}}>
         {transcript ? (
-          <p style={{fontSize:13,color:'#E2E8F0',lineHeight:1.7,margin:0,whiteSpace:'pre-wrap'}}>{transcript}</p>
+          <p style={{fontSize:13,color:'#F1F5F9',lineHeight:1.7,margin:0,whiteSpace:'pre-wrap'}}>{transcript}</p>
         ) : (
-          <p style={{fontSize:13,color:'#475569',textAlign:'center',marginTop:20}}>
+          <p style={{fontSize:13,color:'#E2E8F0',textAlign:'center',marginTop:20}}>
             {recording ? 'Listening...' : 'Click Start to begin transcribing the meeting'}
           </p>
         )}

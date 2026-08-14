@@ -960,7 +960,7 @@ export default function WorkspaceShell() {
                       <span style={{fontSize:18,flexShrink:0}}>{item.icon}</span>
                       <div>
                         <div style={{fontSize:13,fontWeight:600,color:'#FFFFFF'}}>{item.label}</div>
-                        <div style={{fontSize:11,color:'#CBD5E1'}}>{item.desc}</div>
+                        <div style={{fontSize:11,color:'#E2E8F0'}}>{item.desc}</div>
                       </div>
                     </button>
                   ))}
@@ -969,7 +969,7 @@ export default function WorkspaceShell() {
             </div>
           </div>
           {/* Search bar */}
-          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(99,120,180,0.12)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#E2E8F0',fontSize:13}}>
+          <button onClick={() => { setShowSearch(true); }} style={{width:'100%',background:'rgba(99,120,180,0.12)',border:'none',borderRadius:6,padding:'6px 10px',display:'flex',alignItems:'center',gap:7,cursor:'pointer',color:'#F1F5F9',fontSize:13}}>
             🔍 <span>Search</span>
             <span style={{marginLeft:'auto',fontSize:11,opacity:.5}}>Ctrl+K</span>
           </button>
@@ -981,12 +981,12 @@ export default function WorkspaceShell() {
           {/* Direct Messages */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#F1F5F9',letterSpacing:.5,textTransform:'uppercase'}}>Direct messages</span>
               <div style={{display:'flex',gap:2}}>
               <button onClick={() => { setShowNewDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}} title="New DM">+</button>
+                style={{background:'none',border:'none',color:'#F1F5F9',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}} title="New DM">+</button>
               <button onClick={() => { setShowGroupDM(true); api.orgMembers().then(r => setDmOrgMembers(Array.isArray(r?.data) ? r.data : [])); }}
-                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,lineHeight:1,padding:2,borderRadius:4,fontWeight:600}} title="New group DM">👥</button>
+                style={{background:'none',border:'none',color:'#F1F5F9',cursor:'pointer',fontSize:12,lineHeight:1,padding:2,borderRadius:4,fontWeight:600}} title="New group DM">👥</button>
             </div>
             </div>
             {dmList.map((dm: any) => (
@@ -1006,9 +1006,9 @@ export default function WorkspaceShell() {
           {/* Channels */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#F1F5F9',letterSpacing:.5,textTransform:'uppercase'}}>Channels</span>
               <button onClick={() => setShowNewChannel(true)}
-                style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+                style={{background:'none',border:'none',color:'#F1F5F9',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
             {channels.filter(c => c.type !== 'direct').slice(0, 15).map(ch => (
               <button key={ch.id} onClick={() => openChannel(ch)}
@@ -1025,20 +1025,20 @@ export default function WorkspaceShell() {
           {/* Boards */}
           <div style={{marginBottom:4}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'6px 8px 4px'}}>
-              <span style={{fontSize:12,fontWeight:700,color:'#E2E8F0',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
+              <span style={{fontSize:12,fontWeight:700,color:'#F1F5F9',letterSpacing:.5,textTransform:'uppercase'}}>Boards</span>
               <button onClick={async () => {
                 const name = prompt('Board name?');
                 if (!name) return;
                 const wsRes = await api.workspaces();
                 const wsId = wsRes?.data?.[0]?.id;
                 if (wsId) { await api.createBoard(name, wsId); const r = await api.boards(wsId); setBoards(Array.isArray(r?.data) ? r.data : []); }
-              }} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
+              }} style={{background:'none',border:'none',color:'#F1F5F9',cursor:'pointer',fontSize:18,lineHeight:1,padding:2,borderRadius:4}}>+</button>
             </div>
             {boards.map(b => (
               <div key={b.id} style={{display:'flex',alignItems:'center',gap:2}}>
                 <button onClick={() => { setActiveBoard(b); setActiveChannel(null); setActiveDM(null); }}
                   style={{flex:1,display:'flex',alignItems:'center',gap:7,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background: activeBoard?.id === b.id ? 'rgba(99,120,180,0.14)' : 'transparent',color: activeBoard?.id === b.id ? '#fff' : '#8892A4',transition:'all .1s'}}>
-                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(99,120,180,0.14)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#E2E8F0'}}>B</span>
+                  <span style={{fontSize:12,width:18,height:18,borderRadius:4,background:'rgba(99,120,180,0.14)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,color:'#F1F5F9'}}>B</span>
                   <span style={{fontSize:14,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{b.name}</span>
                 </button>
               </div>
@@ -1063,7 +1063,7 @@ export default function WorkspaceShell() {
               { icon:'📱', label:'WhatsApp setup', action: () => window.location.href='/settings' },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
-                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#E2E8F0',transition:'all .1s',fontSize:14}}>
+                style={{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'5px 8px',borderRadius:6,border:'none',cursor:'pointer',textAlign:'left',background:'transparent',color:'#F1F5F9',transition:'all .1s',fontSize:14}}>
                 <span>{item.icon}</span><span>{item.label}</span>
               </button>
             ))}
@@ -1082,7 +1082,7 @@ export default function WorkspaceShell() {
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <div style={{fontSize:13,fontWeight:700,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.display_name || user?.email?.split('@')[0]}</div>
-                <div style={{fontSize:11,color:'#E2E8F0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
+                <div style={{fontSize:11,color:'#F1F5F9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.status_text || 'Set a status'}</div>
               </div>
             </button>
             <button onClick={() => {
@@ -1091,11 +1091,11 @@ export default function WorkspaceShell() {
                 localStorage.setItem('dt_theme', t);
                 document.documentElement.setAttribute('data-theme', t);
               }} title="Toggle theme"
-              style={{background:'none',border:'none',cursor:'pointer',color:'#E2E8F0',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
+              style={{background:'none',border:'none',cursor:'pointer',color:'#F1F5F9',fontSize:16,padding:4,borderRadius:6,flexShrink:0}}>
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
             <button onClick={() => setShowShortcuts(true)} title="Keyboard shortcuts (?)"
-              style={{background:'none',border:'none',cursor:'pointer',color:'#E2E8F0',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
+              style={{background:'none',border:'none',cursor:'pointer',color:'#F1F5F9',fontSize:13,padding:4,borderRadius:6,flexShrink:0,fontWeight:700}}>?</button>
           </div>
           <button onClick={() => api.logout()}
             style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,background:'rgba(237,66,69,0.08)',border:'1px solid rgba(237,66,69,0.25)',borderRadius:8,cursor:'pointer',color:'#f87171',fontSize:13,fontWeight:600,padding:'8px 0'}}>
@@ -1120,7 +1120,7 @@ export default function WorkspaceShell() {
             {/* Channel header */}
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#313338',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{fontSize:18,color:'#CBD5E1',fontWeight:400}}>#</span>
+                <span style={{fontSize:18,color:'#E2E8F0',fontWeight:400}}>#</span>
                 <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{activeChannel.name}</span>
                 {channelDescEdit ? (
                   <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:8}}>
@@ -1129,37 +1129,37 @@ export default function WorkspaceShell() {
                       style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(255,255,255,0.15)',borderRadius:6,padding:'3px 8px',color:'#FFFFFF',fontSize:13,width:220}}
                       onKeyDown={e => { if(e.key==='Enter') saveChannelDesc(); if(e.key==='Escape') setChannelDescEdit(false); }} />
                     <button onClick={saveChannelDesc} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'3px 8px',color:'#fff',fontSize:12,cursor:'pointer'}}>Save</button>
-                    <button onClick={() => setChannelDescEdit(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
+                    <button onClick={() => setChannelDescEdit(false)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
                 ) : (
                   <span onClick={() => { setChannelDescEdit(true); setNewChannelDesc(activeChannel.description || ''); }}
-                    style={{fontSize:13,color:'#CBD5E1',marginLeft:4,cursor:'pointer'}} title="Click to edit description">
+                    style={{fontSize:13,color:'#E2E8F0',marginLeft:4,cursor:'pointer'}} title="Click to edit description">
                     {activeChannel.description || <span style={{opacity:.5}}>Add description</span>}
                   </span>
                 )}
               </div>
               <div style={{display:'flex',alignItems:'center',gap:4}}>
-                <button onClick={loadPins} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
+                <button onClick={loadPins} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
-                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
-                <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
+                <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
+                <button onClick={() => setShowNotifPrefs(true)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Notification preferences">🔔</button>
                 <button onClick={() => huddleActive ? endHuddle() : startHuddle()}
                   style={{background: huddleActive ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: huddleActive ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="Start huddle (audio call)">
                   {huddleActive ? '🎙️ Huddle' : '🎙️'}
                 </button>
-                <button onClick={() => setShowIntegrations(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="App integrations">⚡</button>
-                <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
+                <button onClick={() => setShowIntegrations(true)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="App integrations">⚡</button>
+                <button onClick={loadChannelMembers} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Channel members">👥</button>
                 <button onClick={() => toggleMute(activeChannel?.id||'')} style={{background: mutedChannels.includes(activeChannel?.id||'') ? 'rgba(237,66,69,0.15)' : 'none',border:'none',color: mutedChannels.includes(activeChannel?.id||'') ? '#ed4245' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Mute/unmute channel">{mutedChannels.includes(activeChannel?.id||'') ? '🔕' : '🔔'}</button>
-                <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
+                <button onClick={() => notifyChannel()} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}} title="@channel — notify all members">@ch</button>
                 <button onClick={() => setShowStarred(s => !s)} style={{background: showStarred ? 'rgba(251,191,36,0.15)' : 'none',border:'none',color: showStarred ? '#fbbf24' : '#7A8499',cursor:'pointer',fontSize:14,padding:'4px 8px',borderRadius:6}} title="Starred messages">⭐</button>
-                <button onClick={() => leaveChannel(activeChannel?.id||'')} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Leave channel">Leave</button>
-                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
-                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
-                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
-                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
+                <button onClick={() => leaveChannel(activeChannel?.id||'')} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}} title="Leave channel">Leave</button>
+                <button onClick={loadAnalytics} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Analytics</button>
+                <button onClick={loadScheduled} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Scheduled</button>
+                <button onClick={loadCustomEmojis} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Emoji</button>
+                <button onClick={() => setShowConnect(true)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Connect</button>
                 <button onClick={() => setShowAI(s => !s)} style={{background: showAI ? 'rgba(74,222,128,0.15)' : 'none',border:'none',color: showAI ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>AI</button>
-                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
-                <span style={{fontSize:12,color:'#CBD5E1',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowGlobalSearch(true)}>Ctrl+K</span>
+                <button onClick={summarizeChannel} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6}}>Summarize</button>
+                <span style={{fontSize:12,color:'#E2E8F0',padding:'4px 8px',borderRadius:6,border:'1px solid rgba(99,120,180,0.12)',cursor:'pointer'}} onClick={() => setShowGlobalSearch(true)}>Ctrl+K</span>
               </div>
             </div>
 
@@ -1178,9 +1178,9 @@ export default function WorkspaceShell() {
                   <div style={{display:'flex',alignItems:'center',gap:8}}>
                     <div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>AI</div>
                     <span style={{fontSize:13,fontWeight:700,color:'#fff'}}>Deemona AI</span>
-                    <span style={{fontSize:12,color:'#CBD5E1'}}>Ask anything about this channel</span>
+                    <span style={{fontSize:12,color:'#E2E8F0'}}>Ask anything about this channel</span>
                   </div>
-                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:16}}>✕</button>
+                  <button onClick={() => setShowAI(false)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:16}}>✕</button>
                 </div>
                 <div style={{flex:1,overflowY:'auto',padding:'12px 16px',display:'flex',flexDirection:'column',gap:8}}>
                   {aiMessages.length === 0 && (
@@ -1196,7 +1196,7 @@ export default function WorkspaceShell() {
                       <div style={{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:13,lineHeight:1.5,background: m.role === 'user' ? '#4F6EF7' : 'rgba(99,120,180,0.12)',color: m.role === 'user' ? '#fff' : '#C8D0E0'}}>{m.content}</div>
                     </div>
                   ))}
-                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(99,120,180,0.12)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#CBD5E1',fontStyle:'italic'}}>Thinking...</div></div>}
+                  {aiLoading && <div style={{display:'flex',gap:8}}><div style={{width:24,height:24,borderRadius:'50%',background:'linear-gradient(135deg,#4ade80,#60a5fa)',flexShrink:0}}/><div style={{background:'rgba(99,120,180,0.12)',padding:'8px 12px',borderRadius:8,fontSize:13,color:'#E2E8F0',fontStyle:'italic'}}>Thinking...</div></div>}
                 </div>
                 <div style={{padding:'8px 16px',borderTop:'1px solid rgba(99,120,180,0.12)',display:'flex',gap:8}}>
                   <input value={aiInput} onChange={e => setAiInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAIMessage()}
@@ -1209,13 +1209,13 @@ export default function WorkspaceShell() {
             {/* Schedule panel */}
             {showSchedule && (
               <div style={{padding:'8px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#1A1A2E',display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                <span style={{fontSize:12,color:'#CBD5E1'}}>Schedule for:</span>
+                <span style={{fontSize:12,color:'#E2E8F0'}}>Schedule for:</span>
                 <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
                   style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
                   style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'5px 10px',color:'#FFFFFF',fontSize:12,outline:'none'}} />
                 <button onClick={scheduleMessage} disabled={!scheduleDate || !scheduleTime || !newMessage.trim()} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'5px 12px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',opacity: scheduleDate && scheduleTime && newMessage.trim() ? 1 : 0.5}}>Schedule</button>
-                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
+                <button onClick={() => setShowSchedule(false)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12}}>Cancel</button>
               </div>
             )}
 
@@ -1242,7 +1242,7 @@ export default function WorkspaceShell() {
                   <div style={{fontSize:48}}>💬</div>
                   <div style={{textAlign:'center'}}>
                     <div style={{fontSize:16,fontWeight:700,color:'#FFFFFF',marginBottom:6}}>No messages yet</div>
-                    <div style={{fontSize:14,color:'#CBD5E1'}}>Be the first to send a message in #{activeChannel?.name}</div>
+                    <div style={{fontSize:14,color:'#E2E8F0'}}>Be the first to send a message in #{activeChannel?.name}</div>
                   </div>
                 </div>
               )}
@@ -1259,7 +1259,7 @@ export default function WorkspaceShell() {
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style={{fontSize:12,color:'#E2E8F0'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                         {msg.is_edited && <span style={{fontSize:11,color:'#616061'}}>(edited)</span>}
                         {msg.is_pinned && <span style={{fontSize:11,color:'#f59e0b'}}>pinned</span>}
                       </div>
@@ -1271,7 +1271,7 @@ export default function WorkspaceShell() {
                           <div style={{display:'flex',gap:6,marginTop:4}}>
                             <button onClick={() => saveEditMessage(editingMsgId!)} style={{background:'#4F6EF7',border:'none',borderRadius:5,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer',fontWeight:600}}>Save</button>
                             <button onClick={() => setEditingMsgId(null)} style={{background:'none',border:'1px solid rgba(99,120,180,0.14)',borderRadius:5,padding:'4px 10px',color:'#A8B3C8',fontSize:12,cursor:'pointer'}}>Cancel</button>
-                            <span style={{fontSize:11,color:'#CBD5E1',alignSelf:'center'}}>Enter to save · Esc to cancel</span>
+                            <span style={{fontSize:11,color:'#E2E8F0',alignSelf:'center'}}>Enter to save · Esc to cancel</span>
                           </div>
                         </div>
                       ) : rendered.isFile ? (
@@ -1295,7 +1295,7 @@ export default function WorkspaceShell() {
                           {Object.entries(msg.reactions).map(([emoji, count]) => (
                             <button key={emoji} onClick={() => api.addReaction(msg.id, activeChannel!.id, emoji).then(() => openChannel(activeChannel!))}
                               style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:12,padding:'2px 8px',fontSize:13,cursor:'pointer',color:'#C8D0E0',display:'flex',alignItems:'center',gap:4}}>
-                              {emoji} <span style={{fontSize:12,color:'#CBD5E1'}}>{count as number}</span>
+                              {emoji} <span style={{fontSize:12,color:'#E2E8F0'}}>{count as number}</span>
                             </button>
                           ))}
                         </div>
@@ -1345,18 +1345,18 @@ export default function WorkspaceShell() {
                       </button>
                     ))}
                     <div style={{width:1,height:16,background:'rgba(99,120,180,0.14)',margin:'0 4px'}}/>
-                    <button onClick={() => setShowJumpDate(s => !s)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Jump to date</button>
-                    <button onClick={() => setChannelDescEdit(s => !s)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Edit desc</button>
+                    <button onClick={() => setShowJumpDate(s => !s)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Jump to date</button>
+                    <button onClick={() => setChannelDescEdit(s => !s)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',padding:'3px 7px',borderRadius:4,fontSize:11}}>Edit desc</button>
                   </div>
                 )}
                 {/* Jump to date */}
                 {showJumpDate && (
                   <div style={{display:'flex',alignItems:'center',gap:8,padding:'6px 10px',borderBottom:'1px solid rgba(99,120,180,0.09)'}}>
-                    <span style={{fontSize:12,color:'#CBD5E1'}}>Jump to:</span>
+                    <span style={{fontSize:12,color:'#E2E8F0'}}>Jump to:</span>
                     <input type="date" value={jumpDate} onChange={e => setJumpDate(e.target.value)} max={new Date().toISOString().split('T')[0]}
                       style={{background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',color:'#FFFFFF',fontSize:12}} />
                     <button onClick={jumpToDate} disabled={!jumpDate} style={{background:'#4F6EF7',border:'none',borderRadius:6,padding:'4px 10px',color:'#fff',fontSize:12,cursor:'pointer'}}>Go</button>
-                    <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:12}}>Cancel</button>
+                    <button onClick={() => setShowJumpDate(false)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12}}>Cancel</button>
                   </div>
                 )}
                 {/* Mention autocomplete */}
@@ -1368,7 +1368,7 @@ export default function WorkspaceShell() {
                         <div style={{width:24,height:24,borderRadius:'50%',background:'#5865f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff'}}>{m.display_name?.charAt(0)}</div>
                         <div>
                           <span style={{color:'#FFFFFF',fontWeight:600}}>{m.display_name}</span>
-                          <span style={{color:'#CBD5E1',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
+                          <span style={{color:'#E2E8F0',marginLeft:6,fontSize:12}}>{m.designation || m.email}</span>
                         </div>
                       </button>
                     ))}
@@ -1394,7 +1394,7 @@ export default function WorkspaceShell() {
                         </button>
                       ))}
                     </div>
-                    <p style={{fontSize:11,color:"#94A3B8",marginTop:4,textAlign:"center"}}>Powered by GIPHY</p>
+                    <p style={{fontSize:11,color:"#E2E8F0",marginTop:4,textAlign:"center"}}>Powered by GIPHY</p>
                   </div>
                 )}
 
@@ -1404,10 +1404,10 @@ export default function WorkspaceShell() {
                     {channels.filter(c => c.type !== 'direct' && c.name.toLowerCase().includes(channelQuery.toLowerCase())).slice(0,6).map((ch: any) => (
                       <button key={ch.id} onClick={() => insertChannelRef(ch.name)}
                         style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
-                        <span style={{color:'#CBD5E1',fontSize:15}}>#</span>
+                        <span style={{color:'#E2E8F0',fontSize:15}}>#</span>
                         <div>
                           <span style={{color:'#FFFFFF',fontWeight:600}}>{ch.name}</span>
-                          {ch.description && <span style={{color:'#CBD5E1',marginLeft:6,fontSize:12}}>{ch.description}</span>}
+                          {ch.description && <span style={{color:'#E2E8F0',marginLeft:6,fontSize:12}}>{ch.description}</span>}
                         </div>
                       </button>
                     ))}
@@ -1424,7 +1424,7 @@ export default function WorkspaceShell() {
                       </button>
                     ))}
                     {Object.entries(EMOJI_MAP).filter(([k]) => k.includes(emojiQuery)).length === 0 && (
-                      <span style={{fontSize:12,color:'#CBD5E1',padding:'6px 10px'}}>No emoji found for :{emojiQuery}</span>
+                      <span style={{fontSize:12,color:'#E2E8F0',padding:'6px 10px'}}>No emoji found for :{emojiQuery}</span>
                     )}
                   </div>
                 )}
@@ -1436,7 +1436,7 @@ export default function WorkspaceShell() {
                       <button key={cmd} onClick={() => handleSlashCommand(cmd)}
                         style={{display:'block',width:'100%',textAlign:'left',padding:'6px 10px',background:'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         <span style={{fontWeight:700,color:'#818CF8'}}>{cmd}</span>
-                        <span style={{color:'#CBD5E1',marginLeft:8,fontSize:12}}>
+                        <span style={{color:'#E2E8F0',marginLeft:8,fontSize:12}}>
                           {cmd==='/todo'?'Create a todo item':cmd==='/poll'?'Create a poll':cmd==='/me'?'Action message':cmd==='/shrug'?'¯\_(ツ)_/¯':cmd==='/tableflip'?'(╯°□°）╯':'Clear message'}
                         </span>
                       </button>
@@ -1447,7 +1447,7 @@ export default function WorkspaceShell() {
                   <input ref={fileInputRef} type="file" style={{display:'none'}} onChange={e => e.target.files?.[0] && uploadFile(e.target.files[0])} />
                   <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
                     title="Attach file"
-                    style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
+                    style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,padding:2,flexShrink:0}}>{uploading ? '⏳' : '+'}</button>
                   <button onClick={recording ? stopRecordingVoice : startRecordingVoice}
                     title="Voice message"
                     style={{background:'none',border:'none',color: recording ? '#ed4245' : '#7A8499',cursor:'pointer',fontSize:14,padding:2,flexShrink:0}}>{recording ? '⏹' : '🎤'}</button>
@@ -1472,8 +1472,8 @@ export default function WorkspaceShell() {
                 </div>
               </div>
               <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
-                <span style={{fontSize:11,color:'#CBD5E1'}}>Enter to send · Shift+Enter for new line · / for commands</span>
-                {newMessage && <span style={{fontSize:11,color:'#CBD5E1'}}>Draft saved</span>}
+                <span style={{fontSize:11,color:'#E2E8F0'}}>Enter to send · Shift+Enter for new line · / for commands</span>
+                {newMessage && <span style={{fontSize:11,color:'#E2E8F0'}}>Draft saved</span>}
               </div>
             </div>
           </div>
@@ -1514,7 +1514,7 @@ export default function WorkspaceShell() {
                     <div style={{flex:1}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:2}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{msg.sender_name}</span>
-                        <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                        <span style={{fontSize:12,color:'#E2E8F0'}}>{new Date(msg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                       </div>
                       <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(msg.content).html || msg.content}} />
                       {/* Read receipts - show on last message sent by me */}
@@ -1562,7 +1562,7 @@ export default function WorkspaceShell() {
         <div style={{width:360,borderLeft:'1px solid rgba(99,120,180,0.12)',display:'flex',flexDirection:'column',background:'#313338',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',borderBottom:'1px solid rgba(99,120,180,0.12)'}}>
             <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>Thread</span>
-            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18}}>✕</button>
+            <button onClick={() => setThreadMsg(null)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18}}>✕</button>
           </div>
           <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
             <div style={{display:'flex',gap:12,marginBottom:16,paddingBottom:16,borderBottom:'1px solid rgba(99,120,180,0.12)'}}>
@@ -1572,7 +1572,7 @@ export default function WorkspaceShell() {
               <div>
                 <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:4}}>
                   <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{threadMsg.sender_name}</span>
-                  <span style={{fontSize:12,color:'#CBD5E1'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                  <span style={{fontSize:12,color:'#E2E8F0'}}>{new Date(threadMsg.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                 </div>
                 <div style={{fontSize:15,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(threadMsg.content).html || threadMsg.content}} />
               </div>
@@ -1585,7 +1585,7 @@ export default function WorkspaceShell() {
                 <div>
                   <div style={{display:'flex',gap:8,alignItems:'baseline',marginBottom:2}}>
                     <span style={{fontSize:13,fontWeight:700,color:'#FFFFFF'}}>{r.sender_name}</span>
-                    <span style={{fontSize:11,color:'#CBD5E1'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
+                    <span style={{fontSize:11,color:'#E2E8F0'}}>{new Date(r.sent_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>
                   </div>
                   <div style={{fontSize:14,color:'#C8D0E0',lineHeight:1.5}} dangerouslySetInnerHTML={{__html: renderMessage(r.content).html || r.content}} />
                 </div>
@@ -1618,9 +1618,9 @@ export default function WorkspaceShell() {
           </div>
           <div style={{display:'flex',gap:8}}>
             <button onClick={endHuddle} style={{flex:1,background:'rgba(237,66,69,0.15)',border:'1px solid rgba(237,66,69,0.3)',borderRadius:8,padding:'8px',color:'#ed4245',fontSize:12,fontWeight:600,cursor:'pointer'}}>End huddle</button>
-            <button onClick={() => setShowHuddle(false)} style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'8px',color:'#E2E8F0',fontSize:12,cursor:'pointer'}}>Minimise</button>
+            <button onClick={() => setShowHuddle(false)} style={{flex:1,background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:8,padding:'8px',color:'#F1F5F9',fontSize:12,cursor:'pointer'}}>Minimise</button>
           </div>
-          <p style={{fontSize:11,color:'#CBD5E1',marginTop:8,textAlign:'center'}}>Others in #{activeChannel?.name} can join</p>
+          <p style={{fontSize:11,color:'#E2E8F0',marginTop:8,textAlign:'center'}}>Others in #{activeChannel?.name} can join</p>
         </div>
       )}
 
@@ -2397,7 +2397,7 @@ export default function WorkspaceShell() {
         <div style={{position:'fixed',right:324,top:56,bottom:0,width:280,background:'#0F172A',border:'1px solid #1E40AF',zIndex:500,display:'flex',flexDirection:'column',boxShadow:'-8px 0 24px rgba(0,0,0,0.5)'}}>
           <div style={{padding:'12px 16px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
             <span style={{fontSize:13,fontWeight:700,color:'#F1F5F9'}}>{meetingTab==='polls'?'Polls':meetingTab==='breakout'?'Breakout Rooms':'Transcription'}</span>
-            <button onClick={() => setMeetingTab('chat')} style={{background:'none',border:'none',color:'#94A3B8',cursor:'pointer',fontSize:20}}>x</button>
+            <button onClick={() => setMeetingTab('chat')} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:20}}>x</button>
           </div>
           <div style={{flex:1,overflowY:'auto',display:'flex',flexDirection:'column'}}>
             {meetingTab === 'polls' && <MeetingPolls meetingId={activeMeetingId!} isHost={false} apiFetch={apiFetch} />}
@@ -2664,7 +2664,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
               onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.03)';(e.currentTarget as HTMLElement).style.borderColor='rgba(99,120,180,0.12)'}}>
               <div style={{fontSize:12,fontWeight:900,color:'#4F6EF7',background:'rgba(79,110,247,0.12)',border:'1px solid rgba(79,110,247,0.25)',borderRadius:8,padding:'4px 8px',display:'inline-block',marginBottom:8,letterSpacing:0.5}}>{item.icon}</div>
               <div style={{fontSize:13,fontWeight:700,color:'#E8EAF0',marginBottom:3}}>{item.label}</div>
-              <div style={{fontSize:11,color:'#CBD5E1'}}>{item.desc}</div>
+              <div style={{fontSize:11,color:'#E2E8F0'}}>{item.desc}</div>
             </button>
           ))}
         </div>
@@ -2930,7 +2930,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
   }
 
   const { firstDay, daysInMonth } = getDaysInMonth();
-  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-300', cancelled: 'bg-gray-800 text-gray-400 line-through' };
+  const STATUS_COLORS: Record<string, string> = { live: 'bg-red-900 text-red-300', scheduled: 'bg-blue-900 text-blue-300', ended: 'bg-gray-800 text-gray-300', cancelled: 'bg-gray-800 text-gray-200 line-through' };
 
   return (
     <div className="space-y-4 max-w-4xl">
@@ -2941,8 +2941,8 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
               style={{background:'#7C3AED',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Webinar</button>
             <button onClick={() => onShowAnalytics()}
               style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Analytics</button>
-            <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>List</button>
-          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'text-white' : 'text-gray-400 hover:text-white'}`}>Calendar</button>
+            <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
+          <button onClick={() => setView('calendar')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'calendar' ? 'text-white' : 'text-gray-200 hover:text-white'}`}>Calendar</button>
         </div>
         <button onClick={() => setCreating(true)} className="text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors" style={{background:"#1D4ED8"}}>New meeting</button>
       </div>
@@ -2956,35 +2956,35 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
           <input value={meetDesc} onChange={e => setMeetDesc(e.target.value)} placeholder="Description (optional)"
             className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
           <div className="flex gap-2">
-            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'text-white font-semibold' : 'font-medium'}`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>Start now</button>
-            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'text-white font-semibold' : 'font-medium'}`} style={!startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>Schedule</button>
+            <button onClick={() => setStartNow(true)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${startNow ? 'text-white font-semibold' : 'font-medium'}`} style={startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#E2E8F0'}}>Start now</button>
+            <button onClick={() => setStartNow(false)} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!startNow ? 'text-white font-semibold' : 'font-medium'}`} style={!startNow ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#E2E8F0'}}>Schedule</button>
           </div>
           {!startNow && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Date</label>
+                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#E2E8F0",textTransform:"uppercase",letterSpacing:"0.05em"}}>Date</label>
                 <input type="date" value={meetDate} onChange={e => setMeetDate(e.target.value)} min={new Date().toISOString().split('T')[0]}
                   className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
               </div>
               <div>
-                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Time</label>
+                <label className="text-xs font-semibold mb-1.5 block" style={{color:"#E2E8F0",textTransform:"uppercase",letterSpacing:"0.05em"}}>Time</label>
                 <input type="time" value={meetTime} onChange={e => setMeetTime(e.target.value)}
                   className="w-full rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
               </div>
             </div>
           )}
           <div>
-            <label className="text-xs font-semibold mb-2 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Duration</label>
+            <label className="text-xs font-semibold mb-2 block" style={{color:"#E2E8F0",textTransform:"uppercase",letterSpacing:"0.05em"}}>Duration</label>
             <div className="flex gap-2">
               {[30, 60, 90, 120].map(d => (
-                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white' : ''}`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#94A3B8'}}>
+                <button key={d} onClick={() => setMeetDur(d)} className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${meetDur === d ? 'text-white' : ''}`} style={meetDur === d ? {background:'#1D4ED8',border:'1px solid #3B82F6',color:'#FFFFFF'} : {background:'#1E293B',border:'1px solid #334155',color:'#E2E8F0'}}>
                   {d < 60 ? `${d}m` : `${d/60}h`}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold mb-2 block" style={{color:"#94A3B8",textTransform:"uppercase",letterSpacing:"0.05em"}}>Invite members {invitedIds.length > 0 && <span style={{color:"#60A5FA",fontWeight:700}}>({invitedIds.length})</span>}</label>
+            <label className="text-xs font-semibold mb-2 block" style={{color:"#E2E8F0",textTransform:"uppercase",letterSpacing:"0.05em"}}>Invite members {invitedIds.length > 0 && <span style={{color:"#60A5FA",fontWeight:700}}>({invitedIds.length})</span>}</label>
             <input value={memberSearch} onChange={e => setMemberSearch(e.target.value)} placeholder="Search..."
               className="w-full rounded-lg px-3 py-2 text-xs focus:outline-none mb-2" style={{background:"#1E293B",color:"#F1F5F9",border:"1px solid #334155"}} />
             <div className="max-h-36 overflow-y-auto space-y-1 rounded-xl p-2" style={{background:"#1E293B"}}>
@@ -3005,7 +3005,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
               className="flex-1 disabled:opacity-40 text-white font-semibold py-2.5 rounded-xl text-sm tracking-wide transition-all" style={{background:"linear-gradient(135deg,#1D4ED8,#2563EB)",boxShadow:"0 4px 15px rgba(29,78,216,0.4)"}}>
               {saving ? 'Creating...' : startNow ? 'Start meeting' : 'Schedule'}
             </button>
-            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs px-4 py-2 rounded-lg transition-colors" style={{color:"#94A3B8",background:"#1E293B"}}>Cancel</button>
+            <button onClick={() => { setCreating(false); setInvitedIds([]); setMeetDesc(''); }} className="text-xs px-4 py-2 rounded-lg transition-colors" style={{color:"#E2E8F0",background:"#1E293B"}}>Cancel</button>
           </div>
         </div>
       )}
@@ -3042,7 +3042,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                   }}
                   className={`min-h-16 p-1 cursor-pointer transition-colors ${isToday ? 'bg-blue-950/40' : 'hover:bg-slate-800/60'}`}
                   style={{borderBottom:'1px solid #1E3A5F',borderRight:'1px solid #1E3A5F'}}>
-                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'text-white' : 'text-gray-400'}`}>{day}</div>
+                  <div className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? 'text-white' : 'text-gray-200'}`}>{day}</div>
                   {dayMeetings.map(m => (
                     <a key={m.id} href={`/meet?id=${m.id}`} target="_blank"
                       className="block text-xs rounded px-1.5 py-0.5 mb-0.5 truncate font-medium" style={{
@@ -3064,13 +3064,13 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
       {/* List view */}
       {view === 'list' && (
         <div className="space-y-3">
-          {meetings.length === 0 && !creating && <div className="text-sm text-center py-12 font-medium" style={{color:"#475569"}}>No meetings scheduled</div>}
+          {meetings.length === 0 && !creating && <div className="text-sm text-center py-12 font-medium" style={{color:"#E2E8F0"}}>No meetings scheduled</div>}
           {meetings.map(m => (
             <div key={m.id} className="rounded-xl p-4 transition-all cursor-default" style={{background:"#0F172A",border:"1px solid #1E3A5F",boxShadow:"0 2px 8px rgba(0,0,0,0.3)"}} onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.borderColor="#3B82F6"}} onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.borderColor="#1E3A5F"}}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-base truncate" style={{color:"#F1F5F9"}}>{m.title}</div>
-                  {m.description && <div className="text-xs mt-0.5 truncate" style={{color:"#94A3B8"}}>{m.description}</div>}
+                  {m.description && <div className="text-xs mt-0.5 truncate" style={{color:"#E2E8F0"}}>{m.description}</div>}
                   <div className="text-xs mt-2 flex items-center gap-3" style={{color:"#60A5FA"}}>
                     <span>{new Date(m.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</span>
                     <span>{m.duration_mins || 60}m</span>
@@ -3089,7 +3089,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     {/* RSVP for scheduled */}
                     {m.status === 'scheduled' && (
                       <div className="flex items-center gap-1 rounded-lg px-2 py-1" style={{background:"#1E293B",border:"1px solid #334155"}}>
-                        <span className="text-xs font-medium" style={{color:"#94A3B8"}}>RSVP:</span>
+                        <span className="text-xs font-medium" style={{color:"#E2E8F0"}}>RSVP:</span>
                         {[['✓','going'],['?','maybe'],['✗','no']].map(([icon,status]) => (
                           <button key={status} onClick={async () => { await apiFetch('/meetings/' + m.id + '/rsvp', { method:'POST', body: JSON.stringify({ status }) }); alert('RSVP: ' + status); }}
                             className="text-xs px-1.5 py-0.5 rounded font-bold transition-colors" style={{color:"#60A5FA"}}>{icon}</button>
@@ -3099,7 +3099,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     {/* Hamburger menu */}
                     <div className="relative" style={{position:'relative'}}>
                       <button onClick={() => setOpenMenuId(openMenuId === m.id ? null : m.id)}
-                        className="text-xs px-3 py-2 rounded-lg font-bold transition-colors" style={{background:"#1E293B",color:"#94A3B8",border:"1px solid #334155"}}>
+                        className="text-xs px-3 py-2 rounded-lg font-bold transition-colors" style={{background:"#1E293B",color:"#E2E8F0",border:"1px solid #334155"}}>
                         ⋯
                       </button>
                       {openMenuId === m.id && (
@@ -3311,7 +3311,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                           <div style={{fontSize:13,color:'#FFFFFF',fontWeight:500}}>You (Host)</div>
                           <div style={{fontSize:10,color:'#818CF8'}}>{micOn?'🎙️ Mic on':'🔇 Mic off'} · {cameraOn?'📷 Cam on':'📷 Cam off'}</div>
                         </div>
-                        <span style={{fontSize:10,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
+                        <span style={{fontSize:10,color:'#E2E8F0',background:'rgba(99,120,180,0.09)',padding:'2px 5px',borderRadius:4}}>Host</span>
                       </div>
                       {/* Participants */}
                       {meetingParticipants.map((p,i) => (
@@ -3321,7 +3321,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                           <div style={{width:28,height:28,borderRadius:'50%',background:['#5865f2','#7c3aed','#0284c7','#dc2626','#d97706'][i%5],display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{p.name?.charAt(0)||'?'}</div>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:13,color:'#FFFFFF',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
-                            <div style={{fontSize:10,color:'#CBD5E1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
+                            <div style={{fontSize:10,color:'#E2E8F0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.email}</div>
                           </div>
                           <button onClick={() => {
                             setMeetingParticipants(prev=>prev.filter((_,j)=>j!==i));
@@ -3330,7 +3330,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                           }} style={{fontSize:10,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:5,padding:'3px 7px',cursor:'pointer',flexShrink:0}}>Remove</button>
                         </div>
                       ))}
-                      {meetingParticipants.length===0 && <div style={{padding:14,fontSize:12,color:'#CBD5E1',textAlign:'center'}}>No other participants yet.<br/>Click + Invite to add people.</div>}
+                      {meetingParticipants.length===0 && <div style={{padding:14,fontSize:12,color:'#E2E8F0',textAlign:'center'}}>No other participants yet.<br/>Click + Invite to add people.</div>}
                     </div>
                   </div>
                 )}
@@ -3422,7 +3422,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                   {!cameraOn && <span style={{fontSize:13,color:'#FFFFFF'}}>You</span>}
                   {micOn && <span style={{position:'absolute',bottom:8,right:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.6)',padding:'2px 6px',borderRadius:4}}>🎙️ Live</span>}
                   <span style={{position:'absolute',bottom:8,left:8,fontSize:11,color:'#818CF8',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>🎙️ Host</span>
-                  <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#CBD5E1',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
+                  <span style={{position:'absolute',top:8,right:8,fontSize:11,color:'#E2E8F0',background:'rgba(0,0,0,0.5)',padding:'2px 6px',borderRadius:4}}>HD</span>
                 </div>
                 {/* Other participant tiles */}
                 {/* Participant tiles - click to open host controls */}
@@ -3435,7 +3435,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     <span style={{fontSize:12,color:'#A8B3C8',fontWeight:500}}>{p.name}</span>
                     <div style={{position:'absolute',bottom:6,left:6,display:'flex',gap:3}}>
                       <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:participantMics[p.id]===false?'#ed4245':'#818CF8'}}>{participantMics[p.id]===false?'🔇':'🎙️'}</span>
-                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#CBD5E1'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
+                      <span style={{fontSize:10,background:'rgba(0,0,0,0.7)',padding:'1px 5px',borderRadius:4,color:'#E2E8F0'}}>{participantCams[p.id]===false?'📷✗':'📷'}</span>
                     </div>
                     <div style={{position:'absolute',top:6,right:6,fontSize:9,color:'#f59e0b',background:'rgba(0,0,0,0.6)',padding:'1px 5px',borderRadius:4,opacity: showHostControls===p.id?1:0,transition:'opacity .15s'}}>Host controls</div>
                     {showHostControls===p.id && (
@@ -3477,7 +3477,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                           </button>
                         ))}
                         <button onClick={()=>setShowHostControls(null)}
-                          style={{display:'block',width:'100%',textAlign:'center',padding:'5px',background:'rgba(99,120,180,0.09)',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:11,borderRadius:6,marginTop:6}}>Close ✕</button>
+                          style={{display:'block',width:'100%',textAlign:'center',padding:'5px',background:'rgba(99,120,180,0.09)',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:11,borderRadius:6,marginTop:6}}>Close ✕</button>
                       </div>
                     )}
                   </div>
@@ -3485,12 +3485,12 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                 {meetingParticipants.length===0 && (
                   <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(99,120,180,0.14)'}}>
                     <span style={{fontSize:28,marginBottom:6}}>👥</span>
-                    <span style={{fontSize:12,color:'#CBD5E1'}}>Add people to see them here</span>
+                    <span style={{fontSize:12,color:'#E2E8F0'}}>Add people to see them here</span>
                   </div>
                 )}
                 {meetingParticipants.length>5 && (
                   <div style={{background:'#16213E',borderRadius:12,aspectRatio:'16/9',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                    <span style={{fontSize:20,fontWeight:700,color:'#CBD5E1'}}>+{meetingParticipants.length-5} more</span>
+                    <span style={{fontSize:20,fontWeight:700,color:'#E2E8F0'}}>+{meetingParticipants.length-5} more</span>
                   </div>
                 )}
               </div>
@@ -3638,7 +3638,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                       onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background= ctrl.active ? (ctrl.color ? ctrl.color+'33' : 'rgba(79,110,247,0.2)') : 'rgba(99,120,180,0.12)'}>
                       {ctrl.icon}
                     </button>
-                    <span style={{fontSize:10,color:'#CBD5E1',whiteSpace:'nowrap'}}>{ctrl.label}</span>
+                    <span style={{fontSize:10,color:'#E2E8F0',whiteSpace:'nowrap'}}>{ctrl.label}</span>
                   </div>
                 ))}
               </div>
@@ -3671,7 +3671,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                   </span>
                   {chatMode === 'private' && (
                     <button onClick={() => { setChatMode('everyone'); setPrivateTarget(null); }}
-                      style={{fontSize:10,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
+                      style={{fontSize:10,color:'#E2E8F0',background:'rgba(99,120,180,0.09)',border:'none',borderRadius:4,padding:'2px 6px',cursor:'pointer'}}>
                       × Back to all
                     </button>
                   )}
@@ -3685,7 +3685,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                   <div style={{display:'flex',gap:4}}>
                     {[['polls','P','Polls'],['breakout','B','Rooms'],['transcript','T','Notes']].map(([tab,icon,label]) => (
                       <button key={tab} title={label} onClick={() => setMeetingTab(meetingTab===tab?'chat':tab)}
-                        style={{background:meetingTab===tab?'#1D4ED8':'rgba(99,120,180,0.09)',border:'none',borderRadius:6,padding:'3px 8px',color:meetingTab===tab?'#fff':'#94A3B8',fontSize:11,cursor:'pointer',fontWeight:700}}>
+                        style={{background:meetingTab===tab?'#1D4ED8':'rgba(99,120,180,0.09)',border:'none',borderRadius:6,padding:'3px 8px',color:meetingTab===tab?'#fff':'#E2E8F0',fontSize:11,cursor:'pointer',fontWeight:700}}>
                         {icon}
                       </button>
                     ))}
@@ -3696,9 +3696,9 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                         style={{display:'block',width:'100%',textAlign:'left',padding:'7px 12px',background: chatMode==='everyone'?'rgba(36,128,70,0.15)':'none',border:'none',color:'#FFFFFF',cursor:'pointer',fontSize:13,borderRadius:4}}>
                         🌐 Message everyone
                       </button>
-                      <div style={{padding:'4px 12px',fontSize:10,color:'#CBD5E1',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
+                      <div style={{padding:'4px 12px',fontSize:10,color:'#E2E8F0',fontWeight:600,marginTop:4}}>PRIVATE MESSAGE</div>
                       {meetingParticipants.length === 0
-                        ? <div style={{padding:'6px 12px',fontSize:12,color:'#CBD5E1'}}>No other participants yet</div>
+                        ? <div style={{padding:'6px 12px',fontSize:12,color:'#E2E8F0'}}>No other participants yet</div>
                         : meetingParticipants.map((p,i) => (
                           <button key={i} onClick={() => { setChatMode('private'); setPrivateTarget(p); setShowChatMenu(false); }}
                             style={{display:'flex',alignItems:'center',gap:8,width:'100%',textAlign:'left',padding:'6px 12px',background: privateTarget?.id===p.id?'rgba(99,102,241,0.15)':'none',border:'none',color:'#A8B3C8',cursor:'pointer',fontSize:13,borderRadius:4}}>
@@ -3714,7 +3714,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     if (confirm('Clear all meeting chat messages? This cannot be undone.')) {
                       setInMeetingChat([{ sender:'System', text:'Chat cleared by host', time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) }]);
                     }
-                  }} title="Clear chat" style={{fontSize:11,color:'#CBD5E1',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
+                  }} title="Clear chat" style={{fontSize:11,color:'#E2E8F0',background:'rgba(99,120,180,0.09)',border:'1px solid rgba(99,120,180,0.14)',borderRadius:6,padding:'4px 8px',cursor:'pointer'}}>
                     🗑️
                   </button>
                 </div>
@@ -3751,14 +3751,14 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                           {msg.sender}
                           {msg.private && <span style={{fontSize:10,color:'#6366f1',marginLeft:4}}>🔒 private</span>}
                         </span>
-                        <span style={{fontSize:10,color:'#CBD5E1'}}>{msg.time}</span>
+                        <span style={{fontSize:10,color:'#E2E8F0'}}>{msg.time}</span>
                       </div>
                       <p style={{fontSize:13,color:'#C8D0E0',margin:0,lineHeight:1.4}}>{msg.text}</p>
                     </div>
                   ))
                 }
                 {inMeetingChat.filter((msg:any) => chatMode==='private' && privateTarget ? msg.private && (msg.to===privateTarget.id||msg.from===privateTarget.id) : !msg.private).length === 0 && chatMode === 'private' && (
-                  <div style={{textAlign:'center',color:'#CBD5E1',fontSize:12,padding:16}}>
+                  <div style={{textAlign:'center',color:'#E2E8F0',fontSize:12,padding:16}}>
                     🔒 Start a private conversation with {privateTarget?.name}
                   </div>
                 )}
@@ -3766,7 +3766,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
 
               {/* Emoji + file row */}
               <div style={{padding:'6px 12px',borderTop:'1px solid rgba(99,120,180,0.09)',display:'flex',gap:4,alignItems:'center'}}>
-                <span style={{fontSize:11,color:'#CBD5E1',marginRight:2}}>
+                <span style={{fontSize:11,color:'#E2E8F0',marginRight:2}}>
                   {chatMode==='private' && privateTarget ? '🔒' : '🌐'}
                 </span>
                 {['👍','😊','❤️','🎉','🔥','👏'].map(e => (
@@ -3787,7 +3787,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     };
                     setInMeetingChat((c:any) => [...c, msg]);
                   }} />
-                  <span style={{fontSize:16,color:'#CBD5E1'}}>📎</span>
+                  <span style={{fontSize:16,color:'#E2E8F0'}}>📎</span>
                 </label>
               </div>
 
@@ -3833,11 +3833,11 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
           <div style={{background:'#161C2A',borderRadius:16,border:'1px solid rgba(99,120,180,0.14)',width:'100%',maxWidth:460,padding:24,boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
               <span style={{fontSize:16,fontWeight:700,color:'#FFFFFF'}}>Add people to meeting</span>
-              <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#CBD5E1',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
+              <button onClick={() => setShowAddPeople(false)} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:18,lineHeight:1}}>x</button>
             </div>
 
             {/* Capacity warning */}
-            <div style={{background:'rgba(99,120,180,0.07)',borderRadius:8,padding:'8px 12px',marginBottom:14,fontSize:12,color:'#CBD5E1'}}>
+            <div style={{background:'rgba(99,120,180,0.07)',borderRadius:8,padding:'8px 12px',marginBottom:14,fontSize:12,color:'#E2E8F0'}}>
               {participantCount}/{MAX_PARTICIPANTS} participants · {MAX_PARTICIPANTS - participantCount} slots remaining
               {participantCount >= MAX_PARTICIPANTS * 0.9 && <span style={{color:'#f59e0b',marginLeft:8}}>⚠️ Near capacity</span>}
             </div>
@@ -3860,7 +3860,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:14,color:'#FFFFFF',fontWeight:500}}>{m.display_name}</div>
-                      <div style={{fontSize:12,color:'#CBD5E1',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
+                      <div style={{fontSize:12,color:'#E2E8F0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.email}</div>
                     </div>
                     <button onClick={() => {
                       if (participantCount >= MAX_PARTICIPANTS) {
@@ -3879,16 +3879,16 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
                 ))
               }
               {(meetOrgMembers as any[]).filter((m:any) => m.id !== currentUser?.id).filter((m:any) => !meetingParticipants.find(p => p.id===m.id)).length === 0 && (
-                <p style={{fontSize:13,color:'#CBD5E1',textAlign:'center',padding:16}}>All workspace members have been added</p>
+                <p style={{fontSize:13,color:'#E2E8F0',textAlign:'center',padding:16}}>All workspace members have been added</p>
               )}
             </div>
 
             {/* Share link */}
             <div style={{borderTop:'1px solid rgba(99,120,180,0.12)',paddingTop:14}}>
-              <p style={{fontSize:12,color:'#CBD5E1',marginBottom:8}}>Or share the meeting link:</p>
+              <p style={{fontSize:12,color:'#E2E8F0',marginBottom:8}}>Or share the meeting link:</p>
               <div style={{display:'flex',gap:8}}>
                 <input readOnly value={typeof window !== 'undefined' ? window.location.origin + '/meet?id=' + activeMeeting?.id : ''}
-                  style={{flex:1,background:'rgba(99,120,180,0.07)',border:'1px solid rgba(99,120,180,0.12)',borderRadius:6,padding:'7px 10px',color:'#CBD5E1',fontSize:12,outline:'none'}} />
+                  style={{flex:1,background:'rgba(99,120,180,0.07)',border:'1px solid rgba(99,120,180,0.12)',borderRadius:6,padding:'7px 10px',color:'#E2E8F0',fontSize:12,outline:'none'}} />
                 <button onClick={() => {
                   navigator.clipboard.writeText(window.location.origin + '/meet?id=' + activeMeeting?.id);
                   alert('Meeting link copied!');

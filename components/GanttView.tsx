@@ -26,7 +26,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   critical: '#EF4444',
   high:     '#F97316',
   medium:   '#3B82F6',
-  low:      '#94A3B8',
+  low:      '#E2E8F0',
 };
 
 const LIST_COLORS = ['#1D4ED8','#7C3AED','#059669','#D97706','#DC2626','#0891B2','#DB2777','#65A30D'];
@@ -89,7 +89,7 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
         <span style={{ fontSize: 13, fontWeight: 700, color: '#F1F5F9' }}>Timeline</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
           <button onClick={() => setStartOffset(o => o - (zoom === 'week' ? 7 : zoom === 'month' ? 30 : 90))}
-            style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '3px 10px', color: '#94A3B8', fontSize: 12, cursor: 'pointer' }}>
+            style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '3px 10px', color: '#E2E8F0', fontSize: 12, cursor: 'pointer' }}>
             ← Prev
           </button>
           <button onClick={() => setStartOffset(0)}
@@ -97,14 +97,14 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
             Today
           </button>
           <button onClick={() => setStartOffset(o => o + (zoom === 'week' ? 7 : zoom === 'month' ? 30 : 90))}
-            style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '3px 10px', color: '#94A3B8', fontSize: 12, cursor: 'pointer' }}>
+            style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '3px 10px', color: '#E2E8F0', fontSize: 12, cursor: 'pointer' }}>
             Next →
           </button>
         </div>
         <div style={{ display: 'flex', background: '#1E293B', borderRadius: 6, border: '1px solid #334155', overflow: 'hidden' }}>
           {(['week', 'month', 'quarter'] as const).map(z => (
             <button key={z} onClick={() => setZoom(z)}
-              style={{ padding: '3px 10px', background: zoom === z ? '#1D4ED8' : 'none', border: 'none', color: zoom === z ? '#fff' : '#94A3B8', fontSize: 11, cursor: 'pointer', fontWeight: zoom === z ? 700 : 400, textTransform: 'capitalize' }}>
+              style={{ padding: '3px 10px', background: zoom === z ? '#1D4ED8' : 'none', border: 'none', color: zoom === z ? '#fff' : '#E2E8F0', fontSize: 11, cursor: 'pointer', fontWeight: zoom === z ? 700 : 400, textTransform: 'capitalize' }}>
               {z}
             </button>
           ))}
@@ -120,13 +120,13 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
             <div key={list.id}>
               <div style={{ padding: '6px 12px', background: '#0F172A', borderBottom: '1px solid #1E3A5F', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: LIST_COLORS[li % LIST_COLORS.length], flexShrink: 0 }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</span>
-                <span style={{ fontSize: 10, color: '#475569', marginLeft: 'auto' }}>{listTasks.length}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#E2E8F0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</span>
+                <span style={{ fontSize: 10, color: '#E2E8F0', marginLeft: 'auto' }}>{listTasks.length}</span>
               </div>
               {listTasks.map(task => (
                 <div key={task.id} style={{ height: 36, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 6, borderBottom: '1px solid #0F1E35' }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: PRIORITY_COLORS[task.priority || 'low'], flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: '#E2E8F0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{task.title}</span>
+                  <span style={{ fontSize: 12, color: '#F1F5F9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{task.title}</span>
                 </div>
               ))}
             </div>
@@ -145,8 +145,8 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
                   <div key={i} style={{ width: colWidth, flexShrink: 0, borderRight: '1px solid #0F1E35', background: isToday ? 'rgba(29,78,216,0.2)' : 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     {showLabel && (
                       <>
-                        <span style={{ fontSize: 9, color: '#475569' }}>{d.toLocaleDateString('en-IN', { month: 'short' })}</span>
-                        <span style={{ fontSize: 10, color: isToday ? '#60A5FA' : '#64748B', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
+                        <span style={{ fontSize: 9, color: '#E2E8F0' }}>{d.toLocaleDateString('en-IN', { month: 'short' })}</span>
+                        <span style={{ fontSize: 10, color: isToday ? '#60A5FA' : '#E2E8F0', fontWeight: isToday ? 700 : 400 }}>{d.getDate()}</span>
                       </>
                     )}
                   </div>
@@ -202,7 +202,7 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
                       )}
                       {/* No due date indicator */}
                       {!task.due_date && (
-                        <div style={{ position: 'absolute', top: 12, left: 8, fontSize: 10, color: '#334155' }}>No due date</div>
+                        <div style={{ position: 'absolute', top: 12, left: 8, fontSize: 10, color: '#64748B' }}>No due date</div>
                       )}
                     </div>
                   );
@@ -215,16 +215,16 @@ export default function GanttView({ tasks, lists }: GanttViewProps) {
 
       {/* Legend */}
       <div style={{ padding: '6px 16px', borderTop: '1px solid #1E3A5F', display: 'flex', gap: 16, alignItems: 'center', flexShrink: 0 }}>
-        <span style={{ fontSize: 11, color: '#475569' }}>Legend:</span>
+        <span style={{ fontSize: 11, color: '#E2E8F0' }}>Legend:</span>
         {Object.entries(PRIORITY_COLORS).map(([p, c]) => (
           <div key={p} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
-            <span style={{ fontSize: 10, color: '#64748B', textTransform: 'capitalize' }}>{p}</span>
+            <span style={{ fontSize: 10, color: '#E2E8F0', textTransform: 'capitalize' }}>{p}</span>
           </div>
         ))}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
           <div style={{ width: 20, height: 8, background: '#7F1D1D', borderRadius: 2, border: '1px solid #EF4444' }} />
-          <span style={{ fontSize: 10, color: '#64748B' }}>Overdue</span>
+          <span style={{ fontSize: 10, color: '#E2E8F0' }}>Overdue</span>
         </div>
       </div>
     </div>

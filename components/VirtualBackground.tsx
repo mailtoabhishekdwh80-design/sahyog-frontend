@@ -51,10 +51,10 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
             <span style={{fontSize:20}}>🎨</span>
             <div>
               <div style={{color:'#F1F5F9',fontWeight:700,fontSize:15}}>Virtual Background</div>
-              <div style={{fontSize:11,color:'#475569'}}>Choose a background for your video</div>
+              <div style={{fontSize:11,color:'#E2E8F0'}}>Choose a background for your video</div>
             </div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:22}}>×</button>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:22}}>×</button>
         </div>
 
         <div style={{flex:1,overflowY:'auto',padding:20}}>
@@ -85,7 +85,7 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
                   </div>
                 )}
                 {bg.type === 'none' && (
-                  <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#475569',fontSize:11,fontWeight:600}}>
+                  <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#E2E8F0',fontSize:11,fontWeight:600}}>
                     No background
                   </div>
                 )}
@@ -105,7 +105,7 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
 
           {/* Custom image URL */}
           <div style={{borderTop:'1px solid #1E3A5F',paddingTop:16}}>
-            <div style={{fontSize:12,color:'#94A3B8',fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>Custom image</div>
+            <div style={{fontSize:12,color:'#E2E8F0',fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>Custom image</div>
             <div style={{display:'flex',gap:8}}>
               <input value={customUrl} onChange={e => setCustomUrl(e.target.value)}
                 placeholder="Paste image URL..."
@@ -125,7 +125,7 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
 
         {/* Footer */}
         <div style={{padding:'12px 20px',borderTop:'1px solid #1E3A5F',display:'flex',justifyContent:'flex-end',gap:8,flexShrink:0}}>
-          <button onClick={onClose} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 18px',color:'#94A3B8',fontSize:13,cursor:'pointer'}}>Cancel</button>
+          <button onClick={onClose} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 18px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>Cancel</button>
           <button onClick={onClose} style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'8px 18px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>Done</button>
         </div>
       </div>

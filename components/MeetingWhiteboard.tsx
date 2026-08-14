@@ -158,7 +158,7 @@ export default function MeetingWhiteboard({ onClose, meetingId }: WhiteboardProp
           <div style={{display:'flex',gap:2,background:'#1E293B',borderRadius:8,padding:3,border:'1px solid #334155'}}>
             {TOOLS.map(t => (
               <button key={t.id} onClick={() => setTool(t.id)} title={t.label}
-                style={{width:32,height:28,borderRadius:6,background:tool===t.id?'#1D4ED8':'none',border:'none',color:tool===t.id?'#fff':'#94A3B8',fontSize:t.id==='text'?13:16,cursor:'pointer',fontWeight:700}}>
+                style={{width:32,height:28,borderRadius:6,background:tool===t.id?'#1D4ED8':'none',border:'none',color:tool===t.id?'#fff':'#E2E8F0',fontSize:t.id==='text'?13:16,cursor:'pointer',fontWeight:700}}>
                 {t.icon}
               </button>
             ))}
@@ -174,20 +174,20 @@ export default function MeetingWhiteboard({ onClose, meetingId }: WhiteboardProp
 
           {/* Size */}
           <div style={{display:'flex',alignItems:'center',gap:6,marginLeft:8}}>
-            <span style={{fontSize:11,color:'#475569'}}>Size</span>
+            <span style={{fontSize:11,color:'#E2E8F0'}}>Size</span>
             <input type="range" min={1} max={20} value={size} onChange={e => setSize(Number(e.target.value))}
               style={{width:80,accentColor:'#1D4ED8'}} />
-            <span style={{fontSize:11,color:'#94A3B8',width:20}}>{size}</span>
+            <span style={{fontSize:11,color:'#E2E8F0',width:20}}>{size}</span>
           </div>
 
           {/* Actions */}
           <div style={{marginLeft:'auto',display:'flex',gap:6}}>
             <button onClick={undo} disabled={!history.length}
-              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#94A3B8',fontSize:12,cursor:'pointer',opacity:history.length?1:0.4}}>
+              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#E2E8F0',fontSize:12,cursor:'pointer',opacity:history.length?1:0.4}}>
               ↩ Undo
             </button>
             <button onClick={clearCanvas}
-              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#94A3B8',fontSize:12,cursor:'pointer'}}>
+              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:6,padding:'4px 10px',color:'#E2E8F0',fontSize:12,cursor:'pointer'}}>
               Clear
             </button>
             <button onClick={downloadCanvas}

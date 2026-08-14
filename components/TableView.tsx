@@ -27,7 +27,7 @@ const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   critical: { bg: 'rgba(239,68,68,0.15)',  text: '#FCA5A5' },
   high:     { bg: 'rgba(249,115,22,0.15)', text: '#FDBA74' },
   medium:   { bg: 'rgba(59,130,246,0.15)', text: '#93C5FD' },
-  low:      { bg: 'rgba(148,163,184,0.1)', text: '#94A3B8' },
+  low:      { bg: 'rgba(148,163,184,0.1)', text: '#E2E8F0' },
 };
 
 export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }: TableViewProps) {
@@ -65,7 +65,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
   }
 
   function SortIcon({ col }: { col: typeof sortBy }) {
-    if (sortBy !== col) return <span style={{ color: '#334155', marginLeft: 4 }}>↕</span>;
+    if (sortBy !== col) return <span style={{ color: '#64748B', marginLeft: 4 }}>↕</span>;
     return <span style={{ color: '#60A5FA', marginLeft: 4 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>;
   }
 
@@ -78,7 +78,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tasks..."
           style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 10px', color: '#F1F5F9', fontSize: 12, outline: 'none', width: 180 }} />
         <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
-          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#94A3B8', fontSize: 12, outline: 'none' }}>
+          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#E2E8F0', fontSize: 12, outline: 'none' }}>
           <option value="all">All priorities</option>
           <option value="critical">Critical</option>
           <option value="high">High</option>
@@ -86,11 +86,11 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
           <option value="low">Low</option>
         </select>
         <select value={filterList} onChange={e => setFilterList(e.target.value)}
-          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#94A3B8', fontSize: 12, outline: 'none' }}>
+          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#E2E8F0', fontSize: 12, outline: 'none' }}>
           <option value="all">All lists</option>
           {lists.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
-        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#475569' }}>{filtered.length} tasks</span>
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#E2E8F0' }}>{filtered.length} tasks</span>
       </div>
 
       {/* Table */}
@@ -107,7 +107,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
                 { label: 'Created', col: 'created_at' as const, width: '13%' },
               ].map(({ label, col, width }) => (
                 <th key={label} onClick={() => col && toggleSort(col)}
-                  style={{ padding: '10px 12px', textAlign: 'left', color: '#94A3B8', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                  style={{ padding: '10px 12px', textAlign: 'left', color: '#E2E8F0', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                   {label}{col && <SortIcon col={col} />}
                 </th>
               ))}
@@ -130,7 +130,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '10px 12px', color: '#64748B', fontSize: 12 }}>
+                  <td style={{ padding: '10px 12px', color: '#E2E8F0', fontSize: 12 }}>
                     {listMap[task.list_id || ''] || '—'}
                   </td>
                   <td style={{ padding: '10px 12px' }}>
@@ -138,21 +138,21 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
                       {task.priority || 'low'}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 12px', color: '#64748B', fontSize: 12 }}>
+                  <td style={{ padding: '10px 12px', color: '#E2E8F0', fontSize: 12 }}>
                     {assigneeName ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#1D4ED8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff' }}>
                           {assigneeName.charAt(0)}
                         </div>
-                        <span style={{ fontSize: 12, color: '#94A3B8' }}>{assigneeName.split(' ')[0]}</span>
+                        <span style={{ fontSize: 12, color: '#E2E8F0' }}>{assigneeName.split(' ')[0]}</span>
                       </div>
-                    ) : <span style={{ color: '#334155' }}>Unassigned</span>}
+                    ) : <span style={{ color: '#64748B' }}>Unassigned</span>}
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: isOverdue ? '#FCA5A5' : '#64748B', fontWeight: isOverdue ? 600 : 400 }}>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: isOverdue ? '#FCA5A5' : '#E2E8F0', fontWeight: isOverdue ? 600 : 400 }}>
                     {due ? due.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'}
                     {isOverdue && <span style={{ marginLeft: 4, fontSize: 10 }}>⚠️</span>}
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#475569' }}>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#E2E8F0' }}>
                     {task.created_at ? new Date(task.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}
                   </td>
                 </tr>
@@ -160,7 +160,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#475569', fontSize: 14 }}>
+                <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#E2E8F0', fontSize: 14 }}>
                   No tasks match your filters
                 </td>
               </tr>
