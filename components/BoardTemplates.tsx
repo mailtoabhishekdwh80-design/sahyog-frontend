@@ -201,7 +201,7 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
                     onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = '#1D4ED8'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = '#334155'}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>{template.icon}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', marginBottom: 4, fontSize:15 }}>{template.name}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', fontSize: 15 }}>{template.name}</div>
                     <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 12, lineHeight: 1.4 }}>{template.description}</div>
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
                       {template.lists.slice(0, 3).map(l => (
