@@ -225,6 +225,9 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
   // Task modal
   const [selectedTask,  setSelectedTask]  = useState<Task | null>(null);
+  const [customFields,  setCustomFields]  = useState<{id:string,name:string,type:string,value:string}[]>([]);
+  const [newFieldName, setNewFieldName]   = useState('');
+  const [newFieldType, setNewFieldType]   = useState('text');
   const [editTitle,     setEditTitle]     = useState('');
   const [editDesc,      setEditDesc]      = useState('');
   const [editPriority,  setEditPriority]  = useState('medium');
@@ -793,6 +796,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   { id: 'deps',        label: 'Dependencies' },
                   { id: 'attachments', label: `Files (${attachments.length})` },
                   { id: 'activity',    label: 'Activity' },
+                  { id: 'custom',      label: `Fields (${customFields.length})` },
                 ].map(tab => (
                   <button key={tab.id} onClick={() => setTaskTab(tab.id as any)}
                     className={`text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors ${taskTab === tab.id ? 'bg-emerald-700 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
@@ -1088,7 +1092,74 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     </div>
                   ))}
                 </div>
-              )}
+              )
+              {taskTab === 'custom' && (
+                <div className="p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-white">Custom Fields</span>
+                    <span className="text-xs text-gray-500">Add custom data to this task</span>
+                  </div>
+                  {customFields.map(field => (
+                    <div key={field.id} className="flex items-center gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs text-gray-500 mb-1 block">{field.name}</label>
+                        {field.type === 'text' && (
+                          <input value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
+                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="Enter value..." />
+                        )}
+                        {field.type === 'number' && (
+                          <input type="number" value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
+                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="0" />
+                        )}
+                        {field.type === 'date' && (
+                          <input type="date" value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
+                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                        )}
+                        {field.type === 'checkbox' && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <input type="checkbox" checked={field.value==='true'} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:String(e.target.checked)} : f))}
+                              className="w-4 h-4 accent-blue-600" />
+                            <span className="text-sm text-gray-300">{field.value==='true' ? 'Yes' : 'No'}</span>
+                          </div>
+                        )}
+                        {field.type === 'select' && (
+                          <input value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
+                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="Enter option..." />
+                        )}
+                      </div>
+                      <button onClick={() => setCustomFields(prev => prev.filter(f => f.id !== field.id))}
+                        className="text-red-500 hover:text-red-400 text-xs mt-4 shrink-0">Remove</button>
+                    </div>
+                  ))}
+                  <div style={{borderTop:'1px solid #374151',paddingTop:16}}>
+                    <div className="text-xs text-gray-500 mb-2 font-semibold">ADD NEW FIELD</div>
+                    <div className="flex gap-2">
+                      <input value={newFieldName} onChange={e => setNewFieldName(e.target.value)}
+                        placeholder="Field name..." className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                      <select value={newFieldType} onChange={e => setNewFieldType(e.target.value)}
+                        className="bg-gray-800 text-gray-300 rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none">
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="date">Date</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="select">Dropdown</option>
+                      </select>
+                      <button onClick={() => {
+                        if (!newFieldName.trim()) return;
+                        setCustomFields(prev => [...prev, {id:Date.now().toString(),name:newFieldName.trim(),type:newFieldType,value:''}]);
+                        setNewFieldName('');
+                      }} className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Add</button>
+                    </div>
+                  </div>
+                  {customFields.length > 0 && (
+                    <button onClick={() => {
+                      const key = 'custom_fields_' + selectedTask?.id;
+                      localStorage.setItem(key, JSON.stringify(customFields));
+                      alert('Custom fields saved!');
+                    }} className="w-full bg-blue-700 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-medium mt-2">Save Custom Fields</button>
+                  )}
+                </div>
+              )}}
             </div>
 
             {taskTab === 'details' && (
