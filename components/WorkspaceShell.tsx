@@ -2020,54 +2020,7 @@ export default function WorkspaceShell() {
       )}
 
       {/* Whiteboard modal */}
-      {showWhiteboard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-          onClick={e => { if (e.target === e.currentTarget) setShowWhiteboard(false); }}>
-          <div className="bg-gray-800 rounded-2xl border border-gray-700 w-full max-w-4xl h-[80vh] shadow-2xl flex flex-col">
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 20px",background:"#0F172A",flexShrink:0,borderBottom:"1px solid #1E3A5F"}}>
-              <span className="text-white font-semibold">Whiteboard</span>
-              <button onClick={() => setShowWhiteboard(false)} className="text-gray-300 hover:text-white">x</button>
-            </div>
-            <div className="flex-1 relative bg-white rounded-b-2xl overflow-hidden">
-              <canvas id="whiteboard-canvas" className="w-full h-full cursor-crosshair"
-                style={{ touchAction: 'none' }}
-                onMouseDown={e => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const ctx = canvas.getContext('2d');
-                  if (!ctx) return;
-                  canvas.width = canvas.offsetWidth;
-                  canvas.height = canvas.offsetHeight;
-                  ctx.strokeStyle = '#1a1a1a';
-                  ctx.lineWidth = 2;
-                  ctx.lineCap = 'round';
-                  let drawing = true;
-                  const rect = canvas.getBoundingClientRect();
-                  ctx.beginPath();
-                  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-                  const onMove = (ev: MouseEvent) => { if (drawing) { ctx.lineTo(ev.clientX - rect.left, ev.clientY - rect.top); ctx.stroke(); } };
-                  const onUp = () => { drawing = false; canvas.removeEventListener('mousemove', onMove); canvas.removeEventListener('mouseup', onUp); };
-                  canvas.addEventListener('mousemove', onMove);
-                  canvas.addEventListener('mouseup', onUp);
-                }}
-              />
-              <div className="absolute top-3 left-3 flex gap-2">
-                <button onClick={() => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const ctx = canvas.getContext('2d');
-                  if (ctx) { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-                }} className="bg-white border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-800">Clear</button>
-                <button onClick={() => {
-                  const canvas = document.getElementById('whiteboard-canvas') as HTMLCanvasElement;
-                  const link = document.createElement('a');
-                  link.download = 'whiteboard.png';
-                  link.href = canvas.toDataURL();
-                  link.click();
-                }} className="bg-white border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-lg shadow hover:bg-gray-800">Save PNG</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+}
 
       {/* Analytics modal */}
       {showAnalytics && analytics && (
