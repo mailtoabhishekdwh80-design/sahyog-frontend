@@ -2,6 +2,7 @@
 import GanttView from './GanttView';
 import TableView from './TableView';
 import BoardTemplates from './BoardTemplates';
+import BoardAutomations from './BoardAutomations';
 import { useEffect, useState, useRef } from 'react';
 import {
   DndContext, DragEndEvent, DragOverEvent, DragOverlay,
@@ -227,6 +228,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
   const [selectedTask,  setSelectedTask]  = useState<Task | null>(null);
   const [customFields,  setCustomFields]  = useState<{id:string,name:string,type:string,value:string}[]>([]);
   const [newFieldName, setNewFieldName]   = useState('');
+  const [showAutomations, setShowAutomations] = useState(false);
   const [newFieldType, setNewFieldType]   = useState('text');
   const [editTitle,     setEditTitle]     = useState('');
   const [editDesc,      setEditDesc]      = useState('');
@@ -615,6 +617,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
           <button onClick={loadTemplates}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
             Templates
+          </button>
+          <button onClick={() => setShowAutomations(true)}
+            className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            Automations
           </button>
           <button onClick={exportBoardCSV} disabled={exportLoading}
             className="text-xs text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
@@ -1448,6 +1454,12 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
       )}
 
       {/* Templates modal */}
+      {showAutomations && (
+        <BoardAutomations
+          onClose={() => setShowAutomations(false)}
+          boardName={boardName}
+        />
+      )}
       {showTemplates && (
         <BoardTemplates
           onClose={() => setShowTemplates(false)}
