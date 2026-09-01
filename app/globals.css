@@ -104,3 +104,6 @@ body {
     margin: 0 !important;
   }
 }
+
+.mobile-layout { position: relative; }
+.mobile-layout > div:nth-child(3) { position: absolute !important; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; }
