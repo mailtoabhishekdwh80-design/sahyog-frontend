@@ -4,3 +4,9 @@
 *.log
 .DS_Store
 sahyog-frontend/
+fix-*.js
+check-*.js
+add-*.js
+wire-*.js
+apply-*.js
+*.txt
