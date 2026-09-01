@@ -331,7 +331,7 @@ export default function WorkspaceShell() {
   // ── Channels ────────────────────────────────────────────────
   async function openChannel(ch: Channel) {
     setLoadingMsgs(true); setMessages([]);
-    setActiveChannel(ch); setActiveBoard(null); setActiveDM(null); setActiveView('home');
+    setActiveChannel(ch); if(isMobile) setShowMobileSidebar(false); setActiveBoard(null); setActiveDM(null); setActiveView('home');
     setMessages([]); setShowMsgSearch(false); setMsgSearch('');
     const res = await api.messages(ch.id);
     setMessages(Array.isArray(res?.data) ? res.data.reverse() : []);
