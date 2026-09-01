@@ -1,8 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 
 export default function IndiaFeaturesPage() {
   const [tab, setTab] = useState<'gst'|'upi'|'lang'|'tds'>('gst');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const c = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', c);
+    return () => window.removeEventListener('resize', c);
+  }, []);
   const [gstItems, setGstItems] = useState([{desc:'Software development services',qty:1,rate:50000,tax:18}]);
   const [clientName, setClientName] = useState('');
   const [gstin, setGstin] = useState('');
@@ -50,7 +56,7 @@ ${gstItems.map(i=>`<tr><td>${i.desc}</td><td>${i.qty}</td><td>Rs.${i.rate}</td><
 
   return (
     <div style={{minHeight:'100vh',background:'#1a1d21',color:'#f2f3f5',fontFamily:'-apple-system,sans-serif'}}>
-      <div style={{maxWidth:900,margin:'0 auto',padding:32}}>
+      <div style={{maxWidth:900,margin:'0 auto',padding:isMobile?14:32}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:28}}>
           <h1 style={{fontSize:26,fontWeight:700,margin:0}}>India Features</h1>
           <a href="/workspace" style={{color:'#4ade80',textDecoration:'none',fontSize:14}}>Back to workspace</a>
@@ -67,13 +73,13 @@ ${gstItems.map(i=>`<tr><td>${i.desc}</td><td>${i.qty}</td><td>Rs.${i.rate}</td><
         {tab === 'gst' && (
           <div style={{background:'#111827',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)',padding:24}}>
             <h2 style={{fontSize:18,fontWeight:700,marginBottom:20}}>GST Invoice Generator</h2>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr',gap:12,marginBottom:16}}>
               <div><label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Invoice No</label><input value={invoiceNo} onChange={e=>setInvoiceNo(e.target.value)} style={s('')} /></div>
               <div><label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Client Name</label><input value={clientName} onChange={e=>setClientName(e.target.value)} placeholder="Acme Pvt Ltd" style={s('')} /></div>
               <div><label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>GSTIN</label><input value={gstin} onChange={e=>setGstin(e.target.value)} placeholder="27AAPFU0939F1ZV" style={{...s(''),fontFamily:'monospace'}} /></div>
             </div>
             {gstItems.map((item,i) => (
-              <div key={i} style={{display:'grid',gridTemplateColumns:'3fr 1fr 1fr 1fr auto',gap:8,marginBottom:8}}>
+              <div key={i} style={{display:'grid',gridTemplateColumns:isMobile?'2fr 1fr auto':'3fr 1fr 1fr 1fr auto',gap:8,marginBottom:8}}>
                 <input value={item.desc} onChange={e=>{const a=[...gstItems];a[i]={...a[i],desc:e.target.value};setGstItems(a);}} placeholder="Description" style={s('')} />
                 <input type="number" value={item.qty} onChange={e=>{const a=[...gstItems];a[i]={...a[i],qty:+e.target.value};setGstItems(a);}} placeholder="Qty" style={s('')} />
                 <input type="number" value={item.rate} onChange={e=>{const a=[...gstItems];a[i]={...a[i],rate:+e.target.value};setGstItems(a);}} placeholder="Rate" style={s('')} />
@@ -97,7 +103,7 @@ ${gstItems.map(i=>`<tr><td>${i.desc}</td><td>${i.qty}</td><td>Rs.${i.rate}</td><
         {tab === 'upi' && (
           <div style={{background:'#111827',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)',padding:24}}>
             <h2 style={{fontSize:18,fontWeight:700,marginBottom:20}}>UPI Payment QR Generator</h2>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:24}}>
               <div>
                 <div style={{marginBottom:14}}><label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>UPI ID *</label><input value={upiId} onChange={e=>setUpiId(e.target.value)} placeholder="name@paytm or 9876543210@upi" style={s('')} /></div>
                 <div style={{marginBottom:14}}><label style={{fontSize:15,color:'#80848e',display:'block',marginBottom:4}}>Amount (Rs.)</label><input type="number" value={upiAmount} onChange={e=>setUpiAmount(e.target.value)} placeholder="0" style={s('')} /></div>
@@ -122,7 +128,7 @@ ${gstItems.map(i=>`<tr><td>${i.desc}</td><td>${i.qty}</td><td>Rs.${i.rate}</td><
           <div style={{background:'#111827',borderRadius:16,border:'1px solid rgba(255,255,255,0.08)',padding:24}}>
             <h2 style={{fontSize:18,fontWeight:700,marginBottom:8}}>21 Indian Language Support</h2>
             <p style={{color:'#80848e',marginBottom:20}}>AI-powered translation via Deemona AI (Claude)</p>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:10,marginBottom:20}}>
               {LANGS.map(l=>(
                 <button key={l.code} onClick={()=>setLang(l.code)}
                   style={{background:lang===l.code?'rgba(36,128,70,0.2)':'rgba(255,255,255,0.04)',border:`1px solid ${lang===l.code?'#248046':'rgba(255,255,255,0.08)'}`,borderRadius:10,padding:'12px',color:lang===l.code?'#4ade80':'#b5bac1',cursor:'pointer',fontSize:16}}>
