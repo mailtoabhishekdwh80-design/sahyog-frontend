@@ -76,6 +76,8 @@ export default function WorkspaceShell() {
   const [showVirtualBg,   setShowVirtualBg]   = useState(false);
   const [showAnalytics,   setShowAnalytics]   = useState(false);
   const [showMeetingAnalytics, setShowMeetingAnalytics] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isMobile, setIsMobile]                  = useState(false);
   const [virtualBg,       setVirtualBg]       = useState({type:'none',value:'',id:'none'});
   const [showMeetingPanel, setShowMeetingPanel] = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
@@ -932,10 +934,10 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#000000',color: theme === 'light' ? '#0E1117' : '#C8D0E0'}}>
+    <div data-theme={theme} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#000000',color: theme === 'light' ? '#0E1117' : '#C8D0E0',position:'relative'}}>
 
       {/* ══ SIDEBAR ══ */}
-      <div style={{width:240,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',flexShrink:0}}>
+      <div style={{width:240,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',flexShrink:0,position:isMobile?'fixed':'relative',zIndex:isMobile?500:'auto',top:0,bottom:0,left:0,transform:isMobile&&!showMobileSidebar?'translateX(-100%)':'translateX(0)',transition:'transform 0.25s ease',boxShadow:isMobile&&showMobileSidebar?'4px 0 20px rgba(0,0,0,0.5)':'none'}}>
         {/* Workspace name + search */}
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
@@ -977,6 +979,15 @@ export default function WorkspaceShell() {
 
         {/* Nav items */}
         <div style={{flex:1,overflowY:'auto',padding:'0 8px 8px'}}>
+        {isMobile && (
+          <button id="hamburger-btn" onClick={() => setShowMobileSidebar(s => !s)}
+            style={{position:'fixed',top:12,left:12,zIndex:600,background:'#3F0E40',border:'none',borderRadius:8,width:36,height:36,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4,cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,0.4)'}}>
+            <div style={{width:18,height:2,background:'#fff',borderRadius:1}} />
+            <div style={{width:18,height:2,background:'#fff',borderRadius:1}} />
+            <div style={{width:18,height:2,background:'#fff',borderRadius:1}} />
+          </button>
+        )}
+        
 
           {/* Direct Messages */}
           <div style={{marginBottom:4}}>
