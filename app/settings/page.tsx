@@ -174,7 +174,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-gray-200 bg-white px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-base">S</div>
           <div>
@@ -185,9 +185,9 @@ export default function SettingsPage() {
         <a href="/workspace" className="text-base text-gray-600 hover:text-gray-900 transition-colors">← Back to workspace</a>
       </div>
 
-      <div className="max-w-4xl mx-auto px-6 py-8 flex gap-8">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 flex flex-col md:flex-row gap-6 md:gap-8">
         {/* Sidebar */}
-        <div className="w-48 shrink-0">
+        <div className="w-full md:w-48 md:shrink-0">
           <nav className="space-y-1">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                 <label className={labelClass}>Display name</label>
                 <input value={displayName} onChange={e => setDisplayName(e.target.value)} className={inputClass} placeholder="Your full name" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Designation</label>
                   <input value={designation} onChange={e => setDesignation(e.target.value)} className={inputClass} placeholder="e.g. Software Engineer" />
@@ -341,7 +341,7 @@ export default function SettingsPage() {
               <h2 className="text-lg font-semibold text-gray-900">Appearance</h2>
               <div>
                 <label className={labelClass}>Theme</label>
-                <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <button onClick={() => toggleTheme('dark')}
                     className={`p-4 rounded-xl border-2 transition-colors ${theme === 'dark' ? 'border-emerald-500' : 'border-gray-200 hover:border-gray-500'}`}>
                     <div className="w-full h-24 bg-gray-50 rounded-lg mb-3 flex flex-col p-2 gap-1">
