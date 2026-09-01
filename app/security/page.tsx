@@ -14,6 +14,8 @@ export default function SecurityCenter() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [threats, setThreats] = useState<any[]>([]);
   const [passkeys, setPasskeys] = useState<any[]>([]);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c); }, []);
   const [loading, setLoading] = useState(true);
 
   // Conditional access rules state
@@ -132,7 +134,7 @@ export default function SecurityCenter() {
         )}
       </div>
 
-      <div style={{maxWidth:1100,margin:'0 auto',padding:32}}>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:isMobile?14:32}}>
         {/* Tabs */}
         <div style={{display:'flex',gap:2,background:'#161b22',borderRadius:12,padding:4,marginBottom:28,width:'fit-content',border:'1px solid rgba(255,255,255,0.06)'}}>
           {[
@@ -152,7 +154,7 @@ export default function SecurityCenter() {
         {/* Overview */}
         {!loading && tab==='overview' && overview !== null && (
           <div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:16,marginBottom:24}}>
               {[
                 {label:'Active sessions', value: overview.active_sessions, icon:'💻', color:'#3b82f6'},
                 {label:'Active devices', value: overview.active_devices, icon:'📱', color:'#8b5cf6'},
@@ -170,7 +172,7 @@ export default function SecurityCenter() {
             {/* Security checklist */}
             <div style={s.card}>
               <h2 style={{fontSize:16,fontWeight:700,marginBottom:20,color:'#0F172A'}}>Security posture</h2>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:12}}>
                 {[
                   {label:'End-to-end encryption', status:true, detail:'Private chats, group DMs, meetings'},
                   {label:'Two-factor authentication', status:true, detail:'Required for all members'},
@@ -293,7 +295,7 @@ export default function SecurityCenter() {
         {!loading && tab==='access' && (
           <div style={s.card}>
             <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Conditional access policies</h2>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:24}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:20,marginBottom:24}}>
               {/* MFA */}
               <div style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:'1px solid rgba(255,255,255,0.08)'}}>
                 <div style={{fontSize:14,fontWeight:600,color:'#0F172A',marginBottom:12}}>🔐 Authentication</div>
@@ -486,7 +488,7 @@ export default function SecurityCenter() {
 
             <div style={s.card}>
               <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Supported authenticators</h3>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
                 {[
                   {name:'YubiKey 5', icon:'🔑', type:'Hardware FIDO2', support:'Full'},
                   {name:'Google Titan', icon:'🔑', type:'Hardware FIDO2', support:'Full'},

@@ -43,6 +43,8 @@ const DATA_RESIDENCY_REGIONS = [
 
 export default function CompliancePage() {
   const [tab, setTab] = useState<'dashboard'|'soc2'|'legalhold'|'residency'|'reports'>('dashboard');
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => { const c = () => setIsMobile(window.innerWidth < 768); window.addEventListener('resize', c); return () => window.removeEventListener('resize', c); }, []);
   const [soc2Filter, setSoc2Filter] = useState('all');
   const [legalHolds, setLegalHolds] = useState<any[]>([
     { id:'LH001', name:'Q1 2026 Audit Hold', custodians:['abhishek@deemona.com'], channels:['general','engineering'], startDate:'2026-01-01', endDate:'2026-03-31', status:'active', items:1247 },
@@ -144,7 +146,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         </div>
       </div>
 
-      <div style={{maxWidth:1100,margin:'0 auto',padding:32}}>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:isMobile?14:32}}>
         {/* Tabs */}
         <div style={{display:'flex',gap:2,background:'#161b22',borderRadius:12,padding:4,marginBottom:28,width:'fit-content',border:'1px solid rgba(255,255,255,0.06)'}}>
           {[
@@ -163,7 +165,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         {tab==='dashboard' && (
           <div>
             {/* Score cards */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:16,marginBottom:24}}>
               {[
                 {label:'Compliance score', value:score+'%', icon:'🎯', color:'#4ade80', sub:'SOC2 Type II readiness'},
                 {label:'Controls passing', value:compliant+'/'+SOC2_CONTROLS.length, icon:'✅', color:'#4ade80', sub:'Fully compliant'},
@@ -182,7 +184,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             {/* Compliance frameworks */}
             <div style={{...s.card,marginBottom:16}}>
               <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Compliance frameworks</h2>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
                 {[
                   {name:'DPDP Act 2023', region:'🇮🇳 India', score:94, status:'Compliant', color:'#4ade80', items:['Privacy policy', 'Consent at signup', 'Data erasure', 'DPDP nominee', 'Grievance officer']},
                   {name:'GDPR', region:'🇪🇺 EU', score:78, status:'Partial', color:'#f59e0b', items:['Privacy policy ✅', 'Consent ✅', 'Right to erasure ✅', 'DPA needed ⏳', 'EU residency ⏳']},
@@ -216,7 +218,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             {/* Quick actions */}
             <div style={s.card}>
               <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Compliance quick actions</h3>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:10}}>
                 {[
                   {icon:'📄', label:'SOC2 report', action:() => generateReport('soc2')},
                   {icon:'⚖️', label:'New legal hold', action:() => { setTab('legalhold'); setShowNewHold(true); }},
@@ -305,7 +307,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             {showNewHold && (
               <div style={{...s.card,marginBottom:16,border:'1px solid rgba(74,222,128,0.3)'}}>
                 <h3 style={{fontSize:14,fontWeight:700,color:'#0F172A',marginBottom:16}}>Create new legal hold</h3>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14,marginBottom:14}}>
                   <div>
                     <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Hold name *</label>
                     <input value={newHold.name} onChange={e=>setNewHold(h=>({...h,name:e.target.value}))} placeholder="e.g. Q2 Regulatory Audit" style={s.input} />
@@ -434,7 +436,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   </span>
                 ))}
               </div>
-              <div style={{marginTop:16,display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
+              <div style={{marginTop:16,display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr 1fr',gap:12}}>
                 {[
                   {icon:'🔒', label:'In transit', value:'TLS 1.3 encrypted'},
                   {icon:'🔐', label:'At rest', value:'AES-256 encrypted'},
