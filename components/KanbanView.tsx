@@ -711,7 +711,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
       {viewMode === 'kanban' && <div className="flex-1 overflow-x-auto overflow-y-hidden" style={{ background: boardBg }}>
         <DndContext sensors={sensors} collisionDetection={closestCenter}
           onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={onDragCancel}>
-          <div className="flex gap-3 p-4 h-full">
+          <div className="flex gap-3 p-2 h-full" style={{minWidth:"max-content"}}>
             {lists.map((list, idx) => {
               const listTasks = tasks.filter(t => t.list_id === list.id).sort((a, b) => a.position - b.position);
               const isOver = overListId === list.id;
