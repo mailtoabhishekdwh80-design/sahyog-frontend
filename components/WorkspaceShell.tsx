@@ -1118,7 +1118,7 @@ export default function WorkspaceShell() {
       {isMobile && showMobileSidebar && <div onClick={() => setShowMobileSidebar(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.55)',zIndex:499}} />}
       {isMobile && <button onClick={() => setShowMobileSidebar(s => !s)} style={{position:'fixed',top:10,left:10,zIndex:600,background:'#3F0E40',border:'none',borderRadius:8,width:38,height:38,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:5,cursor:'pointer',boxShadow:'0 2px 12px rgba(0,0,0,0.5)'}}><div style={{width:18,height:2,background:'#fff',borderRadius:2}} /><div style={{width:18,height:2,background:'#fff',borderRadius:2}} /><div style={{width:18,height:2,background:'#fff',borderRadius:2}} /></button>}
       {/* ══ MAIN CONTENT ══ */}
-      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden',background:'#000000',width:isMobile?'100%':undefined,paddingTop:isMobile?46:0,width:isMobile?'100%':'auto'}}>
+      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden',background:'#000000',width:isMobile?'100%':undefined,paddingTop:isMobile?46:0}}>
 
         {/* ── WS RECONNECTING BANNER ── */}
       {wsReconnecting && (
