@@ -77,7 +77,7 @@ export default function WorkspaceShell() {
   const [showAnalytics,   setShowAnalytics]   = useState(false);
   const [showMeetingAnalytics, setShowMeetingAnalytics] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [isMobile, setIsMobile]                  = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const [virtualBg,       setVirtualBg]       = useState({type:'none',value:'',id:'none'});
   const [showMeetingPanel, setShowMeetingPanel] = useState(false);
   const [searchQuery,    setSearchQuery]    = useState('');
