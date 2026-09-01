@@ -89,7 +89,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4 flex items-center justify-between">
+      <div className="border-b border-gray-200 bg-white px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-base">S</div>
           <div>
@@ -102,7 +102,7 @@ export default function AdminPage() {
         </a>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Tabs */}
         <div className="flex gap-1 mb-8 bg-white rounded-xl p-1 border border-gray-200 w-fit">
           {(['overview', 'members', 'audit', 'roles', 'security', 'compliance'] as const).map(t => (
@@ -536,7 +536,7 @@ export default function AdminPage() {
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 p-5">
               <h3 className="text-gray-900 font-semibold mb-3">Compliance status</h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
                   { name: 'DPDP Act 2023', status: 'Compliant', ok: true },
                   { name: 'GDPR', status: 'Partial', ok: false },
