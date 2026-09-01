@@ -1131,7 +1131,7 @@ export default function WorkspaceShell() {
         {activeChannel && !activeBoard && !activeDM && (
           <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
             {/* Channel header */}
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',height:48,borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#313338',flexShrink:0}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:isMobile?'6px 10px':'0 16px',minHeight:isMobile?'auto':48,flexWrap:isMobile?'wrap':'nowrap',rowGap:6,borderBottom:'1px solid rgba(99,120,180,0.12)',background:'#313338',flexShrink:0}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <span style={{fontSize:18,color:'#E2E8F0',fontWeight:400}}>#</span>
                 <span style={{fontSize:15,fontWeight:700,color:'#FFFFFF'}}>{activeChannel.name}</span>
@@ -1151,7 +1151,7 @@ export default function WorkspaceShell() {
                   </span>
                 )}
               </div>
-              <div style={{display:'flex',alignItems:'center',gap:4}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,flexWrap:isMobile?'wrap':'nowrap',rowGap:4}}>
                 <button onClick={loadPins} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>📌</button>
                 <button onClick={() => setShowMsgSearch(s => !s)} style={{background:'none',border:'none',color: showMsgSearch ? '#818CF8' : '#7A8499',cursor:'pointer',fontSize:13,padding:'4px 8px',borderRadius:6}}>🔍</button>
                 <button onClick={async () => { if (activeChannel) { await api.notifyHere(activeChannel.id, '@here'); alert('All channel members notified!'); } }} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:12,padding:'4px 8px',borderRadius:6,fontWeight:600}}>@here</button>
