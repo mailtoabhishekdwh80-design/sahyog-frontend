@@ -934,10 +934,10 @@ export default function WorkspaceShell() {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div data-theme={theme} className={isMobile ? 'mobile-layout' : ''} style={{display:'flex',height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#000000',color: theme === 'light' ? '#0E1117' : '#C8D0E0',position:'relative'}}>
+    <div data-theme={theme} style={{height:'100vh',overflow:'hidden',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',background:'#000000',color:theme==='light'?'#0E1117':'#C8D0E0',position:'relative',display:'flex'}}>
 
       {/* ══ SIDEBAR ══ */}
-      <div style={{width:isMobile?'100%':240,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',flexShrink:0,position:isMobile?'fixed':'relative',zIndex:isMobile?500:'auto',top:0,bottom:0,left:0,transform:isMobile&&!showMobileSidebar?'translateX(-100%)':'translateX(0)',transition:'transform 0.25s ease',boxShadow:isMobile&&showMobileSidebar?'4px 0 20px rgba(0,0,0,0.5)':'none'}}>
+      <div style={{width:240,flexShrink:0,background:'#3F0E40',borderRight:'1px solid rgba(0,0,0,0.2)',display:'flex',flexDirection:'column',position:isMobile?'fixed':'relative',top:0,bottom:0,left:0,zIndex:isMobile?500:1,transform:isMobile&&!showMobileSidebar?'translateX(-100%)':'translateX(0)',transition:'transform 0.25s ease',boxShadow:isMobile&&showMobileSidebar?'4px 0 24px rgba(0,0,0,0.6)':'none'}}>
         {/* Workspace name + search */}
         <div style={{padding:'16px 16px 8px'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
