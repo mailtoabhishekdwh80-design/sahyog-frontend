@@ -12,6 +12,7 @@ import MeetingWhiteboard from './MeetingWhiteboard';
 import MeetingSummary   from './MeetingSummary';
 import { WebinarRegistration, CreateWebinarModal } from './WebinarRegistration';
 import KanbanView from './KanbanView';
+import WebinarRegistrants from './WebinarRegistrants';
 
 // ── Types ─────────────────────────────────────────────────────
 type Workspace = { id: string; name: string; type: string };
@@ -2689,6 +2690,7 @@ function HomeView({ user, channels, boards, workspaces, onChannel, onBoard }: an
 function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab = 'chat', setMeetingTab = () => {}, onMeetingStart = () => {}, onMeetingEnd = () => {}, onShowAnalytics = () => {}, showVirtualBg = false, setShowVirtualBg = (_v: boolean) => {}, onShowWhiteboard = () => {}, onShowSummary = () => {}, onCreateWebinar = () => {}, onShowWebinarReg = (_w: any) => {} }: { orgMembers?: any[], currentUser?: any, meetingTab?: string, setMeetingTab?: (tab: string) => void, onMeetingStart?: (id: string) => void, onMeetingEnd?: () => void, onShowAnalytics?: () => void, showVirtualBg?: boolean, setShowVirtualBg?: (v: boolean) => void, onShowWhiteboard?: () => void, onShowSummary?: () => void, onCreateWebinar?: () => void, onShowWebinarReg?: (w: any) => void }) {
   const [meetings,    setMeetings]    = useState<any[]>([]);
   const [creating,    setCreating]    = useState(false);
+  const [showRegs, setShowRegs] = useState(false);
   const [newTitle,    setNewTitle]    = useState('');
   const [meetDate,    setMeetDate]    = useState('');
   const [meetTime,    setMeetTime]    = useState('');
@@ -2952,6 +2954,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
         <div className="flex gap-2 rounded-xl p-1" style={{background:"#1E293B",border:"1px solid #334155"}}>
           <button onClick={() => onCreateWebinar()}
               style={{background:'#7C3AED',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Webinar</button>
+            <button onClick={() => setShowRegs(true)} style={{background:'#0F766E',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Registrants</button>
             <button onClick={() => onShowAnalytics()}
               style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'5px 14px',color:'#fff',fontSize:12,fontWeight:600,cursor:'pointer',marginRight:8}}>Analytics</button>
             <button onClick={() => setView('list')} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${view === 'list' ? 'text-white' : 'text-gray-200 hover:text-white'}`}>List</button>
@@ -2960,6 +2963,7 @@ function MeetingsView({ orgMembers: meetOrgMembers = [], currentUser, meetingTab
         <button onClick={() => setCreating(true)} className="text-white text-xs font-medium px-4 py-2 rounded-xl transition-colors" style={{background:"#1D4ED8"}}>New meeting</button>
       </div>
 
+      {showRegs && <WebinarRegistrants onClose={() => setShowRegs(false)} apiFetch={apiFetch} />}
       {/* New meeting form */}
       {creating && (
         <div className="rounded-2xl p-5 space-y-4" style={{background:"#0F172A",border:"1px solid #1E40AF",boxShadow:"0 20px 60px rgba(0,0,0,0.5)"}}>
