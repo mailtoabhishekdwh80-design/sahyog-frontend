@@ -2467,7 +2467,7 @@ export default function WorkspaceShell() {
         <CreateWebinarModal
           onClose={() => setShowCreateWebinar(false)}
           onCreate={async (data) => {
-            await apiFetch('/meetings', { method: 'POST', body: JSON.stringify(data) });
+            { const r: any = await apiFetch('/webinars', { method: 'POST', body: JSON.stringify(data) }); const url = r?.data?.registration_url; if (url) { try { await navigator.clipboard.writeText(url); } catch {} alert('Webinar created. Registration link copied:\n' + url); } }
             setShowCreateWebinar(false);
           }}
         />
