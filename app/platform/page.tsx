@@ -85,10 +85,10 @@ export default function PlatformAdminPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-red-900/20 border border-red-800 rounded-2xl p-6 max-w-md text-center">
+        <div className="bg-red-50 border border-red-300 rounded-2xl p-6 max-w-md text-center">
           <div className="text-3xl mb-3">🔒</div>
-          <p className="text-red-300 text-base">{error}</p>
-          <a href="/workspace" className="inline-block mt-4 text-emerald-400 text-base hover:underline">← Back to your workspace</a>
+          <p className="text-red-700 text-base">{error}</p>
+          <a href="/workspace" className="inline-block mt-4 text-emerald-700 text-base hover:underline">← Back to your workspace</a>
         </div>
       </div>
     );
@@ -176,7 +176,7 @@ export default function PlatformAdminPage() {
                             {(m.roles || []).map(r => (
                               <span key={r} className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{r}</span>
                             ))}
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${m.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
                               {m.status}
                             </span>
                           </div>

@@ -66,19 +66,19 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
 
   function SortIcon({ col }: { col: typeof sortBy }) {
     if (sortBy !== col) return <span style={{ color: '#64748B', marginLeft: 4 }}>↕</span>;
-    return <span style={{ color: '#60A5FA', marginLeft: 4 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>;
+    return <span style={{ color: '#2563EB', marginLeft: 4 }}>{sortDir === 'asc' ? '↑' : '↓'}</span>;
   }
 
   const today = new Date();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#000' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#F1F5F9' }}>
       {/* Filters toolbar */}
-      <div style={{ padding: '8px 16px', borderBottom: '1px solid #1E3A5F', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
+      <div style={{ padding: '8px 16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tasks..."
-          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 10px', color: '#F1F5F9', fontSize: 12, outline: 'none', width: 180 }} />
+          style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, padding: '4px 10px', color: '#0F172A', fontSize:13, outline: 'none', width: 180 }} />
         <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)}
-          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#E2E8F0', fontSize: 12, outline: 'none' }}>
+          style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, padding: '4px 8px', color: '#0F172A', fontSize:13, outline: 'none' }}>
           <option value="all">All priorities</option>
           <option value="critical">Critical</option>
           <option value="high">High</option>
@@ -86,18 +86,18 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
           <option value="low">Low</option>
         </select>
         <select value={filterList} onChange={e => setFilterList(e.target.value)}
-          style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '4px 8px', color: '#E2E8F0', fontSize: 12, outline: 'none' }}>
+          style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, padding: '4px 8px', color: '#0F172A', fontSize:13, outline: 'none' }}>
           <option value="all">All lists</option>
           {lists.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
         </select>
-        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#E2E8F0' }}>{filtered.length} tasks</span>
+        <span style={{ marginLeft: 'auto', fontSize:13, color: '#0F172A' }}>{filtered.length} tasks</span>
       </div>
 
       {/* Table */}
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize:14 }}>
           <thead>
-            <tr style={{ background: '#0A0F1E', borderBottom: '1px solid #1E3A5F', position: 'sticky', top: 0, zIndex: 10 }}>
+            <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #E2E8F0', position: 'sticky', top: 0, zIndex: 10 }}>
               {[
                 { label: 'Task', col: 'title' as const, width: '35%' },
                 { label: 'List', col: 'list' as const, width: '15%' },
@@ -107,7 +107,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
                 { label: 'Created', col: 'created_at' as const, width: '13%' },
               ].map(({ label, col, width }) => (
                 <th key={label} onClick={() => col && toggleSort(col)}
-                  style={{ padding: '10px 12px', textAlign: 'left', color: '#E2E8F0', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
+                  style={{ padding: '10px 12px', textAlign: 'left', color: '#E2E8F0', fontWeight: 600, fontSize:12, textTransform: 'uppercase', letterSpacing: '0.05em', width, cursor: col ? 'pointer' : 'default', userSelect: 'none' }}>
                   {label}{col && <SortIcon col={col} />}
                 </th>
               ))}
@@ -121,38 +121,38 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
               const assigneeName = task.assignees?.[0]?.name || '';
               return (
                 <tr key={task.id} onClick={() => onTaskClick(task)}
-                  style={{ borderBottom: '1px solid #0F1E35', cursor: 'pointer', background: i % 2 === 0 ? '#000' : '#050810' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#0F172A'}
+                  style={{ borderBottom: '1px solid #0F1E35', cursor: 'pointer', background: i % 2 === 0 ? '#F1F5F9' : '#F1F5F9' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#FFFFFF'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? '#000' : '#050810'}>
-                  <td style={{ padding: '10px 12px', color: '#F1F5F9', fontWeight: 500 }}>
+                  <td style={{ padding: '10px 12px', color: '#0F172A', fontWeight: 500 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: pStyle.text, flexShrink: 0 }} />
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '10px 12px', color: '#E2E8F0', fontSize: 12 }}>
+                  <td style={{ padding: '10px 12px', color: '#0F172A', fontSize:13 }}>
                     {listMap[task.list_id || ''] || '—'}
                   </td>
                   <td style={{ padding: '10px 12px' }}>
-                    <span style={{ fontSize: 11, padding: '2px 7px', borderRadius: 4, background: pStyle.bg, color: pStyle.text, fontWeight: 600, textTransform: 'capitalize' }}>
+                    <span style={{ fontSize:12, padding: '2px 7px', borderRadius: 4, background: pStyle.bg, color: pStyle.text, fontWeight: 600, textTransform: 'capitalize' }}>
                       {task.priority || 'low'}
                     </span>
                   </td>
-                  <td style={{ padding: '10px 12px', color: '#E2E8F0', fontSize: 12 }}>
+                  <td style={{ padding: '10px 12px', color: '#0F172A', fontSize:13 }}>
                     {assigneeName ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#1D4ED8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff' }}>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#1D4ED8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize:12, fontWeight: 700, color: '#fff' }}>
                           {assigneeName.charAt(0)}
                         </div>
-                        <span style={{ fontSize: 12, color: '#E2E8F0' }}>{assigneeName.split(' ')[0]}</span>
+                        <span style={{ fontSize:13, color: '#0F172A' }}>{assigneeName.split(' ')[0]}</span>
                       </div>
                     ) : <span style={{ color: '#64748B' }}>Unassigned</span>}
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: isOverdue ? '#FCA5A5' : '#E2E8F0', fontWeight: isOverdue ? 600 : 400 }}>
+                  <td style={{ padding: '10px 12px', fontSize:13, color: isOverdue ? '#DC2626' : '#0F172A', fontWeight: isOverdue ? 600 : 400 }}>
                     {due ? due.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—'}
-                    {isOverdue && <span style={{ marginLeft: 4, fontSize: 10 }}>⚠️</span>}
+                    {isOverdue && <span style={{ marginLeft: 4, fontSize:12 }}>⚠️</span>}
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#E2E8F0' }}>
+                  <td style={{ padding: '10px 12px', fontSize:13, color: '#0F172A' }}>
                     {task.created_at ? new Date(task.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}
                   </td>
                 </tr>
@@ -160,7 +160,7 @@ export default function TableView({ tasks, lists, onTaskClick, orgMembers = [] }
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#E2E8F0', fontSize: 14 }}>
+                <td colSpan={6} style={{ padding: 40, textAlign: 'center', color: '#0F172A', fontSize: 14 }}>
                   No tasks match your filters
                 </td>
               </tr>

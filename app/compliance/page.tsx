@@ -119,28 +119,28 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
   }
 
   const s = {
-    card: { background:'#111827', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:24 } as React.CSSProperties,
-    input: { width:'100%', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:8, padding:'10px 12px', color:'#0F172A', fontSize:14, outline:'none', boxSizing:'border-box' } as React.CSSProperties,
+    card: { background:'#FFFFFF', border:'1px solid rgba(15,23,42,0.06)', borderRadius:16, padding:24 } as React.CSSProperties,
+    input: { width:'100%', background:'rgba(15,23,42,0.05)', border:'1px solid rgba(15,23,42,0.08)', borderRadius:8, padding:'10px 12px', color:'#0F172A', fontSize:14, outline:'none', boxSizing:'border-box' } as React.CSSProperties,
   };
 
   return (
-    <div style={{minHeight:'100vh',background:'#0d1117',color:'#0F172A',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
+    <div style={{minHeight:'100vh',background:'#F1F5F9',color:'#0F172A',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
       {/* Header */}
-      <div style={{background:'#161b22',borderBottom:'1px solid rgba(255,255,255,0.08)',padding:'16px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <div style={{background:'#FFFFFF',borderBottom:'1px solid rgba(15,23,42,0.06)',padding:'16px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',alignItems:'center',gap:16}}>
-          <a href="/admin" style={{color:'#4ade80',textDecoration:'none',fontSize:15}}>← Admin</a>
-          <div style={{width:1,height:20,background:'rgba(255,255,255,0.1)'}}/>
+          <a href="/admin" style={{color:'#15803D',textDecoration:'none',fontSize:15}}>← Admin</a>
+          <div style={{width:1,height:20,background:'rgba(15,23,42,0.08)'}}/>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <span style={{fontSize:20}}>📋</span>
             <div>
               <h1 style={{fontSize:18,fontWeight:700,margin:0}}>Compliance Center</h1>
-              <p style={{fontSize:14,color:'#80848e',margin:0}}>SOC2 · GDPR · DPDP · ISO 27001 · Legal Hold</p>
+              <p style={{fontSize:14,color:'#64748B',margin:0}}>SOC2 · GDPR · DPDP · ISO 27001 · Legal Hold</p>
             </div>
           </div>
         </div>
         <div style={{display:'flex',gap:8}}>
           <button onClick={() => generateReport('soc2')} disabled={reportGenerating}
-            style={{fontSize:14,color:'#0F172A',background:'rgba(255,255,255,0.08)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600}}>
+            style={{fontSize:14,color:'#0F172A',background:'rgba(15,23,42,0.06)',border:'1px solid rgba(15,23,42,0.08)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600}}>
             {reportGenerating ? '⏳ Generating...' : '📄 Export report'}
           </button>
         </div>
@@ -148,14 +148,14 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
       <div style={{maxWidth:1100,margin:'0 auto',padding:isMobile?14:32}}>
         {/* Tabs */}
-        <div style={{display:'flex',gap:2,background:'#161b22',borderRadius:12,padding:4,marginBottom:28,width:'fit-content',border:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{display:'flex',gap:2,background:'#FFFFFF',borderRadius:12,padding:4,marginBottom:28,width:'fit-content',border:'1px solid rgba(15,23,42,0.05)'}}>
           {[
             ['dashboard','📊 Dashboard'],['soc2','🏆 SOC2'],['legalhold','⚖️ Legal Hold'],
             ['residency','🌍 Data Residency'],['reports','📄 Reports'],
           ].map(([t,l]) => (
             <button key={t} onClick={() => setTab(t as any)}
               style={{padding:'8px 16px',borderRadius:8,border:'none',cursor:'pointer',fontSize:15,fontWeight:500,
-                background:tab===t?'#248046':'transparent',color:tab===t?'#fff':'#9ca3af',transition:'all .15s'}}>
+                background:tab===t?'#248046':'transparent',color:tab===t?'#fff':'#64748B',transition:'all .15s'}}>
               {l}
             </button>
           ))}
@@ -167,16 +167,16 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             {/* Score cards */}
             <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:16,marginBottom:24}}>
               {[
-                {label:'Compliance score', value:score+'%', icon:'🎯', color:'#4ade80', sub:'SOC2 Type II readiness'},
-                {label:'Controls passing', value:compliant+'/'+SOC2_CONTROLS.length, icon:'✅', color:'#4ade80', sub:'Fully compliant'},
-                {label:'Active legal holds', value:legalHolds.filter(h=>h.status==='active').length, icon:'⚖️', color:'#f59e0b', sub:'Items preserved: '+legalHolds.reduce((s,h)=>s+h.items,0)},
-                {label:'Data regions', value:'2', icon:'🌍', color:'#3b82f6', sub:'IN + SG active'},
+                {label:'Compliance score', value:score+'%', icon:'🎯', color:'#15803D', sub:'SOC2 Type II readiness'},
+                {label:'Controls passing', value:compliant+'/'+SOC2_CONTROLS.length, icon:'✅', color:'#15803D', sub:'Fully compliant'},
+                {label:'Active legal holds', value:legalHolds.filter(h=>h.status==='active').length, icon:'⚖️', color:'#B45309', sub:'Items preserved: '+legalHolds.reduce((s,h)=>s+h.items,0)},
+                {label:'Data regions', value:'2', icon:'🌍', color:'#2563EB', sub:'IN + SG active'},
               ].map(m => (
                 <div key={m.label} style={{...s.card,textAlign:'center'}}>
                   <div style={{fontSize:28,marginBottom:8}}>{m.icon}</div>
                   <div style={{fontSize:28,fontWeight:700,color:m.color}}>{m.value}</div>
                   <div style={{fontSize:15,color:'#0F172A',fontWeight:600,marginTop:4}}>{m.label}</div>
-                  <div style={{fontSize:15,color:'#80848e',marginTop:2}}>{m.sub}</div>
+                  <div style={{fontSize:15,color:'#64748B',marginTop:2}}>{m.sub}</div>
                 </div>
               ))}
             </div>
@@ -186,29 +186,29 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
               <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:20}}>Compliance frameworks</h2>
               <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'repeat(3,1fr)',gap:12}}>
                 {[
-                  {name:'DPDP Act 2023', region:'🇮🇳 India', score:94, status:'Compliant', color:'#4ade80', items:['Privacy policy', 'Consent at signup', 'Data erasure', 'DPDP nominee', 'Grievance officer']},
-                  {name:'GDPR', region:'🇪🇺 EU', score:78, status:'Partial', color:'#f59e0b', items:['Privacy policy ✅', 'Consent ✅', 'Right to erasure ✅', 'DPA needed ⏳', 'EU residency ⏳']},
-                  {name:'SOC2 Type II', region:'🌐 Global', score:score, status: score >= 80 ? 'On track' : 'In progress', color: score >= 80 ? '#4ade80' : '#f59e0b', items:['CC controls: '+compliant+'/'+SOC2_CONTROLS.length, 'Audit logs ✅', 'Access controls ✅', 'Encryption ✅', 'IRP needed ⏳']},
-                  {name:'ISO 27001', region:'🌐 Global', score:62, status:'In progress', color:'#f59e0b', items:['ISMS framework ⏳', 'Risk assessment ⏳', 'Asset inventory ⏳', 'Security policies ✅', 'Incident mgmt ⏳']},
-                  {name:'IT Act 2000', region:'🇮🇳 India', score:88, status:'Compliant', color:'#4ade80', items:['Data protection ✅', 'Cyber security ✅', 'User privacy ✅', 'Content moderation ✅', 'Intermediary rules ✅']},
-                  {name:'PCI DSS', region:'💳 Payments', score:45, status:'N/A', color:'#80848e', items:['Not applicable ℹ️', 'No card storage', 'Payment via gateway', 'UPI QR only', 'Razorpay planned']},
+                  {name:'DPDP Act 2023', region:'🇮🇳 India', score:94, status:'Compliant', color:'#15803D', items:['Privacy policy', 'Consent at signup', 'Data erasure', 'DPDP nominee', 'Grievance officer']},
+                  {name:'GDPR', region:'🇪🇺 EU', score:78, status:'Partial', color:'#B45309', items:['Privacy policy ✅', 'Consent ✅', 'Right to erasure ✅', 'DPA needed ⏳', 'EU residency ⏳']},
+                  {name:'SOC2 Type II', region:'🌐 Global', score:score, status: score >= 80 ? 'On track' : 'In progress', color: score >= 80 ? '#15803D' : '#B45309', items:['CC controls: '+compliant+'/'+SOC2_CONTROLS.length, 'Audit logs ✅', 'Access controls ✅', 'Encryption ✅', 'IRP needed ⏳']},
+                  {name:'ISO 27001', region:'🌐 Global', score:62, status:'In progress', color:'#B45309', items:['ISMS framework ⏳', 'Risk assessment ⏳', 'Asset inventory ⏳', 'Security policies ✅', 'Incident mgmt ⏳']},
+                  {name:'IT Act 2000', region:'🇮🇳 India', score:88, status:'Compliant', color:'#15803D', items:['Data protection ✅', 'Cyber security ✅', 'User privacy ✅', 'Content moderation ✅', 'Intermediary rules ✅']},
+                  {name:'PCI DSS', region:'💳 Payments', score:45, status:'N/A', color:'#64748B', items:['Not applicable ℹ️', 'No card storage', 'Payment via gateway', 'UPI QR only', 'Razorpay planned']},
                 ].map(fw => (
-                  <div key={fw.name} style={{background:'rgba(255,255,255,0.03)',borderRadius:12,padding:16,border:`1px solid rgba(255,255,255,0.08)`}}>
+                  <div key={fw.name} style={{background:'rgba(15,23,42,0.02)',borderRadius:12,padding:16,border:`1px solid rgba(15,23,42,0.06)`}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
                       <div>
                         <div style={{fontSize:14,fontWeight:700,color:'#0F172A'}}>{fw.name}</div>
-                        <div style={{fontSize:15,color:'#80848e'}}>{fw.region}</div>
+                        <div style={{fontSize:15,color:'#64748B'}}>{fw.region}</div>
                       </div>
                       <div style={{textAlign:'right'}}>
                         <div style={{fontSize:20,fontWeight:700,color:fw.color}}>{fw.score}%</div>
                         <span style={{fontSize:14,color:fw.color,background:fw.color+'22',padding:'1px 6px',borderRadius:20}}>{fw.status}</span>
                       </div>
                     </div>
-                    <div style={{height:4,background:'rgba(255,255,255,0.06)',borderRadius:2,marginBottom:12}}>
+                    <div style={{height:4,background:'rgba(15,23,42,0.05)',borderRadius:2,marginBottom:12}}>
                       <div style={{height:4,background:fw.color,borderRadius:2,width:fw.score+'%',transition:'width .5s'}}/>
                     </div>
                     <div style={{display:'flex',flexDirection:'column',gap:3}}>
-                      {fw.items.map(item => <div key={item} style={{fontSize:15,color:'#80848e'}}>{item}</div>)}
+                      {fw.items.map(item => <div key={item} style={{fontSize:15,color:'#64748B'}}>{item}</div>)}
                     </div>
                   </div>
                 ))}
@@ -230,9 +230,9 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   {icon:'👤', label:'User data report', action:() => { const e=prompt('User email:'); if(e) alert('Personal data report for '+e+' emailed within 1h.'); }},
                 ].map(a => (
                   <button key={a.label} onClick={a.action}
-                    style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:16,background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,cursor:'pointer',color:'#d1d2d3',fontSize:14,fontWeight:500,transition:'all .15s'}}
-                    onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.08)'}
-                    onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='rgba(255,255,255,0.04)'}>
+                    style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:16,background:'rgba(15,23,42,0.03)',border:'1px solid rgba(15,23,42,0.06)',borderRadius:12,cursor:'pointer',color:'#0F172A',fontSize:14,fontWeight:500,transition:'all .15s'}}
+                    onMouseEnter={e=>(e.currentTarget as HTMLElement).style.background='rgba(15,23,42,0.06)'}
+                    onMouseLeave={e=>(e.currentTarget as HTMLElement).style.background='rgba(15,23,42,0.03)'}>
                     <span style={{fontSize:24}}>{a.icon}</span>
                     {a.label}
                   </button>
@@ -246,42 +246,42 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
         {tab==='soc2' && (
           <div>
             <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:20}}>
-              <div style={{flex:1,background:'rgba(255,255,255,0.06)',borderRadius:10,height:8}}>
+              <div style={{flex:1,background:'rgba(15,23,42,0.05)',borderRadius:10,height:8}}>
                 <div style={{height:8,background:'#4ade80',borderRadius:10,width:score+'%',transition:'width .5s'}}/>
               </div>
-              <span style={{fontSize:16,fontWeight:700,color:'#4ade80',flexShrink:0}}>{score}% SOC2 ready</span>
+              <span style={{fontSize:16,fontWeight:700,color:'#15803D',flexShrink:0}}>{score}% SOC2 ready</span>
             </div>
 
             <div style={{display:'flex',gap:8,marginBottom:16}}>
               {['all','compliant','partial'].map(f => (
                 <button key={f} onClick={() => setSoc2Filter(f)}
                   style={{padding:'6px 14px',borderRadius:8,border:'none',cursor:'pointer',fontSize:14,fontWeight:600,
-                    background: soc2Filter===f ? (f==='compliant'?'#248046':f==='partial'?'#b45309':'#374151') : 'rgba(255,255,255,0.06)',
-                    color: soc2Filter===f ? '#fff' : '#9ca3af'}}>
+                    background: soc2Filter===f ? (f==='compliant'?'#248046':f==='partial'?'#b45309':'#374151') : 'rgba(15,23,42,0.05)',
+                    color: soc2Filter===f ? '#fff' : '#64748B'}}>
                   {f==='all' ? `All (${SOC2_CONTROLS.length})` : f==='compliant' ? `✅ Compliant (${compliant})` : `⚠️ Partial (${partial})`}
                 </button>
               ))}
               <button onClick={() => generateReport('soc2')} disabled={reportGenerating}
-                style={{marginLeft:'auto',padding:'6px 14px',borderRadius:8,border:'1px solid rgba(74,222,128,0.3)',cursor:'pointer',fontSize:14,fontWeight:600,background:'rgba(74,222,128,0.1)',color:'#4ade80'}}>
+                style={{marginLeft:'auto',padding:'6px 14px',borderRadius:8,border:'1px solid rgba(74,222,128,0.3)',cursor:'pointer',fontSize:14,fontWeight:600,background:'rgba(74,222,128,0.1)',color:'#15803D'}}>
                 {reportGenerating ? '⏳' : '📄'} Export SOC2 report
               </button>
             </div>
 
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               {filtered.map(control => (
-                <div key={control.id} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:12}}>
-                  <span style={{fontSize:15,color:'#80848e',fontFamily:'monospace',flexShrink:0,width:48,fontWeight:700}}>{control.id}</span>
+                <div key={control.id} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(15,23,42,0.02)',border:'1px solid rgba(15,23,42,0.05)',borderRadius:12}}>
+                  <span style={{fontSize:15,color:'#64748B',fontFamily:'monospace',flexShrink:0,width:48,fontWeight:700}}>{control.id}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:3}}>
                       <span style={{fontSize:15,fontWeight:600,color:'#0F172A'}}>{control.name}</span>
-                      <span style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',padding:'1px 6px',borderRadius:20}}>{control.category}</span>
-                      {control.auto && <span style={{fontSize:14,color:'#3b82f6',background:'rgba(59,130,246,0.1)',padding:'1px 6px',borderRadius:20}}>Auto-collected</span>}
+                      <span style={{fontSize:14,color:'#64748B',background:'rgba(15,23,42,0.05)',padding:'1px 6px',borderRadius:20}}>{control.category}</span>
+                      {control.auto && <span style={{fontSize:14,color:'#2563EB',background:'rgba(59,130,246,0.1)',padding:'1px 6px',borderRadius:20}}>Auto-collected</span>}
                     </div>
-                    <div style={{fontSize:14,color:'#80848e'}}>{control.evidence}</div>
+                    <div style={{fontSize:14,color:'#64748B'}}>{control.evidence}</div>
                   </div>
                   <span style={{fontSize:15,fontWeight:600,padding:'3px 10px',borderRadius:20,flexShrink:0,
                     background: control.status==='compliant'?'rgba(74,222,128,0.1)':control.status==='partial'?'rgba(245,158,11,0.1)':'rgba(237,66,69,0.1)',
-                    color: control.status==='compliant'?'#4ade80':control.status==='partial'?'#f59e0b':'#ed4245'}}>
+                    color: control.status==='compliant'?'#15803D':control.status==='partial'?'#B45309':'#DC2626'}}>
                     {control.status==='compliant'?'✅ Compliant':control.status==='partial'?'⚠️ Partial':'❌ Non-compliant'}
                   </span>
                 </div>
@@ -296,7 +296,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
               <div>
                 <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',margin:'0 0 4px'}}>Legal hold & eDiscovery</h2>
-                <p style={{fontSize:15,color:'#80848e',margin:0}}>Preserve messages, files, and communications for legal proceedings</p>
+                <p style={{fontSize:15,color:'#64748B',margin:0}}>Preserve messages, files, and communications for legal proceedings</p>
               </div>
               <button onClick={() => setShowNewHold(true)}
                 style={{background:'#248046',border:'none',borderRadius:10,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>
@@ -309,28 +309,28 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                 <h3 style={{fontSize:14,fontWeight:700,color:'#0F172A',marginBottom:16}}>Create new legal hold</h3>
                 <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:14,marginBottom:14}}>
                   <div>
-                    <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Hold name *</label>
+                    <label style={{fontSize:14,color:'#64748B',display:'block',marginBottom:4}}>Hold name *</label>
                     <input value={newHold.name} onChange={e=>setNewHold(h=>({...h,name:e.target.value}))} placeholder="e.g. Q2 Regulatory Audit" style={s.input} />
                   </div>
                   <div>
-                    <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Custodians (emails, comma-separated) *</label>
+                    <label style={{fontSize:14,color:'#64748B',display:'block',marginBottom:4}}>Custodians (emails, comma-separated) *</label>
                     <input value={newHold.custodians} onChange={e=>setNewHold(h=>({...h,custodians:e.target.value}))} placeholder="user@company.com, user2@company.com" style={s.input} />
                   </div>
                   <div>
-                    <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Channels (optional, comma-separated)</label>
+                    <label style={{fontSize:14,color:'#64748B',display:'block',marginBottom:4}}>Channels (optional, comma-separated)</label>
                     <input value={newHold.channels} onChange={e=>setNewHold(h=>({...h,channels:e.target.value}))} placeholder="general, engineering, product" style={s.input} />
                   </div>
                   <div>
-                    <label style={{fontSize:14,color:'#80848e',display:'block',marginBottom:4}}>Legal reason</label>
+                    <label style={{fontSize:14,color:'#64748B',display:'block',marginBottom:4}}>Legal reason</label>
                     <input value={newHold.reason} onChange={e=>setNewHold(h=>({...h,reason:e.target.value}))} placeholder="Regulatory audit / Litigation / Investigation" style={s.input} />
                   </div>
                 </div>
                 <div style={{background:'rgba(245,158,11,0.1)',border:'1px solid rgba(245,158,11,0.2)',borderRadius:8,padding:'10px 14px',marginBottom:14}}>
-                  <p style={{fontSize:14,color:'#f59e0b',margin:0}}>⚠️ Legal hold will preserve ALL messages, files, and communications from the specified custodians and channels. Data cannot be deleted while hold is active.</p>
+                  <p style={{fontSize:14,color:'#B45309',margin:0}}>⚠️ Legal hold will preserve ALL messages, files, and communications from the specified custodians and channels. Data cannot be deleted while hold is active.</p>
                 </div>
                 <div style={{display:'flex',gap:10}}>
                   <button onClick={createLegalHold} style={{background:'#248046',border:'none',borderRadius:8,padding:'10px 20px',color:'#fff',fontSize:15,fontWeight:600,cursor:'pointer'}}>Create hold</button>
-                  <button onClick={() => setShowNewHold(false)} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'10px 20px',color:'#9ca3af',fontSize:15,cursor:'pointer'}}>Cancel</button>
+                  <button onClick={() => setShowNewHold(false)} style={{background:'rgba(15,23,42,0.05)',border:'1px solid rgba(15,23,42,0.08)',borderRadius:8,padding:'10px 20px',color:'#64748B',fontSize:15,cursor:'pointer'}}>Cancel</button>
                 </div>
               </div>
             )}
@@ -342,31 +342,31 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                     <div>
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#0F172A'}}>{hold.name}</span>
-                        <span style={{fontSize:14,color: hold.status==='active'?'#ed4245':'#80848e',background: hold.status==='active'?'rgba(237,66,69,0.1)':'rgba(255,255,255,0.06)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>
+                        <span style={{fontSize:14,color: hold.status==='active'?'#DC2626':'#64748B',background: hold.status==='active'?'rgba(237,66,69,0.1)':'rgba(15,23,42,0.05)',padding:'2px 8px',borderRadius:20,fontWeight:600}}>
                           {hold.status==='active' ? '🔴 ACTIVE HOLD' : '✅ Released'}
                         </span>
-                        <span style={{fontSize:14,color:'#80848e',fontFamily:'monospace'}}>{hold.id}</span>
+                        <span style={{fontSize:14,color:'#64748B',fontFamily:'monospace'}}>{hold.id}</span>
                       </div>
-                      <div style={{fontSize:14,color:'#80848e'}}>
+                      <div style={{fontSize:14,color:'#64748B'}}>
                         Started: {hold.startDate} {hold.endDate ? `· Ends: ${hold.endDate}` : '· No end date'}
                       </div>
                     </div>
                     <div style={{textAlign:'right'}}>
-                      <div style={{fontSize:22,fontWeight:700,color:'#f59e0b'}}>{hold.items.toLocaleString()}</div>
-                      <div style={{fontSize:15,color:'#80848e'}}>items preserved</div>
+                      <div style={{fontSize:22,fontWeight:700,color:'#B45309'}}>{hold.items.toLocaleString()}</div>
+                      <div style={{fontSize:15,color:'#64748B'}}>items preserved</div>
                     </div>
                   </div>
-                  <div style={{display:'flex',gap:16,marginBottom:14,fontSize:15,color:'#80848e'}}>
-                    <div><span style={{color:'#d1d2d3',fontWeight:600}}>Custodians:</span> {hold.custodians.join(', ')}</div>
-                    {hold.channels.length > 0 && <div><span style={{color:'#d1d2d3',fontWeight:600}}>Channels:</span> #{hold.channels.join(', #')}</div>}
+                  <div style={{display:'flex',gap:16,marginBottom:14,fontSize:15,color:'#64748B'}}>
+                    <div><span style={{color:'#0F172A',fontWeight:600}}>Custodians:</span> {hold.custodians.join(', ')}</div>
+                    {hold.channels.length > 0 && <div><span style={{color:'#0F172A',fontWeight:600}}>Channels:</span> #{hold.channels.join(', #')}</div>}
                   </div>
                   <div style={{display:'flex',gap:8}}>
                     <button onClick={() => alert('eDiscovery search: Searching all preserved content for "'+hold.name+'"...\n\nIn a full implementation, this would open a search interface to query across all held messages and files.')}
-                      style={{fontSize:14,color:'#3b82f6',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:8,padding:'6px 14px',cursor:'pointer',fontWeight:600}}>
+                      style={{fontSize:14,color:'#2563EB',background:'rgba(59,130,246,0.1)',border:'1px solid rgba(59,130,246,0.2)',borderRadius:8,padding:'6px 14px',cursor:'pointer',fontWeight:600}}>
                       🔍 eDiscovery search
                     </button>
                     <button onClick={() => generateReport('legalhold')}
-                      style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'6px 14px',cursor:'pointer'}}>
+                      style={{fontSize:14,color:'#64748B',background:'rgba(15,23,42,0.05)',border:'1px solid rgba(15,23,42,0.08)',borderRadius:8,padding:'6px 14px',cursor:'pointer'}}>
                       📄 Export hold report
                     </button>
                     {hold.status==='active' && (
@@ -374,7 +374,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                         if (confirm('Release legal hold "'+hold.name+'"? Preserved data may be deletable after release.')) {
                           setLegalHolds(h => h.map((x,j) => j===i ? {...x,status:'released',endDate:new Date().toISOString().split('T')[0]} : x));
                         }
-                      }} style={{fontSize:14,color:'#ed4245',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:8,padding:'6px 14px',cursor:'pointer',fontWeight:600}}>
+                      }} style={{fontSize:14,color:'#DC2626',background:'rgba(237,66,69,0.1)',border:'1px solid rgba(237,66,69,0.2)',borderRadius:8,padding:'6px 14px',cursor:'pointer',fontWeight:600}}>
                         Release hold
                       </button>
                     )}
@@ -390,7 +390,7 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
           <div>
             <div style={{...s.card,marginBottom:16}}>
               <h2 style={{fontSize:16,fontWeight:700,color:'#0F172A',marginBottom:8}}>Data residency controls</h2>
-              <p style={{fontSize:15,color:'#80848e',marginBottom:20}}>Control where your organisation's data is stored and processed. Active regions are live. Planned regions require Enterprise plan.</p>
+              <p style={{fontSize:15,color:'#64748B',marginBottom:20}}>Control where your organisation's data is stored and processed. Active regions are live. Planned regions require Enterprise plan.</p>
               <div style={{display:'flex',flexDirection:'column',gap:12}}>
                 {DATA_RESIDENCY_REGIONS.map(region => (
                   <div key={region.code}
@@ -401,24 +401,24 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
                         <span style={{fontSize:15,fontWeight:700,color:'#0F172A'}}>{region.name}</span>
                         <span style={{fontSize:14,fontWeight:600,padding:'2px 8px',borderRadius:20,
-                          background: region.status==='active'?'rgba(74,222,128,0.1)':'rgba(255,255,255,0.06)',
-                          color: region.status==='active'?'#4ade80':'#80848e'}}>
+                          background: region.status==='active'?'rgba(74,222,128,0.1)':'rgba(15,23,42,0.05)',
+                          color: region.status==='active'?'#15803D':'#64748B'}}>
                           {region.status==='active' ? '● Active' : '○ Planned'}
                         </span>
                       </div>
-                      <div style={{fontSize:14,color:'#80848e',marginBottom:4}}>📍 {region.location}</div>
-                      <div style={{fontSize:14,color:'#6b7280'}}>{region.desc}</div>
+                      <div style={{fontSize:14,color:'#64748B',marginBottom:4}}>📍 {region.location}</div>
+                      <div style={{fontSize:14,color:'#64748B'}}>{region.desc}</div>
                     </div>
                     {region.status==='active' && selectedRegion!==region.code && (
                       <button onClick={e => { e.stopPropagation(); setSelectedRegion(region.code); alert('Data residency set to '+region.name+'. Changes take effect for new data immediately.'); }}
-                        style={{fontSize:14,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'6px 14px',cursor:'pointer',flexShrink:0}}>
+                        style={{fontSize:14,color:'#15803D',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'6px 14px',cursor:'pointer',flexShrink:0}}>
                         Select
                       </button>
                     )}
                     {selectedRegion===region.code && <span style={{fontSize:18,flexShrink:0}}>✅</span>}
                     {region.status==='planned' && (
                       <button onClick={e => { e.stopPropagation(); alert(region.name+' data residency requires Enterprise plan. Contact sales@deemona.com'); }}
-                        style={{fontSize:14,color:'#80848e',background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'6px 14px',cursor:'pointer',flexShrink:0}}>
+                        style={{fontSize:14,color:'#64748B',background:'rgba(15,23,42,0.05)',border:'1px solid rgba(15,23,42,0.08)',borderRadius:8,padding:'6px 14px',cursor:'pointer',flexShrink:0}}>
                         Enterprise
                       </button>
                     )}
@@ -429,9 +429,9 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
 
             <div style={s.card}>
               <h3 style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:16}}>Data flow diagram</h3>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:24,background:'rgba(255,255,255,0.02)',borderRadius:12,flexWrap:'wrap'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:24,background:'rgba(15,23,42,0.02)',borderRadius:12,flexWrap:'wrap'}}>
                 {['User browser','→','Cloudflare CDN (Global)','→','Render Singapore','→','PostgreSQL Singapore','→','Cloudflare R2 (Files)'].map((item,i) => (
-                  <span key={i} style={{fontSize:15,color: item==='→'?'#80848e':'#f2f3f5',background: item==='→'?'none':'rgba(255,255,255,0.06)',padding: item==='→'?'0':'6px 12px',borderRadius: item==='→'?0:8,fontWeight: item==='→'?400:500}}>
+                  <span key={i} style={{fontSize:15,color: item==='→'?'#64748B':'#0F172A',background: item==='→'?'none':'rgba(15,23,42,0.05)',padding: item==='→'?'0':'6px 12px',borderRadius: item==='→'?0:8,fontWeight: item==='→'?400:500}}>
                     {item}
                   </span>
                 ))}
@@ -442,10 +442,10 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                   {icon:'🔐', label:'At rest', value:'AES-256 encrypted'},
                   {icon:'🗑️', label:'Deletion', value:'30-day GDPR window'},
                 ].map(item => (
-                  <div key={item.label} style={{padding:14,background:'rgba(255,255,255,0.03)',borderRadius:10,textAlign:'center',border:'1px solid rgba(255,255,255,0.06)'}}>
+                  <div key={item.label} style={{padding:14,background:'rgba(15,23,42,0.02)',borderRadius:10,textAlign:'center',border:'1px solid rgba(15,23,42,0.05)'}}>
                     <div style={{fontSize:24,marginBottom:6}}>{item.icon}</div>
-                    <div style={{fontSize:14,color:'#80848e'}}>{item.label}</div>
-                    <div style={{fontSize:15,fontWeight:600,color:'#4ade80',marginTop:2}}>{item.value}</div>
+                    <div style={{fontSize:14,color:'#64748B'}}>{item.label}</div>
+                    <div style={{fontSize:15,fontWeight:600,color:'#15803D',marginTop:2}}>{item.value}</div>
                   </div>
                 ))}
               </div>
@@ -468,14 +468,14 @@ ${SOC2_CONTROLS.map(c => `<tr><td>${c.id}</td><td>${c.category}</td><td>${c.name
                 {name:'Security Posture Report', desc:'Encryption status, access controls, threat summary, session audit', icon:'🛡️', type:'security'},
                 {name:'User Access Review', desc:'All users, roles, permissions, last login, inactive accounts', icon:'👥', type:'access'},
               ].map(report => (
-                <div key={report.name} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(255,255,255,0.03)',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)'}}>
+                <div key={report.name} style={{display:'flex',alignItems:'center',gap:14,padding:14,background:'rgba(15,23,42,0.02)',borderRadius:12,border:'1px solid rgba(15,23,42,0.05)'}}>
                   <span style={{fontSize:28,flexShrink:0}}>{report.icon}</span>
                   <div style={{flex:1}}>
                     <div style={{fontSize:14,fontWeight:600,color:'#0F172A'}}>{report.name}</div>
-                    <div style={{fontSize:14,color:'#80848e',marginTop:2}}>{report.desc}</div>
+                    <div style={{fontSize:14,color:'#64748B',marginTop:2}}>{report.desc}</div>
                   </div>
                   <button onClick={() => generateReport(report.type)} disabled={reportGenerating}
-                    style={{fontSize:14,color:'#4ade80',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600,flexShrink:0,whiteSpace:'nowrap'}}>
+                    style={{fontSize:14,color:'#15803D',background:'rgba(74,222,128,0.1)',border:'1px solid rgba(74,222,128,0.3)',borderRadius:8,padding:'8px 16px',cursor:'pointer',fontWeight:600,flexShrink:0,whiteSpace:'nowrap'}}>
                     {reportGenerating ? '⏳' : '📄'} Generate
                   </button>
                 </div>

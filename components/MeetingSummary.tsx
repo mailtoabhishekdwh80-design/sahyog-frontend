@@ -84,61 +84,61 @@ Keep it concise and professional. Format in clean markdown.`
   function renderSummary(text: string) {
     return text.split('\n').map((line, i) => {
       if (line.startsWith('**') && line.endsWith('**')) {
-        return <div key={i} style={{fontWeight:700,color:'#60A5FA',fontSize:13,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
+        return <div key={i} style={{fontWeight:700,color:'#2563EB',fontSize:14,marginTop:12,marginBottom:4}}>{line.replace(/\*\*/g,'')}</div>;
       }
       if (line.startsWith('# ')) {
-        return <div key={i} style={{fontWeight:800,color:'#F1F5F9',fontSize:15,marginBottom:8}}>{line.slice(2)}</div>;
+        return <div key={i} style={{fontWeight:800,color:'#0F172A',fontSize:15,marginBottom:8}}>{line.slice(2)}</div>;
       }
       if (line.startsWith('- ') || line.startsWith('• ')) {
         return <div key={i} style={{display:'flex',gap:8,padding:'3px 0'}}>
           <span style={{color:'#1D4ED8',flexShrink:0}}>•</span>
-          <span style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5}}>{line.slice(2).replace(/\*\*/g,'').replace(/\*/g,'')}</span>
+          <span style={{color:'#0F172A',fontSize:14,lineHeight:1.5}}>{line.slice(2).replace(/\*\*/g,'').replace(/\*/g,'')}</span>
         </div>;
       }
       if (line.match(/^\d+\. /)) {
         return <div key={i} style={{display:'flex',gap:8,padding:'3px 0'}}>
           <span style={{color:'#1D4ED8',flexShrink:0,minWidth:16}}>{line.match(/^\d+/)?.[0]}.</span>
-          <span style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5}}>{line.replace(/^\d+\. /,'').replace(/\*\*/g,'').replace(/\*/g,'')}</span>
+          <span style={{color:'#0F172A',fontSize:14,lineHeight:1.5}}>{line.replace(/^\d+\. /,'').replace(/\*\*/g,'').replace(/\*/g,'')}</span>
         </div>;
       }
       if (!line.trim()) return <div key={i} style={{height:4}} />;
-      return <div key={i} style={{color:'#E2E8F0',fontSize:13,lineHeight:1.5,padding:'2px 0'}}>{line.replace(/\*\*/g,'').replace(/\*/g,'')}</div>;
+      return <div key={i} style={{color:'#0F172A',fontSize:14,lineHeight:1.5,padding:'2px 0'}}>{line.replace(/\*\*/g,'').replace(/\*/g,'')}</div>;
     });
   }
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',display:'flex',zIndex:1000}}
+    <div data-dlg="large" style={{position:'fixed',inset:0,background:'rgba(15,23,42,0.5)',display:'flex',zIndex:1000}}
       onClick={e => { if(e.target===e.currentTarget) onClose(); }}>
-      <div style={{margin:'auto',background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:600,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(0,0,0,0.6)'}}>
+      <div style={{margin:'auto',background:'#FFFFFF',border:'1px solid #93C5FD',borderRadius:16,width:'100%',maxWidth:600,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(15,23,42,0.20)'}}>
 
         {/* Header */}
-        <div style={{padding:'14px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+        <div style={{padding:'14px 20px',borderBottom:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <span style={{fontSize:20}}>🤖</span>
             <div>
-              <div style={{color:'#F1F5F9',fontWeight:700,fontSize:15}}>AI Meeting Summary</div>
-              <div style={{fontSize:11,color:'#E2E8F0'}}>{meetingTitle || 'Meeting'} · Powered by Claude</div>
+              <div style={{color:'#0F172A',fontWeight:700,fontSize:15}}>AI Meeting Summary</div>
+              <div style={{fontSize:12,color:'#0F172A'}}>{meetingTitle || 'Meeting'} · Powered by Claude</div>
             </div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:22}}>×</button>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#0F172A',cursor:'pointer',fontSize:22}}>×</button>
         </div>
 
         <div style={{flex:1,overflowY:'auto',padding:20,display:'flex',flexDirection:'column',gap:16}}>
           {!summary && (
             <>
-              <div style={{background:'rgba(29,78,216,0.1)',border:'1px solid rgba(29,78,216,0.2)',borderRadius:10,padding:14,fontSize:13,color:'#93C5FD'}}>
+              <div style={{background:'rgba(29,78,216,0.1)',border:'1px solid rgba(29,78,216,0.2)',borderRadius:10,padding:14,fontSize:14,color:'#1D4ED8'}}>
                 🎙️ This feature generates an AI summary from your meeting transcript. Start transcription during a meeting, then use this after it ends.
               </div>
 
               <div>
-                <label style={{fontSize:12,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:8}}>Or paste transcript manually:</label>
+                <label style={{fontSize:13,color:'#0F172A',fontWeight:600,display:'block',marginBottom:8}}>Or paste transcript manually:</label>
                 <textarea value={transcript} onChange={e => setTranscript(e.target.value)} rows={6}
                   placeholder="Paste meeting transcript here if not auto-captured..."
-                  style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'10px 12px',color:'#F1F5F9',fontSize:13,outline:'none',resize:'vertical'}} />
+                  style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'10px 12px',color:'#0F172A',fontSize:14,outline:'none',resize:'vertical'}} />
               </div>
 
               {error && (
-                <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:8,padding:12,fontSize:13,color:'#FCA5A5'}}>
+                <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:8,padding:12,fontSize:14,color:'#DC2626'}}>
                   ⚠️ {error}
                 </div>
               )}
@@ -147,7 +147,7 @@ Keep it concise and professional. Format in clean markdown.`
                 style={{background:loading?'#64748B':'linear-gradient(135deg,#1D4ED8,#7C3AED)',border:'none',borderRadius:10,padding:'12px 24px',color:'#fff',fontSize:14,fontWeight:700,cursor:loading?'not-allowed':'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
                 {loading ? (
                   <>
-                    <div style={{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
+                    <div style={{width:16,height:16,border:'2px solid rgba(15,23,42,0.14)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
                     Generating summary...
                   </>
                 ) : '🤖 Generate AI Summary'}
@@ -157,8 +157,8 @@ Keep it concise and professional. Format in clean markdown.`
 
           {summary && (
             <>
-              <div style={{background:'#1E293B',border:'1px solid #1E3A5F',borderRadius:12,padding:20}}>
-                <div style={{fontSize:15,fontWeight:800,color:'#F1F5F9',marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+              <div style={{background:'#F1F5F9',border:'1px solid #E2E8F0',borderRadius:12,padding:20}}>
+                <div style={{fontSize:15,fontWeight:800,color:'#0F172A',marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
                   <span>📋</span> Meeting Summary
                 </div>
                 {renderSummary(summary)}
@@ -166,15 +166,15 @@ Keep it concise and professional. Format in clean markdown.`
 
               <div style={{display:'flex',gap:8}}>
                 <button onClick={copyToClipboard}
-                  style={{flex:1,background:copied?'#059669':'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:copied?'#6EE7B7':'#E2E8F0',fontSize:13,cursor:'pointer',fontWeight:copied?600:400}}>
+                  style={{flex:1,background:copied?'#059669':'#1E293B',border:'1px solid #CBD5E1',borderRadius:8,padding:'8px 16px',color:copied?'#047857':'#E2E8F0',fontSize:14,cursor:'pointer',fontWeight:copied?600:400}}>
                   {copied ? '✓ Copied!' : '📋 Copy to Clipboard'}
                 </button>
                 <button onClick={downloadSummary}
-                  style={{flex:1,background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 16px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
+                  style={{flex:1,background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'8px 16px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>
                   ⬇ Download .txt
                 </button>
                 <button onClick={() => setSummary('')}
-                  style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 14px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
+                  style={{background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'8px 14px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>
                   Regenerate
                 </button>
               </div>

@@ -39,7 +39,7 @@ export default function LandingPage() {
         .nav-brand span{color:var(--green-light)}
         .nav-links{display:flex;gap:28px;list-style:none}
         .nav-links button{background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;transition:color .2s;font-family:inherit}
-        .nav-links button:hover{color:#fff}
+        .nav-links button:hover{color:#0F172A}
         .nav-cta{display:flex;gap:10px}
         .btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
         .btn-outline{background:transparent;color:#fff;border:1px solid var(--border2)}.btn-outline:hover{background:var(--bg2)}
@@ -53,11 +53,11 @@ export default function LandingPage() {
         .hero-sub{font-size:18px;color:var(--text2);max-width:580px;margin:0 auto 40px;line-height:1.7;animation:fadeInUp .6s .2s ease both}
         .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeInUp .6s .3s ease both}
         .hero-img{margin-top:70px;animation:fadeInUp .8s .4s ease both}
-        .mockup{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-width:860px;margin:0 auto;box-shadow:0 40px 80px rgba(0,0,0,0.4)}
-        .mock-bar{background:#0f172a;padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+        .mockup{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-width:860px;margin:0 auto;box-shadow:0 40px 80px rgba(15,23,42,0.24)}
+        .mock-bar{background:#FFFFFF;padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
         .dot{width:10px;height:10px;border-radius:50%}
         .mock-body{display:grid;grid-template-columns:190px 1fr;height:260px}
-        .mock-side{background:#0a0f1e;padding:14px;border-right:1px solid var(--border);overflow:hidden}
+        .mock-side{background:#F1F5F9;padding:14px;border-right:1px solid var(--border);overflow:hidden}
         .mock-org{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
         .mock-item{font-size:11px;color:var(--text3);padding:5px 8px;border-radius:5px;margin-bottom:2px}
         .mock-item.active{background:rgba(5,150,105,0.15);color:var(--green-light)}
@@ -93,7 +93,7 @@ export default function LandingPage() {
         .step h3{font-size:15px;font-weight:600;margin-bottom:7px;color:#fff}
         .step p{font-size:13px;color:var(--text2);line-height:1.6}
         .india-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:44px}
-        .india-c{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;align-items:flex-start;gap:14px;transition:all .3s}
+        .india-c{background:rgba(15,23,42,0.02);border:1px solid var(--border);border-radius:var(--radius);padding:22px;display:flex;align-items:flex-start;gap:14px;transition:all .3s}
         .india-c:hover{background:rgba(5,150,105,.06);border-color:rgba(52,211,153,.2)}
         .india-ic{width:46px;height:46px;background:var(--green-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--green-light);flex-shrink:0}
         .india-c h4{font-size:14px;font-weight:600;margin-bottom:4px;color:#fff}
@@ -116,13 +116,13 @@ export default function LandingPage() {
         .test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-top:44px}
         .test-c{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:26px;transition:border-color .3s}
         .test-c:hover{border-color:rgba(52,211,153,.2)}
-        .stars{color:#fbbf24;font-size:13px;margin-bottom:14px;letter-spacing:2px}
+        .stars{color:#B45309;font-size:13px;margin-bottom:14px;letter-spacing:2px}
         .test-c blockquote{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:18px;font-style:italic}
         .t-auth{display:flex;align-items:center;gap:11px;padding-top:14px;border-top:1px solid var(--border)}
         .t-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
         .t-info p:first-child{font-size:13px;font-weight:600;color:#fff}
         .t-info p:last-child{font-size:11px;color:var(--text3)}
-        .form-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px}
+        .form-card{background:rgba(15,23,42,0.02);border:1px solid var(--border);border-radius:var(--radius-lg);padding:34px}
         .form-card h3{font-size:20px;font-weight:600;margin-bottom:6px;color:#fff}
         .form-card>p{font-size:13px;color:var(--text2);margin-bottom:26px}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -131,7 +131,7 @@ export default function LandingPage() {
         .form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:11px 13px;color:#fff;font-size:13px;font-family:inherit;transition:border-color .2s;outline:none}
         .form-group input::placeholder,.form-group textarea::placeholder{color:var(--text3)}
         .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--green);background:rgba(5,150,105,.05)}
-        .form-group select option{background:#1a2035;color:#fff}
+        .form-group select option{background:#FFFFFF;color:#fff}
         .form-group textarea{resize:vertical;min-height:100px}
         .form-sub{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px;font-family:inherit}
         .form-sub:hover{background:var(--green-dark);transform:translateY(-1px)}
@@ -143,7 +143,7 @@ export default function LandingPage() {
         .final-cta h2{font-size:clamp(30px,4vw,50px);font-weight:600;margin-bottom:14px;color:#fff}
         .final-cta p{font-size:17px;color:var(--text2);margin-bottom:40px}
         .cta-note{font-size:12px;color:var(--text3);margin-top:14px}
-        footer{background:#030712;border-top:1px solid var(--border);padding:56px 40px 36px}
+        footer{background:#F1F5F9;border-top:1px solid var(--border);padding:56px 40px 36px}
         .ft-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:44px}
         .ft-logo{font-size:20px;font-weight:600;color:#fff}
         .ft-logo span{color:var(--green-light)}
@@ -153,7 +153,7 @@ export default function LandingPage() {
         .ft-col h4{font-size:12px;font-weight:600;color:#fff;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
         .ft-col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
         .ft-col ul a,.ft-col ul button{font-size:13px;color:var(--text2);text-decoration:none;transition:color .2s;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;text-align:left}
-        .ft-col ul a:hover,.ft-col ul button:hover{color:#fff}
+        .ft-col ul a:hover,.ft-col ul button:hover{color:#0F172A}
         .ft-bot{border-top:1px solid var(--border);padding-top:26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
         .ft-bot p{font-size:12px;color:var(--text3)}
         @media(max-width:768px){.lp-nav{padding:14px 20px}.nav-links{display:none}section{padding:70px 20px}.hero{padding:120px 20px 80px}.steps::before{display:none}.ft-top{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr}.contact-grid{grid-template-columns:1fr !important}}
@@ -189,7 +189,7 @@ export default function LandingPage() {
               <div className="dot" style={{background:'#ef4444'}}/>
               <div className="dot" style={{background:'#f59e0b'}}/>
               <div className="dot" style={{background:'#22c55e'}}/>
-              <span style={{fontSize:11,color:'#4b5563',marginLeft:12}}>Deemona Teams — Deemona HQ</span>
+              <span style={{fontSize:12,color:'#4b5563',marginLeft:12}}>Deemona Teams — Deemona HQ</span>
             </div>
             <div className="mock-body">
               <div className="mock-side">
@@ -402,9 +402,9 @@ export default function LandingPage() {
                 {ic:'&#128241;',title:'WhatsApp',val:'+91 96541 35922'},
                 {ic:'&#128205;',title:'Headquarters',val:'Deemona Technologies, Delhi, India'},
               ].map((c,i) => (
-                <div key={i} className="reveal" style={{display:'flex',alignItems:'center',gap:14,marginBottom:16,padding:14,background:'rgba(255,255,255,.03)',borderRadius:10,border:'1px solid var(--border)'}}>
+                <div key={i} className="reveal" style={{display:'flex',alignItems:'center',gap:14,marginBottom:16,padding:14,background:'rgba(15,23,42,0.02)',borderRadius:10,border:'1px solid var(--border)'}}>
                   <div style={{width:40,height:40,background:'var(--green-bg)',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0}} dangerouslySetInnerHTML={{__html:c.ic}}/>
-                  <div><div style={{fontSize:12,fontWeight:600,marginBottom:2,color:'#fff'}}>{c.title}</div><div style={{fontSize:13,color:'var(--text2)'}}>{c.val}</div></div>
+                  <div><div style={{fontSize:13,fontWeight:600,marginBottom:2,color:'#0F172A'}}>{c.title}</div><div style={{fontSize:14,color:'var(--text2)'}}>{c.val}</div></div>
                 </div>
               ))}
             </div>

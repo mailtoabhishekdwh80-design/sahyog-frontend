@@ -4,10 +4,10 @@ export default function CookiePage() {
     <div style={{minHeight:'100vh',background:'#f9fafb',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'}}>
       <div style={{maxWidth:860,margin:'0 auto',padding:'48px 24px'}}>
         <div style={{marginBottom:32}}><a href="/signup" style={{color:'#248046',textDecoration:'none',fontSize:14}}>← Back to signup</a></div>
-        <div style={{background:'#fff',borderRadius:16,border:'1px solid #e5e7eb',padding:48,boxShadow:'0 1px 3px rgba(0,0,0,0.06)'}}>
+        <div style={{background:'#fff',borderRadius:16,border:'1px solid #e5e7eb',padding:48,boxShadow:'0 1px 3px rgba(15,23,42,0.02)'}}>
           <div style={{marginBottom:32,paddingBottom:24,borderBottom:'2px solid #e5e7eb'}}>
             <h1 style={{fontSize:32,fontWeight:700,color:'#111827',margin:'0 0 8px'}}>Cookie Policy</h1>
-            <p style={{color:'#6b7280',fontSize:14,margin:0}}>Deemona Teams — Deemona Technologies Pvt. Ltd. | Last updated: 28 June 2026</p>
+            <p style={{color:'#64748B',fontSize:14,margin:0}}>Deemona Teams — Deemona Technologies Pvt. Ltd. | Last updated: 28 June 2026</p>
           </div>
           {[
             { title:'1. What Are Cookies', content:`Cookies are small text files placed on your device when you visit our Platform. They help us recognise your device, remember your preferences, and provide a better user experience.` },

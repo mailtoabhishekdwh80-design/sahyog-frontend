@@ -11,9 +11,8 @@ type Info = {
 
 const input: React.CSSProperties = {
   width: '100%', padding: '12px 14px', fontSize: 16, borderRadius: 10, border: '1px solid #475569',
-  background: '#0F172A', color: '#F8FAFC', outline: 'none', boxSizing: 'border-box',
-};
-const label: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 600, color: '#E2E8F0', margin: '14px 0 6px' };
+  background: '#FFFFFF', color: '#0F172A', outline: 'none', boxSizing: 'border-box'};
+const label: React.CSSProperties = { display: 'block', fontSize:14, fontWeight: 600, color: '#0F172A', margin: '14px 0 6px' };
 
 export default function WebinarPage() {
   const params = useParams();
@@ -60,32 +59,32 @@ export default function WebinarPage() {
   const full = info && info.spots_left <= 0;
 
   return (
-    <main style={{ minHeight: '100vh', background: '#0B1220', color: '#F8FAFC', padding: '32px 16px', fontFamily: 'system-ui, sans-serif' }}>
+    <main style={{ minHeight: '100vh', background: '#0B1220', color: '#0F172A', padding: '32px 16px', fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 520, margin: '0 auto' }}>
         {state === 'loading' && (
-          <p style={{ color: '#E2E8F0', textAlign: 'center', marginTop: 80 }}>
-            Loading webinar…{slow && <><br /><small style={{ color: '#CBD5E1' }}>The server is waking up, this can take up to a minute.</small></>}
+          <p style={{ color: '#0F172A', textAlign: 'center', marginTop: 80 }}>
+            Loading webinar…{slow && <><br /><small style={{ color: '#475569' }}>The server is waking up, this can take up to a minute.</small></>}
           </p>
         )}
-        {state === 'notfound' && <p style={{ textAlign: 'center', marginTop: 80, color: '#E2E8F0' }}>This webinar was not found.</p>}
+        {state === 'notfound' && <p style={{ textAlign: 'center', marginTop: 80, color: '#0F172A' }}>This webinar was not found.</p>}
         {info && state !== 'loading' && state !== 'notfound' && (
-          <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 16, padding: 24 }}>
+          <div style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 16, padding: 24 }}>
             <h1 style={{ fontSize: 24, margin: '0 0 8px' }}>{info.title}</h1>
-            <p style={{ color: '#E2E8F0', margin: '0 0 4px' }}>{when} · {info.duration_mins} min</p>
-            {info.host_name && <p style={{ color: '#CBD5E1', margin: '0 0 12px' }}>Hosted by {info.host_name}</p>}
-            {info.description && <p style={{ color: '#E2E8F0', lineHeight: 1.5 }}>{info.description}</p>}
+            <p style={{ color: '#0F172A', margin: '0 0 4px' }}>{when} · {info.duration_mins} min</p>
+            {info.host_name && <p style={{ color: '#475569', margin: '0 0 12px' }}>Hosted by {info.host_name}</p>}
+            {info.description && <p style={{ color: '#0F172A', lineHeight: 1.5 }}>{info.description}</p>}
             {state === 'done' ? (
               <div style={{ marginTop: 20, padding: 16, borderRadius: 12, background: '#052E1B', border: '1px solid #16A34A' }}>
                 <b>{already ? 'You are already registered.' : pending ? 'Request received — the host will approve it.' : 'You are registered!'}</b>
-                <p style={{ margin: '8px 0 0', color: '#E2E8F0' }}>Save this page link and come back at the start time. We have not sent a confirmation email.</p>
+                <p style={{ margin: '8px 0 0', color: '#0F172A' }}>Save this page link and come back at the start time. We have not sent a confirmation email.</p>
               </div>
             ) : !info.registration_open ? (
-              <p style={{ marginTop: 20, color: '#FCA5A5' }}>Registration is closed for this webinar.</p>
+              <p style={{ marginTop: 20, color: '#DC2626' }}>Registration is closed for this webinar.</p>
             ) : full ? (
-              <p style={{ marginTop: 20, color: '#FCA5A5' }}>This webinar is full.</p>
+              <p style={{ marginTop: 20, color: '#DC2626' }}>This webinar is full.</p>
             ) : (
               <form onSubmit={submit}>
-                <p style={{ color: '#CBD5E1', fontSize: 13, margin: '16px 0 0' }}>{info.spots_left} spots left</p>
+                <p style={{ color: '#475569', fontSize:14, margin: '16px 0 0' }}>{info.spots_left} spots left</p>
                 <label style={label}>Full name *</label>
                 <input style={input} required maxLength={120} value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
                 <label style={label}>Email *</label>
@@ -96,7 +95,7 @@ export default function WebinarPage() {
                 <input style={input} maxLength={100} value={f.role} onChange={e => setF({ ...f, role: e.target.value })} />
                 <label style={label}>Question for the host</label>
                 <textarea style={{ ...input, minHeight: 80 }} maxLength={2000} value={f.question} onChange={e => setF({ ...f, question: e.target.value })} />
-                {err && <p style={{ color: '#FCA5A5', marginTop: 12 }}>{err}</p>}
+                {err && <p style={{ color: '#DC2626', marginTop: 12 }}>{err}</p>}
                 <button disabled={busy} type="submit" style={{ marginTop: 18, width: '100%', padding: 14, fontSize: 16, fontWeight: 700, borderRadius: 10, border: 'none', background: '#6366F1', color: '#fff', cursor: 'pointer', opacity: busy ? 0.6 : 1 }}>
                   {busy ? 'Registering…' : 'Register'}
                 </button>

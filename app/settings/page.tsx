@@ -192,7 +192,7 @@ export default function SettingsPage() {
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`w-full text-left px-3 py-2.5 rounded-xl text-base flex items-center gap-2.5 transition-colors ${
-                  tab === t.id ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-800' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  tab === t.id ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                 }`}>
                 <span>{t.icon}</span>
                 <span>{t.label}</span>
@@ -205,12 +205,12 @@ export default function SettingsPage() {
         <div className="flex-1 min-w-0">
           {/* Success/Error banner */}
           {success && (
-            <div className="mb-4 bg-emerald-900/40 border border-emerald-700 text-emerald-300 text-base rounded-xl px-4 py-3">
+            <div className="mb-4 bg-emerald-50 border border-emerald-300 text-emerald-700 text-base rounded-xl px-4 py-3">
               ✓ {success}
             </div>
           )}
           {error && (
-            <div className="mb-4 bg-red-900/40 border border-red-700 text-red-300 text-base rounded-xl px-4 py-3">
+            <div className="mb-4 bg-red-50 border border-red-300 text-red-700 text-base rounded-xl px-4 py-3">
               ⚠ {error}
             </div>
           )}
@@ -279,7 +279,7 @@ export default function SettingsPage() {
                     }} disabled={waSending || !waTestMsg.trim()} className={btnClass + ' flex-1'}>
                       {waSending ? 'Sending...' : 'Send test WhatsApp'}
                     </button>
-                    {waResult && <p className="text-base text-emerald-400">{waResult}</p>}
+                    {waResult && <p className="text-base text-emerald-700">{waResult}</p>}
                   </div>
                 </div>
               )}
@@ -312,9 +312,9 @@ export default function SettingsPage() {
               <div>
                 <label className={labelClass}>Confirm new password</label>
                 <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
-                  className={inputClass + (confirmPw && confirmPw !== newPw ? ' border-red-700' : '')}
+                  className={inputClass + (confirmPw && confirmPw !== newPw ? ' border-red-300' : '')}
                   placeholder="Repeat new password" />
-                {confirmPw && confirmPw !== newPw && <p className="text-base text-red-400 mt-1">Passwords do not match</p>}
+                {confirmPw && confirmPw !== newPw && <p className="text-base text-red-700 mt-1">Passwords do not match</p>}
               </div>
               <div className="bg-gray-100 rounded-xl p-3 space-y-1">
                 {[
@@ -324,7 +324,7 @@ export default function SettingsPage() {
                   { text: 'Passwords match',              met: newPw === confirmPw && confirmPw !== '' },
                 ].map(r => (
                   <div key={r.text} className="flex items-center gap-2">
-                    <span className={`text-base ${r.met ? 'text-emerald-400' : 'text-gray-600'}`}>{r.met ? '✓' : '○'}</span>
+                    <span className={`text-base ${r.met ? 'text-emerald-700' : 'text-gray-600'}`}>{r.met ? '✓' : '○'}</span>
                     <span className={`text-base ${r.met ? 'text-gray-700' : 'text-gray-600'}`}>{r.text}</span>
                   </div>
                 ))}
@@ -343,18 +343,18 @@ export default function SettingsPage() {
                 <label className={labelClass}>Theme</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                   <button onClick={() => toggleTheme('dark')}
-                    className={`p-4 rounded-xl border-2 transition-colors ${theme === 'dark' ? 'border-emerald-500' : 'border-gray-200 hover:border-gray-500'}`}>
+                    className={`p-4 rounded-xl border-2 transition-colors ${theme === 'dark' ? 'border-emerald-500' : 'border-gray-200 hover:border-slate-300'}`}>
                     <div className="w-full h-24 bg-gray-50 rounded-lg mb-3 flex flex-col p-2 gap-1">
                       <div className="h-2 bg-gray-100 rounded w-3/4" />
                       <div className="h-2 bg-gray-100 rounded w-1/2" />
-                      <div className="h-2 bg-emerald-900 rounded w-2/3 mt-auto" />
+                      <div className="h-2 bg-emerald-100 rounded w-2/3 mt-auto" />
                     </div>
                     <div className="text-base font-medium text-gray-900">🌙 Dark</div>
                     <div className="text-base text-gray-500">Easy on the eyes</div>
-                    {theme === 'dark' && <div className="text-base text-emerald-400 mt-1">✓ Active</div>}
+                    {theme === 'dark' && <div className="text-base text-emerald-700 mt-1">✓ Active</div>}
                   </button>
                   <button onClick={() => toggleTheme('light')}
-                    className={`p-4 rounded-xl border-2 transition-colors ${theme === 'light' ? 'border-emerald-500' : 'border-gray-200 hover:border-gray-500'}`}>
+                    className={`p-4 rounded-xl border-2 transition-colors ${theme === 'light' ? 'border-emerald-500' : 'border-gray-200 hover:border-slate-300'}`}>
                     <div className="w-full h-24 bg-gray-100 rounded-lg mb-3 flex flex-col p-2 gap-1">
                       <div className="h-2 bg-gray-300 rounded w-3/4" />
                       <div className="h-2 bg-gray-300 rounded w-1/2" />
@@ -362,7 +362,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="text-base font-medium text-gray-900">☀️ Light</div>
                     <div className="text-base text-gray-500">Clean and bright</div>
-                    {theme === 'light' && <div className="text-base text-emerald-400 mt-1">✓ Active</div>}
+                    {theme === 'light' && <div className="text-base text-emerald-700 mt-1">✓ Active</div>}
                   </button>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                       value={m.roles?.[0] === 'owner' ? 'owner' : roles.find(r => m.roles?.includes(r.name))?.id || ''}
                       onChange={e => updateMemberRole(m.id, e.target.value)}
                       disabled={m.roles?.includes('owner')}
-                      className="text-base bg-gray-200 text-gray-700 rounded-lg px-2 py-1 border border-gray-600 focus:outline-none disabled:opacity-50">
+                      className="text-base bg-gray-200 text-gray-700 rounded-lg px-2 py-1 border border-slate-300 focus:outline-none disabled:opacity-50">
                       {m.roles?.includes('owner') && <option value="owner">Owner</option>}
                       {roles.filter(r => r.name !== 'owner').map((r: any) => (
                         <option key={r.id} value={r.id}>{r.name}</option>
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                     </select>
                     {!m.roles?.includes('owner') && m.id !== user?.id && (
                       <button onClick={() => removeMember(m.id, m.display_name)}
-                        className="text-base text-red-500 hover:text-red-400 px-2 py-1 rounded-lg hover:bg-red-900/30 transition-colors">
+                        className="text-base text-red-500 hover:text-red-700 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
                         Remove
                       </button>
                     )}
@@ -454,7 +454,7 @@ export default function SettingsPage() {
                 <div>
                   <label className={labelClass}>Workspace URL <span className="text-gray-600">(read-only)</span></label>
                   <div className="flex items-center bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
-                    <span className="text-gray-500 text-base px-3 py-2.5 border-r border-gray-200 bg-gray-850 shrink-0">sahyog.in/</span>
+                    <span className="text-gray-500 text-base px-3 py-2.5 border-r border-gray-200 bg-white shrink-0">sahyog.in/</span>
                     <span className="text-gray-600 text-base px-3 py-2.5">{orgSlug}</span>
                   </div>
                 </div>
@@ -464,8 +464,8 @@ export default function SettingsPage() {
               </div>
 
               {/* Danger zone */}
-              <div className="bg-white rounded-2xl p-6 border border-red-900/50 space-y-4">
-                <h3 className="text-base font-semibold text-red-400">Danger zone</h3>
+              <div className="bg-white rounded-2xl p-6 border border-red-300 space-y-4">
+                <h3 className="text-base font-semibold text-red-700">Danger zone</h3>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-base text-gray-900">Export all data</div>

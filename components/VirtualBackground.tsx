@@ -41,20 +41,20 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
   }
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',display:'flex',zIndex:1000}}
+    <div data-dlg="large" style={{position:'fixed',inset:0,background:'rgba(15,23,42,0.5)',display:'flex',zIndex:1000}}
       onClick={e => { if(e.target===e.currentTarget) onClose(); }}>
-      <div style={{margin:'auto',background:'#0F172A',border:'1px solid #1E40AF',borderRadius:16,width:'100%',maxWidth:520,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(0,0,0,0.6)'}}>
+      <div style={{margin:'auto',background:'#FFFFFF',border:'1px solid #93C5FD',borderRadius:16,width:'100%',maxWidth:520,maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 25px 60px rgba(15,23,42,0.20)'}}>
 
         {/* Header */}
-        <div style={{padding:'14px 20px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
+        <div style={{padding:'14px 20px',borderBottom:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <span style={{fontSize:20}}>🎨</span>
             <div>
-              <div style={{color:'#F1F5F9',fontWeight:700,fontSize:15}}>Virtual Background</div>
-              <div style={{fontSize:11,color:'#E2E8F0'}}>Choose a background for your video</div>
+              <div style={{color:'#0F172A',fontWeight:700,fontSize:15}}>Virtual Background</div>
+              <div style={{fontSize:12,color:'#0F172A'}}>Choose a background for your video</div>
             </div>
           </div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:22}}>×</button>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#0F172A',cursor:'pointer',fontSize:22}}>×</button>
         </div>
 
         <div style={{flex:1,overflowY:'auto',padding:20}}>
@@ -80,22 +80,22 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
                     style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
                 )}
                 {bg.type === 'blur' && (
-                  <div style={{width:'100%',height:'100%',background:'linear-gradient(135deg,#1E293B,#334155)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,filter:'blur(2px)'}}>
+                  <div style={{width:'100%',height:'100%',background:'linear-gradient(135deg,#F1F5F9,#E2E8F0)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,filter:'blur(2px)'}}>
                     🌫️
                   </div>
                 )}
                 {bg.type === 'none' && (
-                  <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#E2E8F0',fontSize:11,fontWeight:600}}>
+                  <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#0F172A',fontSize:12,fontWeight:600}}>
                     No background
                   </div>
                 )}
                 {/* Label overlay */}
-                <div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(0,0,0,0.6)',padding:'3px 6px',fontSize:10,color:'#F1F5F9',textAlign:'center',fontWeight:600}}>
+                <div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(15,23,42,0.5)',padding:'3px 6px',fontSize:12,color:'#0F172A',textAlign:'center',fontWeight:600}}>
                   {bg.label}
                 </div>
                 {/* Selected indicator */}
                 {selected === bg.id && (
-                  <div style={{position:'absolute',top:4,right:4,width:18,height:18,borderRadius:'50%',background:'#1D4ED8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,color:'#fff',fontWeight:700}}>
+                  <div style={{position:'absolute',top:4,right:4,width:18,height:18,borderRadius:'50%',background:'#1D4ED8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'#fff',fontWeight:700}}>
                     ✓
                   </div>
                 )}
@@ -104,29 +104,29 @@ export default function VirtualBackground({ onClose, onApply, currentBg = 'none'
           </div>
 
           {/* Custom image URL */}
-          <div style={{borderTop:'1px solid #1E3A5F',paddingTop:16}}>
-            <div style={{fontSize:12,color:'#E2E8F0',fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>Custom image</div>
+          <div style={{borderTop:'1px solid #E2E8F0',paddingTop:16}}>
+            <div style={{fontSize:13,color:'#0F172A',fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.05em'}}>Custom image</div>
             <div style={{display:'flex',gap:8}}>
               <input value={customUrl} onChange={e => setCustomUrl(e.target.value)}
                 placeholder="Paste image URL..."
-                style={{flex:1,background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                style={{flex:1,background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'8px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
               <button onClick={applyCustom}
-                style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
+                style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'}}>
                 Apply
               </button>
             </div>
           </div>
 
           {/* Note about browser support */}
-          <div style={{marginTop:14,padding:'10px 14px',background:'rgba(245,166,35,0.1)',border:'1px solid rgba(245,166,35,0.2)',borderRadius:8,fontSize:12,color:'#F5A623'}}>
+          <div style={{marginTop:14,padding:'10px 14px',background:'rgba(245,166,35,0.1)',border:'1px solid rgba(245,166,35,0.2)',borderRadius:8,fontSize:13,color:'#B45309'}}>
             ℹ️ Virtual backgrounds apply a CSS overlay effect. For AI-powered background removal, Chrome with camera permissions required.
           </div>
         </div>
 
         {/* Footer */}
-        <div style={{padding:'12px 20px',borderTop:'1px solid #1E3A5F',display:'flex',justifyContent:'flex-end',gap:8,flexShrink:0}}>
-          <button onClick={onClose} style={{background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'8px 18px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>Cancel</button>
-          <button onClick={onClose} style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'8px 18px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer'}}>Done</button>
+        <div style={{padding:'12px 20px',borderTop:'1px solid #E2E8F0',display:'flex',justifyContent:'flex-end',gap:8,flexShrink:0}}>
+          <button onClick={onClose} style={{background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'8px 18px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>Cancel</button>
+          <button onClick={onClose} style={{background:'#1D4ED8',border:'none',borderRadius:8,padding:'8px 18px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer'}}>Done</button>
         </div>
       </div>
     </div>

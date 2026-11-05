@@ -55,7 +55,7 @@ export default function KanbanBoard() {
   }, []);
 
   return (
-    <div className="p-6 bg-black text-white min-h-screen">
+    <div className="p-6 bg-slate-100 text-slate-900 min-h-screen">
       <h2 className="text-xl font-bold mb-6">Kanban Board</h2>
       <div className="flex gap-6">
         {lists
@@ -63,17 +63,17 @@ export default function KanbanBoard() {
           .map((list) => (
             <div
               key={list.id}
-              className="flex-1 bg-gray-900 p-4 rounded shadow"
+              className="flex-1 bg-white p-4 rounded shadow"
             >
               <h3 className="text-lg font-semibold mb-3">{list.name}</h3>
               <div className="space-y-2">
                {tasks
                  .filter((task) => task.list_id === list.id)
                  .map((task) => (
-                  <div key={task.id} className="bg-gray-800 p-3 rounded shadow">
+                  <div key={task.id} className="bg-slate-100 p-3 rounded shadow">
                   <p className="font-semibold">{task.title}</p>
                   {task.description && (
-                     <p className="text-sm text-gray-400">{task.description}</p>
+                     <p className="text-sm text-slate-600">{task.description}</p>
                     )}
                   </div>
                   ))}

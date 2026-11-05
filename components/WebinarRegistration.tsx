@@ -34,26 +34,26 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
   }
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',display:'flex',zIndex:1000,alignItems:'center',justifyContent:'center',padding:16}}
+    <div data-dlg="1" style={{position:'fixed',inset:0,background:'rgba(15,23,42,0.5)',display:'flex',zIndex:1000,alignItems:'center',justifyContent:'center',padding:16}}
       onClick={e => { if(e.target===e.currentTarget) onClose(); }}>
-      <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:20,width:'100%',maxWidth:520,boxShadow:'0 30px 80px rgba(0,0,0,0.7)',overflow:'hidden'}}>
+      <div style={{background:'#FFFFFF',border:'1px solid #93C5FD',borderRadius:20,width:'100%',maxWidth:520,boxShadow:'0 30px 80px rgba(15,23,42,0.20)',overflow:'hidden'}}>
 
         {/* Hero banner */}
         <div style={{background:'linear-gradient(135deg,#1D4ED8 0%,#7C3AED 100%)',padding:'24px 28px'}}>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.7)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:8}}>
+          <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.7)',textTransform:'uppercase',letterSpacing:'0.1em',marginBottom:8}}>
             Live Webinar
           </div>
-          <div style={{fontSize:20,fontWeight:800,color:'#FFFFFF',lineHeight:1.3,marginBottom:12}}>
+          <div style={{fontSize:20,fontWeight:800,color:'#0F172A',lineHeight:1.3,marginBottom:12}}>
             {webinar.title}
           </div>
           <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
-            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:13}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:14}}>
               📅 {startDate.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:13}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:14}}>
               🕐 {startDate.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} IST
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:13}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,color:'rgba(255,255,255,0.85)',fontSize:14}}>
               ⏱ {webinar.duration_mins} minutes
             </div>
           </div>
@@ -62,27 +62,27 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
         {step === 'info' && (
           <div style={{padding:28}}>
             {webinar.description && (
-              <p style={{fontSize:14,color:'#E2E8F0',lineHeight:1.6,marginBottom:20}}>{webinar.description}</p>
+              <p style={{fontSize:14,color:'#0F172A',lineHeight:1.6,marginBottom:20}}>{webinar.description}</p>
             )}
 
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',background:'#1E293B',borderRadius:10,border:'1px solid #334155',marginBottom:20}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',background:'#F1F5F9',borderRadius:10,border:'1px solid #CBD5E1',marginBottom:20}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
                 <div style={{width:36,height:36,borderRadius:'50%',background:'#1D4ED8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:'#fff'}}>
                   {webinar.host_name?.charAt(0)||'H'}
                 </div>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600,color:'#F1F5F9'}}>{webinar.host_name || 'Host'}</div>
-                  <div style={{fontSize:11,color:'#E2E8F0'}}>Webinar Host</div>
+                  <div style={{fontSize:14,fontWeight:600,color:'#0F172A'}}>{webinar.host_name || 'Host'}</div>
+                  <div style={{fontSize:12,color:'#0F172A'}}>Webinar Host</div>
                 </div>
               </div>
               <div style={{textAlign:'right'}}>
-                <div style={{fontSize:18,fontWeight:800,color:spotsLeft<50?'#EF4444':'#22C55E'}}>{spotsLeft}</div>
-                <div style={{fontSize:11,color:'#E2E8F0'}}>spots left</div>
+                <div style={{fontSize:18,fontWeight:800,color:spotsLeft<50?'#DC2626':'#15803D'}}>{spotsLeft}</div>
+                <div style={{fontSize:12,color:'#0F172A'}}>spots left</div>
               </div>
             </div>
 
             {spotsLeft < 100 && (
-              <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:8,padding:'8px 12px',fontSize:12,color:'#FCA5A5',marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
+              <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.3)',borderRadius:8,padding:'8px 12px',fontSize:13,color:'#DC2626',marginBottom:16,display:'flex',alignItems:'center',gap:8}}>
                 🔥 Only {spotsLeft} spots remaining — register now!
               </div>
             )}
@@ -92,7 +92,7 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
               Register for Free →
             </button>
             <button onClick={onClose}
-              style={{width:'100%',background:'none',border:'1px solid #334155',borderRadius:12,padding:'10px 24px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
+              style={{width:'100%',background:'none',border:'1px solid #CBD5E1',borderRadius:12,padding:'10px 24px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>
               Not now
             </button>
           </div>
@@ -100,34 +100,34 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
 
         {step === 'form' && (
           <div style={{padding:28}}>
-            <div style={{fontSize:15,fontWeight:700,color:'#F1F5F9',marginBottom:20}}>Complete Registration</div>
+            <div style={{fontSize:15,fontWeight:700,color:'#0F172A',marginBottom:20}}>Complete Registration</div>
 
             <div style={{display:'flex',flexDirection:'column',gap:14}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 <div>
-                  <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Full Name *</label>
+                  <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Full Name *</label>
                   <input value={form.name} onChange={e => setForm(f=>({...f,name:e.target.value}))}
                     placeholder="Your name"
-                    style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                    style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
                 </div>
                 <div>
-                  <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Email *</label>
+                  <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Email *</label>
                   <input value={form.email} onChange={e => setForm(f=>({...f,email:e.target.value}))} type="email"
                     placeholder="work@company.com"
-                    style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                    style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
                 </div>
               </div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 <div>
-                  <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Company</label>
+                  <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Company</label>
                   <input value={form.company} onChange={e => setForm(f=>({...f,company:e.target.value}))}
                     placeholder="Your company"
-                    style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                    style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
                 </div>
                 <div>
-                  <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Role</label>
+                  <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Role</label>
                   <select value={form.role} onChange={e => setForm(f=>({...f,role:e.target.value}))}
-                    style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:form.role?'#F1F5F9':'#E2E8F0',fontSize:13,outline:'none'}}>
+                    style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:form.role?'#0F172A':'#0F172A',fontSize:14,outline:'none'}}>
                     <option value="">Select role...</option>
                     <option>Founder / CEO</option>
                     <option>Product Manager</option>
@@ -142,16 +142,16 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
                 </div>
               </div>
               <div>
-                <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Question for the host (optional)</label>
+                <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Question for the host (optional)</label>
                 <textarea value={form.question} onChange={e => setForm(f=>({...f,question:e.target.value}))} rows={2}
                   placeholder="What would you like to learn from this webinar?"
-                  style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none',resize:'none'}} />
+                  style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none',resize:'none'}} />
               </div>
             </div>
 
             <div style={{display:'flex',gap:8,marginTop:20}}>
               <button onClick={() => setStep('info')}
-                style={{background:'#1E293B',border:'1px solid #334155',borderRadius:10,padding:'10px 18px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
+                style={{background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:10,padding:'10px 18px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>
                 ← Back
               </button>
               <button onClick={handleSubmit} disabled={loading}
@@ -159,23 +159,23 @@ export function WebinarRegistration({ onClose, onRegister, webinar }: WebinarReg
                 {loading ? 'Registering...' : 'Complete Registration →'}
               </button>
             </div>
-            <p style={{fontSize:11,color:'#64748B',textAlign:'center',marginTop:10}}>By registering you agree to receive event reminders</p>
+            <p style={{fontSize:12,color:'#64748B',textAlign:'center',marginTop:10}}>By registering you agree to receive event reminders</p>
           </div>
         )}
 
         {step === 'success' && (
           <div style={{padding:40,textAlign:'center'}}>
             <div style={{fontSize:56,marginBottom:16}}>🎉</div>
-            <div style={{fontSize:20,fontWeight:800,color:'#F1F5F9',marginBottom:8}}>You're registered!</div>
-            <div style={{fontSize:14,color:'#E2E8F0',marginBottom:24,lineHeight:1.6}}>
-              A confirmation email will be sent to <strong style={{color:'#60A5FA'}}>{form.email}</strong>.<br />
+            <div style={{fontSize:20,fontWeight:800,color:'#0F172A',marginBottom:8}}>You're registered!</div>
+            <div style={{fontSize:14,color:'#0F172A',marginBottom:24,lineHeight:1.6}}>
+              A confirmation email will be sent to <strong style={{color:'#2563EB'}}>{form.email}</strong>.<br />
               We'll send you a reminder 24 hours and 15 minutes before the webinar.
             </div>
-            <div style={{background:'#1E293B',border:'1px solid #334155',borderRadius:12,padding:16,marginBottom:24,textAlign:'left'}}>
-              <div style={{fontSize:13,fontWeight:700,color:'#F1F5F9',marginBottom:8}}>📅 Add to calendar</div>
+            <div style={{background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:12,padding:16,marginBottom:24,textAlign:'left'}}>
+              <div style={{fontSize:14,fontWeight:700,color:'#0F172A',marginBottom:8}}>📅 Add to calendar</div>
               <div style={{display:'flex',gap:8}}>
                 {['Google Calendar','Outlook','Apple Calendar'].map(cal => (
-                  <button key={cal} style={{flex:1,background:'#0F172A',border:'1px solid #334155',borderRadius:6,padding:'6px 8px',color:'#E2E8F0',fontSize:10,cursor:'pointer',fontWeight:600}}>
+                  <button key={cal} style={{flex:1,background:'#FFFFFF',border:'1px solid #CBD5E1',borderRadius:6,padding:'6px 8px',color:'#0F172A',fontSize:12,cursor:'pointer',fontWeight:600}}>
                     {cal}
                   </button>
                 ))}
@@ -216,51 +216,51 @@ export function CreateWebinarModal({ onClose, onCreate }: CreateWebinarProps) {
   }
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.75)',display:'flex',zIndex:1000,alignItems:'center',justifyContent:'center',padding:16}}
+    <div data-dlg="1" style={{position:'fixed',inset:0,background:'rgba(15,23,42,0.5)',display:'flex',zIndex:1000,alignItems:'center',justifyContent:'center',padding:16}}
       onClick={e => { if(e.target===e.currentTarget) onClose(); }}>
-      <div style={{background:'#0F172A',border:'1px solid #1E40AF',borderRadius:20,width:'100%',maxWidth:520,boxShadow:'0 30px 80px rgba(0,0,0,0.7)'}}>
-        <div style={{padding:'16px 24px',borderBottom:'1px solid #1E3A5F',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{fontSize:15,fontWeight:700,color:'#F1F5F9'}}>🎙️ Create Webinar</div>
-          <button onClick={onClose} style={{background:'none',border:'none',color:'#E2E8F0',cursor:'pointer',fontSize:22}}>×</button>
+      <div style={{background:'#FFFFFF',border:'1px solid #93C5FD',borderRadius:20,width:'100%',maxWidth:520,boxShadow:'0 30px 80px rgba(15,23,42,0.20)'}}>
+        <div style={{padding:'16px 24px',borderBottom:'1px solid #E2E8F0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{fontSize:15,fontWeight:700,color:'#0F172A'}}>🎙️ Create Webinar</div>
+          <button onClick={onClose} style={{background:'none',border:'none',color:'#0F172A',cursor:'pointer',fontSize:22}}>×</button>
         </div>
         <div style={{padding:24,display:'flex',flexDirection:'column',gap:14}}>
           <div>
-            <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Webinar Title *</label>
+            <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Webinar Title *</label>
             <input value={form.title} onChange={e => setForm(f=>({...f,title:e.target.value}))}
               placeholder="e.g. How to scale your SaaS in India"
-              style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+              style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
           </div>
           <div>
-            <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Description</label>
+            <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Description</label>
             <textarea value={form.description} onChange={e => setForm(f=>({...f,description:e.target.value}))} rows={3}
               placeholder="What will attendees learn?"
-              style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none',resize:'none'}} />
+              style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none',resize:'none'}} />
           </div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
             <div>
-              <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Date *</label>
+              <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Date *</label>
               <input type="date" value={form.date} onChange={e => setForm(f=>({...f,date:e.target.value}))}
                 min={new Date().toISOString().split('T')[0]}
-                style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
             </div>
             <div>
-              <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Time (IST)</label>
+              <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Time (IST)</label>
               <input type="time" value={form.time} onChange={e => setForm(f=>({...f,time:e.target.value}))}
-                style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+                style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
             </div>
             <div>
-              <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Duration (min)</label>
+              <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Duration (min)</label>
               <select value={form.duration} onChange={e => setForm(f=>({...f,duration:Number(e.target.value)}))}
-                style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}}>
+                style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}}>
                 {[30,45,60,90,120].map(d => <option key={d} value={d}>{d} min</option>)}
               </select>
             </div>
           </div>
           <div>
-            <label style={{fontSize:11,color:'#E2E8F0',fontWeight:600,display:'block',marginBottom:6}}>Max Capacity</label>
+            <label style={{fontSize:12,color:'#0F172A',fontWeight:600,display:'block',marginBottom:6}}>Max Capacity</label>
             <input type="number" value={form.capacity} onChange={e => setForm(f=>({...f,capacity:Number(e.target.value)}))}
               min={10} max={10000}
-              style={{width:'100%',background:'#1E293B',border:'1px solid #334155',borderRadius:8,padding:'9px 12px',color:'#F1F5F9',fontSize:13,outline:'none'}} />
+              style={{width:'100%',background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:8,padding:'9px 12px',color:'#0F172A',fontSize:14,outline:'none'}} />
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {[
@@ -270,13 +270,13 @@ export function CreateWebinarModal({ onClose, onCreate }: CreateWebinarProps) {
               <label key={opt.key} style={{display:'flex',alignItems:'center',gap:10,cursor:'pointer'}}>
                 <input type="checkbox" checked={(form as any)[opt.key]} onChange={e => setForm(f=>({...f,[opt.key]:e.target.checked}))}
                   style={{width:16,height:16,accentColor:'#1D4ED8'}} />
-                <span style={{fontSize:13,color:'#E2E8F0'}}>{opt.label}</span>
+                <span style={{fontSize:14,color:'#0F172A'}}>{opt.label}</span>
               </label>
             ))}
           </div>
           <div style={{display:'flex',gap:8,marginTop:4}}>
             <button onClick={onClose}
-              style={{background:'#1E293B',border:'1px solid #334155',borderRadius:10,padding:'10px 18px',color:'#E2E8F0',fontSize:13,cursor:'pointer'}}>
+              style={{background:'#F1F5F9',border:'1px solid #CBD5E1',borderRadius:10,padding:'10px 18px',color:'#0F172A',fontSize:14,cursor:'pointer'}}>
               Cancel
             </button>
             <button onClick={handleCreate}

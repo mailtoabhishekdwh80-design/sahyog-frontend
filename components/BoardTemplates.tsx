@@ -136,25 +136,25 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
   const filtered = activeCategory === 'All' ? TEMPLATES : TEMPLATES.filter(t => t.category === activeCategory);
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', zIndex: 1000 }}
+    <div data-dlg="large" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', zIndex: 1000 }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ margin: 'auto', background: '#0F172A', border: '1px solid #1E40AF', borderRadius: 16, width: '90vw', maxWidth: 860, maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}>
+      <div style={{ margin: 'auto', background: '#FFFFFF', border: '1px solid #93C5FD', borderRadius: 16, width: '90vw', maxWidth: 860, maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 60px rgba(15,23,42,0.20)' }}>
 
         {/* Header */}
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid #1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 16 }}>Board Templates</div>
-            <div style={{ fontSize: 12, color: '#E2E8F0' }}>Start with a pre-built board for your team</div>
+            <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 16 }}>Board Templates</div>
+            <div style={{ fontSize:13, color: '#0F172A' }}>Start with a pre-built board for your team</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#E2E8F0', cursor: 'pointer', fontSize: 22 }}>×</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#0F172A', cursor: 'pointer', fontSize: 22 }}>×</button>
         </div>
 
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           {/* Categories sidebar */}
-          <div style={{ width: 160, borderRight: '1px solid #1E3A5F', padding: '12px 8px', flexShrink: 0 }}>
+          <div style={{ width: 160, borderRight: '1px solid #E2E8F0', padding: '12px 8px', flexShrink: 0 }}>
             {categories.map(cat => (
               <button key={cat} onClick={() => setActiveCategory(cat)}
-                style={{ width: '100%', textAlign: 'left', padding: '7px 12px', background: activeCategory === cat ? '#1D4ED8' : 'none', border: 'none', borderRadius: 8, color: activeCategory === cat ? '#FFFFFF' : '#E2E8F0', fontSize: 13, cursor: 'pointer', fontWeight: activeCategory === cat ? 700 : 400, marginBottom: 2 }}>
+                style={{ width: '100%', textAlign: 'left', padding: '7px 12px', background: activeCategory === cat ? '#1D4ED8' : 'none', border: 'none', borderRadius: 8, color: activeCategory === cat ? '#FFFFFF' : '#E2E8F0', fontSize:14, cursor: 'pointer', fontWeight: activeCategory === cat ? 700 : 400, marginBottom: 2 }}>
                 {cat}
               </button>
             ))}
@@ -165,14 +165,14 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
             {preview ? (
               // Preview mode
               <div>
-                <button onClick={() => setPreview(null)} style={{ background: 'none', border: 'none', color: '#60A5FA', cursor: 'pointer', fontSize: 13, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <button onClick={() => setPreview(null)} style={{ background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', fontSize:14, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
                   ← Back to templates
                 </button>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                   <span style={{ fontSize: 32 }}>{preview.icon}</span>
                   <div>
-                    <div style={{ fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>{preview.name}</div>
-                    <div style={{ fontSize: 13, color: '#E2E8F0' }}>{preview.description}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#0F172A' }}>{preview.name}</div>
+                    <div style={{ fontSize:14, color: '#0F172A' }}>{preview.description}</div>
                   </div>
                   <button onClick={() => { onSelect(preview); onClose(); }}
                     style={{ marginLeft: 'auto', background: '#1D4ED8', border: 'none', borderRadius: 10, padding: '8px 20px', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
@@ -181,10 +181,10 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
                 </div>
                 <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
                   {preview.lists.map(list => (
-                    <div key={list.name} style={{ minWidth: 180, background: '#1E293B', borderRadius: 10, padding: 12, border: '1px solid #334155' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#60A5FA', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</div>
+                    <div key={list.name} style={{ minWidth: 180, background: '#F1F5F9', borderRadius: 10, padding: 12, border: '1px solid #CBD5E1' }}>
+                      <div style={{ fontSize:12, fontWeight: 700, color: '#2563EB', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{list.name}</div>
                       {list.tasks.map(task => (
-                        <div key={task} style={{ background: '#0A0F1E', borderRadius: 6, padding: '6px 8px', marginBottom: 6, fontSize: 12, color: '#E2E8F0', border: '1px solid #1E3A5F' }}>
+                        <div key={task} style={{ background: '#F1F5F9', borderRadius: 6, padding: '6px 8px', marginBottom: 6, fontSize:13, color: '#0F172A', border: '1px solid #E2E8F0' }}>
                           {task}
                         </div>
                       ))}
@@ -197,25 +197,25 @@ export default function BoardTemplates({ onSelect, onClose }: BoardTemplatesProp
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
                 {filtered.map(template => (
                   <div key={template.id}
-                    style={{ background: '#131929', border: '1px solid #1E3A5F', borderRadius: 12, padding: 16, cursor: 'pointer', transition: 'all 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = '#1D4ED8'}
+                    style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 12, padding: 16, cursor: 'pointer', transition: 'all 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = '#93C5FD'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = '#64748B'}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>{template.icon}</div>
-                    <div style={{ fontWeight: 700, color: '#FFFFFF', fontSize: 15 }}>{template.name}</div>
-                    <div style={{ fontSize: 12, color: '#E2E8F0', marginBottom: 12, lineHeight: 1.4 }}>{template.description}</div>
+                    <div style={{ fontWeight: 700, color: '#0F172A', fontSize: 15 }}>{template.name}</div>
+                    <div style={{ fontSize:13, color: '#0F172A', marginBottom: 12, lineHeight: 1.4 }}>{template.description}</div>
                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 12 }}>
                       {template.lists.slice(0, 3).map(l => (
-                        <span key={l.name} style={{ fontSize: 10, padding: '2px 6px', background: '#1E3A5F', color: '#93C5FD', borderRadius: 4, border: '1px solid #2D5A9E' }}>{l.name}</span>
+                        <span key={l.name} style={{ fontSize:12, padding: '2px 6px', background: '#DBEAFE', color: '#1D4ED8', borderRadius: 4, border: '1px solid #E2E8F0' }}>{l.name}</span>
                       ))}
-                      {template.lists.length > 3 && <span style={{ fontSize: 10, color: '#64748B' }}>+{template.lists.length - 3} more</span>}
+                      {template.lists.length > 3 && <span style={{ fontSize:12, color: '#64748B' }}>+{template.lists.length - 3} more</span>}
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => setPreview(template)}
-                        style={{ flex: 1, background: '#1E293B', border: '1px solid #334155', borderRadius: 6, padding: '5px 10px', color: '#E2E8F0', fontSize: 11, cursor: 'pointer' }}>
+                        style={{ flex: 1, background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 6, padding: '5px 10px', color: '#0F172A', fontSize:12, cursor: 'pointer' }}>
                         Preview
                       </button>
                       <button onClick={() => { onSelect(template); onClose(); }}
-                        style={{ flex: 1, background: '#1D4ED8', border: 'none', borderRadius: 6, padding: '5px 10px', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                        style={{ flex: 1, background: '#1D4ED8', border: 'none', borderRadius: 6, padding: '5px 10px', color: '#fff', fontSize:12, fontWeight: 600, cursor: 'pointer' }}>
                         Use
                       </button>
                     </div>

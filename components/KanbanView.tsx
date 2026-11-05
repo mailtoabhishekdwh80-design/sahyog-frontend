@@ -23,11 +23,12 @@ type Task = {
 };
 
 const PC: Record<string, string> = {
-  low: 'text-gray-200 bg-gray-800', medium: 'text-blue-400 bg-blue-900/40',
-  high: 'text-orange-400 bg-orange-900/40', critical: 'text-red-400 bg-red-900/40',
+  low: 'text-slate-800 bg-slate-100', medium: 'text-blue-700 bg-blue-50',
+  high: 'text-orange-700 bg-orange-50', critical: 'text-red-700 bg-red-50',
 };
 const LC = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6'];
 const BOARD_COLORS = [
+  { name: 'Light', value: '#F1F5F9' },
   { name: 'Dark', value: '#030712' },
   { name: 'Ocean', value: 'linear-gradient(135deg,#0f2027,#203a43,#2c5364)' },
   { name: 'Forest', value: 'linear-gradient(135deg,#134e4a,#065f46)' },
@@ -40,7 +41,7 @@ const COVER_COLORS = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6
 function DroppableList({ list, children, isOver }: { list: List; children: React.ReactNode; isOver: boolean }) {
   const { setNodeRef } = useDroppable({ id: `list-${list.id}` });
   return (
-    <div ref={setNodeRef} className={`flex-1 overflow-y-auto p-2 space-y-2 min-h-[120px] rounded-b-xl transition-colors ${isOver ? 'bg-emerald-900/10' : ''}`}>
+    <div ref={setNodeRef} className={`flex-1 overflow-y-auto p-2 space-y-2 min-h-[120px] rounded-b-xl transition-colors ${isOver ? 'bg-emerald-50' : ''}`}>
       {children}
     </div>
   );
@@ -56,7 +57,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.3 : 1 }}
       {...attributes} {...listeners}
       onClick={onClick}
-      className="bg-gray-800 rounded-lg border border-gray-700 hover:border-gray-500 cursor-grab active:cursor-grabbing select-none overflow-hidden group/card"
+      className="bg-slate-100 rounded-lg border border-slate-300 hover:border-slate-300 cursor-grab active:cursor-grabbing select-none overflow-hidden group/card"
     >
       {task.cover_color && <div style={{ backgroundColor: task.cover_color }} className="h-8 w-full" />}
       <div className="p-3">
@@ -64,47 +65,47 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
           <div className="flex flex-wrap gap-1 mb-2">
             {task.labels.map((l: any) => (
               <span key={l.id} style={{ backgroundColor: l.color + '40', color: l.color }}
-                className="text-xs px-2 py-0.5 rounded-full font-medium">{l.name}</span>
+                className="text-[13px] px-2 py-0.5 rounded-full font-medium">{l.name}</span>
             ))}
           </div>
         )}
-        <p className="text-sm text-white font-medium leading-snug">{task.title}</p>
-        {task.description && <p className="text-xs text-gray-300 mt-1 line-clamp-2">{task.description}</p>}
+        <p className="text-sm text-slate-900 font-medium leading-snug">{task.title}</p>
+        {task.description && <p className="text-[13px] text-slate-700 mt-1 line-clamp-2">{task.description}</p>}
         <div className="flex items-center gap-2 mt-2 flex-wrap">
-          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${PC[task.priority] || PC.medium}`}>{task.priority}</span>
+          <span className={`text-[13px] px-1.5 py-0.5 rounded font-medium ${PC[task.priority] || PC.medium}`}>{task.priority}</span>
           {task.due_date && (
-            <span className={`text-xs flex items-center gap-1 ${isOverdue ? 'text-red-400' : 'text-gray-300'}`}>
+            <span className={`text-[13px] flex items-center gap-1 ${isOverdue ? 'text-red-700' : 'text-slate-700'}`}>
               📅 {new Date(task.due_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
             </span>
           )}
           {(task.checklist_total || 0) > 0 && (
-            <span className={`text-xs ${task.checklist_done === task.checklist_total ? 'text-emerald-400' : 'text-gray-300'}`}>
+            <span className={`text-[13px] ${task.checklist_done === task.checklist_total ? 'text-emerald-700' : 'text-slate-700'}`}>
               ☑ {task.checklist_done}/{task.checklist_total}
             </span>
           )}
-          {(task.comment_count || 0) > 0 && <span className="text-xs text-gray-300">💬 {task.comment_count}</span>}
+          {(task.comment_count || 0) > 0 && <span className="text-[13px] text-slate-700">💬 {task.comment_count}</span>}
           {/* Vote count */}
           {((task as any).vote_count || 0) > 0 && (
-            <span className="text-xs text-blue-400">👍 {(task as any).vote_count}</span>
+            <span className="text-[13px] text-blue-700">👍 {(task as any).vote_count}</span>
           )}
           {/* Estimate display */}
           {(task as any).estimate_hours && (
-            <span className="text-xs text-blue-400" title="Estimated time">⏱ {(task as any).estimate_hours}h</span>
+            <span className="text-[13px] text-blue-700" title="Estimated time">⏱ {(task as any).estimate_hours}h</span>
           )}
           {/* Card aging indicator */}
           {(task as any).updated_at && (() => {
             const days = Math.floor((Date.now() - new Date((task as any).updated_at).getTime()) / 86400000);
-            if (days >= 7) return <span className={`text-xs ${days >= 14 ? 'text-red-400' : 'text-yellow-500'}`} title={`No activity for ${days} days`}>⏳ {days}d</span>;
+            if (days >= 7) return <span className={`text-[13px] ${days >= 14 ? 'text-red-700' : 'text-yellow-500'}`} title={`No activity for ${days} days`}>⏳ {days}d</span>;
             return null;
           })()}
           {task.assignees && task.assignees.length > 0 && (
             <div className="flex -space-x-1 ml-auto">
               {task.assignees.slice(0, 3).map((a: any) => (
-                <div key={a.id} className="w-5 h-5 rounded-full bg-purple-700 border border-gray-800 flex items-center justify-center text-xs font-bold text-white" title={a.display_name}>
+                <div key={a.id} className="w-5 h-5 rounded-full bg-purple-700 border border-slate-200 flex items-center justify-center text-[13px] font-bold text-white" title={a.display_name}>
                   {a.display_name?.charAt(0)}
                 </div>
               ))}
-              {task.assignees.length > 3 && <span className="text-xs text-gray-300 ml-1">+{task.assignees.length - 3}</span>}
+              {task.assignees.length > 3 && <span className="text-[13px] text-slate-700 ml-1">+{task.assignees.length - 3}</span>}
             </div>
           )}
         </div>
@@ -125,43 +126,43 @@ function AITaskResults({ tasks, onAdd, onBack, listName }: { tasks: any[]; onAdd
   };
 
   const PC: Record<string, string> = {
-    critical: 'text-red-400 bg-red-900/30 border-red-800',
-    high: 'text-orange-400 bg-orange-900/30 border-orange-800',
-    medium: 'text-blue-400 bg-blue-900/30 border-blue-800',
-    low: 'text-gray-200 bg-gray-800 border-gray-700',
+    critical: 'text-red-700 bg-red-50 border-red-300',
+    high: 'text-orange-700 bg-orange-50 border-orange-300',
+    medium: 'text-blue-700 bg-blue-50 border-blue-300',
+    low: 'text-slate-800 bg-slate-100 border-slate-300',
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-white font-medium">AI generated {tasks.length} tasks</p>
-          <p className="text-xs text-gray-300 mt-0.5">Select which tasks to add to "{listName}"</p>
+          <p className="text-slate-900 font-medium">AI generated {tasks.length} tasks</p>
+          <p className="text-[13px] text-slate-700 mt-0.5">Select which tasks to add to "{listName}"</p>
         </div>
         <div className="flex gap-2">
-          <button onClick={() => setSelected(new Set(tasks.map((_,i) => i)))} className="text-xs text-emerald-400 hover:text-emerald-300">Select all</button>
-          <button onClick={() => setSelected(new Set())} className="text-xs text-gray-300 hover:text-gray-300">Deselect all</button>
+          <button onClick={() => setSelected(new Set(tasks.map((_,i) => i)))} className="text-[13px] text-emerald-700 hover:text-emerald-700">Select all</button>
+          <button onClick={() => setSelected(new Set())} className="text-[13px] text-slate-700 hover:text-slate-700">Deselect all</button>
         </div>
       </div>
       <div className="space-y-2">
         {tasks.map((task: any, i: number) => (
           <div key={i} onClick={() => toggle(i)}
-            className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${selected.has(i) ? 'bg-emerald-900/20 border-emerald-700' : 'bg-gray-800 border-gray-700 opacity-60'}`}>
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${selected.has(i) ? 'bg-emerald-600 border-emerald-600' : 'border-gray-600'}`}>
-              {selected.has(i) && <span className="text-white text-xs">✓</span>}
+            className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${selected.has(i) ? 'bg-emerald-50 border-emerald-300' : 'bg-slate-100 border-slate-300 opacity-60'}`}>
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${selected.has(i) ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300'}`}>
+              {selected.has(i) && <span className="text-white text-[13px]">✓</span>}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm text-white font-medium">{task.title}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full border ${PC[task.priority] || PC.medium}`}>{task.priority}</span>
+                <span className="text-sm text-slate-900 font-medium">{task.title}</span>
+                <span className={`text-[13px] px-2 py-0.5 rounded-full border ${PC[task.priority] || PC.medium}`}>{task.priority}</span>
               </div>
-              {task.description && <p className="text-xs text-gray-300 mt-1">{task.description}</p>}
+              {task.description && <p className="text-[13px] text-slate-700 mt-1">{task.description}</p>}
             </div>
           </div>
         ))}
       </div>
-      <div className="flex gap-3 pt-2 border-t border-gray-800">
-        <button onClick={onBack} className="flex-1 text-sm text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 py-2.5 rounded-xl transition-colors">
+      <div className="flex gap-3 pt-2 border-t border-slate-200">
+        <button onClick={onBack} className="flex-1 text-sm text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 py-2.5 rounded-xl transition-colors">
           Back
         </button>
         <button onClick={() => onAdd(tasks.filter((_, i) => selected.has(i)))}
@@ -585,63 +586,63 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
   if (loading) return (
     <div className="flex-1 flex items-center justify-center">
-      <div className="text-emerald-400 animate-pulse">Loading board...</div>
+      <div className="text-emerald-700 animate-pulse">Loading board...</div>
     </div>
   );
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-gray-800 bg-gray-900 shrink-0">
+      <div className="border-b border-slate-200 bg-white shrink-0">
         {/* Title row */}
         <div className="flex items-center gap-2 px-3 py-2">
-          <button onClick={onBack} className="text-gray-300 hover:text-white text-lg leading-none">&#8592;</button>
-          <span className="font-semibold text-white">{boardName}</span>
-          <span className="text-xs text-gray-300">{tasks.length} tasks</span>
+          <button onClick={onBack} className="text-slate-700 hover:text-slate-900 text-lg leading-none">&#8592;</button>
+          <span className="font-semibold text-slate-900">{boardName}</span>
+          <span className="text-[13px] text-slate-700">{tasks.length} tasks</span>
         </div>
         {/* Toolbar row */}
         <div className="flex items-center gap-2 px-3 pb-2 overflow-x-auto">
           <button onClick={() => setShowAISuggest(true)}
-            className="text-xs text-white bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 px-3 py-1.5 rounded-lg font-medium">
+            className="text-[13px] text-white bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 px-3 py-1.5 rounded-lg font-medium">
             AI Tasks
           </button>
-          <div style={{display:'flex',background:'#1E293B',borderRadius:8,border:'1px solid #334155',overflow:'hidden',marginLeft:'auto'}}>
+          <div style={{display:'flex',background:'#F1F5F9',borderRadius:8,border:'1px solid #CBD5E1',overflow:'hidden',marginLeft:'auto'}}>
             {(['kanban','gantt','table'] as const).map(v => (
               <button key={v} onClick={() => setViewMode(v)}
-                style={{padding:'4px 12px',background:viewMode===v?'#1D4ED8':'none',border:'none',color:viewMode===v?'#fff':'#E2E8F0',fontSize:11,cursor:'pointer',fontWeight:viewMode===v?700:400,textTransform:'capitalize'}}>
+                style={{padding:'4px 12px',background:viewMode===v?'#1D4ED8':'none',border:'none',color:viewMode===v?'#fff':'#334155',fontSize:12,cursor:'pointer',fontWeight:viewMode===v?700:400,textTransform:'capitalize'}}>
                 {v === 'kanban' ? '⊞ Board' : v === 'gantt' ? '📅 Timeline' : '☰ Table'}
               </button>
             ))}
           </div>
           
           <button onClick={loadTemplates}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             Templates
           </button>
           <button onClick={() => setShowAutomations(true)}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             Automations
           </button>
           <button onClick={exportBoardCSV} disabled={exportLoading}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             {exportLoading ? 'Exporting...' : 'Export CSV'}
           </button>
           <button onClick={generateInviteLink}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             Invite Link
           </button>
           <button onClick={() => setShowBoardPerms(true)}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             {boardPrivate ? '🔒 Private' : '🌐 Public'}
           </button>
           <button onClick={() => setChecklistTpls(s => !s)}
-            className={`text-xs px-3 py-1.5 rounded-lg border ${checklistTpls ? 'bg-emerald-900/30 border-emerald-700 text-emerald-400' : 'bg-gray-800 border-gray-700 text-gray-200 hover:text-white'}`}>
+            className={`text-[13px] px-3 py-1.5 rounded-lg border ${checklistTpls ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-100 border-slate-300 text-slate-800 hover:text-slate-900'}`}>
             Checklist templates
           </button>
           <input value={boardSearch} onChange={e => setBoardSearch(e.target.value)}
-            placeholder="Search tasks..." className="text-xs bg-gray-800 border border-gray-700 text-gray-300 px-3 py-1.5 rounded-lg outline-none focus:border-emerald-500 w-36" />
+            placeholder="Search tasks..." className="text-[13px] bg-slate-100 border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg outline-none focus:border-emerald-500 w-36" />
           <select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)}
-            className="text-xs bg-gray-800 border border-gray-700 text-gray-300 px-2 py-1.5 rounded-lg outline-none">
+            className="text-[13px] bg-slate-100 border border-slate-300 text-slate-700 px-2 py-1.5 rounded-lg outline-none">
             <option value="all">All priorities</option>
             <option value="critical">Critical</option>
             <option value="high">High</option>
@@ -649,19 +650,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             <option value="low">Low</option>
           </select>
           <button onClick={loadBoardAnalytics}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             Analytics
           </button>
           <button onClick={() => setShowCalendar(s => !s)}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${showCalendar ? 'bg-emerald-700 text-white border-emerald-600' : 'text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 border-gray-700'}`}>
+            className={`text-[13px] px-3 py-1.5 rounded-lg border transition-colors ${showCalendar ? 'bg-emerald-700 text-white border-emerald-600' : 'text-slate-800 hover:text-white bg-slate-100 hover:bg-slate-200 border-slate-300'}`}>
             Calendar
           </button>
           <button onClick={() => setShowBgPicker(s => !s)}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${showBgPicker ? 'bg-emerald-700 text-white border-emerald-600' : 'text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 border-gray-700'}`}>
+              className={`text-[13px] px-3 py-1.5 rounded-lg border transition-colors ${showBgPicker ? 'bg-emerald-700 text-white border-emerald-600' : 'text-slate-800 hover:text-white bg-slate-100 hover:bg-slate-200 border-slate-300'}`}>
               Theme
             </button>
           <button onClick={loadBoard}
-            className="text-xs text-gray-200 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700">
+            className="text-[13px] text-slate-800 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-300">
             Refresh
           </button>
         </div>
@@ -669,19 +670,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Calendar view */}
       {showCalendar && (
-        <div className="shrink-0 border-b border-gray-800 bg-gray-900 p-4">
+        <div className="shrink-0 border-b border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between mb-3">
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
-              className="text-gray-300 hover:text-white px-2 py-1 rounded hover:bg-gray-800 rounded">&lt;</button>
-            <span className="text-white font-semibold text-sm">
+              className="text-slate-700 hover:text-slate-900 px-2 py-1 rounded hover:bg-slate-100 rounded">&lt;</button>
+            <span className="text-slate-900 font-semibold text-sm">
               {calMonth.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}
             </span>
             <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
-              className="text-gray-300 hover:text-white px-2 py-1 hover:bg-gray-800 rounded">&gt;</button>
+              className="text-slate-700 hover:text-slate-900 px-2 py-1 hover:bg-slate-100 rounded">&gt;</button>
           </div>
           <div className="grid grid-cols-7 gap-1">
             {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => (
-              <div key={d} className="text-xs text-gray-300 text-center py-1">{d}</div>
+              <div key={d} className="text-[13px] text-slate-700 text-center py-1">{d}</div>
             ))}
             {Array.from({ length: new Date(calMonth.getFullYear(), calMonth.getMonth(), 1).getDay() }).map((_, i) => (
               <div key={`e${i}`} />
@@ -691,13 +692,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               const dayTasks = getTasksForDay(day);
               const isToday = new Date().getDate() === day && new Date().getMonth() === calMonth.getMonth();
               return (
-                <div key={day} className={`min-h-12 rounded-lg p-1 ${isToday ? 'bg-emerald-950/50 border border-emerald-800' : 'bg-gray-800/40'}`}>
-                  <div className={`text-xs mb-1 w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-gray-300'}`}>{day}</div>
+                <div key={day} className={`min-h-12 rounded-lg p-1 ${isToday ? 'bg-emerald-950/50 border border-emerald-300' : 'bg-slate-100/70'}`}>
+                  <div className={`text-[13px] mb-1 w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-emerald-600 text-white' : 'text-slate-700'}`}>{day}</div>
                   {dayTasks.slice(0, 2).map(t => (
                     <div key={t.id} onClick={() => openTask(t)}
-                      className="text-xs bg-emerald-900/60 text-emerald-300 rounded px-1 py-0.5 mb-0.5 truncate cursor-pointer hover:bg-emerald-900">{t.title}</div>
+                      className="text-[13px] bg-emerald-50 text-emerald-700 rounded px-1 py-0.5 mb-0.5 truncate cursor-pointer hover:bg-emerald-100">{t.title}</div>
                   ))}
-                  {dayTasks.length > 2 && <div className="text-xs text-gray-300">+{dayTasks.length - 2}</div>}
+                  {dayTasks.length > 2 && <div className="text-[13px] text-slate-700">+{dayTasks.length - 2}</div>}
                 </div>
               );
             })}
@@ -716,11 +717,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               const listTasks = tasks.filter(t => t.list_id === list.id).sort((a, b) => a.position - b.position);
               const isOver = overListId === list.id;
               return (
-                <div key={list.id} className={`w-72 shrink-0 flex flex-col rounded-xl border transition-colors ${isOver ? 'border-emerald-500' : 'border-gray-700'} bg-gray-900/95 backdrop-blur`}>
-                  <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-800 shrink-0">
+                <div key={list.id} className={`w-72 shrink-0 flex flex-col rounded-xl border transition-colors ${isOver ? 'border-emerald-500' : 'border-slate-300'} bg-white/95 backdrop-blur`}>
+                  <div className="flex items-center gap-2 px-3 py-2.5 border-b border-slate-200 shrink-0">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: LC[idx % LC.length] }} />
-                    <span className="text-sm font-semibold text-gray-200 flex-1">{list.name}</span>
-                    <span className="text-xs text-gray-300 bg-gray-800 rounded-full px-2 py-0.5">{listTasks.length}</span>
+                    <span className="text-sm font-semibold text-slate-800 flex-1">{list.name}</span>
+                    <span className="text-[13px] text-slate-700 bg-slate-100 rounded-full px-2 py-0.5">{listTasks.length}</span>
                   </div>
                   <DroppableList list={list} isOver={isOver}>
                     <SortableContext items={listTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
@@ -733,19 +734,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                       ))}
                     </SortableContext>
                     {addingToList === list.id ? (
-                      <div className="bg-gray-800 rounded-lg p-2.5 border border-emerald-600 space-y-1.5">
+                      <div className="bg-slate-100 rounded-lg p-2.5 border border-emerald-600 space-y-1.5">
                         <input autoFocus value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') addTask(list.id); if (e.key === 'Escape') { setAddingToList(null); setNewTaskTitle(''); } }}
                           placeholder="Task title..."
-                          className="w-full bg-gray-900 text-sm text-white placeholder-gray-500 focus:outline-none rounded px-2 py-1" />
+                          className="w-full bg-white text-sm text-slate-900 placeholder-gray-500 focus:outline-none rounded px-2 py-1" />
                         <div className="flex gap-2">
-                          <button onClick={() => addTask(list.id)} className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded">Add</button>
-                          <button onClick={() => { setAddingToList(null); setNewTaskTitle(''); }} className="text-xs text-gray-300 hover:text-gray-300 px-2 py-1">Cancel</button>
+                          <button onClick={() => addTask(list.id)} className="text-[13px] bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1 rounded">Add</button>
+                          <button onClick={() => { setAddingToList(null); setNewTaskTitle(''); }} className="text-[13px] text-slate-700 hover:text-slate-700 px-2 py-1">Cancel</button>
                         </div>
                       </div>
                     ) : (
                       <button onClick={() => { setAddingToList(list.id); setNewTaskTitle(''); }}
-                        className="w-full text-left text-xs text-gray-300 hover:text-gray-300 px-2 py-1.5 rounded hover:bg-gray-800 flex items-center gap-1 transition-colors">
+                        className="w-full text-left text-[13px] text-slate-700 hover:text-slate-700 px-2 py-1.5 rounded hover:bg-slate-100 flex items-center gap-1 transition-colors">
                         + Add task
                       </button>
                     )}
@@ -757,19 +758,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             {/* Add list */}
             <div className="w-64 shrink-0">
               {addingList ? (
-                <div className="bg-gray-900/95 rounded-xl border border-gray-700 p-3 space-y-2">
+                <div className="bg-white/95 rounded-xl border border-slate-300 p-3 space-y-2">
                   <input autoFocus value={newListName} onChange={e => setNewListName(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') addList(); if (e.key === 'Escape') { setAddingList(false); setNewListName(''); } }}
                     placeholder="List name..."
-                    className="w-full bg-gray-800 text-sm text-white placeholder-gray-500 focus:outline-none rounded px-3 py-2 border border-gray-700 focus:border-emerald-500" />
+                    className="w-full bg-slate-100 text-sm text-slate-900 placeholder-gray-500 focus:outline-none rounded px-3 py-2 border border-slate-300 focus:border-emerald-500" />
                   <div className="flex gap-2">
-                    <button onClick={addList} className="text-xs bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded">Add list</button>
-                    <button onClick={() => { setAddingList(false); setNewListName(''); }} className="text-xs text-gray-300 hover:text-gray-300 px-2 py-1">Cancel</button>
+                    <button onClick={addList} className="text-[13px] bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded">Add list</button>
+                    <button onClick={() => { setAddingList(false); setNewListName(''); }} className="text-[13px] text-slate-700 hover:text-slate-700 px-2 py-1">Cancel</button>
                   </div>
                 </div>
               ) : (
                 <button onClick={() => setAddingList(true)}
-                  className="w-full px-4 py-3 rounded-xl border border-dashed border-gray-600 text-gray-300 hover:text-gray-300 hover:border-gray-400 text-sm flex items-center gap-2 bg-gray-900/60 backdrop-blur transition-colors">
+                  className="w-full px-4 py-3 rounded-xl border border-dashed border-slate-300 text-slate-700 hover:text-slate-700 hover:border-gray-400 text-sm flex items-center gap-2 bg-white/80 backdrop-blur transition-colors">
                   + Add list
                 </button>
               )}
@@ -778,8 +779,8 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
           <DragOverlay>
             {activeTask && (
-              <div className="bg-gray-700 rounded-lg p-3 border border-emerald-500 shadow-2xl w-72 rotate-1 opacity-95">
-                <p className="text-sm text-white font-medium">{activeTask.title}</p>
+              <div className="bg-slate-200 rounded-lg p-3 border border-emerald-500 shadow-2xl w-72 rotate-1 opacity-95">
+                <p className="text-sm text-slate-900 font-medium">{activeTask.title}</p>
               </div>
             )}
           </DragOverlay>
@@ -788,10 +789,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Task detail modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="large" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setSelectedTask(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800 shrink-0 flex-wrap gap-2">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-2xl shadow-2xl max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 shrink-0 flex-wrap gap-2">
               <div className="flex gap-2 flex-wrap">
                 {[
                   { id: 'details',     label: 'Details' },
@@ -805,15 +806,15 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   { id: 'custom',      label: `Fields (${customFields.length})` },
                 ].map(tab => (
                   <button key={tab.id} onClick={() => setTaskTab(tab.id as any)}
-                    className={`text-xs font-medium px-2.5 py-1.5 rounded-lg transition-colors ${taskTab === tab.id ? 'bg-emerald-700 text-white' : 'text-gray-200 hover:text-white hover:bg-gray-800'}`}>
+                    className={`text-[13px] font-medium px-2.5 py-1.5 rounded-lg transition-colors ${taskTab === tab.id ? 'bg-emerald-700 text-white' : 'text-slate-800 hover:text-white hover:bg-slate-100'}`}>
                     {tab.label}
                   </button>
                 ))}
               </div>
               <div className="flex gap-2">
                 <button onClick={async () => { await api.deleteTask(selectedTask.id); setSelectedTask(null); loadBoard(); }}
-                  className="text-xs text-red-500 hover:text-red-400 px-2 py-1 rounded hover:bg-red-900/30">Delete</button>
-                <button onClick={() => setSelectedTask(null)} className="text-gray-300 hover:text-white w-6 h-6 flex items-center justify-center rounded hover:bg-gray-800">✕</button>
+                  className="text-[13px] text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50">Delete</button>
+                <button onClick={() => setSelectedTask(null)} className="text-slate-700 hover:text-slate-900 w-6 h-6 flex items-center justify-center rounded hover:bg-slate-100">✕</button>
               </div>
             </div>
 
@@ -822,38 +823,38 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               {taskTab === 'details' && (
                 <div className="p-5 space-y-4">
                   <div>
-                    <label className="text-xs text-gray-300 mb-1 block">Title</label>
+                    <label className="text-[13px] text-slate-700 mb-1 block">Title</label>
                     <input value={editTitle} onChange={e => setEditTitle(e.target.value)}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                      className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-300 mb-1 block">Description</label>
+                    <label className="text-[13px] text-slate-700 mb-1 block">Description</label>
                     <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} rows={3}
-                      className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 resize-none"
+                      className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500 resize-none"
                       placeholder="Add a description..." />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-gray-300 mb-1 block">Priority</label>
+                      <label className="text-[13px] text-slate-700 mb-1 block">Priority</label>
                       <div className="flex gap-2 flex-wrap">
                         {['low','medium','high','critical'].map(p => (
                           <button key={p} onClick={() => setEditPriority(p)}
-                            className={`text-xs px-2.5 py-1.5 rounded-lg capitalize transition-colors ${editPriority === p ? PC[p] : 'text-gray-300 bg-gray-800 hover:bg-gray-700'}`}>{p}</button>
+                            className={`text-[13px] px-2.5 py-1.5 rounded-lg capitalize transition-colors ${editPriority === p ? PC[p] : 'text-slate-700 bg-slate-100 hover:bg-slate-200'}`}>{p}</button>
                         ))}
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs text-gray-300 mb-1 block">Due date</label>
+                      <label className="text-[13px] text-slate-700 mb-1 block">Due date</label>
                       <input type="date" value={editDueDate} onChange={e => setEditDueDate(e.target.value)}
-                        className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                        className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     </div>
                   </div>
                   {/* Cover color */}
                   <div>
-                    <label className="text-xs text-gray-300 mb-2 block">Card cover color</label>
+                    <label className="text-[13px] text-slate-700 mb-2 block">Card cover color</label>
                     <div className="flex gap-2 flex-wrap">
                       <button onClick={async () => { await api.setCoverColor(selectedTask.id, ''); loadBoard(); }}
-                        className="w-7 h-7 rounded-lg border-2 border-gray-600 hover:border-white bg-gray-800 text-xs text-gray-300">x</button>
+                        className="w-7 h-7 rounded-lg border-2 border-slate-300 hover:border-white bg-slate-100 text-[13px] text-slate-700">x</button>
                       {COVER_COLORS.map(c => (
                         <button key={c} onClick={async () => { await api.setCoverColor(selectedTask.id, c); loadBoard(); }}
                           style={{ backgroundColor: c }}
@@ -863,11 +864,11 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   </div>
                   {/* Assignees */}
                   <div>
-                    <label className="text-xs text-gray-300 mb-2 block">Assignees</label>
+                    <label className="text-[13px] text-slate-700 mb-2 block">Assignees</label>
                     <div className="flex flex-wrap gap-2">
                       {selectedTask.assignees?.map((a: any) => (
-                        <span key={a.id} className="flex items-center gap-1.5 bg-gray-800 px-2 py-1 rounded-full text-xs text-gray-300">
-                          <span className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold">{a.display_name?.charAt(0)}</span>
+                        <span key={a.id} className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-full text-[13px] text-slate-700">
+                          <span className="w-5 h-5 rounded-full bg-purple-700 flex items-center justify-center text-[13px] font-bold">{a.display_name?.charAt(0)}</span>
                           {a.display_name?.split(' ')[0]}
                         </span>
                       ))}
@@ -878,13 +879,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                           const updated = await api.getTask(selectedTask.id);
                           if (updated?.data) setSelectedTask(updated.data);
                         }}
-                          className="text-xs text-gray-300 hover:text-gray-300 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-full flex items-center gap-1">
+                          className="text-[13px] text-slate-700 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-full flex items-center gap-1">
                           + {m.display_name?.split(' ')[0]}
                         </button>
                       ))}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-300">
+                  <div className="text-[13px] text-slate-700">
                     List: {lists.find(l => l.id === selectedTask.list_id)?.name || '—'}
                   </div>
                 </div>
@@ -894,27 +895,27 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               {taskTab === 'comments' && (
                 <div className="p-5 space-y-4">
                   <div className="space-y-3">
-                    {comments.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No comments yet</p>}
+                    {comments.length === 0 && <p className="text-slate-700 text-sm text-center py-4">No comments yet</p>}
                     {comments.map((c: any) => (
                       <div key={c.id} className="flex gap-3">
-                        <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-[13px] font-bold shrink-0">
                           {c.display_name?.charAt(0) || '?'}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-xs font-semibold text-white">{c.display_name}</span>
-                            <span className="text-xs text-gray-300">{new Date(c.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-[13px] font-semibold text-slate-900">{c.display_name}</span>
+                            <span className="text-[13px] text-slate-700">{new Date(c.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
-                          <p className="text-sm text-gray-300 mt-0.5">{c.content}</p>
+                          <p className="text-sm text-slate-700 mt-0.5">{c.content}</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2 pt-2 border-t border-gray-800">
+                  <div className="flex gap-2 pt-2 border-t border-slate-200">
                     <input value={newComment} onChange={e => setNewComment(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && addCommentFn()}
                       placeholder="Add a comment..."
-                      className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                      className="flex-1 bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     <button onClick={addCommentFn} disabled={!newComment.trim()}
                       className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Post</button>
                   </div>
@@ -927,10 +928,10 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   {checklist.length > 0 && (
                     <div className="mb-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-gray-300">{checkProgress}% complete</span>
-                        <span className="text-xs text-gray-300">{checklist.filter((c: any) => c.is_checked).length}/{checklist.length}</span>
+                        <span className="text-[13px] text-slate-700">{checkProgress}% complete</span>
+                        <span className="text-[13px] text-slate-700">{checklist.filter((c: any) => c.is_checked).length}/{checklist.length}</span>
                       </div>
-                      <div className="bg-gray-800 rounded-full h-2">
+                      <div className="bg-slate-100 rounded-full h-2">
                         <div className="bg-emerald-500 h-2 rounded-full transition-all" style={{ width: `${checkProgress}%` }} />
                       </div>
                     </div>
@@ -939,20 +940,20 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                     {checklist.map((item: any) => (
                       <div key={item.id} className="flex items-center gap-3 group">
                         <button onClick={() => toggleCheckItemFn(item.id, item.is_checked)}
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.is_checked ? 'bg-emerald-600 border-emerald-600' : 'border-gray-600 hover:border-emerald-500'}`}>
-                          {item.is_checked && <span className="text-white text-xs">✓</span>}
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.is_checked ? 'bg-emerald-600 border-emerald-600' : 'border-slate-300 hover:border-emerald-500'}`}>
+                          {item.is_checked && <span className="text-white text-[13px]">✓</span>}
                         </button>
-                        <span className={`text-sm flex-1 ${item.is_checked ? 'line-through text-gray-300' : 'text-gray-200'}`}>{item.title}</span>
+                        <span className={`text-sm flex-1 ${item.is_checked ? 'line-through text-slate-700' : 'text-slate-800'}`}>{item.title}</span>
                         <button onClick={async () => { await api.deleteCheckItem(selectedTask.id, item.id); const r = await api.getChecklist(selectedTask.id); setChecklist(r?.data || []); }}
-                          className="hidden group-hover:block text-gray-300 hover:text-red-400 text-xs">✕</button>
+                          className="hidden group-hover:block text-slate-700 hover:text-red-700 text-[13px]">✕</button>
                       </div>
                     ))}
                   </div>
-                  <div className="flex gap-2 pt-2 border-t border-gray-800">
+                  <div className="flex gap-2 pt-2 border-t border-slate-200">
                     <input value={newCheckItem} onChange={e => setNewCheckItem(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && addCheckItemFn()}
                       placeholder="Add checklist item..."
-                      className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                      className="flex-1 bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     <button onClick={addCheckItemFn} disabled={!newCheckItem.trim()}
                       className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
                   </div>
@@ -965,19 +966,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   <input ref={attachFileRef} type="file" className="hidden"
                     onChange={e => e.target.files?.[0] && uploadAttachment(e.target.files[0])} />
                   <button onClick={() => attachFileRef.current?.click()}
-                    className="w-full border-2 border-dashed border-gray-700 hover:border-emerald-500 rounded-xl py-6 text-gray-300 hover:text-emerald-400 text-sm transition-colors">
+                    className="w-full border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl py-6 text-slate-700 hover:text-emerald-700 text-sm transition-colors">
                     + Upload attachment
                   </button>
-                  {attachments.length === 0 && <p className="text-gray-300 text-sm text-center py-2">No attachments yet</p>}
+                  {attachments.length === 0 && <p className="text-slate-700 text-sm text-center py-2">No attachments yet</p>}
                   {attachments.map((a: any) => (
-                    <div key={a.id} className="flex items-center gap-3 bg-gray-800 rounded-xl p-3">
+                    <div key={a.id} className="flex items-center gap-3 bg-slate-100 rounded-xl p-3">
                       <span className="text-2xl">{a.mime_type?.startsWith('image/') ? '🖼️' : '📎'}</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">{a.file_name}</p>
-                        <p className="text-xs text-gray-300">{a.uploader_name} · {new Date(a.created_at).toLocaleDateString('en-IN')}</p>
+                        <p className="text-sm text-slate-900 truncate">{a.file_name}</p>
+                        <p className="text-[13px] text-slate-700">{a.uploader_name} · {new Date(a.created_at).toLocaleDateString('en-IN')}</p>
                       </div>
                       <a href={a.file_url} target="_blank" rel="noopener noreferrer"
-                        className="text-xs text-emerald-400 hover:text-emerald-300">↓</a>
+                        className="text-[13px] text-emerald-700 hover:text-emerald-700">↓</a>
                     </div>
                   ))}
                 </div>
@@ -989,16 +990,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                   <div className="flex gap-2">
                     <input value={newSubtask} onChange={e => setNewSubtask(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && addSubtaskFn()}
-                      placeholder="Add subtask..." className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                      placeholder="Add subtask..." className="flex-1 bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     <button onClick={addSubtaskFn} disabled={!newSubtask.trim()}
                       className="bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm px-4 py-2 rounded-lg">Add</button>
                   </div>
-                  {subtasks.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No subtasks yet</p>}
+                  {subtasks.length === 0 && <p className="text-slate-700 text-sm text-center py-4">No subtasks yet</p>}
                   {subtasks.map((s: any) => (
-                    <div key={s.id} className="flex items-center gap-3 bg-gray-800 rounded-lg p-3">
+                    <div key={s.id} className="flex items-center gap-3 bg-slate-100 rounded-lg p-3">
                       <div className={`w-2 h-2 rounded-full ${PC[s.priority] ? 'bg-current' : 'bg-gray-500'}`} />
-                      <span className="text-sm text-white flex-1">{s.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded ${PC[s.priority] || PC.medium}`}>{s.priority}</span>
+                      <span className="text-sm text-slate-900 flex-1">{s.title}</span>
+                      <span className={`text-[13px] px-2 py-0.5 rounded ${PC[s.priority] || PC.medium}`}>{s.priority}</span>
                     </div>
                   ))}
                 </div>
@@ -1007,34 +1008,34 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               {/* Time tracking */}
               {taskTab === 'time' && (
                 <div className="p-5 space-y-4">
-                  <div className="bg-gray-800 rounded-xl p-4 text-center">
-                    <div className="text-3xl font-bold text-emerald-400">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</div>
-                    <div className="text-xs text-gray-300 mt-1">Total time logged</div>
+                  <div className="bg-slate-100 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-emerald-700">{Math.floor(totalMinutes/60)}h {totalMinutes%60}m</div>
+                    <div className="text-[13px] text-slate-700 mt-1">Total time logged</div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-xs text-gray-300 mb-1 block">Minutes</label>
+                      <label className="text-[13px] text-slate-700 mb-1 block">Minutes</label>
                       <input type="number" value={logMins} onChange={e => setLogMins(e.target.value)}
-                        placeholder="e.g. 90" className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                        placeholder="e.g. 90" className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-300 mb-1 block">Note</label>
+                      <label className="text-[13px] text-slate-700 mb-1 block">Note</label>
                       <input value={logNote} onChange={e => setLogNote(e.target.value)}
-                        placeholder="What did you do?" className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                        placeholder="What did you do?" className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
                     </div>
                   </div>
                   <button onClick={logTimeFn} disabled={!logMins}
                     className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm py-2.5 rounded-xl">Log time</button>
-                  <div className="space-y-2 pt-2 border-t border-gray-800">
-                    {timeLogs.length === 0 && <p className="text-gray-300 text-sm text-center py-2">No time logged yet</p>}
+                  <div className="space-y-2 pt-2 border-t border-slate-200">
+                    {timeLogs.length === 0 && <p className="text-slate-700 text-sm text-center py-2">No time logged yet</p>}
                     {timeLogs.map((l: any, i: number) => (
-                      <div key={i} className="flex items-center gap-3 bg-gray-800 rounded-lg p-2.5">
-                        <div className="text-sm font-semibold text-emerald-400 w-16">{Math.floor(l.minutes/60)}h {l.minutes%60}m</div>
+                      <div key={i} className="flex items-center gap-3 bg-slate-100 rounded-lg p-2.5">
+                        <div className="text-sm font-semibold text-emerald-700 w-16">{Math.floor(l.minutes/60)}h {l.minutes%60}m</div>
                         <div className="flex-1">
-                          <div className="text-xs text-white">{l.display_name}</div>
-                          {l.note && <div className="text-xs text-gray-300">{l.note}</div>}
+                          <div className="text-[13px] text-slate-900">{l.display_name}</div>
+                          {l.note && <div className="text-[13px] text-slate-700">{l.note}</div>}
                         </div>
-                        <div className="text-xs text-gray-300">{new Date(l.logged_at).toLocaleDateString('en-IN')}</div>
+                        <div className="text-[13px] text-slate-700">{new Date(l.logged_at).toLocaleDateString('en-IN')}</div>
                       </div>
                     ))}
                   </div>
@@ -1051,9 +1052,9 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                       await api.addDependency(selectedTask.id, { blocksTaskId: id });
                       const res = await api.getDependencies(selectedTask.id);
                       setDependencies(res?.data || []);
-                    }} className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left border border-gray-700 hover:border-orange-500 transition-colors">
-                      <div className="text-sm font-semibold text-orange-400 mb-1">Blocks</div>
-                      <div className="text-xs text-gray-300">This task must be done first</div>
+                    }} className="bg-slate-100 hover:bg-slate-200 rounded-xl p-3 text-left border border-slate-300 hover:border-orange-500 transition-colors">
+                      <div className="text-sm font-semibold text-orange-700 mb-1">Blocks</div>
+                      <div className="text-[13px] text-slate-700">This task must be done first</div>
                     </button>
                     <button onClick={async () => {
                       const id = prompt('Task ID that BLOCKS this task:');
@@ -1061,19 +1062,19 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                       await api.addDependency(selectedTask.id, { blockedByTaskId: id });
                       const res = await api.getDependencies(selectedTask.id);
                       setDependencies(res?.data || []);
-                    }} className="bg-gray-800 hover:bg-gray-700 rounded-xl p-3 text-left border border-gray-700 hover:border-red-500 transition-colors">
-                      <div className="text-sm font-semibold text-red-400 mb-1">Blocked by</div>
-                      <div className="text-xs text-gray-300">This task is waiting on another</div>
+                    }} className="bg-slate-100 hover:bg-slate-200 rounded-xl p-3 text-left border border-slate-300 hover:border-red-500 transition-colors">
+                      <div className="text-sm font-semibold text-red-700 mb-1">Blocked by</div>
+                      <div className="text-[13px] text-slate-700">This task is waiting on another</div>
                     </button>
                   </div>
-                  {dependencies.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No dependencies set</p>}
+                  {dependencies.length === 0 && <p className="text-slate-700 text-sm text-center py-4">No dependencies set</p>}
                   {dependencies.map((d: any) => (
-                    <div key={d.id} className="flex items-center gap-3 bg-gray-800 rounded-lg p-3">
-                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${d.type === 'blocks' ? 'bg-orange-900/40 text-orange-400' : 'bg-red-900/40 text-red-400'}`}>
+                    <div key={d.id} className="flex items-center gap-3 bg-slate-100 rounded-lg p-3">
+                      <span className={`text-[13px] px-2 py-0.5 rounded font-medium ${d.type === 'blocks' ? 'bg-orange-50 text-orange-700' : 'bg-red-50 text-red-700'}`}>
                         {d.type === 'blocks' ? 'Blocks' : 'Blocked by'}
                       </span>
-                      <span className="text-sm text-white flex-1">{d.related_title}</span>
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${PC[d.related_priority] || PC.medium}`}>{d.related_priority}</span>
+                      <span className="text-sm text-slate-900 flex-1">{d.related_title}</span>
+                      <span className={`text-[13px] px-1.5 py-0.5 rounded ${PC[d.related_priority] || PC.medium}`}>{d.related_priority}</span>
                     </div>
                   ))}
                 </div>
@@ -1082,16 +1083,16 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               {/* Activity */}
               {taskTab === 'activity' && (
                 <div className="p-5 space-y-3">
-                  {activity.length === 0 && <p className="text-gray-300 text-sm text-center py-4">No activity yet</p>}
+                  {activity.length === 0 && <p className="text-slate-700 text-sm text-center py-4">No activity yet</p>}
                   {activity.map((a: any, i: number) => (
                     <div key={i} className="flex gap-3">
-                      <div className="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[13px] font-bold shrink-0">
                         {a.display_name?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1">
-                        <span className="text-xs font-medium text-white">{a.display_name}</span>
-                        <span className="text-xs text-gray-200 ml-2">{a.type === 'comment' ? 'commented:' : ''} {a.content}</span>
-                        <div className="text-xs text-gray-300 mt-0.5">
+                        <span className="text-[13px] font-medium text-slate-900">{a.display_name}</span>
+                        <span className="text-[13px] text-slate-800 ml-2">{a.type === 'comment' ? 'commented:' : ''} {a.content}</span>
+                        <div className="text-[13px] text-slate-700 mt-0.5">
                           {new Date(a.ts).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -1102,48 +1103,48 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
               {taskTab === 'custom' && (
                 <div className="p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">Custom Fields</span>
-                    <span className="text-xs text-gray-300">Add custom data to this task</span>
+                    <span className="text-sm font-semibold text-slate-900">Custom Fields</span>
+                    <span className="text-[13px] text-slate-700">Add custom data to this task</span>
                   </div>
                   {customFields.map(field => (
                     <div key={field.id} className="flex items-center gap-3">
                       <div className="flex-1">
-                        <label className="text-xs text-gray-300 mb-1 block">{field.name}</label>
+                        <label className="text-[13px] text-slate-700 mb-1 block">{field.name}</label>
                         {field.type === 'text' && (
                           <input value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
-                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="Enter value..." />
+                            className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none" placeholder="Enter value..." />
                         )}
                         {field.type === 'number' && (
                           <input type="number" value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
-                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="0" />
+                            className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none" placeholder="0" />
                         )}
                         {field.type === 'date' && (
                           <input type="date" value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
-                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                            className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none" />
                         )}
                         {field.type === 'checkbox' && (
                           <div className="flex items-center gap-2 mt-1">
                             <input type="checkbox" checked={field.value==='true'} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:String(e.target.checked)} : f))}
                               className="w-4 h-4 accent-blue-600" />
-                            <span className="text-sm text-gray-300">{field.value==='true' ? 'Yes' : 'No'}</span>
+                            <span className="text-sm text-slate-700">{field.value==='true' ? 'Yes' : 'No'}</span>
                           </div>
                         )}
                         {field.type === 'select' && (
                           <input value={field.value} onChange={e => setCustomFields(prev => prev.map(f => f.id===field.id ? {...f,value:e.target.value} : f))}
-                            className="w-full bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" placeholder="Enter option..." />
+                            className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none" placeholder="Enter option..." />
                         )}
                       </div>
                       <button onClick={() => setCustomFields(prev => prev.filter(f => f.id !== field.id))}
-                        className="text-red-500 hover:text-red-400 text-xs mt-4 shrink-0">Remove</button>
+                        className="text-red-500 hover:text-red-700 text-[13px] mt-4 shrink-0">Remove</button>
                     </div>
                   ))}
-                  <div style={{borderTop:'1px solid #374151',paddingTop:16}}>
-                    <div className="text-xs text-gray-300 mb-2 font-semibold">ADD NEW FIELD</div>
+                  <div style={{borderTop:'1px solid #CBD5E1',paddingTop:16}}>
+                    <div className="text-[13px] text-slate-700 mb-2 font-semibold">ADD NEW FIELD</div>
                     <div className="flex gap-2">
                       <input value={newFieldName} onChange={e => setNewFieldName(e.target.value)}
-                        placeholder="Field name..." className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none" />
+                        placeholder="Field name..." className="flex-1 bg-slate-100 text-slate-900 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none" />
                       <select value={newFieldType} onChange={e => setNewFieldType(e.target.value)}
-                        className="bg-gray-800 text-gray-300 rounded-lg px-3 py-2 text-sm border border-gray-700 focus:outline-none">
+                        className="bg-slate-100 text-slate-700 rounded-lg px-3 py-2 text-sm border border-slate-300 focus:outline-none">
                         <option value="text">Text</option>
                         <option value="number">Number</option>
                         <option value="date">Date</option>
@@ -1169,7 +1170,7 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             </div>
 
             {taskTab === 'details' && (
-              <div className="px-5 pb-5 shrink-0 border-t border-gray-800 pt-4">
+              <div className="px-5 pb-5 shrink-0 border-t border-slate-200 pt-4">
                 <button onClick={saveTask} disabled={saving}
                   className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm transition-colors">
                   {saving ? 'Saving...' : 'Save changes'}
@@ -1184,14 +1185,14 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
       {showBgPicker && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-20"
           onClick={() => setShowBgPicker(false)}>
-          <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <p className="text-xs text-gray-200 mb-3 font-medium">Board theme</p>
+          <div className="bg-white border border-slate-300 rounded-2xl p-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <p className="text-[13px] text-slate-800 mb-3 font-medium">Board theme</p>
             <div className="flex gap-2 flex-wrap">
               {BOARD_COLORS.map(c => (
                 <button key={c.name} onClick={() => { setBoardBg(c.value); setShowBgPicker(false); }}
-                  className="w-12 h-12 rounded-xl border-2 border-gray-600 hover:border-white transition-colors flex items-end p-1"
+                  className="w-12 h-12 rounded-xl border-2 border-slate-300 hover:border-white transition-colors flex items-end p-1"
                   style={{ background: c.value }} title={c.name}>
-                  <span className="text-white text-xs opacity-70">{c.name}</span>
+                  <span className="text-slate-900 text-[13px] opacity-70">{c.name}</span>
                 </button>
               ))}
             </div>
@@ -1201,31 +1202,31 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Checklist Templates Panel */}
       {checklistTpls && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setChecklistTpls(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-lg shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Checklist templates</h3>
-              <button onClick={() => setChecklistTpls(false)} className="text-gray-300 hover:text-white">x</button>
+              <h3 className="text-slate-900 font-semibold">Checklist templates</h3>
+              <button onClick={() => setChecklistTpls(false)} className="text-slate-700 hover:text-slate-900">x</button>
             </div>
-            <p className="text-xs text-gray-300 mb-4">Apply a checklist template to any task by opening the task and clicking Checklist</p>
+            <p className="text-[13px] text-slate-700 mb-4">Apply a checklist template to any task by opening the task and clicking Checklist</p>
             <div className="space-y-3">
               {CHECKLIST_TEMPLATES.map(tpl => (
-                <div key={tpl.name} className="bg-gray-800 rounded-xl p-4">
+                <div key={tpl.name} className="bg-slate-100 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-white">{tpl.name}</span>
-                    <span className="text-xs text-gray-300">{tpl.items.length} items</span>
+                    <span className="text-sm font-semibold text-slate-900">{tpl.name}</span>
+                    <span className="text-[13px] text-slate-700">{tpl.items.length} items</span>
                   </div>
                   <div className="space-y-1">
                     {tpl.items.map((item, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs text-gray-200">
-                        <span className="w-3 h-3 border border-gray-600 rounded flex-shrink-0"/>
+                      <div key={i} className="flex items-center gap-2 text-[13px] text-slate-800">
+                        <span className="w-3 h-3 border border-slate-300 rounded flex-shrink-0"/>
                         {item}
                       </div>
                     ))}
                   </div>
                   <button onClick={() => { alert('Checklist template "' + tpl.name + '" ready! Open any task and click Checklist to apply it.'); setChecklistTpls(false); }}
-                    className="mt-3 w-full text-xs bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 py-1.5 rounded-lg">Use template</button>
+                    className="mt-3 w-full text-[13px] bg-emerald-50 hover:bg-emerald-50 text-emerald-700 py-1.5 rounded-lg">Use template</button>
                 </div>
               ))}
             </div>
@@ -1235,24 +1236,24 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Board Permissions Modal */}
       {showBoardPerms && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowBoardPerms(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-sm shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Board permissions</h3>
-              <button onClick={() => setShowBoardPerms(false)} className="text-gray-300 hover:text-white">x</button>
+              <h3 className="text-slate-900 font-semibold">Board permissions</h3>
+              <button onClick={() => setShowBoardPerms(false)} className="text-slate-700 hover:text-slate-900">x</button>
             </div>
             <div className="space-y-3">
               {[
                 { label:'🌐 Public', desc:'All workspace members can view and edit', value: false },
                 { label:'🔒 Private', desc:'Only invited members can access this board', value: true },
               ].map(opt => (
-                <label key={opt.label} className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer border transition-colors ${boardPrivate === opt.value ? 'border-emerald-700 bg-emerald-900/20' : 'border-gray-700 hover:bg-gray-800'}`}>
+                <label key={opt.label} className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer border transition-colors ${boardPrivate === opt.value ? 'border-emerald-300 bg-emerald-50' : 'border-slate-300 hover:bg-slate-100'}`}>
                   <input type="radio" name="board_perm" checked={boardPrivate === opt.value}
                     onChange={() => setBoardPermissions(opt.value)} className="mt-0.5 accent-emerald-500" />
                   <div>
-                    <div className="text-sm font-medium text-white">{opt.label}</div>
-                    <div className="text-xs text-gray-300">{opt.desc}</div>
+                    <div className="text-sm font-medium text-slate-900">{opt.label}</div>
+                    <div className="text-[13px] text-slate-700">{opt.desc}</div>
                   </div>
                 </label>
               ))}
@@ -1263,22 +1264,22 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Estimate Modal */}
       {showEstimate && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowEstimate(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-sm shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Set time estimate</h3>
-              <button onClick={() => setShowEstimate(null)} className="text-gray-300 hover:text-white">x</button>
+              <h3 className="text-slate-900 font-semibold">Set time estimate</h3>
+              <button onClick={() => setShowEstimate(null)} className="text-slate-700 hover:text-slate-900">x</button>
             </div>
             <div className="mb-4">
-              <label className="text-xs text-gray-300 block mb-2">Estimated hours</label>
+              <label className="text-[13px] text-slate-700 block mb-2">Estimated hours</label>
               <input type="number" value={estimateHours} onChange={e => setEstimateHours(e.target.value)}
                 placeholder="e.g. 4" min="0.5" step="0.5"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm outline-none" />
+                className="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 text-sm outline-none" />
               <div className="flex gap-2 mt-2">
                 {[0.5,1,2,4,8].map(h => (
                   <button key={h} onClick={() => setEstimateHours(String(h))}
-                    className="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-2 py-1 rounded">{h}h</button>
+                    className="text-[13px] bg-slate-100 hover:bg-slate-200 text-slate-800 px-2 py-1 rounded">{h}h</button>
                 ))}
               </div>
             </div>
@@ -1290,23 +1291,23 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Move to Board Modal */}
       {showCrossBoard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowCrossBoard(null); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-sm shadow-2xl p-5">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-sm shadow-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Move to another board</h3>
-              <button onClick={() => setShowCrossBoard(null)} className="text-gray-300 hover:text-white">x</button>
+              <h3 className="text-slate-900 font-semibold">Move to another board</h3>
+              <button onClick={() => setShowCrossBoard(null)} className="text-slate-700 hover:text-slate-900">x</button>
             </div>
-            <p className="text-xs text-gray-300 mb-3">Select a board to move this task to:</p>
+            <p className="text-[13px] text-slate-700 mb-3">Select a board to move this task to:</p>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {boards.filter((b: any) => b.id !== boardId).map((b: any) => (
                 <button key={b.id} onClick={() => moveToBoard(showCrossBoard!, b.id)}
-                  className="w-full text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm text-white flex items-center gap-2">
-                  <span className="text-gray-300 text-xs">B</span>{b.name}
+                  className="w-full text-left p-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm text-slate-900 flex items-center gap-2">
+                  <span className="text-slate-700 text-[13px]">B</span>{b.name}
                 </button>
               ))}
               {boards.filter((b: any) => b.id !== boardId).length === 0 && (
-                <p className="text-gray-300 text-sm text-center py-4">No other boards available</p>
+                <p className="text-slate-700 text-sm text-center py-4">No other boards available</p>
               )}
             </div>
           </div>
@@ -1315,48 +1316,48 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Board Invite Modal */}
       {showBoardInvite && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if(e.target===e.currentTarget) setShowBoardInvite(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl p-6">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-md shadow-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-semibold">Invite to board</h3>
-              <button onClick={() => setShowBoardInvite(false)} className="text-gray-300 hover:text-white">✕</button>
+              <h3 className="text-slate-900 font-semibold">Invite to board</h3>
+              <button onClick={() => setShowBoardInvite(false)} className="text-slate-700 hover:text-slate-900">✕</button>
             </div>
-            <p className="text-gray-200 text-sm mb-3">Share this link to invite people to this board:</p>
+            <p className="text-slate-800 text-sm mb-3">Share this link to invite people to this board:</p>
             <div className="flex gap-2">
               <input value={boardInviteUrl} readOnly
-                className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-300 outline-none" />
+                className="flex-1 bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 outline-none" />
               <button onClick={() => { navigator.clipboard.writeText(boardInviteUrl); alert('Copied!'); }}
                 className="bg-emerald-700 hover:bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-medium">Copy</button>
             </div>
-            <p className="text-xs text-gray-300 mt-3">Anyone with this link can view this board (requires workspace login)</p>
+            <p className="text-[13px] text-slate-700 mt-3">Anyone with this link can view this board (requires workspace login)</p>
           </div>
         </div>
       )}
 
       {/* AI Task Suggestion Modal */}
       {showAISuggest && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="large" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) { setShowAISuggest(false); setAiSuggestedTasks([]); } }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col">
             {/* Header */}
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-800 shrink-0">
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-slate-200 shrink-0">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-sm font-bold text-white">AI</div>
               <div>
-                <h3 className="text-white font-semibold">AI Task Generator</h3>
-                <p className="text-xs text-gray-300">Describe your project and Deemona AI will create tasks for you</p>
+                <h3 className="text-slate-900 font-semibold">AI Task Generator</h3>
+                <p className="text-[13px] text-slate-700">Describe your project and Deemona AI will create tasks for you</p>
               </div>
-              <button onClick={() => { setShowAISuggest(false); setAiSuggestedTasks([]); }} className="ml-auto text-gray-300 hover:text-white">x</button>
+              <button onClick={() => { setShowAISuggest(false); setAiSuggestedTasks([]); }} className="ml-auto text-slate-700 hover:text-slate-900">x</button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {aiSuggestedTasks.length === 0 ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs text-gray-200 mb-2 block font-medium uppercase tracking-wider">Project description</label>
+                    <label className="text-[13px] text-slate-800 mb-2 block font-medium uppercase tracking-wider">Project description</label>
                     <textarea value={aiProjectDesc} onChange={e => setAiProjectDesc(e.target.value)}
                       rows={5} placeholder="Describe your project in detail. For example: 'Build a mobile app for food delivery in India. Users can browse restaurants, order food, track delivery in real-time. Needs payment integration with UPI and WhatsApp notifications.'"
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 resize-none placeholder-gray-600" />
+                      className="w-full bg-slate-100 text-slate-900 rounded-xl px-4 py-3 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500 resize-none placeholder-gray-600" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {[
@@ -1366,22 +1367,22 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
                       'Food delivery platform with restaurant onboarding and UPI payments',
                     ].map(s => (
                       <button key={s} onClick={() => setAiProjectDesc(s)}
-                        className="text-left text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white px-3 py-2.5 rounded-xl border border-gray-700 hover:border-emerald-600 transition-colors">
+                        className="text-left text-[13px] bg-slate-100 hover:bg-slate-200 text-slate-800 hover:text-slate-900 px-3 py-2.5 rounded-xl border border-slate-300 hover:border-emerald-600 transition-colors">
                         {s}
                       </button>
                     ))}
                   </div>
-                  {aiError && <p className="text-red-400 text-sm">{aiError}</p>}
+                  {aiError && <p className="text-red-700 text-sm">{aiError}</p>}
                   <button onClick={suggestTasksWithAI} disabled={!aiProjectDesc.trim() || aiLoading}
                     className="w-full bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-all">
                     {aiLoading ? 'Deemona AI is thinking...' : 'Generate tasks with AI'}
                   </button>
                   {aiLoading && (
-                    <div className="flex items-center gap-3 bg-gray-800 rounded-xl p-4">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-xs font-bold text-white animate-pulse">AI</div>
+                    <div className="flex items-center gap-3 bg-slate-100 rounded-xl p-4">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-[13px] font-bold text-white animate-pulse">AI</div>
                       <div className="flex-1">
-                        <p className="text-sm text-white">Analyzing your project...</p>
-                        <p className="text-xs text-gray-300 mt-0.5">Breaking down into actionable tasks</p>
+                        <p className="text-sm text-slate-900">Analyzing your project...</p>
+                        <p className="text-[13px] text-slate-700 mt-0.5">Breaking down into actionable tasks</p>
                       </div>
                     </div>
                   )}
@@ -1396,40 +1397,40 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
 
       {/* Board analytics modal */}
       {showBoardAnalytics && boardAnalytics && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+        <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowBoardAnalytics(false); }}>
-          <div className="bg-gray-900 rounded-2xl border border-gray-700 w-full max-w-lg shadow-2xl p-5 space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-300 w-full max-w-lg shadow-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-white font-semibold">Board Analytics</span>
-              <button onClick={() => setShowBoardAnalytics(false)} className="text-gray-300 hover:text-white">x</button>
+              <span className="text-slate-900 font-semibold">Board Analytics</span>
+              <button onClick={() => setShowBoardAnalytics(false)} className="text-slate-700 hover:text-slate-900">x</button>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gray-800 rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-white">{boardAnalytics.summary?.total || 0}</div>
-                <div className="text-xs text-gray-300 mt-1">Total tasks</div>
+              <div className="bg-slate-100 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-slate-900">{boardAnalytics.summary?.total || 0}</div>
+                <div className="text-[13px] text-slate-700 mt-1">Total tasks</div>
               </div>
-              <div className="bg-gray-800 rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-red-400">{boardAnalytics.summary?.overdue || 0}</div>
-                <div className="text-xs text-gray-300 mt-1">Overdue</div>
+              <div className="bg-slate-100 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-red-700">{boardAnalytics.summary?.overdue || 0}</div>
+                <div className="text-[13px] text-slate-700 mt-1">Overdue</div>
               </div>
-              <div className="bg-gray-800 rounded-xl p-3 text-center">
-                <div className="text-xl font-bold text-orange-400">{boardAnalytics.summary?.critical || 0}</div>
-                <div className="text-xs text-gray-300 mt-1">Critical</div>
+              <div className="bg-slate-100 rounded-xl p-3 text-center">
+                <div className="text-xl font-bold text-orange-700">{boardAnalytics.summary?.critical || 0}</div>
+                <div className="text-[13px] text-slate-700 mt-1">Critical</div>
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-300 mb-2 font-medium uppercase tracking-wider">Tasks by list</div>
+              <div className="text-[13px] text-slate-700 mb-2 font-medium uppercase tracking-wider">Tasks by list</div>
               <div className="space-y-2">
                 {boardAnalytics.byList?.map((l: any, i: number) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: LC[i % LC.length] }} />
-                    <span className="text-sm text-white flex-1">{l.name}</span>
+                    <span className="text-sm text-slate-900 flex-1">{l.name}</span>
                     <div className="flex items-center gap-2">
-                      <div className="bg-gray-800 rounded-full h-1.5 w-24">
+                      <div className="bg-slate-100 rounded-full h-1.5 w-24">
                         <div className="bg-emerald-500 h-1.5 rounded-full"
                           style={{ width: `${boardAnalytics.summary?.total > 0 ? (l.count / boardAnalytics.summary.total) * 100 : 0}%` }} />
                       </div>
-                      <span className="text-xs text-gray-200 w-6 text-right">{l.count}</span>
+                      <span className="text-[13px] text-slate-800 w-6 text-right">{l.count}</span>
                     </div>
                   </div>
                 ))}
@@ -1437,13 +1438,13 @@ export default function KanbanView({ boardId, boardName, onBack }: Props) {
             </div>
             {boardAnalytics.byAssignee?.length > 0 && (
               <div>
-                <div className="text-xs text-gray-300 mb-2 font-medium uppercase tracking-wider">Top assignees</div>
+                <div className="text-[13px] text-slate-700 mb-2 font-medium uppercase tracking-wider">Top assignees</div>
                 <div className="space-y-2">
                   {boardAnalytics.byAssignee.map((a: any, i: number) => (
                     <div key={i} className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-purple-700 flex items-center justify-center text-xs font-bold text-white">{a.display_name?.charAt(0)}</div>
-                      <span className="text-sm text-white flex-1">{a.display_name}</span>
-                      <span className="text-xs text-gray-200 bg-gray-800 px-2 py-0.5 rounded-full">{a.task_count} tasks</span>
+                      <div className="w-6 h-6 rounded-full bg-purple-700 flex items-center justify-center text-[13px] font-bold text-white">{a.display_name?.charAt(0)}</div>
+                      <span className="text-sm text-slate-900 flex-1">{a.display_name}</span>
+                      <span className="text-[13px] text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full">{a.task_count} tasks</span>
                     </div>
                   ))}
                 </div>

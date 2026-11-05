@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+/* ── Deemona Teams: clean light theme ─────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F1F5F9;
+  --foreground: #0F172A;
+  --surface: #FFFFFF;
+  --surface-2: #F8FAFC;
+  --border: #E2E8F0;
+  --muted: #64748B;
+  --accent: #4F46E5;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -12,19 +19,34 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  }
-  
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+  font-size: 16px;
+}
+
+input, textarea, select { color: #0F172A; }
+input::placeholder, textarea::placeholder { color: #94A3B8; opacity: 1; }
+input, textarea, select { color-scheme: light; }
+
+/* ── Dialogs: larger box, larger text ─────────────────────────── */
+[data-dlg="1"] { padding: 24px !important; }
+[data-dlg="1"] > div {
+  zoom: 1.2;
+  width: 100%;
+  max-width: 560px;
+  max-height: calc((100vh - 48px) / 1.2);
+  overflow-y: auto;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+}
+[data-dlg] input, [data-dlg] textarea, [data-dlg] select { font-size: 16px !important; }
+[data-dlg] label { font-size: 14px !important; }
+@media (max-width: 640px) {
+  [data-dlg="1"] { padding: 8px !important; }
+  [data-dlg="1"] > div { zoom: 1; max-width: 100%; max-height: calc(100vh - 16px); }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

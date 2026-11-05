@@ -29,41 +29,41 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 mb-4">
             <span className="text-white font-bold text-xl">S</span>
           </div>
-          <h1 className="text-white text-2xl font-bold">Reset your password</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-slate-900 text-2xl font-bold">Reset your password</h1>
+          <p className="text-slate-600 text-sm mt-1">
             {sent ? 'Check your inbox' : "We'll send you a reset link"}
           </p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200">
           {sent ? (
             /* Success state */
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-emerald-900/40 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
                 <span className="text-3xl">📧</span>
               </div>
               <div>
-                <p className="text-white font-medium">Email sent!</p>
-                <p className="text-gray-400 text-sm mt-1">
-                  If <span className="text-emerald-400">{email}</span> is registered,
+                <p className="text-slate-900 font-medium">Email sent!</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  If <span className="text-emerald-700">{email}</span> is registered,
                   you'll receive a password reset link shortly.
                 </p>
               </div>
-              <div className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400 text-left space-y-1">
+              <div className="bg-slate-100 rounded-lg p-3 text-[13px] text-slate-600 text-left space-y-1">
                 <p>• Check your spam/junk folder</p>
                 <p>• The link expires in 1 hour</p>
                 <p>• You can only use the link once</p>
               </div>
               <button
                 onClick={() => { setSent(false); setEmail(''); }}
-                className="text-sm text-emerald-400 hover:text-emerald-300"
+                className="text-sm text-emerald-700 hover:text-emerald-700"
               >
                 Try a different email
               </button>
@@ -72,13 +72,13 @@ export default function ForgotPasswordPage() {
             /* Form state */
             <div className="space-y-4">
               {error && (
-                <div className="bg-red-900/40 border border-red-700 text-red-300 text-sm rounded-lg px-3 py-2">
+                <div className="bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-3 py-2">
                   {error}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Email address</label>
+                <label className="block text-[13px] text-slate-600 mb-1.5 font-medium">Email address</label>
                 <input
                   type="email"
                   value={email}
@@ -86,7 +86,7 @@ export default function ForgotPasswordPage() {
                   onKeyDown={e => e.key === 'Enter' && handleSubmit()}
                   placeholder="you@company.com"
                   autoFocus
-                  className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 placeholder-gray-500"
+                  className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2.5 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500 placeholder-gray-500"
                 />
               </div>
 
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Remember your password?{' '}
-          <a href="/login" className="text-emerald-400 hover:text-emerald-300">Sign in</a>
+          <a href="/login" className="text-emerald-700 hover:text-emerald-700">Sign in</a>
         </p>
       </div>
     </div>

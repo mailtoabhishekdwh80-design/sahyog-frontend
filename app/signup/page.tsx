@@ -109,35 +109,35 @@ export default function SignupPage() {
     setLoading(false);
   }
 
-  const inputClass = "w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-base border border-gray-700 focus:outline-none focus:border-emerald-500 placeholder-gray-500";
+  const inputClass = "w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2.5 text-base border border-slate-300 focus:outline-none focus:border-emerald-500 placeholder-gray-500";
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 mb-4">
             <span className="text-white font-bold text-xl">S</span>
           </div>
-          <h1 className="text-white text-2xl font-bold">{inviteChecked && isJoining ? 'Join your team' : 'Create your workspace'}</h1>
-          <p className="text-gray-400 text-base mt-1">{inviteChecked && isJoining ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
+          <h1 className="text-slate-900 text-2xl font-bold">{inviteChecked && isJoining ? 'Join your team' : 'Create your workspace'}</h1>
+          <p className="text-slate-600 text-base mt-1">{inviteChecked && isJoining ? 'Set up your account to start collaborating' : 'Start collaborating with your team on Deemona Teams'}</p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-4">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-4">
           {error && (
-            <div className="bg-red-900/40 border border-red-700 text-red-300 text-base rounded-lg px-3 py-2">
+            <div className="bg-red-50 border border-red-300 text-red-700 text-base rounded-lg px-3 py-2">
               {error}
             </div>
           )}
 
           {/* Invite banner */}
           {inviteChecked && inviteToken && (
-            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-base rounded-lg px-3 py-2.5">
+            <div className="bg-emerald-50 border border-emerald-300 text-emerald-700 text-base rounded-lg px-3 py-2.5">
               🎉 You're joining an existing workspace via invite. Just fill in your details below.
             </div>
           )}
           {inviteChecked && joinToken && (
-            <div className="bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-base rounded-lg px-3 py-2.5">
+            <div className="bg-emerald-50 border border-emerald-300 text-emerald-700 text-base rounded-lg px-3 py-2.5">
               🎉 You're joining a workspace via its shared invite link. Just fill in your details below.
             </div>
           )}
@@ -146,7 +146,7 @@ export default function SignupPage() {
           {inviteChecked && !isJoining && (
             <>
               <div>
-                <label className="block text-base text-gray-400 mb-1.5 font-medium">Organization name</label>
+                <label className="block text-base text-slate-600 mb-1.5 font-medium">Organization name</label>
                 <input
                   type="text"
                   value={form.orgName}
@@ -158,18 +158,18 @@ export default function SignupPage() {
 
               {/* Slug */}
               <div>
-                <label className="block text-base text-gray-400 mb-1.5 font-medium">
+                <label className="block text-base text-slate-600 mb-1.5 font-medium">
                   Workspace URL
                   <span className="text-gray-600 font-normal ml-1">(auto-generated)</span>
                 </label>
-                <div className="flex items-center bg-gray-800 rounded-lg border border-gray-700 focus-within:border-emerald-500 overflow-hidden">
-                  <span className="text-gray-500 text-base px-3 py-2.5 border-r border-gray-700 bg-gray-850 shrink-0">sahyog.in/</span>
+                <div className="flex items-center bg-slate-100 rounded-lg border border-slate-300 focus-within:border-emerald-500 overflow-hidden">
+                  <span className="text-gray-500 text-base px-3 py-2.5 border-r border-slate-300 bg-white shrink-0">sahyog.in/</span>
                   <input
                     type="text"
                     value={form.orgSlug}
                     onChange={e => update('orgSlug', e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                     placeholder="deemona"
-                    className="flex-1 bg-transparent text-white text-base px-3 py-2.5 focus:outline-none placeholder-gray-500"
+                    className="flex-1 bg-transparent text-slate-900 text-base px-3 py-2.5 focus:outline-none placeholder-gray-500"
                   />
                 </div>
               </div>
@@ -177,13 +177,13 @@ export default function SignupPage() {
           )}
 
           {/* Divider */}
-          <div className="border-t border-gray-800 pt-2">
+          <div className="border-t border-slate-200 pt-2">
             <p className="text-base text-gray-500 mb-3">Your account</p>
           </div>
 
           {/* Display name */}
           <div>
-            <label className="block text-base text-gray-400 mb-1.5 font-medium">Full name</label>
+            <label className="block text-base text-slate-600 mb-1.5 font-medium">Full name</label>
             <input
               type="text"
               value={form.displayName}
@@ -195,7 +195,7 @@ export default function SignupPage() {
 
           {/* Email */}
           <div>
-            <label className="block text-base text-gray-400 mb-1.5 font-medium">Work email</label>
+            <label className="block text-base text-slate-600 mb-1.5 font-medium">Work email</label>
             <input
               type="email"
               value={form.email}
@@ -207,7 +207,7 @@ export default function SignupPage() {
 
           {/* Password */}
           <div>
-            <label className="block text-base text-gray-400 mb-1.5 font-medium">Password</label>
+            <label className="block text-base text-slate-600 mb-1.5 font-medium">Password</label>
             <input
               type="password"
               value={form.password}
@@ -224,7 +224,7 @@ export default function SignupPage() {
                       ? form.password.length >= 12 ? 'bg-emerald-500'
                         : form.password.length >= 8 ? 'bg-yellow-500'
                         : 'bg-red-500'
-                      : 'bg-gray-700'
+                      : 'bg-slate-200'
                   }`} />
                 ))}
               </div>
@@ -233,17 +233,17 @@ export default function SignupPage() {
 
           {/* Confirm password */}
           <div>
-            <label className="block text-base text-gray-400 mb-1.5 font-medium">Confirm password</label>
+            <label className="block text-base text-slate-600 mb-1.5 font-medium">Confirm password</label>
             <input
               type="password"
               value={form.confirm}
               onChange={e => update('confirm', e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSignup()}
               placeholder="Repeat password"
-              className={`${inputClass} ${form.confirm && form.confirm !== form.password ? 'border-red-700' : ''}`}
+              className={`${inputClass} ${form.confirm && form.confirm !== form.password ? 'border-red-300' : ''}`}
             />
             {form.confirm && form.confirm !== form.password && (
-              <p className="text-base text-red-400 mt-1">Passwords do not match</p>
+              <p className="text-base text-red-700 mt-1">Passwords do not match</p>
             )}
           </div>
 
@@ -295,14 +295,14 @@ export default function SignupPage() {
             {loading ? 'Creating workspace...' : 'Create workspace'}
           </button>
 
-          <p style={{textAlign:'center',fontSize:15,color:'#9ca3af',marginTop:8}}>
-            <a href="/legal" target="_blank" style={{color:'#9ca3af'}}>View all legal documents</a>
+          <p style={{textAlign:'center',fontSize:15,color:'#64748B',marginTop:8}}>
+            <a href="/legal" target="_blank" style={{color:'#64748B'}}>View all legal documents</a>
           </p>
         </div>
 
         <p className="text-center text-base text-gray-500 mt-6">
           Already have an account?{' '}
-          <a href="/login" className="text-emerald-400 hover:text-emerald-300">Sign in</a>
+          <a href="/login" className="text-emerald-700 hover:text-emerald-700">Sign in</a>
         </p>
       </div>
     </div>

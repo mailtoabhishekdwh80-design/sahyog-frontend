@@ -117,73 +117,73 @@ export default function BoardAutomations({ onClose, boardName }: AutomationsProp
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', zIndex: 1000 }}
+    <div data-dlg="large" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', display: 'flex', zIndex: 1000 }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ margin: 'auto', background: '#0F172A', border: '1px solid #1E40AF', borderRadius: 16, width: '100%', maxWidth: 620, maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}>
+      <div style={{ margin: 'auto', background: '#FFFFFF', border: '1px solid #93C5FD', borderRadius: 16, width: '100%', maxWidth: 620, maxHeight: '85vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 60px rgba(15,23,42,0.20)' }}>
 
         {/* Header */}
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #1E3A5F', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 20 }}>⚡</span>
             <div>
-              <div style={{ color: '#F1F5F9', fontWeight: 700, fontSize: 15 }}>Automations</div>
-              <div style={{ fontSize: 11, color: '#E2E8F0' }}>{boardName || 'Board'} · {automations.filter(a => a.enabled).length} active rules</div>
+              <div style={{ color: '#0F172A', fontWeight: 700, fontSize: 15 }}>Automations</div>
+              <div style={{ fontSize:12, color: '#0F172A' }}>{boardName || 'Board'} · {automations.filter(a => a.enabled).length} active rules</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setCreating(!creating)}
-              style={{ background: '#1D4ED8', border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ background: '#1D4ED8', border: 'none', borderRadius: 8, padding: '6px 14px', color: '#fff', fontSize:14, fontWeight: 600, cursor: 'pointer' }}>
               + New Rule
             </button>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#E2E8F0', cursor: 'pointer', fontSize: 22 }}>×</button>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#0F172A', cursor: 'pointer', fontSize: 22 }}>×</button>
           </div>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
           {/* Create form */}
           {creating && (
-            <div style={{ background: '#1E293B', border: '1px solid #1D4ED8', borderRadius: 12, padding: 20, marginBottom: 20 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#F1F5F9', marginBottom: 16 }}>New Automation Rule</div>
+            <div style={{ background: '#F1F5F9', border: '1px solid #93C5FD', borderRadius: 12, padding: 20, marginBottom: 20 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 16 }}>New Automation Rule</div>
               
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, color: '#E2E8F0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>Rule Name</label>
+                <label style={{ fontSize:12, color: '#0F172A', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>Rule Name</label>
                 <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Auto-move completed tasks"
-                  style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', color: '#F1F5F9', fontSize: 13, outline: 'none' }} />
+                  style={{ width: '100%', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 12px', color: '#0F172A', fontSize:14, outline: 'none' }} />
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, color: '#E2E8F0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>When (Trigger)</label>
+                <label style={{ fontSize:12, color: '#0F172A', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>When (Trigger)</label>
                 <select value={triggerType} onChange={e => { setTriggerType(e.target.value); setTriggerValue(''); }}
-                  style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', color: '#F1F5F9', fontSize: 13, outline: 'none', marginBottom: 8 }}>
+                  style={{ width: '100%', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 12px', color: '#0F172A', fontSize:14, outline: 'none', marginBottom: 8 }}>
                   {TRIGGERS.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                 </select>
                 {selectedTrigger?.hasValue && (
                   <input value={triggerValue} onChange={e => setTriggerValue(e.target.value)}
                     placeholder={selectedTrigger.valuePlaceholder}
-                    style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', color: '#F1F5F9', fontSize: 13, outline: 'none' }} />
+                    style={{ width: '100%', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 12px', color: '#0F172A', fontSize:14, outline: 'none' }} />
                 )}
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 11, color: '#E2E8F0', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>Then (Action)</label>
+                <label style={{ fontSize:12, color: '#0F172A', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>Then (Action)</label>
                 <select value={actionType} onChange={e => { setActionType(e.target.value); setActionValue(''); }}
-                  style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', color: '#F1F5F9', fontSize: 13, outline: 'none', marginBottom: 8 }}>
+                  style={{ width: '100%', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 12px', color: '#0F172A', fontSize:14, outline: 'none', marginBottom: 8 }}>
                   {ACTIONS.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
                 </select>
                 {selectedAction?.hasValue && (
                   <input value={actionValue} onChange={e => setActionValue(e.target.value)}
                     placeholder={selectedAction.valuePlaceholder}
-                    style={{ width: '100%', background: '#0F172A', border: '1px solid #334155', borderRadius: 8, padding: '8px 12px', color: '#F1F5F9', fontSize: 13, outline: 'none' }} />
+                    style={{ width: '100%', background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 12px', color: '#0F172A', fontSize:14, outline: 'none' }} />
                 )}
               </div>
 
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={addAutomation}
-                  style={{ background: '#1D4ED8', border: 'none', borderRadius: 8, padding: '8px 20px', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  style={{ background: '#1D4ED8', border: 'none', borderRadius: 8, padding: '8px 20px', color: '#fff', fontSize:14, fontWeight: 600, cursor: 'pointer' }}>
                   Create Rule
                 </button>
                 <button onClick={() => setCreating(false)}
-                  style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: 8, padding: '8px 16px', color: '#E2E8F0', fontSize: 13, cursor: 'pointer' }}>
+                  style={{ background: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: 8, padding: '8px 16px', color: '#0F172A', fontSize:14, cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>
@@ -192,10 +192,10 @@ export default function BoardAutomations({ onClose, boardName }: AutomationsProp
 
           {/* Automations list */}
           {automations.length === 0 && !creating && (
-            <div style={{ textAlign: 'center', padding: 40, color: '#E2E8F0' }}>
+            <div style={{ textAlign: 'center', padding: 40, color: '#0F172A' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>⚡</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#E2E8F0', marginBottom: 6 }}>No automations yet</div>
-              <div style={{ fontSize: 13 }}>Create rules to automate repetitive tasks</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>No automations yet</div>
+              <div style={{ fontSize:14 }}>Create rules to automate repetitive tasks</div>
             </div>
           )}
 
@@ -205,20 +205,20 @@ export default function BoardAutomations({ onClose, boardName }: AutomationsProp
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: '#F1F5F9' }}>{auto.name}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{auto.name}</span>
                       {auto.runCount > 0 && (
-                        <span style={{ fontSize: 10, padding: '1px 6px', background: 'rgba(29,78,216,0.2)', color: '#60A5FA', borderRadius: 4, border: '1px solid rgba(29,78,216,0.3)' }}>
+                        <span style={{ fontSize:12, padding: '1px 6px', background: 'rgba(29,78,216,0.2)', color: '#2563EB', borderRadius: 4, border: '1px solid rgba(29,78,216,0.3)' }}>
                           {auto.runCount} runs
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: 12, color: '#E2E8F0', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 10, padding: '2px 6px', background: '#0F172A', color: '#E2E8F0', borderRadius: 4, border: '1px solid #1E3A5F' }}>WHEN</span>
-                      <span style={{ color: '#E2E8F0' }}>{getTriggerLabel(auto)}</span>
+                    <div style={{ fontSize:13, color: '#0F172A', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize:12, padding: '2px 6px', background: '#FFFFFF', color: '#0F172A', borderRadius: 4, border: '1px solid #E2E8F0' }}>WHEN</span>
+                      <span style={{ color: '#0F172A' }}>{getTriggerLabel(auto)}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: '#E2E8F0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 10, padding: '2px 6px', background: '#0F172A', color: '#60A5FA', borderRadius: 4, border: '1px solid #1E3A5F' }}>THEN</span>
-                      <span style={{ color: '#93C5FD' }}>{getActionLabel(auto)}</span>
+                    <div style={{ fontSize:13, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize:12, padding: '2px 6px', background: '#FFFFFF', color: '#2563EB', borderRadius: 4, border: '1px solid #E2E8F0' }}>THEN</span>
+                      <span style={{ color: '#1D4ED8' }}>{getActionLabel(auto)}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -227,7 +227,7 @@ export default function BoardAutomations({ onClose, boardName }: AutomationsProp
                       <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: auto.enabled ? 22 : 2, transition: 'left 0.2s' }} />
                     </button>
                     <button onClick={() => deleteAutomation(auto.id)}
-                      style={{ background: 'none', border: 'none', color: '#EF4444', cursor: 'pointer', fontSize: 14, opacity: 0.7 }}>🗑</button>
+                      style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 14, opacity: 0.7 }}>🗑</button>
                   </div>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function BoardAutomations({ onClose, boardName }: AutomationsProp
           </div>
 
           {/* Info box */}
-          <div style={{ marginTop: 20, padding: '12px 16px', background: 'rgba(29,78,216,0.08)', border: '1px solid rgba(29,78,216,0.2)', borderRadius: 10, fontSize: 12, color: '#E2E8F0' }}>
+          <div style={{ marginTop: 20, padding: '12px 16px', background: 'rgba(29,78,216,0.08)', border: '1px solid rgba(29,78,216,0.2)', borderRadius: 10, fontSize:13, color: '#0F172A' }}>
             ℹ️ Automations run when their trigger conditions are met. Rules marked as active will execute automatically. Full server-side execution coming soon.
           </div>
         </div>

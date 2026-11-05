@@ -39,25 +39,25 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-600 mb-4">
             <span className="text-white font-bold text-2xl">S</span>
           </div>
-          <h1 className="text-white text-2xl font-bold">Welcome to Deemona Teams</h1>
-          <p className="text-gray-400 text-sm mt-1">Let's get your workspace ready</p>
+          <h1 className="text-slate-900 text-2xl font-bold">Welcome to Deemona Teams</h1>
+          <p className="text-slate-600 text-sm mt-1">Let's get your workspace ready</p>
         </div>
 
         {/* Progress bar */}
         {step !== 'done' && (
           <div className="mb-8">
-            <div className="flex justify-between text-xs text-gray-500 mb-2">
+            <div className="flex justify-between text-[13px] text-gray-500 mb-2">
               <span>Step {stepIndex + 1} of {STEPS.length - 1}</span>
               <span>{Math.round(progress)}% complete</span>
             </div>
-            <div className="bg-gray-800 rounded-full h-1.5">
+            <div className="bg-slate-100 rounded-full h-1.5">
               <div className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
           </div>
@@ -65,11 +65,11 @@ export default function OnboardingPage() {
 
         {/* Step: Welcome */}
         {step === 'welcome' && (
-          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center space-y-6">
+          <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-6">
             <div className="text-6xl">🎉</div>
             <div>
-              <h2 className="text-white text-xl font-bold mb-2">Your workspace is ready!</h2>
-              <p className="text-gray-400 text-sm">Deemona Teams brings your team's chat, tasks, and meetings together in one place. Let's take a quick tour.</p>
+              <h2 className="text-slate-900 text-xl font-bold mb-2">Your workspace is ready!</h2>
+              <p className="text-slate-600 text-sm">Deemona Teams brings your team's chat, tasks, and meetings together in one place. Let's take a quick tour.</p>
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[
@@ -77,9 +77,9 @@ export default function OnboardingPage() {
                 { icon: '📋', label: 'Kanban boards' },
                 { icon: '📹', label: 'Video meetings' },
               ].map(f => (
-                <div key={f.label} className="bg-gray-800 rounded-xl p-3 text-center">
+                <div key={f.label} className="bg-slate-100 rounded-xl p-3 text-center">
                   <div className="text-2xl mb-1">{f.icon}</div>
-                  <div className="text-xs text-gray-400">{f.label}</div>
+                  <div className="text-[13px] text-slate-600">{f.label}</div>
                 </div>
               ))}
             </div>
@@ -92,46 +92,46 @@ export default function OnboardingPage() {
 
         {/* Step: Profile */}
         {step === 'profile' && (
-          <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-5">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-5">
             <div>
-              <h2 className="text-white text-lg font-bold">Set up your profile</h2>
+              <h2 className="text-slate-900 text-lg font-bold">Set up your profile</h2>
               <p className="text-gray-500 text-sm mt-1">Let your team know who you are</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Your name *</label>
+              <label className="block text-[13px] text-slate-600 mb-1.5 font-medium">Your name *</label>
               <input value={displayName} onChange={e => setDisplayName(e.target.value)}
                 placeholder="Abhishek Sharma"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2.5 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">What do you do? <span className="text-gray-600">(optional)</span></label>
+              <label className="block text-[13px] text-slate-600 mb-1.5 font-medium">What do you do? <span className="text-gray-600">(optional)</span></label>
               <input value={designation} onChange={e => setDesignation(e.target.value)}
                 placeholder="e.g. Founder, Developer, Designer"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500" />
+                className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2.5 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500" />
             </div>
             <div className="flex gap-3">
               <button onClick={saveProfile} disabled={saving || !displayName.trim()}
                 className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl text-sm">
                 {saving ? 'Saving...' : 'Continue →'}
               </button>
-              <button onClick={() => setStep('invite')} className="text-gray-500 hover:text-gray-300 text-sm px-4">Skip</button>
+              <button onClick={() => setStep('invite')} className="text-gray-500 hover:text-slate-700 text-sm px-4">Skip</button>
             </div>
           </div>
         )}
 
         {/* Step: Invite */}
         {step === 'invite' && (
-          <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-5">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-5">
             <div>
-              <h2 className="text-white text-lg font-bold">Invite your team</h2>
+              <h2 className="text-slate-900 text-lg font-bold">Invite your team</h2>
               <p className="text-gray-500 text-sm mt-1">Deemona Teams works best with your whole team</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Email addresses <span className="text-gray-600">(optional)</span></label>
+              <label className="block text-[13px] text-slate-600 mb-1.5 font-medium">Email addresses <span className="text-gray-600">(optional)</span></label>
               <textarea value={inviteEmails} onChange={e => setInviteEmails(e.target.value)} rows={4}
                 placeholder="john@company.com&#10;jane@company.com&#10;team@company.com"
-                className="w-full bg-gray-800 text-white rounded-lg px-3 py-2.5 text-sm border border-gray-700 focus:outline-none focus:border-emerald-500 resize-none" />
-              <p className="text-xs text-gray-600 mt-1">They'll receive an email invitation to join</p>
+                className="w-full bg-slate-100 text-slate-900 rounded-lg px-3 py-2.5 text-sm border border-slate-300 focus:outline-none focus:border-emerald-500 resize-none" />
+              <p className="text-[13px] text-gray-600 mt-1">They'll receive an email invitation to join</p>
             </div>
             <div className="flex gap-3">
               <button onClick={sendInvites} disabled={saving}
@@ -144,9 +144,9 @@ export default function OnboardingPage() {
 
         {/* Step: Channels */}
         {step === 'channels' && (
-          <div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 space-y-5">
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 space-y-5">
             <div>
-              <h2 className="text-white text-lg font-bold">Explore your workspace</h2>
+              <h2 className="text-slate-900 text-lg font-bold">Explore your workspace</h2>
               <p className="text-gray-500 text-sm mt-1">Here's what's waiting for you</p>
             </div>
             <div className="space-y-3">
@@ -157,11 +157,11 @@ export default function OnboardingPage() {
                 { icon: '⚙️', title: 'Settings', desc: 'Invite more team members and customize your workspace.', link: '/settings', color: 'orange' },
               ].map(item => (
                 <a key={item.title} href={item.link}
-                  className="flex items-center gap-4 p-3 bg-gray-800 rounded-xl hover:bg-gray-700 transition-colors">
+                  className="flex items-center gap-4 p-3 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                   <div className="text-2xl">{item.icon}</div>
                   <div className="flex-1">
-                    <div className="text-sm font-semibold text-white">{item.title}</div>
-                    <div className="text-xs text-gray-500">{item.desc}</div>
+                    <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                    <div className="text-[13px] text-gray-500">{item.desc}</div>
                   </div>
                   <span className="text-gray-600">›</span>
                 </a>
@@ -176,11 +176,11 @@ export default function OnboardingPage() {
 
         {/* Step: Done */}
         {step === 'done' && (
-          <div className="bg-gray-900 rounded-2xl p-8 border border-gray-800 text-center space-y-6">
+          <div className="bg-white rounded-2xl p-8 border border-slate-200 text-center space-y-6">
             <div className="text-6xl">🚀</div>
             <div>
-              <h2 className="text-white text-xl font-bold">You're all set!</h2>
-              <p className="text-gray-400 text-sm mt-2">Your Deemona Teams workspace is ready. Start collaborating with your team.</p>
+              <h2 className="text-slate-900 text-xl font-bold">You're all set!</h2>
+              <p className="text-slate-600 text-sm mt-2">Your Deemona Teams workspace is ready. Start collaborating with your team.</p>
             </div>
             <a href="/" className="block w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl text-sm transition-colors">
               Open workspace →

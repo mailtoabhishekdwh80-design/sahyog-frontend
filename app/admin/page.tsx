@@ -73,15 +73,15 @@ export default function AdminPage() {
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-emerald-400 animate-pulse">Loading admin dashboard...</div>
+      <div className="text-emerald-700 animate-pulse">Loading admin dashboard...</div>
     </div>
   );
 
   if (error) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
-        <div className="text-red-400 text-lg mb-2">⚠️ {error}</div>
-        <a href="/workspace" className="text-emerald-400 hover:text-emerald-300 text-base">← Back to workspace</a>
+        <div className="text-red-700 text-lg mb-2">⚠️ {error}</div>
+        <a href="/workspace" className="text-emerald-700 hover:text-emerald-700 text-base">← Back to workspace</a>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ export default function AdminPage() {
         {/* Overview tab */}
         {/* Demo data seed button */}
         {tab === 'overview' && (
-          <div className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-700/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-emerald-900/30 to-blue-900/30 border border-emerald-300 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div>
               <p className="text-base font-semibold text-gray-900">Seed demo data</p>
               <p className="text-base text-gray-600 mt-0.5">Populate your workspace with sample channels, messages, and Kanban boards</p>
@@ -150,10 +150,10 @@ export default function AdminPage() {
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Organization stats</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard label="Total users"     value={stats.users?.total || 0}     sub={`${stats.users?.active || 0} active`}    color="text-emerald-400" />
-                <StatCard label="Workspaces"      value={stats.workspaces?.total || 0} sub="across org"                              color="text-blue-400" />
-                <StatCard label="Channels"        value={stats.channels?.total || 0}   sub={`${stats.channels?.public || 0} public`} color="text-purple-400" />
-                <StatCard label="Messages"        value={stats.messages?.total || 0}   sub={`${stats.messages?.today || 0} today`}   color="text-orange-400" />
+                <StatCard label="Total users"     value={stats.users?.total || 0}     sub={`${stats.users?.active || 0} active`}    color="text-emerald-700" />
+                <StatCard label="Workspaces"      value={stats.workspaces?.total || 0} sub="across org"                              color="text-blue-700" />
+                <StatCard label="Channels"        value={stats.channels?.total || 0}   sub={`${stats.channels?.public || 0} public`} color="text-purple-700" />
+                <StatCard label="Messages"        value={stats.messages?.total || 0}   sub={`${stats.messages?.today || 0} today`}   color="text-orange-700" />
               </div>
             </div>
 
@@ -249,7 +249,7 @@ export default function AdminPage() {
 
             {/* Invite modal */}
             {showInviteModal && (
-              <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              <div data-dlg="1" className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4"
                 onClick={e => { if(e.target===e.currentTarget) setShowInviteModal(false); }}>
                 <div className="bg-white rounded-2xl border border-gray-200 w-full max-w-md shadow-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
@@ -321,15 +321,15 @@ export default function AdminPage() {
                   </button>
 
                   {lastInviteLink && (
-                    <div className="bg-emerald-900/20 border border-emerald-700 rounded-lg p-3 mb-3">
-                      <p className="text-base text-emerald-300 mb-2 font-medium">
+                    <div className="bg-emerald-50 border border-emerald-300 rounded-lg p-3 mb-3">
+                      <p className="text-base text-emerald-700 mb-2 font-medium">
                         {inviteMode === 'team' ? 'Team link created — share with anyone you want to invite:' : lastInviteSentEmail ? '✓ Invite email sent! Or share this link directly:' : 'Email not configured — share this link directly with your team member:'}
                       </p>
                       <div className="flex gap-2">
                         <input readOnly value={lastInviteLink}
-                          className="flex-1 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-emerald-200 text-base outline-none" />
+                          className="flex-1 bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-emerald-700 text-base outline-none" />
                         <button onClick={() => { navigator.clipboard.writeText(lastInviteLink); alert('Link copied!'); }}
-                          className="text-base bg-emerald-800 hover:bg-emerald-700 text-gray-900 px-3 rounded-lg shrink-0">Copy</button>
+                          className="text-base bg-emerald-100 hover:bg-emerald-700 text-gray-900 px-3 rounded-lg shrink-0">Copy</button>
                       </div>
                       <p className="text-base text-gray-500 mt-2">
                         {inviteMode === 'team' ? 'This link expires in 30 days and can be used by multiple people.' : 'This link expires in 30 days and can only be used once.'}
@@ -362,7 +362,7 @@ export default function AdminPage() {
                             });
                             const data = await res.json();
                             if (data?.data) setPersistentLink((p: any) => ({ ...p, enabled: data.data.enabled }));
-                          }} className={`flex-1 text-base py-1.5 rounded-lg border ${persistentLink.enabled ? 'bg-red-900/20 border-red-800/40 text-red-400' : 'bg-emerald-900/20 border-emerald-800/40 text-emerald-400'}`}>
+                          }} className={`flex-1 text-base py-1.5 rounded-lg border ${persistentLink.enabled ? 'bg-red-50 border-red-300 text-red-700' : 'bg-emerald-50 border-emerald-300 text-emerald-700'}`}>
                             {persistentLink.enabled ? 'Turn off' : 'Turn on'}
                           </button>
                           <button onClick={async () => {
@@ -379,7 +379,7 @@ export default function AdminPage() {
                         </div>
                       </>
                     ) : (
-                      <p className="text-base text-red-400">Could not load workspace link. Try reopening this dialog.</p>
+                      <p className="text-base text-red-700">Could not load workspace link. Try reopening this dialog.</p>
                     )}
                   </div>
                 </div>
@@ -410,8 +410,8 @@ export default function AdminPage() {
                       <td className="px-4 py-3 text-base text-gray-600">{m.email}</td>
                       <td className="px-4 py-3">
                         <span className={`text-base px-2 py-0.5 rounded-full font-medium ${
-                          m.roles?.includes('owner') ? 'bg-emerald-900 text-emerald-300' :
-                          m.roles?.includes('admin') ? 'bg-blue-900 text-blue-300' :
+                          m.roles?.includes('owner') ? 'bg-emerald-100 text-emerald-700' :
+                          m.roles?.includes('admin') ? 'bg-blue-100 text-blue-700' :
                           'bg-gray-100 text-gray-600'
                         }`}>
                           {m.roles?.[0] || 'member'}
@@ -419,7 +419,7 @@ export default function AdminPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-base px-2 py-0.5 rounded-full ${
-                          m.status === 'active' ? 'bg-emerald-900/40 text-emerald-400' : 'bg-gray-100 text-gray-500'
+                          m.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'
                         }`}>
                           {m.status}
                         </span>
@@ -442,9 +442,9 @@ export default function AdminPage() {
               <h3 className="text-gray-900 font-semibold mb-4">Role-based permissions</h3>
               <div className="space-y-3">
                 {[
-                  { role: 'Owner', color: 'text-yellow-400', perms: ['All permissions', 'Billing', 'Delete workspace', 'Manage SSO'] },
-                  { role: 'Admin', color: 'text-blue-400', perms: ['Manage members', 'Create channels', 'Manage boards', 'View audit log'] },
-                  { role: 'Member', color: 'text-emerald-400', perms: ['Send messages', 'Create boards', 'Join channels', 'Upload files'] },
+                  { role: 'Owner', color: 'text-yellow-700', perms: ['All permissions', 'Billing', 'Delete workspace', 'Manage SSO'] },
+                  { role: 'Admin', color: 'text-blue-700', perms: ['Manage members', 'Create channels', 'Manage boards', 'View audit log'] },
+                  { role: 'Member', color: 'text-emerald-700', perms: ['Send messages', 'Create boards', 'Join channels', 'Upload files'] },
                   { role: 'Guest', color: 'text-gray-600', perms: ['View assigned channels', 'Send messages', 'View files'] },
                 ].map(r => (
                   <div key={r.role} className="bg-gray-100 rounded-xl p-4">
@@ -479,7 +479,7 @@ export default function AdminPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-base font-medium text-gray-900">{s.label}</span>
-                      <span className={`text-base px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-900/50 text-purple-400':'bg-blue-900/50 text-blue-400'}`}>{s.badge}</span>
+                      <span className={`text-base px-1.5 py-0.5 rounded font-medium ${s.badge==='Enterprise'?'bg-purple-50 text-purple-700':'bg-blue-50 text-blue-700'}`}>{s.badge}</span>
                     </div>
                     <div className="text-base text-gray-500 mt-0.5">{s.desc}</div>
                   </div>
@@ -530,7 +530,7 @@ export default function AdminPage() {
                       <div className="text-base text-gray-500 mt-0.5">{item.desc}</div>
                     </div>
                   </div>
-                  <button onClick={item.action} className="text-base bg-emerald-900/30 hover:bg-emerald-900/50 text-emerald-400 px-3 py-1.5 rounded-lg font-medium">Run</button>
+                  <button onClick={item.action} className="text-base bg-emerald-50 hover:bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg font-medium">Run</button>
                 </div>
               ))}
             </div>
@@ -544,10 +544,10 @@ export default function AdminPage() {
                   { name: 'SOC 2 Type II', status: 'Enterprise only', ok: false },
                 ].map(c => (
                   <div key={c.name} className="bg-gray-100 rounded-xl p-3 flex items-center gap-3">
-                    <span className={c.ok ? 'text-emerald-400' : 'text-gray-500'}>{c.ok ? '✅' : '⏳'}</span>
+                    <span className={c.ok ? 'text-emerald-700' : 'text-gray-500'}>{c.ok ? '✅' : '⏳'}</span>
                     <div>
                       <div className="text-base font-semibold text-gray-900">{c.name}</div>
-                      <div className={`text-base ${c.ok ? 'text-emerald-400' : 'text-gray-500'}`}>{c.status}</div>
+                      <div className={`text-base ${c.ok ? 'text-emerald-700' : 'text-gray-500'}`}>{c.status}</div>
                     </div>
                   </div>
                 ))}
@@ -563,7 +563,7 @@ export default function AdminPage() {
               {audit.length === 0 ? (
                 <div className="text-center py-12 text-gray-600">No audit logs found</div>
               ) : (
-                <div className="divide-y divide-gray-800">
+                <div className="divide-y divide-slate-200">
                   {audit.map((log: any) => (
                     <div key={log.id} className="px-4 py-3 flex items-start gap-3 hover:bg-gray-100/30">
                       <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-base shrink-0">
